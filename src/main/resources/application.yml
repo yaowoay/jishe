@@ -22,7 +22,7 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://localhost:3306/my_db
     username: root
-    password: 316626
+    password: QAQ.1117
   # Redis 配置
   # todo 需替换配置，然后取消注释
   redis:
@@ -43,7 +43,7 @@ spring:
       # 大小限制
       max-file-size: 10MB
 server:
-  address: 0.0.0.0
+  #address: 0.0.0.0
   port: 8111
   servlet:
     context-path: /api
@@ -96,5 +96,5 @@ codeSandbox:
 # 本地存储配置
 local:
   storage:
-    base-path: D:/easy-oj-uploads/  # Windows本地存储根路径（需提前创建目录）
+    base-path: F:/easy-oj-uploads/  # Windows本地存储根路径（需提前创建目录）
     access-prefix: /api/file/download/  # 访问前缀（与FileConstant中的COS_HOST对应）
