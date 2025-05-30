@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.iflyproject.springdemos.mapper.mybatis.ResumeMapper">
+
+    <!-- 定义基础结果映射 -->
+    <resultMap id="BaseResultMap" type="org.iflyproject.springdemos.domain.Resume">
+        <id property="id" column="id" jdbcType="BIGINT"/>
+        <result property="fileName" column="file_name" jdbcType="VARCHAR"/>
+        <result property="filePath" column="file_path" jdbcType="VARCHAR"/>
+        <result property="uploadTime" column="upload_time" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <!-- 定义基础列列表 -->
+    <sql id="Base_Column_List">
+        id, file_name, file_path, upload_time
+    </sql>
+
+    <!-- 插入简历记录 -->
+    <insert id="insertResume">
+        INSERT INTO resumes (<include refid="Base_Column_List"/>)
+        VALUES (#{fileName}, #{filePath}, #{uploadTime})
+    </insert>
+
+    <!-- 根据 ID 查询简历 -->
+    <select id="selectResumeById" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/> FROM resumes WHERE id = #{id}
+    </select>
+
+    <!-- 查询所有简历 -->
+    <select id="selectAllResumes" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/> FROM resumes
+    </select>
+
+</mapper>
