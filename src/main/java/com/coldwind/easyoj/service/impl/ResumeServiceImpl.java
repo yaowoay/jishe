@@ -1,0 +1,44 @@
+// ResumeServiceImpl.java (实现)
+package com.coldwind.easyoj.service.impl;
+
+import com.coldwind.easyoj.service.ResumeService;
+import com.coldwind.easyoj.mapper.mybatis.ResumeMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+//文件上传限制放在了WevConfig.java中，使用CommonsMultipartResolver来处理文件上传。
+@Service
+public class ResumeServiceImpl implements ResumeService {
+
+    @Value("${file.upload-dir}")
+    private String uploadDir;
+    @Autowired
+    private ResumeMapper resumeMapper;
+
+    @Override
+    public String uploadResume(MultipartFile file) throws Exception {
+        // 确保上传目录存在 文件夹
+        Path uploadPath = Paths.get(uploadDir);
+        if (!Files.exists(uploadPath)) {
+            Files.createDirectories(uploadPath);
+        }
+
+        // 保存文件
+        String filename = System.currentTimeMillis() + "_" + file.getOriginalFilename();
+        Path filePath = uploadPath.resolve(filename);// 文件路径
+        file.transferTo(filePath.toFile());// 从内存到存储
+
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        resumeMapper.insertResume(filename, filePath.toString(), sdf.format(new Date()));
+
+        return "简历上传成功: " + filename;
+    }
+}
