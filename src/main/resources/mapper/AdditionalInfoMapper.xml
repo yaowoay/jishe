@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.coldwind.easyoj.mapper.AdditionalInfoMapper">
+
+    <!-- 根据简历ID获取其他信息列表 -->
+    <select id="selectByResumeId" resultType="com.coldwind.easyoj.model.entity.AdditionalInfo">
+        SELECT * FROM additional_info 
+        WHERE resume_id = #{resumeId}
+        ORDER BY start_date DESC
+    </select>
+
+    <!-- 根据简历ID删除其他信息 -->
+    <delete id="deleteByResumeId">
+        DELETE FROM additional_info 
+        WHERE resume_id = #{resumeId}
+    </delete>
+
+</mapper> 

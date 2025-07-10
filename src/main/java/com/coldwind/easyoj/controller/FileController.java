@@ -68,18 +68,85 @@ public class FileController {
     }
 
     /**
+     * 上传简历文件
+     */
+    @PostMapping("/upload-resume")
+    public BaseResponse<String> uploadResume(@RequestPart("file") MultipartFile multipartFile,
+                                           HttpServletRequest request) {
+        // 1. 校验简历文件合法性
+        validResumeFile(multipartFile);
+
+        // 2. 获取登录用户信息
+        User loginUser = userService.getLoginUser(request);
+
+        // 3. 构造简历文件存储路径
+        String uuid = RandomStringUtils.randomAlphanumeric(8);
+        String originalFilename = multipartFile.getOriginalFilename();
+        String ext = FileUtil.getSuffix(originalFilename);
+        String newFilename = uuid + "." + ext;
+        String relativePath = String.format("resume/%s/%s", loginUser.getId(), newFilename);
+
+        try {
+            // 4. 调用本地存储上传
+            String accessUrl = localFileManager.upload(relativePath, multipartFile);
+            return ResultUtils.success(accessUrl);
+        } catch (Exception e) {
+            throw new BusinessException(ErrorCode.SYSTEM_ERROR, "简历文件上传失败", e);
+        }
+    }
+
+    /**
      * 校验文件大小和后缀（示例逻辑，根据实际业务调整）
      */
     private void validFile(MultipartFile multipartFile, FileUploadBizEnum bizEnum) {
-        // 文件大小限制（示例：用户头像限制1MB）
+        // 文件大小限制
         if (bizEnum == FileUploadBizEnum.USER_AVATAR && multipartFile.getSize() > 1024 * 1024) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "头像文件大小不能超过1MB");
         }
+        
+        if (bizEnum == FileUploadBizEnum.RESUME_FILE && multipartFile.getSize() > 10 * 1024 * 1024) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "简历文件大小不能超过10MB");
+        }
 
-        // 文件后缀限制（示例：仅允许图片）
+        // 文件后缀限制
         String suffix = FileUtil.getSuffix(multipartFile.getOriginalFilename());
-        if (!Arrays.asList("jpg", "jpeg", "png", "webp").contains(suffix)) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR, "不支持的文件格式");
+        
+        if (bizEnum == FileUploadBizEnum.USER_AVATAR) {
+            // 头像文件仅允许图片格式
+            if (!Arrays.asList("jpg", "jpeg", "png", "webp").contains(suffix.toLowerCase())) {
+                throw new BusinessException(ErrorCode.PARAMS_ERROR, "头像文件格式不支持，请上传图片文件");
+            }
+        } else if (bizEnum == FileUploadBizEnum.RESUME_FILE) {
+            // 简历文件支持文档格式
+            if (!Arrays.asList("pdf", "doc", "docx", "txt", "rtf").contains(suffix.toLowerCase())) {
+                throw new BusinessException(ErrorCode.PARAMS_ERROR, "简历文件格式不支持，请上传PDF、Word或文本文件");
+            }
+        }
+
+        // 文件名不能为空
+        if (multipartFile.getOriginalFilename() == null || multipartFile.getOriginalFilename().trim().isEmpty()) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "文件名不能为空");
+        }
+    }
+
+    /**
+     * 校验简历文件
+     */
+    private void validResumeFile(MultipartFile multipartFile) {
+        // 文件大小限制（简历文件限制10MB）
+        if (multipartFile.getSize() > 10 * 1024 * 1024) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "简历文件大小不能超过10MB");
+        }
+
+        // 文件后缀限制（支持常见的文档格式）
+        String suffix = FileUtil.getSuffix(multipartFile.getOriginalFilename());
+        if (!Arrays.asList("pdf", "doc", "docx", "txt", "rtf").contains(suffix.toLowerCase())) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "简历文件格式不支持，请上传PDF、Word或文本文件");
+        }
+
+        // 文件名不能为空
+        if (multipartFile.getOriginalFilename() == null || multipartFile.getOriginalFilename().trim().isEmpty()) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "文件名不能为空");
         }
     }
 }

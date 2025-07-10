@@ -5,6 +5,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.util.unit.DataSize;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
+import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import javax.servlet.MultipartConfigElement;
@@ -42,7 +44,34 @@ public class WebConfig implements WebMvcConfigurer {
     }
 
     /**
-     * 额外的Web配置可以在此添加
+     * 静态资源处理配置
+     * 将所有路径的请求映射到classpath:/static/目录下的资源
      */
-    // 例如：添加拦截器、格式化器等
+    @Override
+    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        // Knife4j 静态资源
+        registry.addResourceHandler("doc.html")
+                .addResourceLocations("classpath:/META-INF/resources/");
+        registry.addResourceHandler("/webjars/**")
+                .addResourceLocations("classpath:/META-INF/resources/webjars/");
+        registry.addResourceHandler("/swagger-resources/**")
+                .addResourceLocations("classpath:/META-INF/resources/");
+        registry.addResourceHandler("/v2/api-docs/**")
+                .addResourceLocations("classpath:/META-INF/resources/");
+        registry.addResourceHandler("/v3/api-docs/**")
+                .addResourceLocations("classpath:/META-INF/resources/");
+
+        // 其他静态资源
+        registry.addResourceHandler("/**")
+                .addResourceLocations("classpath:/static/");
+    }
+
+    /**
+     * 视图控制器配置
+     * 将根路径请求转发到index.html页面
+     */
+    @Override
+    public void addViewControllers(ViewControllerRegistry registry) {
+        registry.addViewController("/").setViewName("forward:/index.html");
+    }
 }

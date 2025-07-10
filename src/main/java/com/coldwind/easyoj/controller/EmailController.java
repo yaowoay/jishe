@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -67,16 +68,16 @@ public class EmailController {
      * 邮箱登录接口
      */
     @PostMapping("/email/login")
-    public Map<String, Object> emailLogin(@RequestBody Map<String, String> request) {
+    public Map<String, Object> emailLogin(@RequestBody Map<String, String> request, HttpServletRequest httpRequest) {
         String email = request.get("email");
         String code = request.get("code");
         Map<String, Object> result = new HashMap<>();
         boolean isValid = emailService.verifyCode(email, code);
         if (isValid) {
+            // 将用户标识存入session
+            httpRequest.getSession().setAttribute("userKey", email);
             result.put("code", 200);
             result.put("message", "登录成功");
-            // 这里可以添加生成 token 等登录后续逻辑
-            // result.put("token", generateToken(email));
         } else {
             result.put("code", 400);
             result.put("message", "验证码无效或已过期，登录失败");

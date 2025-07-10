@@ -11,6 +11,7 @@ import com.coldwind.easyoj.service.ExamUserAnswerService;
 import com.coldwind.easyoj.service.ExamJudgmentDetailService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import reactor.core.publisher.Mono;
 import java.util.List;
 import java.util.Map;
@@ -20,7 +21,6 @@ import java.util.stream.Collectors;
 
 
 @Slf4j
-
 @RestController
 @RequestMapping("/exam")
 public class ExamController {
@@ -41,24 +41,27 @@ public class ExamController {
         this.examJudgmentDetailService = examJudgmentDetailService;
     }
 
-    @PostMapping("/generate")
-    public Mono<Map<String, Object>> generateExam(@RequestBody ExamRequest request) {
-        // 将枚举转换为字符串表示
-        // 正确处理ExamRequest中的枚举类型，将其转换为服务层需要的字符串格式，保持了API调用的数据一致。
-
-        String experience = request.getExperience() != null ?
-                request.getExperience().getDisplayName() : null;
-
-        String difficultyLevel = request.getDifficultyLevel() != null ?
-                request.getDifficultyLevel().getDisplayName() : null;
-        //如果Dify API期望的是枚举名称而不是显示名称，可以将getDisplayName()改为name()方法。
-        return difyExamService.generateExamQuestions(
-                request.getJobPosition(),
-                request.getSkills(),
+    /**
+     * 生成试题（基于简历和用户输入）
+     */
+    @PostMapping("/generate1")
+    public Mono<Map<String, Object>> generateExamWithResume(
+            @RequestParam("resumeFile") MultipartFile resumeFile,
+            @RequestParam("jobPosition") String jobPosition,
+            @RequestParam("skills") String skills,
+            @RequestParam("experience") String experience,
+            @RequestParam("questionCount") int questionCount,
+            @RequestParam("difficultyLevel") String difficultyLevel,
+            @RequestParam("focusArea") String focusArea) {
+        
+        return difyExamService.generateExamQuestionsWithResume(
+                resumeFile,
+                jobPosition,
+                skills,
                 experience,
-                request.getQuestionCount(),
+                questionCount,
                 difficultyLevel,
-                request.getFocusArea()
+                focusArea
         ).doOnNext(result -> {
             // 保存到数据库
             String taskId = (String) result.get("task_id");
@@ -79,7 +82,92 @@ public class ExamController {
             }
         });
     }
-     @PostMapping("/submit-test")
+
+    /**
+     * 生成试题（原有功能，不基于简历）
+     */
+    // @PostMapping("/generate")
+    // public Mono<Map<String, Object>> generateExam(@RequestBody ExamRequest request) {
+    //     // 将枚举转换为字符串表示
+    //     // 正确处理ExamRequest中的枚举类型，将其转换为服务层需要的字符串格式，保持了API调用的数据一致。
+
+    //     String experience = request.getExperience() != null ?
+    //             request.getExperience().getDisplayName() : null;
+
+    //     String difficultyLevel = request.getDifficultyLevel() != null ?
+    //             request.getDifficultyLevel().getDisplayName() : null;
+    //     //如果Dify API期望的是枚举名称而不是显示名称，可以将getDisplayName()改为name()方法。
+    //     return difyExamService.generateExamQuestions(
+    //             request.getJobPosition(),
+    //             request.getSkills(),
+    //             experience,
+    //             request.getQuestionCount(),
+    //             difficultyLevel,
+    //             request.getFocusArea()
+    //     ).doOnNext(result -> {
+    //         // 保存到数据库
+    //         String taskId = (String) result.get("task_id");
+    //         Map<String, Object> data = (Map<String, Object>) result.get("data");
+    //         if (taskId != null && data != null) {
+    //             Map<String, Object> outputs = (Map<String, Object>) data.get("outputs");
+    //             if (outputs != null) {
+    //                 String questionsJson = (String) outputs.get("questions");
+    //                 ObjectMapper objectMapper = new ObjectMapper();
+    //                 try {
+    //                     Map<String, Object> questionsMap = objectMapper.readValue(questionsJson, Map.class);
+    //                     List<Map<String, Object>> questions = (List<Map<String, Object>>) questionsMap.get("questions");
+    //                     examQuestionDetailService.saveQuestions(taskId, questions);
+    //                 } catch (Exception e) {
+    //                     log.error("保存题目到数据库失败", e);
+    //                 }
+    //             }
+    //         }
+    //     });
+    // }
+
+    /**
+     * 生成试题（基于简历文件路径和用户输入）
+     */
+    @PostMapping("/generate2")
+    public Mono<Map<String, Object>> generateExamWithResumePath(
+            @RequestParam("resumeFilePath") String resumeFilePath,
+            @RequestParam("jobPosition") String jobPosition,
+            @RequestParam("skills") String skills,
+            @RequestParam("experience") String experience,
+            @RequestParam("questionCount") int questionCount,
+            @RequestParam("difficultyLevel") String difficultyLevel,
+            @RequestParam("focusArea") String focusArea) {
+        
+        log.info("接收到简历路径生成请求: resumeFilePath={}, jobPosition={}, skills={}, experience={}", 
+                 resumeFilePath, jobPosition, skills, experience);
+        
+        return difyExamService.generateExamQuestionsWithResumePath(
+                resumeFilePath, jobPosition, skills, experience, questionCount, difficultyLevel, focusArea)
+            .doOnNext(result -> {
+                log.info("生成试题成功: taskId={}", result.get("task_id"));
+                // 保存到数据库
+                String taskId = (String) result.get("task_id");
+                Map<String, Object> data = (Map<String, Object>) result.get("data");
+                if (taskId != null && data != null) {
+                    Map<String, Object> outputs = (Map<String, Object>) data.get("outputs");
+                    if (outputs != null) {
+                        String questionsJson = (String) outputs.get("questions");
+                        ObjectMapper objectMapper = new ObjectMapper();
+                        try {
+                            Map<String, Object> questionsMap = objectMapper.readValue(questionsJson, Map.class);
+                            List<Map<String, Object>> questions = (List<Map<String, Object>>) questionsMap.get("questions");
+                            examQuestionDetailService.saveQuestions(taskId, questions);
+                            log.info("试题保存到数据库成功: taskId={}, 题目数量={}", taskId, questions.size());
+                        } catch (Exception e) {
+                            log.error("保存题目到数据库失败: taskId={}", taskId, e);
+                        }
+                    }
+                }
+            })
+            .doOnError(error -> log.error("生成试题失败: {}", error.getMessage(), error));
+    }
+
+    @PostMapping("/submit-test")
     public Mono<JudgmentResultDTO> judgeAnswers(@RequestBody UserAnswersRequest userAnswers) {
         try {
             // 保存用户答案

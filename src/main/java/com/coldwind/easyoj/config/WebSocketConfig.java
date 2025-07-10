@@ -1,6 +1,4 @@
 package com.coldwind.easyoj.config;
-
-
 import com.coldwind.easyoj.Interceptor.AuthHandshakeInterceptor;
 import com.coldwind.easyoj.Interceptor.MyChannelInterceptor;
 import org.slf4j.Logger;
