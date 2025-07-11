@@ -4,7 +4,7 @@
 
 ### 1. 生成简历（不保存）
 
-POST http://localhost:8082/make/generate1
+POST http://localhost:8082/api/make/generate1
 Content-Type: application/json
 
 {
@@ -15,7 +15,7 @@ Content-Type: application/json
 
 ### 2. 生成并保存简历
 ```
-POST http://localhost:8082/make/save
+POST http://localhost:8082/api/make/save
 Content-Type: application/json
 
 {

@@ -4,8 +4,10 @@ import com.coldwind.easyoj.Interceptor.MyChannelInterceptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.messaging.converter.MessageConverter;
 import org.springframework.messaging.handler.invocation.HandlerMethodArgumentResolver;
 import org.springframework.messaging.handler.invocation.HandlerMethodReturnValueHandler;
@@ -17,6 +19,8 @@ import org.springframework.web.socket.server.standard.ServerEndpointExporter;
 import java.util.List;
 
 @Configuration
+@Profile({"dev", "prod"})
+@ConditionalOnWebApplication
 @EnableWebSocketMessageBroker
 public class WebSocketConfig extends WebSocketMessageBrokerConfigurationSupport implements WebSocketMessageBrokerConfigurer {
     private static final Logger log = LoggerFactory.getLogger(WebSocketConfig.class);

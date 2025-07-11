@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import java.util.List;
 
 /**
  * AI简历生成控制器
@@ -27,27 +28,26 @@ public class AiResumeController {
      * 生成简历
      */
     @PostMapping("/generate1")
-    public BaseResponse<ResumeCreateRequest> generateResume(
+    public BaseResponse<ResumeLinksResponse> generateResume(
             HttpServletRequest httpRequest,
             @RequestBody AiResumeRequest aiRequest) {
         String userKey = getUserKeyFromSession(httpRequest);
         if (userKey == null) {
             return BaseResponse.error(401, "未登录");
         }
-        
         try {
             ResumeCreateRequest resumeRequest;
             if (aiRequest.getJobTitle() != null && !aiRequest.getJobTitle().isEmpty()) {
-                // 根据职位生成简历
                 resumeRequest = aiResumeService.generateResumeForJob(
                     aiRequest.getJobTitle(), 
                     aiRequest.getUserInfo()
                 );
             } else {
-                // 根据用户信息生成简历
                 resumeRequest = aiResumeService.generateResumeFromUserInfo(aiRequest.getUserInfo());
             }
-            return BaseResponse.success(resumeRequest, "AI生成简历成功");
+            // 封装 links 返回
+            ResumeLinksResponse linksResponse = ResumeLinksResponse.fromResumeCreateRequest(resumeRequest);
+            return BaseResponse.success(linksResponse, "AI生成简历成功");
         } catch (Exception e) {
             log.error("AI生成简历失败", e);
             return BaseResponse.error(500, "AI生成简历失败: " + e.getMessage());
@@ -58,31 +58,28 @@ public class AiResumeController {
      * 生成并保存简历
      */
     @PostMapping("/save")
-    public BaseResponse<String> generateAndSaveResume(
+    public BaseResponse<ResumeLinksResponse> generateAndSaveResume(
             HttpServletRequest httpRequest,
             @RequestBody AiResumeRequest aiRequest) {
         String userKey = getUserKeyFromSession(httpRequest);
         if (userKey == null) {
             return BaseResponse.error(401, "未登录");
         }
-        
         try {
             ResumeCreateRequest resumeRequest;
             if (aiRequest.getJobTitle() != null && !aiRequest.getJobTitle().isEmpty()) {
-                // 根据职位生成简历
                 resumeRequest = aiResumeService.generateResumeForJob(
                     aiRequest.getJobTitle(), 
                     aiRequest.getUserInfo()
                 );
             } else {
-                // 根据用户信息生成简历
                 resumeRequest = aiResumeService.generateResumeFromUserInfo(aiRequest.getUserInfo());
             }
-            
             // 保存简历
             resumeService.createResume(resumeRequest, userKey);
-            
-            return BaseResponse.success("简历生成并保存成功", "AI生成并保存简历成功");
+            // 封装 links 返回
+            ResumeLinksResponse linksResponse = ResumeLinksResponse.fromResumeCreateRequest(resumeRequest);
+            return BaseResponse.success(linksResponse, "简历生成并保存成功");
         } catch (Exception e) {
             log.error("AI生成并保存简历失败", e);
             return BaseResponse.error(500, "AI生成并保存简历失败: " + e.getMessage());
@@ -118,6 +115,36 @@ public class AiResumeController {
 
         public void setJobTitle(String jobTitle) {
             this.jobTitle = jobTitle;
+        }
+    }
+
+    /**
+     * 封装简历链接返回对象
+     */
+    public static class ResumeLinksResponse {
+        private List<LinkItem> links;
+        public List<LinkItem> getLinks() { return links; }
+        public void setLinks(List<LinkItem> links) { this.links = links; }
+        public static ResumeLinksResponse fromResumeCreateRequest(ResumeCreateRequest req) {
+            ResumeLinksResponse resp = new ResumeLinksResponse();
+            // 这里假设 ResumeCreateRequest 有 getImgUrl/getWordUrl/getPdfUrl，或你可以自己组装
+            LinkItem item = new LinkItem();
+            item.setImg_url(req.getImgUrl());
+            item.setWord_url(req.getWordUrl());
+            item.setPdf_url(req.getPdfUrl());
+            resp.setLinks(java.util.Collections.singletonList(item));
+            return resp;
+        }
+        public static class LinkItem {
+            private String img_url;
+            private String word_url;
+            private String pdf_url;
+            public String getImg_url() { return img_url; }
+            public void setImg_url(String img_url) { this.img_url = img_url; }
+            public String getWord_url() { return word_url; }
+            public void setWord_url(String word_url) { this.word_url = word_url; }
+            public String getPdf_url() { return pdf_url; }
+            public void setPdf_url(String pdf_url) { this.pdf_url = pdf_url; }
         }
     }
 } 

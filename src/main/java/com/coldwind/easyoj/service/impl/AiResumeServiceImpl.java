@@ -26,7 +26,23 @@ public class AiResumeServiceImpl implements AiResumeService {
         try {
             String prompt = buildPromptFromUserInfo(userInfo);
             String aiResponse = ResumeGeneration.generateResume(prompt);
-            return parseAiResponse(aiResponse);
+            log.info("AI原始返回数据: {}", aiResponse);
+            // 打印所有links元素
+            com.alibaba.fastjson.JSONObject json = com.alibaba.fastjson.JSON.parseObject(aiResponse);
+            com.alibaba.fastjson.JSONArray links = json.getJSONArray("links");
+            if (links != null) {
+                for (int i = 0; i < links.size(); i++) {
+                    log.info("AI返回links[{}]: {}", i, links.getJSONObject(i).toJSONString());
+                }
+            }
+            ResumeCreateRequest req = parseAiResponse(aiResponse);
+            if (links != null && !links.isEmpty()) {
+                com.alibaba.fastjson.JSONObject first = links.getJSONObject(0);
+                req.setImgUrl(first.getString("img_url"));
+                req.setWordUrl(first.getString("word_url"));
+                req.setPdfUrl(first.getString("pdf_url"));
+            }
+            return req;
         } catch (Exception e) {
             log.error("AI生成简历失败", e);
             return createDefaultResume(userInfo);
@@ -38,7 +54,23 @@ public class AiResumeServiceImpl implements AiResumeService {
         try {
             String prompt = buildPromptForJob(jobTitle, userInfo);
             String aiResponse = ResumeGeneration.generateResume(prompt);
-            return parseAiResponse(aiResponse);
+            log.info("AI原始返回数据: {}", aiResponse);
+            // 打印所有links元素
+            com.alibaba.fastjson.JSONObject json = com.alibaba.fastjson.JSON.parseObject(aiResponse);
+            com.alibaba.fastjson.JSONArray links = json.getJSONArray("links");
+            if (links != null) {
+                for (int i = 0; i < links.size(); i++) {
+                    log.info("AI返回links[{}]: {}", i, links.getJSONObject(i).toJSONString());
+                }
+            }
+            ResumeCreateRequest req = parseAiResponse(aiResponse);
+            if (links != null && !links.isEmpty()) {
+                com.alibaba.fastjson.JSONObject first = links.getJSONObject(0);
+                req.setImgUrl(first.getString("img_url"));
+                req.setWordUrl(first.getString("word_url"));
+                req.setPdfUrl(first.getString("pdf_url"));
+            }
+            return req;
         } catch (Exception e) {
             log.error("AI生成简历失败", e);
             return createDefaultResume(userInfo);

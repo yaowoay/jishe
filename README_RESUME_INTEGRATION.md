@@ -240,3 +240,27 @@ Content-Type: application/json
         }
     ]
 }
+
+.用户创建简历
+前端调用 POST /resumes，传递简历内容（如姓名、经历等）。
+后端接口 createResume 校验用户登录（session），保存简历，返回新建简历的详细信息（含简历ID）。
+前端伪代码：
+Apply to README_RESUM...
+2. 用户点击查看自己的简历
+方式一：直接跳转到简历详情页
+前端拿到简历ID后，跳转到详情页（如 /resume-detail/123）。
+详情页加载时，前端调用 GET /resumes/{resumeId}。
+后端接口 getResume 校验用户登录和权限，返回该简历的详细内容。
+前端渲染简历详情。
+前端伪代码：
+Apply to README_RESUM...
+方式二：先获取简历列表，再选择查看
+前端调用 GET /resumes 获取当前用户所有简历列表。
+用户在列表页点击某一份简历，前端跳转到详情页（如 /resume-detail/{resumeId}），再调用 GET /resumes/{resumeId} 获取详情。
+3. 权限校验
+所有简历相关接口都通过 session 校验用户身份（userKey）。
+只有当前登录用户才能访问/编辑/删除自己的简历。
+4. 典型前端页面流程
+创建页：填写内容 → 提交 → 跳转详情页
+列表页：展示所有简历 → 点击某一项 → 跳转详情页
+详情页：根据简历ID请求后端，渲染简历内容

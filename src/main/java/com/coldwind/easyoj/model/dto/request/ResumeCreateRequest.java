@@ -41,4 +41,9 @@ public class ResumeCreateRequest {
     private List<ProjectExperienceDTO> projectExperiences;
     private List<SkillDTO> skills;
     private List<AdditionalInfoDTO> additionalInfos;
+
+    // AI生成简历的文件链接
+    private String imgUrl;
+    private String wordUrl;
+    private String pdfUrl;
 } 

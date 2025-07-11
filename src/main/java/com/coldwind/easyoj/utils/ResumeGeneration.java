@@ -2,8 +2,6 @@ package com.coldwind.easyoj.utils;
 
 import com.alibaba.fastjson.JSONObject;
 import com.google.gson.Gson;
-
-import com.squareup.okhttp.*;
 import okhttp3.*;
 
 import javax.crypto.Mac;
@@ -12,7 +10,10 @@ import java.io.IOException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Base64;
+import java.util.Date;
+import java.util.Locale;
+import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 /**
  * AI简历生成工具类
@@ -155,7 +156,7 @@ public class ResumeGeneration {
         );
 
         // 构建完整URL
-        HttpUrl httpUrl = Objects.requireNonNull(HttpUrl.parse("https://" + url.getHost() + url.getPath()))
+        HttpUrl httpUrl = HttpUrl.parse("https://" + url.getHost() + url.getPath())
                 .newBuilder()
                 .addQueryParameter("authorization", Base64.getEncoder().encodeToString(authorization.getBytes(StandardCharsets.UTF_8)))
                 .addQueryParameter("date", date)
