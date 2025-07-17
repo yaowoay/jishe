@@ -120,3 +120,10 @@ answer:
   cache:
     expiration-minutes: 120 # 测试环境延长至2小时
 
+
+coze:
+  api:
+    base-url: https://api.coze.cn/v1
+    bot-id: 7526417335507746879
+    auth-token: cztei_lFalSFn6MyX3Cjhqsxc8MufzrlfWTKSjaYZiTObaHNNAoXrXooauXif4iB7s4bYED
+

@@ -23,9 +23,9 @@ public class ResumeGeneration {
 
     // 讯飞星火API配置
     public static final String HOST_URL = "https://cn-huadong-1.xf-yun.com/v1/private/s73f4add9";
-    public static final String APP_ID = "96c077b7";
-    public static final String API_SECRET = "NTY1NDg5MzZmYTE3MGU5YzBmMTZkYjMw";
-    public static final String API_KEY = "8cf73945dd152d12c504928d26cf529e";
+    public static final String APP_ID = "f4b88ff1";
+    public static final String API_SECRET = "Njk2NDMzOThmODBkYmM5MTRiNGI5NDhk";
+    public static final String API_KEY = "53379db576aa3ee544f54e54599d3960";
 
     // 默认提示词
     public static final String DEFAULT_PROMPT = "请根据以下信息生成一份专业的简历：姓名、工作经验、教育背景、技能特长等";

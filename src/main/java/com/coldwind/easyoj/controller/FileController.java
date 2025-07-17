@@ -4,7 +4,6 @@ import cn.hutool.core.io.FileUtil;
 import com.coldwind.easyoj.common.BaseResponse;
 import com.coldwind.easyoj.common.ErrorCode;
 import com.coldwind.easyoj.common.ResultUtils;
-import com.coldwind.easyoj.constant.FileConstant;
 import com.coldwind.easyoj.exception.BusinessException;
 import com.coldwind.easyoj.manager.LocalFileManager;
 import com.coldwind.easyoj.model.dto.file.UploadFileRequest;
@@ -21,14 +20,12 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.util.Arrays;
-
 /**
  * 文件接口（本地存储版）
  */
 @RestController
 @RequestMapping("/file")
 public class FileController {
-
     @Resource
     private UserService userService;
 

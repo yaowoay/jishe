@@ -1,5 +1,4 @@
-package com.coldwind.easyoj.model.entity;
-
+package com.coldwind.easyoj.model.entity;// 修正 ResumeEditorEnhanced.vue 的保存逻辑package com.coldwind.easyoj.model.entity;
 import com.baomidou.mybatisplus.annotation.*;
 import lombok.Data;
 import java.time.LocalDateTime;

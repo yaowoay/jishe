@@ -29,6 +29,24 @@ public class ResumeController {
     private final ResumeService resumeService;
 
     /**
+     * 智能编辑简历专用：获取当前登录用户的简历列表
+     */
+    @GetMapping("/my")
+    public BaseResponse<List<ResumeResponse>> getMyResumes(HttpServletRequest request) {
+        String userKey = getUserKeyFromSession(request);
+        if (userKey == null) {
+            return BaseResponse.error(401, "未登录");
+        }
+        try {
+            List<ResumeResponse> responses = resumeService.getUserResumes(userKey);
+            return BaseResponse.success(responses, "获取我的简历列表成功");
+        } catch (Exception e) {
+            log.error("获取我的简历列表失败", e);
+            return BaseResponse.error(500, "获取我的简历列表失败: " + e.getMessage());
+        }
+    }
+
+    /**
      * 创建简历
      */
     @PostMapping

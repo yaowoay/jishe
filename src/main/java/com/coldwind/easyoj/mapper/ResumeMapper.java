@@ -1,9 +1,9 @@
 package com.coldwind.easyoj.mapper;
-
-import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.coldwind.easyoj.model.entity.Resume;
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
+
 import java.util.List;
 
 /**
@@ -36,4 +36,5 @@ public interface ResumeMapper extends BaseMapper<Resume> {
      * 更新查看次数
      */
     int updateViewCount(@Param("id") Long id);
-} 
+
+}

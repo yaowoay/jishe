@@ -28,3 +28,9 @@ mybatis-plus:
   configuration:
     # 生产环境关闭日志
     log-impl: ''
+
+coze:
+  api:
+    base-url: https://api.coze.cn/v1
+    bot-id: 7526417335507746879
+    auth-token: cztei_lFalSFn6MyX3Cjhqsxc8MufzrlfWTKSjaYZiTObaHNNAoXrXooauXif4iB7s4bYED

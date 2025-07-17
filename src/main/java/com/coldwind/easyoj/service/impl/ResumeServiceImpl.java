@@ -1,5 +1,5 @@
 package com.coldwind.easyoj.service.impl;
-
+import com.coldwind.easyoj.model.entity.*;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -9,7 +9,6 @@ import com.coldwind.easyoj.model.dto.*;
 import com.coldwind.easyoj.model.dto.request.ResumeCreateRequest;
 import com.coldwind.easyoj.model.dto.request.ResumeUpdateRequest;
 import com.coldwind.easyoj.model.dto.response.ResumeResponse;
-import com.coldwind.easyoj.model.entity.*;
 import com.coldwind.easyoj.service.ResumeService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,9 +17,6 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
-
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
