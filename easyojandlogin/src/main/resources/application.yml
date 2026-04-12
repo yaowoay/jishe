@@ -1,0 +1,244 @@
+server:
+  port: 8089
+  servlet:
+    context-path: /api
+  tomcat:
+    uri-encoding: UTF-8
+    threads:
+      max: 200
+      min-spare: 10
+
+spring:
+  application:
+    name: ai-interview-backend
+
+  # 数据源配置
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/ai_interview_v2?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+    username: root
+    password: 12345
+
+    # Druid连接池配置
+    type: com.alibaba.druid.pool.DruidDataSource
+    druid:
+      initial-size: 5
+      min-idle: 5
+      max-active: 20
+      max-wait: 60000
+      time-between-eviction-runs-millis: 60000
+      min-evictable-idle-time-millis: 300000
+      validation-query: SELECT 1
+      test-while-idle: true
+      test-on-borrow: false
+      test-on-return: false
+      pool-prepared-statements: true
+      max-pool-prepared-statement-per-connection-size: 20
+
+  # Redis配置
+  redis:
+    host: localhost
+    port: 6379
+    #password:
+    database: 0
+    timeout: 5000ms
+    lettuce:
+      pool:
+        max-active: 4      # 减少最大连接数
+        max-wait: 3000ms   # 设置等待超时
+        max-idle: 2        # 减少最大空闲连接
+        min-idle: 1        # 设置最小空闲连接
+      shutdown-timeout: 100ms
+
+  # Session 配置
+  session:
+    store-type: redis
+    redis:
+      flush-mode: on_save
+      namespace: spring:session
+
+  # 文件上传配置
+  servlet:
+    multipart:
+      max-file-size: 50MB
+      max-request-size: 50MB
+
+  # JSON配置
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: GMT+8
+    default-property-inclusion: non_null
+
+
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:schema.sql
+      data-locations: classpath:data.sql
+      continue-on-error: true
+
+# 禁用SpringFox文档生成
+springfox:
+  documentation:
+    enabled: false
+
+  # 邮件配置
+#  mail:
+#    host: smtp.qq.com
+#    port: 587
+#    username: your-email@qq.com
+#    password: your-email-password
+#    properties:
+#      mail:
+#        smtp:
+#          auth: true
+#          starttls:
+#            enable: true
+
+# MyBatis Plus配置
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: true
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+    cache-enabled: true
+    lazy-loading-enabled: true
+    multiple-result-sets-enabled: true
+    use-column-label: true
+    use-generated-keys: true
+    auto-mapping-behavior: partial
+    default-executor-type: simple
+    default-statement-timeout: 25000
+  global-config:
+    db-config:
+      id-type: auto
+      logic-delete-field: deleted
+      logic-delete-value: 1
+      logic-not-delete-value: 0
+      insert-strategy: not_null
+      update-strategy: not_null
+      select-strategy: not_empty
+  mapper-locations: classpath*:/mapper/**/*.xml
+  type-aliases-package: com.aiinterview.entity
+
+# JWT配置
+jwt:
+  secret: aiInterviewSecretKey2024ForJWTTokenGenerationWithMoreCharactersToMeet512BitsRequirement
+  expiration: 86400000 # 24小时
+  refresh-expiration: 604800000 # 7天
+
+# 文件上传配置
+file:
+  upload:
+    # 自定义文件保存路径 - 可以修改为你想要的任何本地路径
+    path: D:\MyFiles\ResumeUploads
+    # 备选路径配置示例：
+    # path: C:/Users/YourName/Documents/Resumes/
+    # path: E:/ProjectFiles/AIInterview/uploads/
+    # path: ./uploads/  # 相对路径（项目根目录下）
+
+    # 文件访问URL前缀
+    url-prefix: http://localhost:8080/uploads
+
+    # 文件大小限制
+    max-size: 50MB
+
+    # 允许的文件类型
+    allowed-types: jpg,jpeg,png,gif,pdf,doc,docx,xls,xlsx
+
+# AI服务配置
+ai:
+  openai:
+    api-key: ${AI_API_KEY:sk-0fb1011a6f404ea28251cc1480ef539}
+    base-url: https://dashscope.aliyuncs.com/compatible-mode/v1
+    model: deepseek-v3
+    timeout: 30000
+  speech:
+    app-id: ${SPEECH_APP_ID:}
+    api-key: ${SPEECH_API_KEY:}
+    api-secret: ${SPEECH_API_SECRET:}
+
+# 讯飞AI配置
+xunfei:
+  ai:
+    # 简历生成服务URL
+    host-url: "https://cn-huadong-1.xf-yun.com/v1/private/s73f4add9"
+    # 临时测试配置 - 请替换为您的实际配置
+    app-id: "36b030a4"
+    api-key: "4403264f32c816a1f35804ed27c5b811"
+    api-secret: "NTI5YWJkMjRkZjVkZWU2YzcyMTU4MmZl"
+    # 连接超时时间(秒)
+    connect-timeout: 30
+    # 读取超时时间(秒)
+    read-timeout: 600
+    # 连接池最大连接数
+    max-connections: 100
+    # 连接池保持时间(分钟)
+    keep-alive-duration: 5
+
+# 视频分析配置
+video:
+  analysis:
+    # Python服务配置
+    python:
+      service:
+        url: http://localhost:5000
+        timeout: 300000  # 5分钟超时
+        retry-count: 3
+        retry-delay: 5000  # 重试间隔5秒
+
+    # 视频上传配置
+    upload:
+      path: E:\MyFiles\VideoUploads
+      url-prefix: http://localhost:8080/api/videos
+      max-size: 100MB
+      allowed-formats: mp4,avi,mov,mkv
+
+    # 分析配置
+    settings:
+      # 音频分析配置
+      audio:
+        segment-duration: 30  # 音频分段时长（秒）
+        analysis-ratio: 0.33  # 分析片段比例（分析1/3的片段）
+
+      # 视频分析配置
+      video:
+        frame-interval: 30    # 帧提取间隔（秒）
+        max-frames: 20        # 最大分析帧数
+
+      # 评分配置
+      scoring:
+        face-weight: 0.5      # 面部表情权重
+        audio-weight: 0.5     # 音频情感权重
+        expression-weight: 0.4  # 表情权重
+        state-weight: 0.4       # 状态权重
+        background-weight: 0.2  # 背景权重
+
+# Swagger配置 (SpringBoot 2.7.2 使用 springfox)
+# 注意：SpringBoot 2.7.2 建议使用 springfox-swagger 而不是 springdoc
+# 如需使用swagger，请添加相应依赖
+
+# 监控配置
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: when-authorized
+
+# 日志配置
+logging:
+  level:
+    root: info
+    com.aiinterview: debug
+    org.springframework.security: debug
+    org.springframework.web: debug
+    com.baomidou.mybatisplus: debug
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50} - %msg%n"
+  file:
+    name: logs/ai-interview.log
+    max-size: 10MB
+    max-history: 30

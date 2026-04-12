@@ -1,0 +1,237 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.aiinterview.mapper.ApplicationMapper">
+
+    <!-- 应聘者详情结果映射 -->
+    <resultMap id="ApplicantDetailMap" type="com.aiinterview.model.dto.applicant.ApplicantDetailDTO">
+        <!-- 申请信息 -->
+        <result column="application_id" property="applicationId"/>
+        <result column="status" property="status"/>
+        <result column="apply_time" property="applyTime"/>
+        <result column="ai_evaluation_score" property="aiEvaluationScore"/>
+        <result column="feedback" property="feedback"/>
+        <result column="interview_time" property="interviewTime"/>
+        <result column="rejection_reason" property="rejectionReason"/>
+        
+        <!-- 职位信息 -->
+        <result column="job_id" property="jobId"/>
+        <result column="job_title" property="jobTitle"/>
+        <result column="job_type" property="jobType"/>
+        <result column="job_location" property="jobLocation"/>
+        
+        <!-- 用户信息 -->
+        <result column="user_id" property="userId"/>
+        <result column="email" property="email"/>
+        <result column="full_name" property="fullName"/>
+        <result column="phone" property="phone"/>
+        
+        <!-- 简历信息 -->
+        <result column="resume_id" property="resumeId"/>
+        <result column="resume_filename" property="resumeFilename"/>
+        <result column="resume_file_url" property="resumeFileUrl"/>
+        <result column="resume_upload_date" property="resumeUploadDate"/>
+        
+        <!-- 申请者详细信息 -->
+        <result column="applicant_id" property="applicantId"/>
+        <result column="gender" property="gender"/>
+        <result column="birthdate" property="birthdate"/>
+        <result column="education_level" property="educationLevel"/>
+        <result column="work_years" property="workYears"/>
+        <result column="expected_position" property="expectedPosition"/>
+        <result column="applicant_expected_salary" property="expectedSalary"/>
+        <result column="resume_url" property="resumeUrl"/>
+    </resultMap>
+
+    <!-- 投递记录详情结果映射 -->
+    <resultMap id="ApplicationDetailMap" type="com.aiinterview.model.dto.application.ApplicationDetailDTO">
+        <!-- 申请信息 -->
+        <result column="application_id" property="applicationId"/>
+        <result column="status" property="status"/>
+        <result column="apply_time" property="applyTime"/>
+        <result column="ai_evaluation_score" property="aiEvaluationScore"/>
+        <result column="feedback" property="feedback"/>
+        <result column="interview_time" property="interviewTime"/>
+        <result column="rejection_reason" property="rejectionReason"/>
+        <result column="created_at" property="createdAt"/>
+        <result column="updated_at" property="updatedAt"/>
+
+        <!-- 职位信息 -->
+        <result column="job_id" property="jobId"/>
+        <result column="job_title" property="jobTitle"/>
+        <result column="job_type" property="jobType"/>
+        <result column="job_location" property="jobLocation"/>
+        <result column="job_description" property="jobDescription"/>
+        <result column="job_requirements" property="jobRequirements"/>
+        <result column="experience_requirement" property="experienceRequirement"/>
+        <result column="education_requirement" property="educationRequirement"/>
+        <result column="job_skills" property="jobSkills"/>
+        <result column="min_salary" property="minSalary"/>
+        <result column="max_salary" property="maxSalary"/>
+        <result column="post_date" property="postDate"/>
+        <result column="expiration_date" property="expirationDate"/>
+
+        <!-- 公司信息 -->
+        <result column="company_id" property="companyId"/>
+        <result column="company_name" property="companyName"/>
+        <result column="company_description" property="companyDescription"/>
+        <result column="company_location" property="companyLocation"/>
+
+        <!-- 简历信息 -->
+        <result column="resume_id" property="resumeId"/>
+        <result column="resume_filename" property="resumeFilename"/>
+        <result column="resume_file_url" property="resumeFileUrl"/>
+        <result column="resume_upload_date" property="resumeUploadDate"/>
+        <result column="resume_parsed_data" property="resumeParsedData"/>
+    </resultMap>
+
+    <!-- 分页查询公司的应聘者列表 -->
+    <select id="selectApplicantsByCompany" resultMap="ApplicantDetailMap">
+        SELECT
+            a.application_id,
+            a.status,
+            a.apply_time,
+            a.ai_evaluation_score,
+            a.feedback,
+            a.interview_time,
+            a.rejection_reason,
+            
+            j.job_id,
+            j.title as job_title,
+            j.job_type,
+            j.location as job_location,
+            
+            u.user_id,
+            u.email,
+            ap.full_name,
+            ap.phone,
+            
+            r.resume_id,
+            r.filename as resume_filename,
+            r.file_url as resume_file_url,
+            r.upload_date as resume_upload_date,
+            
+            ap.applicant_id,
+            ap.gender,
+            ap.birthdate,
+            ap.education_level,
+            ap.work_years,
+            ap.expected_position,
+            ap.expected_salary as applicant_expected_salary,
+            ap.resume_url
+        FROM applications a
+        INNER JOIN jobs j ON a.job_id = j.job_id
+        INNER JOIN applicants ap ON a.applicant_id = ap.applicant_id
+        INNER JOIN users u ON ap.user_id = u.user_id
+        LEFT JOIN resumes r ON a.resume_id = r.resume_id
+        WHERE j.company_id = #{companyId}
+        <if test="status != null and status != ''">
+            AND a.status = #{status}
+        </if>
+        <if test="keyword != null and keyword != ''">
+            AND (
+                ap.full_name LIKE CONCAT('%', #{keyword}, '%') OR
+                u.email LIKE CONCAT('%', #{keyword}, '%') OR
+                j.title LIKE CONCAT('%', #{keyword}, '%')
+            )
+        </if>
+        ORDER BY a.apply_time DESC
+    </select>
+
+    <!-- 查询应聘者详细信息 -->
+    <select id="selectApplicantDetail" resultMap="ApplicantDetailMap">
+        SELECT
+            a.application_id,
+            a.status,
+            a.apply_time,
+            a.ai_evaluation_score,
+            a.feedback,
+            a.interview_time,
+            a.rejection_reason,
+            
+            j.job_id,
+            j.title as job_title,
+            j.job_type,
+            j.location as job_location,
+            j.job_duty as job_description,
+            j.job_requirements as job_requirements,
+            j.experience_requirement,
+            j.education_requirement,
+            j.job_skills,
+            j.min_salary,
+            j.max_salary,
+            
+            u.user_id,
+            u.email,
+            ap.full_name,
+            ap.phone,
+            
+            r.resume_id,
+            r.filename as resume_filename,
+            r.file_url as resume_file_url,
+            r.upload_date as resume_upload_date,
+            r.parsed_data,
+            
+            ap.applicant_id,
+            ap.gender,
+            ap.birthdate,
+            ap.education_level,
+            ap.work_years,
+            ap.expected_position,
+            ap.expected_salary as applicant_expected_salary,
+            ap.resume_url
+        FROM applications a
+        INNER JOIN jobs j ON a.job_id = j.job_id
+        INNER JOIN applicants ap ON a.applicant_id = ap.applicant_id
+        INNER JOIN users u ON ap.user_id = u.user_id
+        LEFT JOIN resumes r ON a.resume_id = r.resume_id
+        WHERE a.application_id = #{applicationId}
+        AND j.company_id = #{companyId}
+    </select>
+
+    <!-- 查询用户的投递记录详细信息 -->
+    <select id="selectApplicationDetailsByUserId" resultMap="ApplicationDetailMap">
+        SELECT
+            a.application_id,
+            a.status,
+            a.apply_time,
+            a.ai_evaluation_score,
+            a.feedback,
+            a.interview_time,
+            a.rejection_reason,
+            a.created_at,
+            a.updated_at,
+
+            j.job_id,
+            j.title as job_title,
+            j.job_type,
+            j.location as job_location,
+            j.job_duty as job_description,
+            j.job_requirements as job_requirements,
+            j.experience_requirement,
+            j.education_requirement,
+            j.job_skills,
+            j.min_salary,
+            j.max_salary,
+            j.post_date,
+            j.expiration_date,
+
+            c.company_id,
+            c.company_name,
+            c.description as company_description,
+            c.address as company_location,
+
+            r.resume_id,
+            r.filename as resume_filename,
+            r.file_url as resume_file_url,
+            r.upload_date as resume_upload_date,
+            r.parsed_data as resume_parsed_data
+        FROM applications a
+        INNER JOIN jobs j ON a.job_id = j.job_id
+        INNER JOIN companies c ON j.company_id = c.company_id
+        INNER JOIN applicants ap ON a.applicant_id = ap.applicant_id
+        LEFT JOIN resumes r ON a.resume_id = r.resume_id
+        WHERE ap.user_id = #{userId}
+        ORDER BY a.apply_time DESC
+    </select>
+
+</mapper>
