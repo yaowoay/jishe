@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 HELP.md
 ### @author <a href="https://github.com/liyupi">程序员鱼皮</a> ###
 ### @from <a href="https://yupi.icu">编程导航知识星球</a> ###
@@ -145,3 +146,46 @@ fabric.properties
 # Android studio 3.1+ serialized cache file
 .idea/caches/build_file_checksums.ser
 
+=======
+# 系统文件
+.DS_Store
+Thumbs.db
+
+# IDE 配置
+.idea/
+*.iml
+*.swp
+*.swo
+
+# 编译输出
+target/
+bin/
+build/
+out/
+*.class
+*.jar
+
+# 日志文件
+*.log
+logs/
+
+# 依赖目录
+node_modules/
+.gradle/
+*.pyc
+
+# 环境文件
+.env
+.env.local
+
+# 操作系统文件夹
+__MACOSX/
+.vscode/
+*.zip
+aichat/
+answer_files/
+../.vscode/
+../aichat*/
+../*.zip
+../answer_files/
+>>>>>>> origin/master

@@ -1,0 +1,145 @@
+# 面试问题生成服务配置
+# 基于Dify工作流的AI面试问题生成功能配置
+
+# Dify面试相关配置
+dify:
+  interview:
+    # 面试问题生成工作流API配置
+    api:
+      # Dify API基础URL
+      base-url: "https://api.dify.ai/v1"
+      # 面试问题生成工作流的认证令牌
+      auth-token: "app-p1pAkjmKg1JFsJK2NF9sKcaz"
+      # 请求超时时间（毫秒）
+      timeout: 120000
+      # 最大重试次数
+      max-retries: 3
+      # 重试间隔（毫秒）
+      retry-interval: 2000
+    
+    # 工作流配置
+    workflow:
+      # 面试问题生成工作流ID
+      question-generator-id: "wf_interview_question_generator"
+      # 语音情感分析工作流ID（如果需要）
+      voice-analyzer-id: "wf_voice_emotion_analyzer"
+      # 面试评估工作流ID（如果需要）
+      evaluator-id: "wf_interview_evaluator"
+    
+    # 面试参数配置
+    settings:
+      # 默认最大轮次
+      default-max-rounds: 5
+      # 支持的面试风格
+      supported-styles:
+        - professional  # 专业型
+        - friendly      # 友好型
+        - challenging   # 挑战型
+      # 默认面试风格
+      default-style: "professional"
+      # 难度分数范围
+      difficulty-range:
+        min: 1
+        max: 10
+      # 问题类型
+      question-types:
+        - "技术问题"
+        - "项目问题"
+        - "场景问题"
+        - "行为问题"
+        - "综合问题"
+
+# 文件上传配置（简历文件）
+file:
+  upload:
+    # 简历文件上传路径
+    resume-path: "/uploads/resumes/"
+    # 支持的文件类型
+    allowed-types:
+      - "pdf"
+      - "doc"
+      - "docx"
+      - "txt"
+    # 最大文件大小（字节）
+    max-size: 10485760  # 10MB
+    # 文件存储策略（local/oss/cos）
+    storage-type: "local"
+
+# 日志配置
+logging:
+  level:
+    # 面试相关包的日志级别
+    com.coldwind.easyoj.service.impl.InterviewQuestionServiceImpl: INFO
+    com.coldwind.easyoj.controller.InterviewQuestionController: INFO
+    # Dify API调用日志
+    org.springframework.web.reactive.function.client: DEBUG
+  pattern:
+    # 日志格式，包含面试相关标识
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level [INTERVIEW] %logger{36} - %msg%n"
+
+# 监控配置
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "health,info,metrics"
+  endpoint:
+    health:
+      show-details: always
+  metrics:
+    tags:
+      # 添加面试服务标识
+      service: "interview-question-generator"
+
+# 面试业务配置
+interview:
+  # 会话管理
+  session:
+    # 会话超时时间（分钟）
+    timeout-minutes: 60
+    # 会话清理间隔（分钟）
+    cleanup-interval: 30
+  
+  # 问题生成配置
+  question:
+    # 单次生成超时时间（秒）
+    generation-timeout: 120
+    # 问题缓存时间（分钟）
+    cache-duration: 30
+    # 是否启用问题去重
+    enable-deduplication: true
+  
+  # 评估配置
+  evaluation:
+    # 评分权重配置
+    weights:
+      technical-accuracy: 0.4      # 技术准确性权重
+      depth-of-knowledge: 0.3      # 知识深度权重
+      practical-experience: 0.3    # 实践经验权重
+    # 评分阈值
+    thresholds:
+      excellent: 8.0    # 优秀阈值
+      good: 6.0         # 良好阈值
+      average: 4.0      # 一般阈值
+
+# 缓存配置（如果使用Redis）
+spring:
+  cache:
+    type: redis
+    redis:
+      # 面试问题缓存配置
+      cache-names:
+        - "interview-questions"
+        - "interview-sessions"
+      # 缓存过期时间
+      time-to-live: 1800000  # 30分钟
+
+# 异步任务配置
+task:
+  execution:
+    pool:
+      # 面试问题生成异步任务线程池配置
+      core-size: 5
+      max-size: 20
+      queue-capacity: 100
+      thread-name-prefix: "interview-task-"

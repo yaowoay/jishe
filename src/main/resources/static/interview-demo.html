@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>多轮面试系统演示</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #333;
+        }
+        .section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: #fafafa;
+        }
+        .section h3 {
+            margin-top: 0;
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        button {
+            background-color: #3498db;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        button:disabled {
+            background-color: #bdc3c7;
+            cursor: not-allowed;
+        }
+        .success {
+            background-color: #27ae60;
+        }
+        .success:hover {
+            background-color: #229954;
+        }
+        .warning {
+            background-color: #f39c12;
+        }
+        .warning:hover {
+            background-color: #e67e22;
+        }
+        .danger {
+            background-color: #e74c3c;
+        }
+        .danger:hover {
+            background-color: #c0392b;
+        }
+        .status {
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+        .status.success {
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        .status.error {
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+        .status.info {
+            background-color: #d1ecf1;
+            border: 1px solid #bee5eb;
+            color: #0c5460;
+        }
+        .session-info {
+            background-color: #e8f4f8;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .question-display {
+            background-color: #fff3cd;
+            border: 1px solid #ffeaa7;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .answer-area {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background-color: #ecf0f1;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+        .progress-fill {
+            height: 100%;
+            background-color: #3498db;
+            transition: width 0.3s ease;
+        }
+        .round-indicator {
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+        .hidden {
+            display: none;
+        }
+        .loading {
+            text-align: center;
+            color: #7f8c8d;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎯 多轮面试系统演示</h1>
+            <p>体验AI驱动的智能面试流程，支持自动轮次推进</p>
+        </div>
+
+        <!-- 状态显示区域 -->
+        <div id="statusArea"></div>
+
+        <!-- 第一步：创建面试会话 -->
+        <div class="section" id="createSessionSection">
+            <h3>📝 第一步：创建面试会话</h3>
+            <div class="form-group">
+                <label for="resumeFile">上传简历文件：</label>
+                <input type="file" id="resumeFile" accept=".pdf,.doc,.docx" required>
+            </div>
+            <div class="form-group">
+                <label for="jobPosition">应聘职位：</label>
+                <input type="text" id="jobPosition" placeholder="例如：Java后端开发工程师" required>
+            </div>
+            <div class="form-group">
+                <label for="interviewStyle">面试风格：</label>
+                <select id="interviewStyle">
+                    <option value="正式严谨">正式严谨</option>
+                    <option value="温和友好">温和友好</option>
+                    <option value="轻松愉悦">轻松愉悦</option>
+                    <option value="专业严谨" selected>专业严谨</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="maxRounds">最大轮次：</label>
+                <select id="maxRounds">
+                    <option value="3">3轮</option>
+                    <option value="5" selected>5轮</option>
+                    <option value="7">7轮</option>
+                </select>
+            </div>
+            <button onclick="createSession()">🚀 创建面试会话</button>
+        </div>
+
+        <!-- 第二步：面试进行中 -->
+        <div class="section hidden" id="interviewSection">
+            <h3>💬 面试进行中</h3>
+            
+            <!-- 会话信息 -->
+            <div class="session-info" id="sessionInfo">
+                <strong>会话ID：</strong><span id="sessionId">-</span><br>
+                <strong>职位：</strong><span id="currentJobPosition">-</span><br>
+                <strong>风格：</strong><span id="currentStyle">-</span>
+            </div>
+
+            <!-- 进度条 -->
+            <div class="round-indicator">
+                第 <span id="currentRound">1</span> 轮 / 共 <span id="totalRounds">5</span> 轮
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill" style="width: 20%"></div>
+            </div>
+
+            <!-- 问题显示 -->
+            <div class="question-display" id="questionDisplay">
+                <h4>📋 面试问题：</h4>
+                <div id="questionText" class="loading">正在生成问题...</div>
+                <div id="questionDetails" style="margin-top: 10px; font-size: 12px; color: #666;"></div>
+            </div>
+
+            <!-- 答案输入 -->
+            <div class="answer-area">
+                <h4>💭 您的回答：</h4>
+                <textarea id="answerText" rows="6" placeholder="请在这里输入您的回答..."></textarea>
+                <div style="margin-top: 10px;">
+                    <button onclick="submitAnswer()" class="success">✅ 提交回答</button>
+                    <button onclick="generateQuestion()" class="warning">🔄 重新生成问题</button>
+                    <button onclick="completeInterview()" class="danger">❌ 结束面试</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 第三步：面试完成 -->
+        <div class="section hidden" id="completedSection">
+            <h3>🎉 面试完成</h3>
+            <div id="interviewSummary"></div>
+            <button onclick="startNewInterview()">🔄 开始新面试</button>
+        </div>
+    </div>
+
+    <script>
+        // 全局变量
+        let currentSession = null;
+        let currentQuestion = null;
+
+        // API基础URL
+        const API_BASE = '/api';
+
+        // 显示状态消息
+        function showStatus(message, type = 'info') {
+            const statusArea = document.getElementById('statusArea');
+            statusArea.innerHTML = `<div class="status ${type}">${message}</div>`;
+            
+            // 3秒后自动清除成功消息
+            if (type === 'success') {
+                setTimeout(() => {
+                    statusArea.innerHTML = '';
+                }, 3000);
+            }
+        }
+
+        // 创建面试会话
+        async function createSession() {
+            const resumeFile = document.getElementById('resumeFile').files[0];
+            const jobPosition = document.getElementById('jobPosition').value;
+            const style = document.getElementById('interviewStyle').value;
+            const maxRounds = parseInt(document.getElementById('maxRounds').value);
+
+            if (!resumeFile) {
+                showStatus('请选择简历文件', 'error');
+                return;
+            }
+
+            if (!jobPosition.trim()) {
+                showStatus('请输入应聘职位', 'error');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('resume', resumeFile);
+            formData.append('jobPosition', jobPosition);
+            formData.append('style', style);
+            formData.append('maxRounds', maxRounds);
+
+            try {
+                showStatus('正在创建面试会话...', 'info');
+                
+                const response = await fetch(`${API_BASE}/interview/session/create`, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+                
+                if (result.code === 0) {
+                    currentSession = result.data;
+                    showStatus('面试会话创建成功！', 'success');
+                    
+                    // 更新界面
+                    document.getElementById('createSessionSection').classList.add('hidden');
+                    document.getElementById('interviewSection').classList.remove('hidden');
+                    
+                    // 显示会话信息
+                    document.getElementById('sessionId').textContent = currentSession.sessionId;
+                    document.getElementById('currentJobPosition').textContent = currentSession.jobPosition;
+                    document.getElementById('currentStyle').textContent = currentSession.style;
+                    document.getElementById('currentRound').textContent = currentSession.currentRound;
+                    document.getElementById('totalRounds').textContent = currentSession.maxRounds;
+                    
+                    // 更新进度条
+                    updateProgress();
+                    
+                    // 生成第一个问题
+                    await generateQuestion();
+                } else {
+                    showStatus(`创建会话失败：${result.message}`, 'error');
+                }
+            } catch (error) {
+                console.error('创建会话错误:', error);
+                showStatus('创建会话时发生网络错误', 'error');
+            }
+        }
+
+        // 生成面试问题
+        async function generateQuestion() {
+            if (!currentSession) {
+                showStatus('请先创建面试会话', 'error');
+                return;
+            }
+
+            try {
+                document.getElementById('questionText').innerHTML = '<div class="loading">正在生成问题...</div>';
+                
+                const response = await fetch(`${API_BASE}/interview/question/generate-by-session/${currentSession.sessionId}`, {
+                    method: 'POST'
+                });
+
+                const result = await response.json();
+                
+                if (result.code === 0) {
+                    currentQuestion = result.data;
+                    document.getElementById('questionText').textContent = currentQuestion.questionText;
+                    document.getElementById('questionDetails').innerHTML = `
+                        <strong>类型：</strong>${currentQuestion.questionType} | 
+                        <strong>难度：</strong>${currentQuestion.difficultyScore}/10 | 
+                        <strong>预计时长：</strong>${currentQuestion.expectedDuration}分钟
+                    `;
+                    showStatus('问题生成成功', 'success');
+                } else {
+                    document.getElementById('questionText').textContent = '问题生成失败，请重试';
+                    showStatus(`生成问题失败：${result.message}`, 'error');
+                }
+            } catch (error) {
+                console.error('生成问题错误:', error);
+                document.getElementById('questionText').textContent = '网络错误，请重试';
+                showStatus('生成问题时发生网络错误', 'error');
+            }
+        }
+
+        // 提交答案
+        async function submitAnswer() {
+            const answerText = document.getElementById('answerText').value.trim();
+            
+            if (!answerText) {
+                showStatus('请输入您的回答', 'error');
+                return;
+            }
+
+            if (!currentSession || !currentQuestion) {
+                showStatus('会话或问题信息缺失', 'error');
+                return;
+            }
+
+            const answerData = {
+                sessionId: currentSession.sessionId,
+                question: currentQuestion.questionText,
+                answer: answerText,
+                score: Math.random() * 40 + 60, // 模拟评分 60-100
+                userId: currentSession.userId,
+                currentRound: currentSession.currentRound
+            };
+
+            try {
+                showStatus('正在提交答案...', 'info');
+                
+                const response = await fetch(`${API_BASE}/interview/question/submit-answer`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(answerData)
+                });
+
+                const result = await response.json();
+                
+                if (result.code === 0) {
+                    const advanceResponse = result.data;
+                    
+                    if (advanceResponse.completed) {
+                        // 面试完成
+                        showInterviewCompleted(advanceResponse);
+                    } else if (advanceResponse.advanced) {
+                        // 推进到下一轮
+                        currentSession.currentRound = advanceResponse.currentRound;
+                        document.getElementById('currentRound').textContent = currentSession.currentRound;
+                        updateProgress();
+                        
+                        showStatus(`${advanceResponse.message}`, 'success');
+                        
+                        // 清空答案框
+                        document.getElementById('answerText').value = '';
+                        
+                        // 生成下一轮问题
+                        setTimeout(() => generateQuestion(), 1000);
+                    } else {
+                        showStatus('答案已提交', 'success');
+                    }
+                } else {
+                    showStatus(`提交答案失败：${result.message}`, 'error');
+                }
+            } catch (error) {
+                console.error('提交答案错误:', error);
+                showStatus('提交答案时发生网络错误', 'error');
+            }
+        }
+
+        // 更新进度条
+        function updateProgress() {
+            const progress = (currentSession.currentRound / currentSession.maxRounds) * 100;
+            document.getElementById('progressFill').style.width = `${progress}%`;
+        }
+
+        // 显示面试完成
+        function showInterviewCompleted(advanceResponse) {
+            document.getElementById('interviewSection').classList.add('hidden');
+            document.getElementById('completedSection').classList.remove('hidden');
+            
+            document.getElementById('interviewSummary').innerHTML = `
+                <div class="status success">
+                    <h4>🎉 恭喜您完成了${currentSession.maxRounds}轮面试！</h4>
+                    <p><strong>职位：</strong>${currentSession.jobPosition}</p>
+                    <p><strong>面试风格：</strong>${currentSession.style}</p>
+                    <p><strong>总轮次：</strong>${currentSession.maxRounds}</p>
+                    ${advanceResponse.averageScore ? `<p><strong>平均分：</strong>${advanceResponse.averageScore.toFixed(1)}</p>` : ''}
+                    <p>感谢您的参与，祝您求职顺利！</p>
+                </div>
+            `;
+            
+            showStatus('面试已完成！', 'success');
+        }
+
+        // 完成面试
+        async function completeInterview() {
+            if (!currentSession) {
+                showStatus('没有活跃的面试会话', 'error');
+                return;
+            }
+
+            if (confirm('确定要结束当前面试吗？')) {
+                try {
+                    const response = await fetch(`${API_BASE}/interview/session/${currentSession.sessionId}/complete`, {
+                        method: 'POST'
+                    });
+
+                    const result = await response.json();
+                    
+                    if (result.code === 0) {
+                        showInterviewCompleted({ averageScore: null });
+                    } else {
+                        showStatus(`结束面试失败：${result.message}`, 'error');
+                    }
+                } catch (error) {
+                    console.error('结束面试错误:', error);
+                    showStatus('结束面试时发生网络错误', 'error');
+                }
+            }
+        }
+
+        // 开始新面试
+        function startNewInterview() {
+            // 重置状态
+            currentSession = null;
+            currentQuestion = null;
+            
+            // 重置界面
+            document.getElementById('completedSection').classList.add('hidden');
+            document.getElementById('createSessionSection').classList.remove('hidden');
+            
+            // 清空表单
+            document.getElementById('resumeFile').value = '';
+            document.getElementById('jobPosition').value = '';
+            document.getElementById('answerText').value = '';
+            
+            showStatus('准备开始新的面试', 'info');
+        }
+
+        // 页面加载完成后的初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            showStatus('欢迎使用多轮面试系统！请上传简历开始面试。', 'info');
+        });
+    </script>
+</body>
+</html>

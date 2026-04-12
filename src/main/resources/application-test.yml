@@ -9,7 +9,11 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://localhost:3306/my_db
     username: root
+<<<<<<< HEAD
     password: QAQ.1117
+=======
+    password: 316626
+>>>>>>> origin/master
   # Redis 配置
   # todo 需替换配置
   redis:

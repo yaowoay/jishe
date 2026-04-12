@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>API测试</title>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+<body>
+    <h1>AI面试系统 API 测试</h1>
+    
+    <div>
+        <h2>登录测试</h2>
+        <input type="email" id="email" placeholder="邮箱" value="test@example.com">
+        <input type="password" id="password" placeholder="密码" value="123456">
+        <button onclick="testLogin()">测试登录</button>
+        <div id="loginResult"></div>
+    </div>
+
+    <div>
+        <h2>注册测试</h2>
+        <input type="email" id="regEmail" placeholder="邮箱" value="newuser@example.com">
+        <input type="password" id="regPassword" placeholder="密码" value="123456">
+        <select id="role">
+            <option value="applicant">求职者</option>
+            <option value="company">企业</option>
+        </select>
+        <button onclick="testRegister()">测试注册</button>
+        <div id="registerResult"></div>
+    </div>
+
+    <script>
+        // 配置axios基础URL
+        axios.defaults.baseURL = 'http://localhost:8089/api';
+        
+        // 添加响应拦截器来处理错误
+        axios.interceptors.response.use(
+            response => response,
+            error => {
+                console.error('API Error:', error);
+                return Promise.reject(error);
+            }
+        );
+
+        async function testLogin() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const resultDiv = document.getElementById('loginResult');
+            
+            try {
+                const response = await axios.post('/auth/login', {
+                    email: email,
+                    password: password
+                });
+                
+                resultDiv.innerHTML = `<div style="color: green;">登录成功: ${JSON.stringify(response.data)}</div>`;
+            } catch (error) {
+                resultDiv.innerHTML = `<div style="color: red;">登录失败: ${error.message}<br>状态码: ${error.response?.status}<br>响应: ${JSON.stringify(error.response?.data)}</div>`;
+            }
+        }
+
+        async function testRegister() {
+            const email = document.getElementById('regEmail').value;
+            const password = document.getElementById('regPassword').value;
+            const role = document.getElementById('role').value;
+            const resultDiv = document.getElementById('registerResult');
+            
+            try {
+                const response = await axios.post('/auth/register', {
+                    email: email,
+                    password: password,
+                    role: role
+                });
+                
+                resultDiv.innerHTML = `<div style="color: green;">注册成功: ${JSON.stringify(response.data)}</div>`;
+            } catch (error) {
+                resultDiv.innerHTML = `<div style="color: red;">注册失败: ${error.message}<br>状态码: ${error.response?.status}<br>响应: ${JSON.stringify(error.response?.data)}</div>`;
+            }
+        }
+
+        // 页面加载时测试连接
+        window.onload = async function() {
+            try {
+                const response = await axios.get('/actuator/health');
+                console.log('服务器连接正常:', response.data);
+            } catch (error) {
+                console.error('服务器连接失败:', error);
+            }
+        }
+    </script>
+</body>
+</html>
