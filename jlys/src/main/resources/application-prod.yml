@@ -1,0 +1,51 @@
+# 线上配置文件
+# EL PSY KONGROO
+server:
+  port: 8101
+spring:
+  # 数据库配置
+  # todo 需替换配置
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+<<<<<<< HEAD
+    url: jdbc:mysql://localhost/my_db
+    username: root
+    password: QAQ.1117
+  # Redis 配置
+  # todo 需替换配置
+=======
+    url: jdbc:mysql://localhost/ai_interview_v2?useSSL=false
+    username: root
+    password: 12345
+  # Redis 配置
+  # todo 需替换配置
+    mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
+>>>>>>> origin/master
+  redis:
+    database: 1
+    host: localhost
+    port: 6379
+    timeout: 5000
+    password:
+  # Elasticsearch 配置（已移除）
+  # todo 需替换配置
+  # elasticsearch:
+  #   uris: http://localhost:9200
+  #   username: root
+  #   password: 123456
+mybatis-plus:
+  configuration:
+    # 生产环境关闭日志
+<<<<<<< HEAD
+    log-impl: ''
+=======
+    log-impl: ''
+
+coze:
+  api:
+    base-url: https://api.coze.cn/v1
+    bot-id: 7526417335507746879
+    auth-token: cztei_lFalSFn6MyX3Cjhqsxc8MufzrlfWTKSjaYZiTObaHNNAoXrXooauXif4iB7s4bYED
+>>>>>>> origin/master

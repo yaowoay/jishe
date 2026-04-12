@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.iflyproject.springdemos.mapper.mybatis.InterviewConfigMapper">
+
+    <!-- 插入面试官配置 -->
+    <insert id="insertInterviewerConfig">
+        INSERT INTO interviewer_config (appearance, tone, personality)
+        VALUES (#{appearance}, #{tone}, #{personality})
+    </insert>
+
+    <!-- 根据 ID 查询面试官配置 -->
+    <select id="selectInterviewerConfigById" resultType="org.iflyproject.springdemos.domain.InterviewerConfig">
+        SELECT * FROM interviewer_config WHERE id = #{id}
+    </select>
+
+    <!-- 插入题目配置 -->
+    <insert id="insertQuestionConfig">
+        INSERT INTO question_config (question_range, difficulty, question_count, preference)
+        VALUES (#{questionRange}, #{difficulty}, #{questionCount}, #{preference})
+    </insert>
+
+    <!-- 根据 ID 查询题目配置 -->
+    <select id="selectQuestionConfigById" resultType="org.iflyproject.springdemos.domain.QuestionConfig">
+        SELECT * FROM question_config WHERE id = #{id}
+    </select>
+
+    <!-- 插入面试模式配置 -->
+    <insert id="insertInterviewMode">
+        INSERT INTO interview_mode (mode_type, position, duration)
+        VALUES (#{modeType}, #{position}, #{duration})
+    </insert>
+
+    <!-- 根据 ID 查询面试模式配置 -->
+    <select id="selectInterviewModeById" resultType="org.iflyproject.springdemos.domain.InterviewMode">
+        SELECT * FROM interview_mode WHERE id = #{id}
+    </select>
+
+</mapper>

@@ -1,0 +1,409 @@
+<template>
+  <!-- 原有模板内容不变 -->
+  <div class="ai-dashboard-container">
+    <!-- 顶部标题 -->
+    <div class="dashboard-header">
+      <div class="header-title">
+        <span>欢迎使用</span>
+        <span class="highlight">智面星图</span>
+      </div>
+      <div class="header-subtitle">您的专属AI面试训练平台，助力求职成功</div>
+      <!-- 产品特色描述 -->
+      <div class="feature-description">
+        智能简历生成 · AI模拟面试 · 个性化反馈 · 职业性格测评 · 专业笔试训练 · 求职数据分析
+      </div>
+    </div>
+    <!-- 数据统计卡片 -->
+    <div class="stats-section">
+      <el-row :gutter="24">
+        <el-col :xs="12" :md="6">
+          <div class="stat-card">
+            <div class="stat-icon">
+              <el-icon><Document /></el-icon>
+            </div>
+            <div class="stat-content">
+              <div class="stat-number">{{ stats.resumeCount }}</div>
+              <div class="stat-label">简历数量</div>
+            </div>
+          </div>
+        </el-col>
+        <el-col :xs="12" :md="6">
+          <div class="stat-card">
+            <div class="stat-icon">
+              <el-icon><ChatDotRound /></el-icon>
+            </div>
+            <div class="stat-content">
+              <div class="stat-number">{{ stats.interviewCount }}</div>
+              <div class="stat-label">面试次数</div>
+            </div>
+          </div>
+        </el-col>
+        <el-col :xs="12" :md="6">
+          <div class="stat-card">
+            <div class="stat-icon">
+              <el-icon><TrophyBase /></el-icon>
+            </div>
+            <div class="stat-content">
+              <div class="stat-number">{{ stats.averageScore }}</div>
+              <div class="stat-label">平均分数</div>
+            </div>
+          </div>
+        </el-col>
+        <el-col :xs="12" :md="6">
+          <div class="stat-card">
+            <div class="stat-icon">
+              <el-icon><Briefcase /></el-icon>
+            </div>
+            <div class="stat-content">
+              <div class="stat-number">{{ stats.applicationCount }}</div>
+              <div class="stat-label">投递职位</div>
+            </div>
+          </div>
+        </el-col>
+      </el-row>
+    </div>
+    <!-- AI助手输入区域 -->
+    <div class="ai-input-section">
+      <div class="modern-input-area">
+        <!-- 功能按钮列表 -->
+        <div class="feature-btn-list">
+          <el-button v-for="(item, idx) in featureBtns" :key="idx" class="feature-btn" plain @click="handleFeatureClick(item)">
+            <el-icon :style="{color: item.color, marginRight: '6px'}"><component :is="item.icon" /></el-icon>
+            {{ item.text }}
+          </el-button>
+        </div>
+        <!-- 输入框 -->
+        <div class="new-input-card" @click="showAIAssistant">
+          <el-icon class="upload-icon"><Upload /></el-icon>
+          <el-input
+              v-model="inputMessage"
+              placeholder="我是智面Buff AI助手，随意点击搜索框就能唤醒我哦~~"
+              type="text"
+              class="new-modern-input"
+              @keydown.enter.prevent="showAIAssistant"
+              clearable
+          />
+          <el-button
+              type="primary"
+              @click="showAIAssistant"
+              class="send-btn new-send-btn"
+              circle
+          >
+            <el-icon><Promotion /></el-icon>
+          </el-button>
+        </div>
+      </div>
+    </div>
+    <!-- 功能卡片区域 -->
+    <div class="function-cards">
+      <el-row :gutter="24">
+        <el-col :xs="24" :md="8">
+          <el-card class="func-card" shadow="hover" @click="$router.push('/applicant/resume/manage')">
+            <div class="card-content">
+              <el-icon class="func-icon"><Document /></el-icon>
+              <div class="func-title">智能简历工坊</div>
+              <div class="func-desc">AI辅助简历生成和优化建议</div>
+            </div>
+          </el-card>
+        </el-col>
+        <el-col :xs="24" :md="8">
+          <el-card class="func-card" shadow="hover" @click="$router.push('/applicant/interview')">
+            <div class="card-content">
+              <el-icon class="func-icon"><VideoPlay /></el-icon>
+              <div class="func-title">AI模拟面试</div>
+              <div class="func-desc">真实面试场景模拟和反馈</div>
+            </div>
+          </el-card>
+        </el-col>
+        <el-col :xs="24" :md="8">
+          <el-card class="func-card" shadow="hover" @click="$router.push('/applicant/personality-test')">
+            <div class="card-content">
+              <el-icon class="func-icon"><User /></el-icon>
+              <div class="func-title">职业性格测评</div>
+              <div class="func-desc">专业性格测试和职业建议</div>
+            </div>
+          </el-card>
+        </el-col>
+      </el-row>
+    </div>
+    <!-- AI助手对话框 -->
+    <el-dialog
+        v-model="assistantDialogVisible"
+        width="1100px"
+        top="8vh"
+        :close-on-click-modal="false"
+        :destroy-on-close="true"
+        class="coze-dialog"
+    >
+      <template #title>
+        <span>智面Buff AI助手</span>
+      </template>
+      <div style="height: 600px; max-height: 70vh; overflow: auto;">
+        <CozeAssistant v-if="assistantDialogVisible" />
+      </div>
+    </el-dialog>
+  </div>
+</template>
+<script>
+// 原有脚本内容不变
+import {
+  Document,
+  ChatDotRound,
+  TrophyBase,
+  Briefcase,
+  User,
+  VideoPlay,
+  Upload,
+  Promotion,
+  Compass,
+  Edit,
+  DataAnalysis,
+  Connection
+} from '@element-plus/icons-vue'
+import CozeAssistant from '@/components/interview/CozeAssistant.vue'
+export default {
+  name: 'ApplicantDashboard',
+  components: {
+    Document,
+    ChatDotRound,
+    TrophyBase,
+    Briefcase,
+    User,
+    VideoPlay,
+    Upload,
+    Promotion,
+    Compass,
+    Edit,
+    DataAnalysis,
+    Connection,
+    CozeAssistant
+  },
+  data() {
+    return {
+      stats: {
+        resumeCount: 0,
+        interviewCount: 0,
+        averageScore: 0,
+        applicationCount: 0
+      },
+      assistantDialogVisible: false,
+      inputMessage: '',
+      featureBtns: [
+        { icon: 'Compass', color: '#1ec9a0', text: '岗位搜索', route: '/applicant/jobs' },
+        { icon: 'DataAnalysis', color: '#3b82f6', text: '简历生成', route: '/applicant/resume/generation' },
+        { icon: 'Edit', color: '#4f8cff', text: '简历分析', route: '/applicant/resume/analysis' },
+        { icon: 'Connection', color: '#1ec9c9', text: '面试训练', route: '/applicant/interview' }
+      ]
+    }
+  },
+  mounted() {
+    this.loadStats()
+  },
+  methods: {
+    async loadStats() {
+      // TODO: 从API加载统计数据
+      this.stats = {
+        resumeCount: 3,
+        interviewCount: 8,
+        averageScore: 85,
+        applicationCount: 12
+      }
+    },
+    showAIAssistant() {
+      this.assistantDialogVisible = true
+    },
+    handleFeatureClick(item) {
+      if (item.route) {
+        this.$router.push(item.route)
+      }
+    }
+  }
+}
+</script>
+<style scoped>
+/* 基础容器样式 */
+.ai-dashboard-container {
+  padding: 24px;
+  background-color: #f5f7fa;
+  min-height: 100vh;
+}
+
+/* 顶部标题区域 */
+.dashboard-header {
+  margin-bottom: 32px;
+}
+.header-title {
+  font-size: 28px;
+  font-weight: 600;
+  color: #1d2129;
+  margin-bottom: 8px;
+}
+.header-title .highlight {
+  color: #3b82f6; /* 主蓝色，匹配招聘工作台风格 */
+}
+.header-subtitle {
+  font-size: 16px;
+  color: #4e5969;
+  margin-bottom: 16px;
+}
+.feature-description {
+  font-size: 14px;
+  color: #6b7785;
+  background-color: #ffffff;
+  padding: 12px 16px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+/* 数据统计卡片区域 */
+.stats-section {
+  margin-bottom: 32px;
+}
+.stat-card {
+  background-color: #ffffff;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  display: flex;
+  align-items: center;
+  transition: all 0.3s ease;
+}
+.stat-card:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  transform: translateY(-2px);
+}
+.stat-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background-color: #eff6ff; /* 浅蓝色背景 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 16px;
+}
+.stat-icon el-icon {
+  font-size: 24px;
+  color: #3b82f6; /* 主蓝色图标 */
+}
+.stat-content .stat-number {
+  font-size: 24px;
+  font-weight: 600;
+  color: #1d2129;
+  margin-bottom: 4px;
+}
+.stat-content .stat-label {
+  font-size: 14px;
+  color: #6b7785;
+}
+
+/* AI助手输入区域 */
+.ai-input-section {
+  margin-bottom: 32px;
+}
+.modern-input-area {
+  background-color: #ffffff;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+.feature-btn-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.feature-btn {
+  border-color: #dbeafe;
+  color: #3b82f6;
+}
+.feature-btn:hover {
+  background-color: #eff6ff;
+  border-color: #3b82f6;
+}
+.new-input-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 8px 16px;
+  background-color: #f9fafb;
+}
+.upload-icon {
+  color: #6b7785;
+  font-size: 20px;
+}
+.new-modern-input {
+  flex: 1;
+  border: none;
+  background-color: transparent;
+  font-size: 14px;
+}
+.new-modern-input:focus {
+  outline: none;
+}
+.new-send-btn {
+  background-color: #3b82f6;
+  border-color: #3b82f6;
+}
+.new-send-btn:hover {
+  background-color: #2563eb;
+  border-color: #2563eb;
+}
+
+/* 功能卡片区域 */
+.function-cards {
+  margin-bottom: 24px;
+}
+.func-card {
+  border-radius: 12px;
+  border: none;
+  background-color: #ffffff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+  height: 100%;
+}
+.func-card:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  transform: translateY(-2px);
+}
+.card-content {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+}
+.func-icon {
+  font-size: 32px;
+  color: #3b82f6;
+  margin-bottom: 16px;
+}
+.func-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1d2129;
+  margin-bottom: 8px;
+}
+.func-desc {
+  font-size: 14px;
+  color: #6b7785;
+  flex: 1;
+}
+
+/* AI助手对话框样式 */
+.coze-dialog {
+  border-radius: 12px;
+}
+.coze-dialog .el-dialog__header {
+  border-bottom: 1px solid #e5e7eb;
+  padding: 16px 24px;
+}
+.coze-dialog .el-dialog__title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1d2129;
+}
+.coze-dialog .el-dialog__body {
+  padding: 24px;
+}
+</style>

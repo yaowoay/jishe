@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.iflyproject.springdemos.mapper.mybatis.InterviewFlowMapper">
+
+    <!-- 插入面试会话记录 -->
+    <insert id="insertInterviewSession">
+        INSERT INTO interview_session (session_id, status)
+        VALUES (#{sessionId}, #{status})
+    </insert>
+
+    <!-- 根据会话 ID 查询面试会话 -->
+    <select id="selectInterviewSessionById" resultType="org.iflyproject.springdemos.model.dto.InterviewSession">
+        SELECT * FROM interview_session WHERE session_id = #{sessionId}
+    </select>
+
+    <!-- 更新面试会话状态 -->
+    <update id="updateInterviewSessionStatus">
+        UPDATE interview_session SET status = #{status} WHERE session_id = #{sessionId}
+    </update>
+
+</mapper>

@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AI面试官 - 简历投递</title>
+
+    <!-- Tailwind & Icons -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/boxicons@2.0.7/css/boxicons.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- 统一主题 -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#165DFF',
+                        secondary: '#36CFC9',
+                        success: '#00B42A',
+                        warning: '#FF7D00',
+                        danger: '#F53F3F',
+                        info: '#86909C',
+                        light: '#F2F3F5',
+                        dark: '#1D2129',
+                        'primary-light': '#E8F3FF',
+                    },
+                    fontFamily: { inter: ['Inter', 'sans-serif'] },
+                    boxShadow: {
+                        card: '0 4px 20px rgba(0,0,0,.08)',
+                        hover: '0 8px 30px rgba(0,0,0,.12)',
+                    },
+                },
+            },
+        };
+    </script>
+</head>
+
+<body class="font-inter bg-gray-50 text-dark min-h-screen">
+<!-- ================= 顶部导航栏（与 dashboard.html 完全一致） ================= -->
+<header class="fixed top-0 left-0 right-0 bg-white shadow-sm z-50 transition-all duration-300" id="navbar">
+    <div class="container mx-auto px-4 flex items-center justify-between h-16">
+        <!-- 左侧 -->
+        <div class="flex items-center space-x-1">
+            <div class="text-primary font-bold text-xl flex items-center">
+                <i class="bx bx-brain mr-2"></i>
+                <span>多模态面试智能体</span>
+            </div>
+
+            <nav class="hidden md:flex ml-8 space-x-6">
+                <a href="/applicant/dashboard" class="text-gray-600 hover:text-primary px-1 py-5 font-medium transition-colors">
+                    <i class="bx bxs-dashboard mr-1"></i>控制台
+                </a>
+
+                <div class="relative group">
+                    <button class="flex items-center text-primary border-b-2 border-primary px-1 py-5 font-medium transition-colors">
+                        <i class="bx bx-file mr-1"></i>简历中心 <i class="fa fa-angle-down ml-1 text-xs"></i>
+                    </button>
+                    <div class="absolute left-0 mt-1 w-56 rounded-md shadow-lg bg-white ring-1 ring-black/5 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 transform origin-top-right scale-95 group-hover:scale-100">
+                        <a href="/applicant/resume" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">简历上传</a>
+                        <a href="/applicant/analyze_resume" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">简历分析</a>
+                        <a href="/applicant/upload_resume" class="block px-4 py-2 text-sm text-gray-700 bg-gray-100 font-semibold">投递简历</a>
+                        <a href="/applicant/resume_manage" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">简历管理</a>
+                    </div>
+                </div>
+
+                <div class="relative group">
+                    <button class="flex items-center text-gray-600 hover:text-primary px-1 py-5 font-medium transition-colors">
+                        <i class="bx bx-bot mr-1"></i>多模态智能体 <i class="fa fa-angle-down ml-1 text-xs"></i>
+                    </button>
+                    <div class="absolute left-0 mt-1 w-56 rounded-md shadow-lg bg-white ring-1 ring-black/5 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 transform origin-top-right scale-95 group-hover:scale-100">
+                        <a href="/applicant/ai_interview_assistant" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">工作简历智能体</a>
+                        <a href="/applicant/virtual_ai_interviewer" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">虚拟面试智能体</a>
+                    </div>
+                </div>
+
+                <a href="/applicant/interview" class="text-gray-600 hover:text-primary px-1 py-5 font-medium transition-colors">
+                    <i class="bx bx-video mr-1"></i>面试中心
+                </a>
+
+                <a href="/applicant/question" class="text-gray-600 hover:text-primary px-1 py-5 font-medium transition-colors">
+                    <i class="bx bx-book-open mr-1"></i>面试真题
+                </a>
+
+                <a href="/applicant/reports" class="text-gray-600 hover:text-primary px-1 py-5 font-medium transition-colors">
+                    <i class="bx bx-file-blank mr-1"></i>面试档案查看
+                </a>
+
+                <a href="/applicant/personal_center" class="text-gray-600 hover:text-primary px-1 py-5 font-medium transition-colors">
+                    <i class="bx bx-user mr-1"></i>个人中心
+                </a>
+            </nav>
+        </div>
+
+        <!-- 右侧头像 -->
+        <div class="flex items-center space-x-4">
+            <button class="md:hidden text-gray-600 focus:outline-none">
+                <i class="bx bx-menu text-xl"></i>
+            </button>
+            <div class="relative">
+                <button class="flex items-center space-x-2 focus:outline-none" id="userMenuBtn">
+                    <img src="{{ url_for('static', filename='applicant_logo/用户头像.jpg') }}" alt="用户头像" class="w-8 h-8 rounded-full object-cover border-2 border-primary-light" />
+                    <span class="hidden md:inline-block font-medium">{{ full_name }}</span>
+                    <i class="fa fa-angle-down text-xs text-gray-500"></i>
+                </button>
+                <div id="userMenu" class="absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black/5 opacity-0 invisible transition-all duration-200 transform origin-top-right scale-95">
+                    <a href="/applicant/personal_center" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">个人设置</a>
+                    <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">账户管理</a>
+                    <div class="border-t border-gray-100 my-1"></div>
+                    <a href="/logout" class="block px-4 py-2 text-sm text-red-600 hover:bg-gray-100">退出登录</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- ================= 页面主体（保持不变） ================= -->
+<main class="container mx-auto px-4 pt-24 pb-12">
+    <div class="mb-8">
+        <h1 class="text-2xl md:text-3xl font-bold text-gray-800">简历投递</h1>
+        <p class="text-gray-500 mt-1">浏览并一键投递你感兴趣的岗位</p>
+    </div>
+
+    <!-- 搜索 + 排序 -->
+    <div class="bg-white rounded-xl p-6 shadow-md mb-6">
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <input
+                id="jobSearch"
+                type="text"
+                placeholder="搜索职位名称或公司..."
+                class="flex-1 border border-gray-300 rounded-md px-4 py-2 focus:ring-primary focus:border-primary"
+            />
+            <div class="flex items-center gap-2">
+                <button id="sortPost" class="sort-btn flex items-center gap-1 px-3 py-2 border rounded-md text-sm hover:bg-gray-100">
+                    <i class="bx bx-sort"></i>发布时间
+                </button>
+                <button id="sortExp" class="sort-btn flex items-center gap-1 px-3 py-2 border rounded-md text-sm hover:bg-gray-100">
+                    <i class="bx bx-sort"></i>截止日期
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 职位列表 -->
+    <div class="bg-white rounded-xl shadow-md overflow-hidden">
+        <div class="overflow-x-auto">
+            <table id="jobTable" class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                <tr>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">职位</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">公司</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">类型</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">薪资</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">地点</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">发布</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">截止</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">状态</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">操作</th>
+                </tr>
+                </thead>
+                <tbody id="jobTableBody" class="bg-white divide-y divide-gray-200">
+                <!-- JS 动态渲染 -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+</main>
+
+<!-- 弹窗容器 -->
+<div id="modalContainer"></div>
+
+<script>
+/* 全局变量 */
+let submittedJobIds = [];
+let originalJobs = [];
+
+/* 获取已投递列表 */
+fetch('/api/get_submitted_jobs')
+    .then(r => r.json())
+    .then(d => {
+        if (d.success) submittedJobIds = d.job_ids;
+    });
+
+/* 获取全部职位 */
+fetch('/api/get_all_jobs')
+    .then(r => r.json())
+    .then(d => {
+        originalJobs = d.jobs;
+        renderJobs(originalJobs);
+    });
+
+/* 渲染表格 */
+function renderJobs(list) {
+    const tbody = document.getElementById('jobTableBody');
+    tbody.innerHTML = list.map(j => {
+        const applied = submittedJobIds.includes(j.id);
+        return `
+            <tr>
+                <td class="px-6 py-4 text-sm font-medium text-gray-900">${j.title}</td>
+                <td class="px-6 py-4 text-sm text-gray-600">${j.company_name}</td>
+                <td class="px-6 py-4 text-sm text-gray-600">${j.job_type}</td>
+                <td class="px-6 py-4 text-sm text-gray-600">${j.min_salary} - ${j.max_salary}</td>
+                <td class="px-6 py-4 text-sm text-gray-600">${j.location}</td>
+                <td class="px-6 py-4 text-sm text-gray-600">${j.post_date}</td>
+                <td class="px-6 py-4 text-sm text-gray-600">${j.expiration_date || '长期'}</td>
+                <td class="px-6 py-4 text-sm">
+                    <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full ${j.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">
+                        ${j.status === 'active' ? '招聘中' : '已关闭'}
+                    </span>
+                </td>
+                <td class="px-6 py-4 text-sm font-medium space-x-2">
+                    ${applied
+                        ? `<span class="text-gray-400">已投递</span>`
+                        : `<button data-job-id="${j.id}" data-job-title="${j.title}" class="apply-btn text-primary hover:underline">投递简历</button>`
+                    }
+                    <button data-job-id="${j.id}" class="viewJob text-indigo-600 hover:underline">查看</button>
+                </td>
+            </tr>
+        `;
+    }).join('');
+    bindEvents();
+}
+
+/* 绑定投递 & 查看事件 */
+function bindEvents() {
+    document.querySelectorAll('.apply-btn').forEach(btn =>
+        btn.addEventListener('click', handleApply)
+    );
+    document.querySelectorAll('.viewJob').forEach(btn =>
+        btn.addEventListener('click', handleView)
+    );
+}
+
+/* 处理投递 */
+function handleApply() {
+    const jobId = this.dataset.jobId;
+    const jobTitle = this.dataset.jobTitle;
+
+    fetch('/api/get_resumes')
+        .then(r => r.json())
+        .then(d => {
+            if (!d.success || d.resumes.length === 0) {
+                alert('请先上传简历');
+                return;
+            }
+
+            // 动态生成投递弹窗
+            document.getElementById('modalContainer').innerHTML = `
+                <div class="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+                    <div class="bg-white rounded-lg shadow-xl w-full max-w-md p-6">
+                        <h2 class="text-lg font-bold mb-4">投递简历 - ${jobTitle}</h2>
+                        <form id="submitForm">
+                            <label class="block text-sm font-medium mb-1">选择简历</label>
+                            <select name="resume" class="w-full border rounded-md px-3 py-2 mb-4">
+                                ${d.resumes.map(r => `<option value="${r.id}">${r.filename}</option>`).join('')}
+                            </select>
+                            <div class="flex justify-end space-x-2">
+                                <button type="button" onclick="closeModal()" class="px-4 py-2 border rounded-md hover:bg-gray-100">取消</button>
+                                <button type="submit" class="px-4 py-2 bg-primary text-white rounded-md hover:bg-primary/90">确认投递</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            `;
+
+            // 提交
+            document.getElementById('submitForm').addEventListener('submit', e => {
+                e.preventDefault();
+                const resumeId = e.target.resume.value;
+
+                fetch('/api/resume_submit', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ job_id: jobId, resume_id: resumeId })
+                })
+                    .then(r => r.json())
+                    .then(res => {
+                        if (res.success) {
+                            alert('投递成功');
+                            submittedJobIds.push(jobId);
+                            renderJobs(originalJobs);
+                            closeModal();
+                        } else {
+                            alert(res.message || '投递失败');
+                        }
+                    });
+            });
+        });
+}
+
+/* 查看详情 */
+function handleView() {
+    const jobId = this.dataset.jobId;
+
+    fetch(`/api/get_job_details?job_id=${jobId}`)
+        .then(r => r.json())
+        .then(d => {
+            if (!d.success) return alert('获取详情失败');
+            const j = d.job;
+
+            document.getElementById('modalContainer').innerHTML = `
+                <div class="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+                    <div class="bg-white rounded-lg shadow-xl w-full max-w-2xl p-6">
+                        <h2 class="text-xl font-bold mb-4">${j.title}</h2>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm mb-4">
+                            <div><strong>公司：</strong>${j.company_name}</div>
+                            <div><strong>类型：</strong>${j.job_type}</div>
+                            <div><strong>薪资：</strong>${j.min_salary} - ${j.max_salary}</div>
+                            <div><strong>地点：</strong>${j.location}</div>
+                            <div><strong>发布：</strong>${j.post_date}</div>
+                            <div><strong>截止：</strong>${j.expiration_date || '长期'}</div>
+                        </div>
+                        <h3 class="font-semibold mb-1">职位描述</h3>
+                        <p class="text-sm mb-3 whitespace-pre-wrap">${j.description}</p>
+                        <h3 class="font-semibold mb-1">岗位要求</h3>
+                        <p class="text-sm whitespace-pre-wrap">${j.requirements}</p>
+                        <div class="mt-6 flex justify-end">
+                            <button onclick="closeModal()" class="px-4 py-2 border rounded-md hover:bg-gray-100">关闭</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+}
+
+/* 搜索 */
+document.getElementById('jobSearch').addEventListener('input', e => {
+    const kw = e.target.value.toLowerCase();
+    const filtered = originalJobs.filter(j =>
+        j.title.toLowerCase().includes(kw) || j.company_name.toLowerCase().includes(kw)
+    );
+    renderJobs(filtered);
+});
+
+/* 排序 */
+let sortState = { field: null, asc: true };
+document.getElementById('sortPost').addEventListener('click', () => sortBy('post_date'));
+document.getElementById('sortExp').addEventListener('click', () => sortBy('expiration_date'));
+
+function sortBy(field) {
+    if (sortState.field === field) sortState.asc = !sortState.asc;
+    else sortState = { field, asc: true };
+
+    const sorted = [...originalJobs].sort((a, b) => {
+        const vA = a[field] || '';
+        const vB = b[field] || '';
+        return sortState.asc ? vA.localeCompare(vB) : vB.localeCompare(vA);
+    });
+    renderJobs(sorted);
+}
+
+function closeModal() {
+    document.getElementById('modalContainer').innerHTML = '';
+}
+
+/* header 用户菜单交互 */
+document.getElementById('userMenuBtn').addEventListener('click', () => {
+    const m = document.getElementById('userMenu');
+    m.classList.toggle('opacity-0');
+    m.classList.toggle('invisible');
+    m.classList.toggle('scale-95');
+});
+</script>
+</body>
+</html>

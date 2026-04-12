@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>简历模板管理系统</title>
+    <!-- 引入Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 引入Font Awesome -->
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <!-- 引入Vue3 -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <!-- 引入Vue Router -->
+    <script src="https://unpkg.com/vue-router@4/dist/vue-router.global.js"></script>
+    <!-- 引入Axios -->
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+    <!-- Tailwind配置 -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#3B82F6',
+                        secondary: '#10B981',
+                        neutral: '#64748B',
+                        dark: '#1E293B',
+                        light: '#F8FAFC'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                },
+            }
+        }
+    </script>
+
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .template-card-hover {
+                @apply transition-all duration-300 hover:shadow-xl hover:-translate-y-1;
+            }
+            .btn-primary {
+                @apply bg-primary text-white px-4 py-2 rounded-md hover:bg-primary/90 transition-all;
+            }
+            .btn-secondary {
+                @apply bg-secondary text-white px-4 py-2 rounded-md hover:bg-secondary/90 transition-all;
+            }
+            .btn-outline {
+                @apply border border-gray-300 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-100 transition-all;
+            }
+            .form-input {
+                @apply w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/50;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans text-dark">
+<div id="app" class="min-h-screen flex flex-col">
+    <!-- 导航栏 -->
+    <nav class="bg-white shadow-sm sticky top-0 z-10">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <i class="fa fa-file-text-o text-primary text-2xl"></i>
+                <h1 class="text-xl font-bold text-dark">简历模板系统</h1>
+            </div>
+
+            <div class="hidden md:flex items-center space-x-6">
+                <a href="#/templates" class="nav-link flex items-center space-x-1 text-primary font-medium">
+                    <i class="fa fa-th-large"></i>
+                    <span>模板库</span>
+                </a>
+                <a href="#/create" class="nav-link flex items-center space-x-1 text-gray-600 hover:text-primary transition-colors">
+                    <i class="fa fa-plus-circle"></i>
+                    <span>创建模板</span>
+                </a>
+            </div>
+
+            <div class="flex items-center space-x-4">
+                <button class="btn-primary hidden md:block">
+                    <i class="fa fa-user mr-1"></i> 登录
+                </button>
+                <button class="md:hidden text-gray-600 text-xl">
+                    <i class="fa fa-bars"></i>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 主内容区 -->
+    <main class="flex-grow container mx-auto px-4 py-6">
+        <!-- 路由视图 -->
+        <router-view></router-view>
+    </main>
+
+    <!-- 页脚 -->
+    <footer class="bg-dark text-white py-6">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="mb-4 md:mb-0">
+                    <p>© 2023 简历模板系统 版权所有</p>
+                </div>
+                <div class="flex space-x-4">
+                    <a href="#" class="text-gray-300 hover:text-white transition-colors"><i class="fa fa-github text-xl"></i></a>
+                    <a href="#" class="text-gray-300 hover:text-white transition-colors"><i class="fa fa-twitter text-xl"></i></a>
+                    <a href="#" class="text-gray-300 hover:text-white transition-colors"><i class="fa fa-linkedin text-xl"></i></a>
+                </div>
+            </div>
+        </div>
+    </footer>
+</div>
+
+<script>
+    // 模拟数据 - 简历模板
+    const resumeTemplates = [
+        {
+            id: 1,
+            name: "现代简约模板",
+            description: "简洁大方的设计，适合各类职位申请",
+            previewImage: "https://picsum.photos/id/237/400/500",
+            htmlContent: `
+          <div class="resume-container">
+            <div class="header">
+              <h1 class="name">[您的姓名]</h1>
+              <p class="title">[您的职位]</p>
+              <div class="contact">
+                <span>[电话]</span> | <span>[邮箱]</span> | <span>[地址]</span>
+              </div>
+            </div>
+            <div class="content">
+              <div class="section">
+                <h2>个人简介</h2>
+                <p>[请输入您的个人简介]</p>
+              </div>
+              <div class="section">
+                <h2>工作经历</h2>
+                <div class="experience">
+                  <h3>[公司名称] - [职位]</h3>
+                  <p>[日期范围]</p>
+                  <p>[工作描述]</p>
+                </div>
+              </div>
+              <div class="section">
+                <h2>教育背景</h2>
+                <div class="education">
+                  <h3>[学校名称] - [专业]</h3>
+                  <p>[日期范围]</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        `,
+            cssContent: `
+          .resume-container { max-width: 800px; margin: 0 auto; padding: 20px; }
+          .header { text-align: center; margin-bottom: 30px; }
+          .name { font-size: 28px; margin: 0 0 5px 0; }
+          .title { font-size: 18px; color: #666; margin: 0 0 10px 0; }
+          .contact { color: #333; font-size: 14px; }
+          .section { margin-bottom: 25px; }
+          .section h2 { border-bottom: 2px solid #3B82F6; padding-bottom: 5px; color: #3B82F6; }
+          .experience h3, .education h3 { margin: 10px 0 5px 0; }
+          .experience p, .education p { margin: 5px 0; }
+        `,
+            editableAreas: JSON.stringify(["name", "title", "contact", "个人简介", "工作经历", "教育背景"])
+        },
+        {
+            id: 2,
+            name: "专业商务模板",
+            description: "专业商务风格，适合金融、咨询等行业",
+            previewImage: "https://picsum.photos/id/101/400/500",
+            htmlContent: `
+          <div class="resume-pro">
+            <div class="header-pro">
+              <h1 class="name-pro">[您的姓名]</h1>
+              <p class="title-pro">[您的职位]</p>
+            </div>
+            <div class="contact-pro">[电话] | [邮箱] | [地址]</div>
+            <div class="columns-pro">
+              <div class="left-column">
+                <div class="section-pro">
+                  <h2>技能</h2>
+                  <ul class="skills">
+                    <li>[技能1]</li>
+                    <li>[技能2]</li>
+                    <li>[技能3]</li>
+                  </ul>
+                </div>
+                <div class="section-pro">
+                  <h2>教育</h2>
+                  <div class="edu-entry">[学校名称] - [专业]</div>
+                  <div class="edu-date">[日期]</div>
+                </div>
+              </div>
+              <div class="right-column">
+                <div class="section-pro">
+                  <h2>工作经历</h2>
+                  <div class="job-pro">
+                    <h3>[公司] - [职位]</h3>
+                    <div class="job-date">[日期范围]</div>
+                    <p>[工作描述]</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        `,
+            cssContent: `
+          .resume-pro { max-width: 800px; margin: 0 auto; padding: 30px; font-family: Arial, sans-serif; }
+          .header-pro { border-bottom: 3px solid #333; padding-bottom: 10px; }
+          .name-pro { font-size: 32px; margin: 0; color: #222; }
+          .title-pro { font-size: 18px; color: #555; margin: 5px 0 0 0; }
+          .contact-pro { margin: 10px 0; color: #444; }
+          .columns-pro { display: flex; margin-top: 20px; gap: 20px; }
+          .left-column { width: 35%; }
+          .right-column { width: 65%; }
+          .section-pro h2 { background-color: #333; color: white; padding: 5px 10px; font-size: 16px; }
+          .skills { list-style-type: none; padding: 0; }
+          .skills li { margin: 5px 0; padding-left: 10px; position: relative; }
+          .skills li:before { content: "•"; position: absolute; left: 0; color: #333; }
+          .job-pro h3 { margin: 10px 0 5px 0; }
+          .job-date { color: #666; font-size: 14px; margin-bottom: 5px; }
+        `,
+            editableAreas: JSON.stringify(["name-pro", "title-pro", "contact-pro", "skills", "教育", "工作经历"])
+        },
+        {
+            id: 3,
+            name: "创意设计模板",
+            description: "富有设计感的布局，适合设计、艺术等创意行业",
+            previewImage: "https://picsum.photos/id/1025/400/500",
+            htmlContent: `
+          <div class="resume-creative">
+            <div class="profile">
+              <div class="profile-pic">[照片]</div>
+              <h1 class="creative-name">[您的姓名]</h1>
+              <p class="creative-title">[您的职位]</p>
+            </div>
+            <div class="creative-content">
+              <div class="bio">
+                <h2>关于我</h2>
+                <p>[个人简介]</p>
+              </div>
+              <div class="portfolio">
+                <h2>作品集</h2>
+                <div class="portfolio-items">
+                  <div class="portfolio-item">[作品1]</div>
+                  <div class="portfolio-item">[作品2]</div>
+                </div>
+              </div>
+              <div class="exp-creative">
+                <h2>经验</h2>
+                <div class="exp-item">
+                  <h3>[职位] @ [公司]</h3>
+                  <p>[日期] - [工作描述]</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        `,
+            cssContent: `
+          .resume-creative { max-width: 850px; margin: 0 auto; padding: 20px; font-family: 'Segoe UI', sans-serif; }
+          .profile { text-align: center; margin-bottom: 30px; }
+          .profile-pic { width: 150px; height: 150px; border-radius: 50%; background-color: #eee; margin: 0 auto 15px; display: flex; align-items: center; justify-content: center; }
+          .creative-name { font-size: 30px; margin: 0; color: #2c3e50; }
+          .creative-title { font-size: 18px; color: #3498db; margin: 5px 0 0 0; }
+          .creative-content { display: grid; grid-template-columns: 1fr 1fr; gap: 25px; }
+          .bio h2, .portfolio h2, .exp-creative h2 { color: #e74c3c; border-bottom: 2px solid #f1c40f; padding-bottom: 5px; }
+          .portfolio-items { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+          .portfolio-item { height: 120px; background-color: #ecf0f1; display: flex; align-items: center; justify-content: center; }
+          .exp-item { margin-bottom: 15px; }
+          .exp-item h3 { margin: 0 0 5px 0; color: #2980b9; }
+        `,
+            editableAreas: JSON.stringify(["profile-pic", "creative-name", "creative-title", "bio", "portfolio-items", "exp-item"])
+        }
+    ];
+
+    // 模板列表组件
+    const TemplateList = {
+        template: `
+        <div>
+          <div class="flex justify-between items-center mb-6">
+            <h2 class="text-2xl font-bold">简历模板库</h2>
+            <button @click="$router.push('/create')" class="btn-primary flex items-center">
+              <i class="fa fa-plus mr-2"></i> 添加新模板
+            </button>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div v-for="template in templates" :key="template.id" class="bg-white rounded-lg shadow-md overflow-hidden template-card-hover">
+              <div class="h-64 overflow-hidden">
+                <img :src="template.previewImage" :alt="template.name" class="w-full h-full object-cover">
+              </div>
+              <div class="p-4">
+                <h3 class="text-xl font-semibold mb-2">{{ template.name }}</h3>
+                <p class="text-gray-600 mb-4">{{ template.description }}</p>
+                <div class="flex space-x-2">
+                  <button @click="$router.push('/edit/' + template.id)" class="btn-outline flex-1 flex items-center justify-center">
+                    <i class="fa fa-pencil mr-1"></i> 编辑
+                  </button>
+                  <button @click="$router.push('/preview/' + template.id)" class="btn-primary flex-1 flex items-center justify-center">
+                    <i class="fa fa-eye mr-1"></i> 预览
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      `,
+        data() {
+            return {
+                templates: []
+            };
+        },
+        mounted() {
+            // 模拟API请求
+            this.templates = resumeTemplates;
+        }
+    };
+
+    // 模板预览组件
+    const TemplatePreview = {
+        template: `
+        <div>
+          <div class="flex justify-between items-center mb-6">
+            <button @click="$router.push('/templates')" class="btn-outline flex items-center">
+              <i class="fa fa-arrow-left mr-2"></i> 返回列表
+            </button>
+            <button @click="$router.push('/edit/' + templateId)" class="btn-primary flex items-center">
+              <i class="fa fa-edit mr-2"></i> 编辑模板
+            </button>
+          </div>
+
+          <div class="bg-white shadow-md rounded-lg p-6">
+            <h2 class="text-2xl font-bold mb-4">{{ template.name }}</h2>
+            <p class="text-gray-600 mb-6">{{ template.description }}</p>
+
+            <div class="border-t pt-6">
+              <h3 class="text-xl font-semibold mb-4">模板预览</h3>
+              <div class="preview-container bg-white p-8 shadow-inner border rounded">
+                <div v-html="renderedHtml"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      `,
+        data() {
+            return {
+                template: {},
+                templateId: this.$route.params.id
+            };
+        },
+        computed: {
+            renderedHtml() {
+                return `
+            <style>${this.template.cssContent}</style>
+            ${this.template.htmlContent}
+          `;
+            }
+        },
+        mounted() {
+            // 模拟API请求
+            this.template = resumeTemplates.find(t => t.id === parseInt(this.templateId));
+        }
+    };
+
+    // 模板编辑组件
+    const TemplateEditor = {
+        template: `
+        <div>
+          <div class="flex justify-between items-center mb-6">
+            <button @click="$router.push('/templates')" class="btn-outline flex items-center">
+              <i class="fa fa-arrow-left mr-2"></i> 返回列表
+            </button>
+            <button @click="saveTemplate" class="btn-primary flex items-center">
+              <i class="fa fa-save mr-2"></i> 保存模板
+            </button>
+          </div>
+
+          <div class="bg-white shadow-md rounded-lg p-6">
+            <h2 class="text-2xl font-bold mb-6">{{ isEditMode ? '编辑模板' : '创建新模板' }}</h2>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              <!-- 表单区域 -->
+              <div>
+                <div class="mb-4">
+                  <label class="block text-gray-700 mb-2 font-medium">模板名称</label>
+                  <input v-model="template.name" type="text" class="form-input">
+                </div>
+
+                <div class="mb-4">
+                  <label class="block text-gray-700 mb-2 font-medium">模板描述</label>
+                  <textarea v-model="template.description" rows="3" class="form-input"></textarea>
+                </div>
+
+                <div class="mb-4">
+                  <label class="block text-gray-700 mb-2 font-medium">HTML内容</label>
+                  <textarea v-model="template.htmlContent" rows="10" class="form-input font-mono text-sm"></textarea>
+                </div>
+
+                <div class="mb-4">
+                  <label class="block text-gray-700 mb-2 font-medium">CSS样式</label>
+                  <textarea v-model="template.cssContent" rows="8" class="form-input font-mono text-sm"></textarea>
+                </div>
+
+                <div class="mb-4">
+                  <label class="block text-gray-700 mb-2 font-medium">可编辑区域 (JSON格式)</label>
+                  <textarea v-model="template.editableAreas" rows="4" class="form-input font-mono text-sm"></textarea>
+                  <p class="text-xs text-gray-500 mt-1">例如: ["name", "education", "experience"]</p>
+                </div>
+              </div>
+
+              <!-- 预览区域 -->
+              <div>
+                <div class="flex justify-between items-center mb-4">
+                  <h3 class="text-xl font-semibold">实时预览</h3>
+                  <button @click="refreshPreview" class="text-sm text-primary hover:text-primary/80">
+                    <i class="fa fa-refresh mr-1"></i> 刷新
+                  </button>
+                </div>
+                <div class="border rounded-lg p-4 min-h-[500px] overflow-auto bg-white">
+                  <div v-html="renderedHtml"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      `,
+        data() {
+            return {
+                template: {
+                    name: '',
+                    description: '',
+                    htmlContent: '',
+                    cssContent: '',
+                    editableAreas: ''
+                },
+                templateId: this.$route.params.id,
+                isEditMode: !!this.$route.params.id
+            };
+        },
+        computed: {
+            renderedHtml() {
+                return `
+            <style>${this.template.cssContent}</style>
+            ${this.template.htmlContent || '<p class="text-gray-500 italic">请输入HTML内容进行预览</p>'}
+          `;
+            }
+        },
+        methods: {
+            saveTemplate() {
+                // 模拟保存操作
+                alert('模板保存成功！');
+                this.$router.push('/templates');
+            },
+            refreshPreview() {
+                // 强制刷新预览
+                this.$forceUpdate();
+            }
+        },
+        mounted() {
+            if (this.isEditMode) {
+                // 模拟API请求
+                const found = resumeTemplates.find(t => t.id === parseInt(this.templateId));
+                if (found) {
+                    this.template = { ...found };
+                }
+            } else {
+                // 初始化新模板
+                this.template.htmlContent = `
+            <div class="resume">
+              <h1 class="name">[您的姓名]</h1>
+              <div class="section">
+                <h2>个人简介</h2>
+                <p>[请输入您的个人简介]</p>
+              </div>
+            </div>
+          `;
+                this.template.cssContent = `
+            .resume { max-width: 800px; margin: 0 auto; padding: 20px; }
+            .name { color: #3B82F6; }
+            .section h2 { border-bottom: 1px solid #ccc; }
+          `;
+                this.template.editableAreas = '["name", "个人简介"]';
+            }
+        }
+    };
+
+    // 路由配置
+    const routes = [
+        { path: '/', redirect: '/templates' },
+        { path: '/templates', component: TemplateList },
+        { path: '/preview/:id', component: TemplatePreview },
+        { path: '/edit/:id', component: TemplateEditor },
+        { path: '/create', component: TemplateEditor }
+    ];
+
+    // 创建路由实例
+    const router = VueRouter.createRouter({
+        history: VueRouter.createWebHashHistory(),
+        routes
+    });
+
+    // 创建Vue实例
+    const { createApp } = Vue;
+    const app = createApp({});
+    app.use(router);
+    app.mount('#app');
+</script>
+</body>
+</html>

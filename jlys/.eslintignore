@@ -1,0 +1,23 @@
+# 忽略第三方SDK文件
+src/components/vm-sdk/
+src/components/interview/vm-sdk/
+src/components/functions/AiInterview/vm-sdk/
+src/composables/
+# 忽略构建输出
+dist/
+build/
+
+# 忽略node_modules
+node_modules/
+
+# 忽略其他第三方库
+public/libs/
+src/assets/libs/
+
+# 忽略压缩文件
+*.min.js
+*.min.css
+
+# 忽略自动生成的文件
+*.generated.js
+*.auto.js

@@ -1,0 +1,844 @@
+@import './variables.css';
+
+/* 响应式rem适配：自动根据浏览器宽度设置html根字体大小 */
+html {
+  font-size: 16px;
+}
+body {
+  font-size: 1rem;
+}
+
+/* 推荐主要布局、字体、间距等用rem单位 */
+.container {
+  width: 90vw;
+  max-width: 80rem;
+  margin: 0 auto;
+  padding: 2rem;
+}
+.title {
+  font-size: 2rem;
+}
+.button {
+  padding: 0.5rem 1.5rem;
+  font-size: 1rem;
+}
+
+/* 兼容旧样式，逐步替换px为rem */
+
+/* 动态设置根字体大小的JS建议放在入口文件main.js或App.vue */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  line-height: 1.5;
+}
+
+#app {
+  width: 100%;
+  overflow-x: hidden;
+}
+
+/* 头部样式 */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 40px;
+  height: 60px;
+  background-color: #fff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.logo-container {
+  display: flex;
+  align-items: center;
+}
+
+.logo {
+  height: 32px;
+}
+
+.nav-container {
+  display: flex;
+  align-items: center;
+  gap: 30px;
+}
+
+.nav-item {
+  cursor: pointer;
+  padding: 8px 12px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #606266;
+  transition: color 0.3s;
+}
+
+.nav-item:hover {
+  color: var(--primary-color);
+}
+
+.user-avatar {
+  margin-left: 20px;
+  background-color: var(--primary-color);
+}
+
+/* 主展示区 */
+.hero-section {
+  height: 400px;
+  background-color: #eee;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 20px;
+}
+
+.hero-content {
+  max-width: 600px;
+  text-align: center;
+}
+
+.hero-content h1 {
+  font-size: 36px;
+  font-weight: bold;
+  margin-bottom: 16px;
+  color: #303133;
+}
+
+.hero-content p {
+  font-size: 18px;
+  margin-bottom: 30px;
+  color: #606266;
+}
+
+.hero-buttons {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+}
+
+.primary-btn {
+  background: var(--primary-gradient) !important;
+  color: white !important;
+  padding: 12px 30px !important;
+  border-radius: var(--border-radius-sm) !important;
+  font-size: 16px !important;
+  font-weight: 600 !important;
+  box-shadow: var(--box-shadow) !important;
+  border: none !important;
+}
+
+.primary-btn:hover {
+  background: var(--primary-hover) !important;
+  transform: translateY(-2px);
+  box-shadow: var(--box-shadow-hover) !important;
+}
+
+.outlined-btn {
+  border-color: var(--primary-color) !important;
+  color: var(--primary-color) !important;
+  padding: 12px 30px !important;
+  background-color: transparent !important;
+  border-radius: var(--border-radius-sm) !important;
+  font-size: 16px !important;
+  font-weight: 600 !important;
+}
+
+/* 核心功能区 */
+.features-section {
+  padding: 60px 20px;
+  background-color: #fff;
+}
+
+.features-section h2 {
+  text-align: center;
+  font-size: 28px;
+  margin-bottom: 40px;
+  color: #303133;
+}
+
+.features-container {
+  display: flex;
+  justify-content: center;
+  gap: 30px;
+  flex-wrap: wrap;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.feature-card {
+  width: 350px;
+  background-color: var(--card-bg);
+  border-radius: var(--border-radius-lg);
+  overflow: hidden;
+  box-shadow: var(--box-shadow);
+  transition: all 0.3s ease;
+}
+
+.feature-card:hover {
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: var(--box-shadow-hover);
+}
+
+.feature-image {
+  height: 200px;
+}
+
+.feature-content {
+  padding: 20px;
+}
+
+.feature-content h3 {
+  font-size: 18px;
+  margin-bottom: 10px;
+  color: #303133;
+}
+
+.feature-content p {
+  font-size: 14px;
+  color: #606266;
+}
+
+/* 职业进阶之路 */
+.career-path-section {
+  padding: 60px 20px;
+  background-color: #f5f7fa;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.section-header {
+  margin-bottom: 30px;
+}
+
+.path-image {
+  width: 60px;
+  height: 60px;
+}
+
+.path-content {
+  max-width: 1000px;
+  text-align: center;
+}
+
+.path-content h2 {
+  font-size: 28px;
+  margin-bottom: 10px;
+  color: #303133;
+}
+
+.path-content p {
+  font-size: 14px;
+  color: #606266;
+  margin-bottom: 40px;
+}
+
+.steps-container {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.step-item {
+  flex: 1;
+  min-width: 220px;
+  background-color: #fff;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.step-number {
+  font-size: 20px;
+  font-weight: bold;
+  margin-right: 10px;
+  color: #409eff;
+  width: 30px;
+  height: 30px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f0f7ff;
+  border-radius: 50%;
+}
+
+.step-desc {
+  font-size: 14px;
+  color: #606266;
+  margin-bottom: 15px;
+}
+
+.step-points {
+  list-style: none;
+  padding: 0;
+}
+
+.step-points li {
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px;
+  font-size: 14px;
+}
+
+.step-points .el-icon {
+  color: #409eff;
+  margin-right: 5px;
+}
+
+/* 数据安全区 */
+.safety-section {
+  padding: 60px 20px;
+  background-color: #fff;
+}
+
+.safety-content {
+  display: flex;
+  align-items: center;
+  max-width: 1000px;
+  margin: 0 auto;
+  gap: 40px;
+}
+
+.safety-text {
+  flex: 1;
+}
+
+.safety-text h2 {
+  font-size: 28px;
+  margin-bottom: 15px;
+  color: #303133;
+}
+
+.safety-text p {
+  font-size: 14px;
+  color: #606266;
+  margin-bottom: 20px;
+}
+
+.safety-points {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.safety-point {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.safety-icon img {
+  width: 24px;
+  height: 24px;
+}
+
+.safety-text h4 {
+  font-size: 16px;
+  margin-bottom: 5px;
+  color: #303133;
+}
+
+.safety-text p {
+  font-size: 14px;
+  color: #606266;
+}
+
+.safety-image {
+  flex: 1;
+  max-width: 400px;
+}
+
+.safety-img {
+  width: 100%;
+  border-radius: 8px;
+}
+
+/* 底部呼吁区 */
+.cta-section {
+  padding: 40px 20px;
+  background-color: #e9eef5;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.cta-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.cta-content h3 {
+  font-size: 24px;
+  margin-bottom: 10px;
+  color: #303133;
+}
+
+.cta-content p {
+  font-size: 16px;
+  color: #606266;
+  margin-bottom: 0;
+}
+
+.cta-button {
+  background-color: #409eff !important;
+  color: white !important;
+  padding: 12px 30px !important;
+  border-radius: 4px !important;
+  font-size: 16px !important;
+}
+
+/* 底部导航 */
+.footer {
+  background-color: #1f2d3d;
+  color: #a0a8b4;
+  padding: 40px 20px 20px;
+}
+
+.footer-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  max-width: 1200px;
+  margin: 0 auto;
+  gap: 30px;
+}
+
+.footer-section {
+  flex: 1;
+  min-width: 200px;
+}
+
+.footer-section h4 {
+  font-size: 16px;
+  color: #fff;
+  margin-bottom: 15px;
+}
+
+.footer-section p {
+  font-size: 14px;
+  margin-bottom: 8px;
+}
+
+.footer-section ul {
+  list-style: none;
+  padding: 0;
+}
+
+.footer-section ul li {
+  margin-bottom: 8px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.social-icons {
+  display: flex;
+  gap: 15px;
+}
+
+.social-icons .el-icon {
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.copyright {
+  margin-top: 30px;
+  text-align: center;
+  padding-top: 20px;
+  border-top: 1px solid #334257;
+  font-size: 12px;
+}
+
+html, body, #app {
+  min-height: 100vh;
+  height: auto;
+  overflow-x: hidden;
+  overflow-y: auto;
+  margin: 0;
+  padding: 0;
+  background: #f5f8ff !important;
+  box-sizing: border-box;
+}
+
+/* 隐藏全局滚动条 */
+::-webkit-scrollbar {
+  display: none;
+}
+
+/* 主容器和内容区通用自适应布局 */
+.container, .main, .main-flex-layout, .offecial-exam-root, .simulat-exam-root, .written-exam-container, .before-written-container, .el-main,
+.content-area, .content-header, .features, .feature-card, .section-title, .section-header, .resume-section, .work-item, .exam-header, .share-content, .resume-list, .card, .feature-cards, .feature-content, .summary-card, .card-content, .module-item, .module-content, .resume-work-experience, .analysis-section, .step-card, .question-block, .questions-card, .ai-avatar-card, .mode-card, .share-header, .share-content, .resume-paper {
+  margin-top: 0 !important;
+  padding-top: 0 !important;
+  margin-bottom: 0 !important;
+}
+
+/* 让flex子项内容不被裁剪 */
+.main-flex-layout > *,
+.offecial-exam-root > *,
+.simulat-exam-root > *,
+.written-exam-container > *,
+.before-written-container > * {
+  min-width: 0;
+  min-height: 0;
+  box-sizing: border-box;
+}
+
+/* 推荐所有px单位逐步替换为rem/vw/%，保证缩放自适应 */
+.editor-header {
+  z-index: 100;
+}
+
+/* 智能编辑简历美化，风格与主页统一 */
+
+/* 1. 顶部导航栏 */
+.editor-header {
+  background: linear-gradient(90deg, #2563eb 0%, #1e40af 100%);
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(30,64,175,0.08);
+  border-bottom: none;
+}
+.editor-header .header-left .title-input {
+  background: rgba(255,255,255,0.9);
+  border-radius: 6px;
+  font-size: 20px;
+  font-weight: bold;
+  color: #1e40af;
+  border: none;
+}
+.editor-header .header-center .view-tabs .tab-item {
+  font-size: 18px;
+  font-weight: 600;
+  color: #fff;
+  background: transparent;
+}
+.editor-header .header-center .view-tabs .tab-item.active {
+  background: #fff;
+  color: #2563eb;
+  box-shadow: 0 2px 8px rgba(37,99,235,0.10);
+}
+.editor-header .header-right .el-button {
+  font-weight: 600;
+  border-radius: 6px;
+  box-shadow: 0 1px 4px rgba(37,99,235,0.08);
+}
+.editor-header .header-right .el-button[type="primary"] {
+  background: #2563eb;
+  color: #fff;
+}
+
+/* 2. 侧边栏 */
+.sidebar {
+  background: #f1f5f9;
+  border-right: 1px solid #e0e7ef;
+}
+.module-item {
+  border-radius: 12px;
+  border: 1.5px solid #e0e7ef;
+  background: #fff;
+  margin-bottom: 8px;
+  transition: box-shadow 0.2s, border-color 0.2s;
+}
+.module-item.active {
+  border-color: #2563eb;
+  background: #e0e7ef;
+  box-shadow: 0 2px 8px rgba(37,99,235,0.10);
+}
+.module-content {
+  padding: 18px 16px;
+}
+.module-name {
+  font-size: 16px;
+  font-weight: bold;
+  color: #1e293b;
+}
+.completion-rate {
+  color: #2563eb;
+  font-weight: bold;
+}
+.progress-section {
+  background: #e0e7ef;
+  border-radius: 10px;
+  border: none;
+  margin-bottom: 20px;
+}
+.progress-header {
+  color: #1e40af;
+  font-weight: bold;
+}
+.el-progress-bar__inner {
+  background: linear-gradient(90deg, #2563eb 0%, #60a5fa 100%);
+}
+
+/* 3. 编辑区卡片化 */
+.content-area {
+  background: #f8fafc;
+  border-radius: 18px;
+  margin: 0 !important;
+  padding: 0 !important;
+  box-shadow: 0 4px 24px rgba(30,64,175,0.08);
+}
+.content-header {
+  background: #2563eb;
+  color: #fff;
+  border-radius: 18px 18px 0 0;
+  box-shadow: 0 2px 8px rgba(37,99,235,0.10);
+  padding: 0 !important;
+}
+.header-title {
+  font-size: 24px;
+  font-weight: bold;
+  color: #fff;
+}
+.header-desc {
+  color: #dbeafe;
+  font-size: 15px;
+}
+.header-actions .el-button {
+  background: #fff;
+  color: #2563eb;
+  font-weight: bold;
+  border-radius: 6px;
+  box-shadow: 0 1px 4px rgba(37,99,235,0.08);
+}
+.header-actions .el-button:hover {
+  background: #2563eb;
+  color: #fff;
+}
+
+/* 4. 重点内容/必填项/按钮 */
+.el-form-item.is-required > .el-form-item__label:before {
+  color: #ef4444;
+  font-size: 18px;
+  font-weight: bold;
+}
+.el-button--primary, .el-button[type="primary"] {
+  background: var(--primary-gradient);
+  color: #fff;
+  font-weight: 600;
+  border: none;
+  box-shadow: var(--box-shadow);
+  border-radius: var(--border-radius-sm) !important;
+  transition: all 0.3s ease;
+}
+.el-button--primary:hover, .el-button[type="primary"]:hover {
+  background: var(--primary-hover);
+  transform: translateY(-2px);
+  box-shadow: var(--box-shadow-hover);
+}
+
+/* 5. 圆角、阴影、间距优化 */
+.el-input, .el-select, .el-date-picker, .el-textarea {
+  border-radius: var(--border-radius-sm) !important;
+  background: var(--card-bg) !important;
+}
+.el-form-item {
+  margin-bottom: 22px;
+}
+.el-dialog {
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--box-shadow-lg);
+}
+.el-dialog__header {
+  font-size: 22px;
+  font-weight: bold;
+  color: var(--primary-color);
+}
+.el-dialog__footer .el-button--primary {
+  min-width: 80px;
+}
+.el-card {
+  border-radius: var(--border-radius) !important;
+  box-shadow: var(--box-shadow) !important;
+  border: none !important;
+}
+
+/* 6. 其他细节 */
+.sidebar-collapsed {
+  background: #e0e7ef;
+}
+.module-indicator .indicator-dot.status-complete {
+  background: #2563eb;
+}
+
+/* 7. 响应式优化 */
+@media (max-width: 900px) {
+  .content-area, .content-header {
+    margin: 8px 0 8px 0;
+    padding: 0 8px;
+    border-radius: 10px;
+  }
+  .editor-header {
+    padding: 0 8px;
+  }
+}
+
+/* 写作建议美化 */
+.summary-tips {
+  background: #f1f5ff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(37,99,235,0.06);
+  padding: 20px 28px 16px 28px;
+  margin-top: 18px;
+  margin-bottom: 8px;
+  border-left: 5px solid #2563eb;
+  display: flex;
+  align-items: flex-start;
+  gap: 18px;
+}
+.summary-tips .el-alert {
+  background: transparent;
+  box-shadow: none;
+  padding: 0;
+}
+.summary-tips .el-alert__icon {
+  font-size: 32px;
+  color: #2563eb;
+  margin-right: 16px;
+}
+.summary-tips .el-alert__title {
+  font-size: 18px;
+  font-weight: bold;
+  color: #1e40af;
+  margin-bottom: 8px;
+}
+.summary-tips ul {
+  margin: 0;
+  padding-left: 20px;
+  color: #334155;
+  font-size: 15px;
+  line-height: 2;
+}
+.summary-tips li {
+  margin-bottom: 2px;
+}
+
+/* 去除实时预览区域留白 */
+.preview-panel {
+  background: #fff;
+  padding: 0 !important;
+  margin: 0 !important;
+  box-shadow: none;
+}
+.preview-panel-content {
+  padding: 0 !important;
+  margin: 0 !important;
+  background: #fff;
+}
+.preview-wrapper {
+  margin: 0 !important;
+  padding: 0 !important;
+  background: #fff;
+  box-shadow: none;
+}
+
+/* eslint-disable */
+/* 统一表单控件高度为48px */
+input[type="text"],
+input[type="number"],
+input[type="email"],
+input[type="password"],
+select,
+.el-input__inner,
+.el-select .el-input__inner,
+.el-date-editor.el-input__inner,
+.el-date-editor .el-input__inner,
+.el-select-dropdown__item {
+  height: 48px !important;
+  min-height: 48px !important;
+  line-height: 48px !important;
+  box-sizing: border-box;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+}
+
+.el-select .el-input__inner {
+  display: flex;
+  align-items: center;
+}
+
+.el-select-dropdown__item {
+  min-height: 48px !important;
+  line-height: 48px !important;
+}
+
+.el-date-editor {
+  height: 48px !important;
+}
+
+/* eslint-disable */
+/* 强制 Element Plus 输入框、下拉框、日期选择器高度为48px */
+.el-input,
+.el-date-editor,
+.el-input__wrapper,
+.el-input__inner,
+.el-date-editor .el-input__wrapper,
+.el-date-editor .el-input__inner {
+  height: 48px !important;
+  min-height: 48px !important;
+  line-height: 48px !important;
+  box-sizing: border-box;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+  align-items: center !important;
+  display: flex !important;
+}
+.el-input__inner {
+  font-size: 16px;
+}
+.el-date-editor .el-input__wrapper {
+  height: 48px !important;
+  min-height: 48px !important;
+  line-height: 48px !important;
+  display: flex !important;
+  align-items: center !important;
+}
+.el-date-editor {
+  height: 48px !important;
+  min-height: 48px !important;
+  line-height: 48px !important;
+}
+
+/* 统一所有输入框 placeholder 样式，适用于简历编辑及全局 */
+.el-input__inner::placeholder,
+.el-textarea__inner::placeholder,
+input::placeholder,
+textarea::placeholder {
+  color: #bdbdbd !important;
+  font-size: 20px !important;
+  opacity: 1 !important;
+  font-family: inherit;
+}
+
+/* 统一输入框圆角 */
+.el-input, .el-input__inner, .el-textarea, .el-textarea__inner {
+  border-radius: 8px !important;
+}
+
+.el-input__count {
+  font-size: 18px !important;
+  font-weight: bold;
+  position: absolute;
+  right: 16px;
+  bottom: 10px;
+  background: transparent;
+  z-index: 2;
+  pointer-events: none;
+}
+.el-textarea {
+  position: relative !important;
+}

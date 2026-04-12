@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CHAT</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.0.0/crypto-js.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+
+        textarea {
+            width: 100%;
+            height: 100px;
+            margin-bottom: 10px;
+        }
+
+        button {
+            padding: 10px 20px;
+        }
+    </style>
+</head>
+<script>
+   var message_data = [];
+</script>
+<body>
+    <h1>CHAT</h1>
+    <textarea id="input_text" placeholder="请输入您的问题"></textarea>
+    <button id="ask_btn">立即提问</button>
+    <textarea id="think" readonly placeholder="思考过程将显示在这里"></textarea>
+    <textarea id="output_text" readonly placeholder="回答将显示在这里"></textarea>
+    <script src="chat.js"></script>
+    <script>
+        document.addEventListener('receiveReasoning', (event) => {
+            const think = document.getElementById('think');
+            think.innerHTML = think.innerHTML + event.detail;
+        });
+
+        document.addEventListener('receiveAnswer', (event) => { 
+            const outputText = document.getElementById('output_text');
+            if(message_data[message_data.length - 1].role == 'user'){
+                message_data.push({'role':'assistant','content':''})
+            }
+            message_data[message_data.length - 1].content = message_data[message_data.length - 1].content + event.detail;
+            outputText.innerHTML = outputText.innerHTML + event.detail;
+            console.log(message_data)
+        });
+
+        document.getElementById('ask_btn').addEventListener('click', () => {
+            const inputText = document.getElementById('input_text').value;
+            message_data.push({'role':'user','content':inputText});
+            connectWebSocket(message_data);
+        });
+    </script>
+</body> 
+
+</html>    
