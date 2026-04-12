@@ -44,8 +44,8 @@ public class Teacher {
     @TableField("managed_majors")
     private String managedMajors; // JSON格式存储管理的专业ID列表
     
-    @TableField("status")
-    private String status; // 'active', 'inactive'
+    @TableField("profile_completion")
+    private Integer profileCompletion; // 0-100
     
     @TableField(value = "created_at", fill = FieldFill.INSERT)
     private LocalDateTime createdAt;

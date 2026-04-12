@@ -1,4 +1,13 @@
 <template>
+  <!-- 企业档案完善引导弹窗 -->
+  <ProfileGuideDialog
+    v-model="showProfileGuide"
+    title="完善企业信息"
+    description="完善企业信息可获得更多优质人才推荐，提升招聘效果。"
+    @complete="handleCompleteProfile"
+    @later="handleLaterProfile"
+  />
+  
   <div class="ai-dashboard-container">
     <!-- 顶部标题 -->
     <div class="dashboard-header">
@@ -181,6 +190,7 @@ import {
   TrendCharts,
   InfoFilled
 } from '@element-plus/icons-vue'
+import ProfileGuideDialog from '@/components/ProfileGuideDialog.vue'
 
 export default {
   name: 'CompanyDashboard',
@@ -195,10 +205,12 @@ export default {
     DataAnalysis,
     Setting,
     TrendCharts,
-    InfoFilled
+    InfoFilled,
+    ProfileGuideDialog
   },
   data() {
     return {
+      showProfileGuide: false,
       stats: {
         jobCount: 0,
         applicantCount: 0,
@@ -221,8 +233,34 @@ export default {
   },
   mounted() {
     this.loadStats()
+    this.checkProfileStatus()
   },
   methods: {
+    checkProfileStatus() {
+      // 检查用户角色和档案完成状态
+      const userRole = this.$store.getters.userRole
+      const profileCompleted = this.$store.getters.profileCompleted
+      
+      console.log('检查企业档案状态:', { userRole, profileCompleted })
+      
+      // 只有企业角色且档案未完善时才显示弹窗
+      if (userRole === 'company' && !profileCompleted) {
+        // 延迟显示弹窗，让页面先加载完成
+        setTimeout(() => {
+          this.showProfileGuide = true
+        }, 1000)
+      }
+    },
+    
+    handleCompleteProfile() {
+      // 跳转到企业档案完善页面
+      this.$router.push('/company/profile-complete')
+    },
+    
+    handleLaterProfile() {
+      // 用户选择稍后再说，不做任何操作
+      console.log('用户选择稍后完善企业档案')
+    },
     async loadStats() {
       // TODO: 从API加载统计数据
       this.stats = {

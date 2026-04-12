@@ -23,6 +23,18 @@ const routes = [
     component: () => import('@/views/student/ProfileComplete.vue'),
     meta: { requiresAuth: true, role: 'student' }
   },
+  {
+    path: '/company/profile-complete',
+    name: 'CompanyProfileComplete',
+    component: () => import('@/views/company/ProfileComplete.vue'),
+    meta: { requiresAuth: true, role: 'company' }
+  },
+  {
+    path: '/teacher/profile-complete',
+    name: 'TeacherProfileComplete',
+    component: () => import('@/views/teacher/ProfileComplete.vue'),
+    meta: { requiresAuth: true, role: 'teacher' }
+  },
   /*{
     path: '/interview/:id?',
     name: 'Interview',

@@ -26,6 +26,9 @@ public class User {
     @TableField("role")
     private String role; // 'student', 'company' 或 'teacher'
     
+    @TableField("phone")
+    private String phone; // 手机号
+    
     @TableField("profile_completed")
     private Integer profileCompleted; // 0-未完善, 1-已完善
     

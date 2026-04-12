@@ -1,4 +1,13 @@
 <template>
+  <!-- 教师档案完善引导弹窗 -->
+  <ProfileGuideDialog
+    v-model="showProfileGuide"
+    title="完善教师信息"
+    description="完善教师信息可获得更好的管理体验，提升工作效率。"
+    @complete="handleCompleteProfile"
+    @later="handleLaterProfile"
+  />
+  
   <div class="teacher-dashboard">
     <el-row :gutter="20" class="stat-row">
       <el-col :xs="24" :sm="12" :md="6">
@@ -141,14 +150,19 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { useStore } from 'vuex'
 import { ElMessage } from 'element-plus'
 import {
   User, SuccessFilled, Clock, Warning, Building, Promotion,
   Share, Calendar, Briefcase, Help
 } from '@element-plus/icons-vue'
 import { getTeacherDashboard } from '@/api/teacher'
+import ProfileGuideDialog from '@/components/ProfileGuideDialog.vue'
 
 const router = useRouter()
+const store = useStore()
+const showProfileGuide = ref(false)
+
 const dashboard = ref({
   totalStudents: 0,
   employedStudents: 0,
@@ -159,6 +173,32 @@ const dashboard = ref({
   totalActivities: 0,
   cooperationApplications: 0
 })
+
+const checkProfileStatus = () => {
+  // 检查用户角色和档案完成状态
+  const userRole = store.getters.userRole
+  const profileCompleted = store.getters.profileCompleted
+  
+  console.log('检查教师档案状态:', { userRole, profileCompleted })
+  
+  // 只有教师角色且档案未完善时才显示弹窗
+  if (userRole === 'teacher' && !profileCompleted) {
+    // 延迟显示弹窗，让页面先加载完成
+    setTimeout(() => {
+      showProfileGuide.value = true
+    }, 1000)
+  }
+}
+
+const handleCompleteProfile = () => {
+  // 跳转到教师档案完善页面
+  router.push('/teacher/profile-complete')
+}
+
+const handleLaterProfile = () => {
+  // 用户选择稍后再说，不做任何操作
+  console.log('用户选择稍后完善教师档案')
+}
 
 const loadDashboard = async () => {
   try {
@@ -180,6 +220,7 @@ const goToCooperation = () => router.push('/teacher/cooperation')
 
 onMounted(() => {
   loadDashboard()
+  checkProfileStatus()
 })
 </script>
 

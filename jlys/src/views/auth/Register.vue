@@ -30,7 +30,7 @@
         >
           <el-form-item prop="role">
             <el-radio-group v-model="registerForm.role" size="large">
-              <el-radio label="applicant">学生</el-radio>
+              <el-radio label="student">学生</el-radio>
               <el-radio label="company">企业用户</el-radio>
               <el-radio label="teacher">教师</el-radio>
             </el-radio-group>
@@ -67,135 +67,14 @@
             />
           </el-form-item>
 
-          <!-- 学生信息 -->
-          <template v-if="registerForm.role === 'student'">
-            <el-form-item prop="studentNo">
-              <el-input
-                  v-model="registerForm.studentNo"
-                  placeholder="请输入学号"
-                  size="large"
-                  prefix-icon="User"
-              />
-            </el-form-item>
-
-            <el-form-item prop="realName">
-              <el-input
-                  v-model="registerForm.realName"
-                  placeholder="请输入姓名"
-                  size="large"
-                  prefix-icon="User"
-              />
-            </el-form-item>
-
-            <el-form-item prop="phone">
-              <el-input
-                  v-model="registerForm.phone"
-                  placeholder="请输入手机号"
-                  size="large"
-                  prefix-icon="Phone"
-              />
-            </el-form-item>
-          </template>
-
-          <!-- 企业信息 -->
-          <template v-if="registerForm.role === 'company'">
-            <el-form-item prop="companyName">
-              <el-input
-                  v-model="registerForm.companyName"
-                  placeholder="请输入公司名称"
-                  size="large"
-                  prefix-icon="OfficeBuilding"
-              />
-            </el-form-item>
-
-            <el-form-item prop="industry">
-              <el-input
-                  v-model="registerForm.industry"
-                  placeholder="请输入所属行业"
-                  size="large"
-                  prefix-icon="Briefcase"
-              />
-            </el-form-item>
-
-            <el-form-item prop="scale">
-              <el-select
-                  v-model="registerForm.scale"
-                  placeholder="请选择公司规模"
-                  size="large"
-                  style="width: 100%"
-              >
-                <el-option label="1-50人" value="1-50人" />
-                <el-option label="51-100人" value="51-100人" />
-                <el-option label="101-500人" value="101-500人" />
-                <el-option label="500人以上" value="500人以上" />
-              </el-select>
-            </el-form-item>
-
-            <el-form-item prop="contactPhone">
-              <el-input
-                  v-model="registerForm.contactPhone"
-                  placeholder="请输入联系电话"
-                  size="large"
-                  prefix-icon="Phone"
-              />
-            </el-form-item>
-          </template>
-
-          <!-- 教师信息 -->
-          <template v-if="registerForm.role === 'teacher'">
-            <el-form-item prop="teacherNo">
-              <el-input
-                  v-model="registerForm.teacherNo"
-                  placeholder="请输入工号"
-                  size="large"
-                  prefix-icon="User"
-              />
-            </el-form-item>
-
-            <el-form-item prop="realName">
-              <el-input
-                  v-model="registerForm.realName"
-                  placeholder="请输入姓名"
-                  size="large"
-                  prefix-icon="User"
-              />
-            </el-form-item>
-
-            <el-form-item prop="phone">
-              <el-input
-                  v-model="registerForm.phone"
-                  placeholder="请输入手机号"
-                  size="large"
-                  prefix-icon="Phone"
-              />
-            </el-form-item>
-
-            <el-form-item prop="roleType">
-              <el-select
-                  v-model="registerForm.roleType"
-                  placeholder="请选择教师角色"
-                  size="large"
-                  style="width: 100%"
-              >
-                <el-option label="辅导员" value="counselor" />
-                <el-option label="学业导师" value="advisor" />
-                <el-option label="管理员" value="admin" />
-                <el-option label="领导" value="leader" />
-              </el-select>
-            </el-form-item>
-
-            <el-form-item prop="collegeId">
-              <el-select
-                  v-model="registerForm.collegeId"
-                  placeholder="请选择所属学院"
-                  size="large"
-                  style="width: 100%"
-              >
-                <el-option label="计算机与信息工程学院" :value="1" />
-                <el-option label="电子工程学院" :value="2" />
-              </el-select>
-            </el-form-item>
-          </template>
+          <el-form-item prop="phone">
+            <el-input
+                v-model="registerForm.phone"
+                placeholder="请输入手机号"
+                size="large"
+                prefix-icon="Phone"
+            />
+          </el-form-item>
 
           <el-form-item>
             <el-button
@@ -241,19 +120,7 @@ export default {
         email: '',
         password: '',
         confirmPassword: '',
-        // 学生信息
-        studentNo: '',
-        realName: '',
-        phone: '',
-        // 企业信息
-        companyName: '',
-        industry: '',
-        scale: '',
-        contactPhone: '',
-        // 教师信息
-        teacherNo: '',
-        roleType: '',
-        collegeId: null
+        phone: ''
       },
       registerRules: {
         role: [
@@ -271,36 +138,9 @@ export default {
           { required: true, message: '请确认密码', trigger: 'blur' },
           { validator: validateConfirmPassword, trigger: 'blur' }
         ],
-        studentNo: [
-          { required: true, message: '请输入学号', trigger: 'blur' }
-        ],
-        realName: [
-          { required: true, message: '请输入姓名', trigger: 'blur' }
-        ],
         phone: [
           { required: true, message: '请输入手机号', trigger: 'blur' },
           { pattern: /^1[3-9]\d{9}$/, message: '请输入正确的手机号', trigger: 'blur' }
-        ],
-        companyName: [
-          { required: true, message: '请输入公司名称', trigger: 'blur' }
-        ],
-        industry: [
-          { required: true, message: '请输入所属行业', trigger: 'blur' }
-        ],
-        scale: [
-          { required: true, message: '请选择公司规模', trigger: 'change' }
-        ],
-        contactPhone: [
-          { required: true, message: '请输入联系电话', trigger: 'blur' }
-        ],
-        teacherNo: [
-          { required: true, message: '请输入工号', trigger: 'blur' }
-        ],
-        roleType: [
-          { required: true, message: '请选择教师角色', trigger: 'change' }
-        ],
-        collegeId: [
-          { required: true, message: '请选择所属学院', trigger: 'change' }
         ]
       }
     }

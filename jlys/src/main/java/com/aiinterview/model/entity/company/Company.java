@@ -15,10 +15,10 @@ import java.time.LocalDateTime;
 public class Company {
     
     @TableId(value = "company_id", type = IdType.AUTO)
-    private Long companyId;
+    private Integer companyId;
     
     @TableField("user_id")
-    private Long userId;
+    private Integer userId;
     
     @TableField("company_name")
     private String companyName;
@@ -44,20 +44,14 @@ public class Company {
     @TableField("description")
     private String description;
 
-    @TableField("credit_code")
-    private String creditCode;
-
-    @TableField("license_url")
-    private String licenseUrl;
-
     @TableField("verify_status")
     private String verifyStatus;
 
-    @TableField("verify_remark")
-    private String verifyRemark;
-
     @TableField("credit_score")
     private Integer creditScore;
+
+    @TableField("profile_completion")
+    private Integer profileCompletion; // 0-100
 
     @TableField(value = "created_at", fill = FieldFill.INSERT)
     private LocalDateTime createdAt;

@@ -132,10 +132,12 @@ export default {
             // 学生统一跳转到dashboard，由dashboard处理档案完善提醒
             this.$router.push('/applicant/dashboard')
           } else if (role === 'company') {
-            console.log('跳转到企业dashboard')
+            console.log('企业登录，档案完成状态:', profileCompleted)
+            // 企业统一跳转到dashboard，由dashboard处理档案完善提醒
             this.$router.push('/company/dashboard')
           } else if (role === 'teacher') {
-            console.log('跳转到教师dashboard')
+            console.log('教师登录，档案完成状态:', profileCompleted)
+            // 教师统一跳转到dashboard，由dashboard处理档案完善提醒
             this.$router.push('/teacher/dashboard')
           }
         } else {
