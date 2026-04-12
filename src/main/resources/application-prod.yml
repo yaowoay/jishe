@@ -7,11 +7,14 @@ spring:
   # todo 需替换配置
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost/my_db
+    url: jdbc:mysql://localhost/ai_interview_v2?useSSL=false
     username: root
-    password: 316626
+    password: 12345
   # Redis 配置
   # todo 需替换配置
+    mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
   redis:
     database: 1
     host: localhost

@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.aiinterview.mapper.DiscTestMapper">
+
+    <!-- 保存测试答案 -->
+    <insert id="saveTestAnswer">
+        INSERT INTO disc_test_answers (record_id, question_group, selected_option, disc_type, answer_time)
+        VALUES (#{recordId}, #{questionGroup}, #{selectedOption}, #{discType}, NOW())
+    </insert>
+
+    <!-- 保存测试结果 -->
+    <insert id="saveTestResult" parameterType="com.aiinterview.model.entity.disctest.DiscTestResult">
+        INSERT INTO disc_test_results (
+            record_id, user_id, d_score, i_score, s_score, c_score,
+            primary_type, secondary_type, personality_profile,
+            detailed_analysis, strengths, weaknesses, career_suggestions,
+            created_at
+        ) VALUES (
+            #{recordId}, #{userId}, #{dScore}, #{iScore}, #{sScore}, #{cScore},
+            #{primaryType}, #{secondaryType}, #{personalityProfile},
+            #{detailedAnalysis}, #{strengths}, #{weaknesses}, #{careerSuggestions},
+            #{createdAt}
+        )
+    </insert>
+
+    <!-- 结果映射 -->
+    <resultMap id="DiscQuestionResultMap" type="com.aiinterview.model.entity.disctest.DiscQuestion">
+        <id column="question_id" property="questionId"/>
+        <result column="question_group" property="questionGroup"/>
+        <result column="option_letter" property="optionLetter"/>
+        <result column="option_text" property="optionText"/>
+        <result column="disc_type" property="discType"/>
+        <result column="is_positive" property="isPositive"/>
+        <result column="created_at" property="createdAt"/>
+    </resultMap>
+
+    <resultMap id="DiscTestRecordResultMap" type="com.aiinterview.model.entity.disctest.DiscTestRecord">
+        <id column="record_id" property="recordId"/>
+        <result column="user_id" property="userId"/>
+        <result column="test_session" property="testSession"/>
+        <result column="test_status" property="testStatus"/>
+        <result column="start_time" property="startTime"/>
+        <result column="complete_time" property="completeTime"/>
+        <result column="total_questions" property="totalQuestions"/>
+        <result column="answered_questions" property="answeredQuestions"/>
+        <result column="created_at" property="createdAt"/>
+        <result column="updated_at" property="updatedAt"/>
+    </resultMap>
+
+    <resultMap id="DiscTestResultResultMap" type="com.aiinterview.model.entity.disctest.DiscTestResult">
+        <id column="result_id" property="resultId"/>
+        <result column="record_id" property="recordId"/>
+        <result column="user_id" property="userId"/>
+        <result column="d_score" property="dScore"/>
+        <result column="i_score" property="iScore"/>
+        <result column="s_score" property="sScore"/>
+        <result column="c_score" property="cScore"/>
+        <result column="primary_type" property="primaryType"/>
+        <result column="secondary_type" property="secondaryType"/>
+        <result column="personality_profile" property="personalityProfile"/>
+        <result column="detailed_analysis" property="detailedAnalysis"/>
+        <result column="strengths" property="strengths"/>
+        <result column="weaknesses" property="weaknesses"/>
+        <result column="career_suggestions" property="careerSuggestions"/>
+        <result column="created_at" property="createdAt"/>
+    </resultMap>
+
+</mapper>

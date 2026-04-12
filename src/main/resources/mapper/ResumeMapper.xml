@@ -1,22 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.coldwind.easyoj.mapper.ResumeMapper">
+<mapper namespace="com.aiinterview.mapper.ResumerMapper">
 
     <!-- 根据用户标识获取简历列表 -->
-    <select id="selectByUserKey" resultType="com.coldwind.easyoj.model.entity.Resume">
+    <select id="selectByUserKey" resultType="com.aiinterview.model.entity.resumer">
         SELECT * FROM resume 
         WHERE user_key = #{userKey} AND is_deleted = 0
         ORDER BY update_time DESC
     </select>
 
     <!-- 根据分享链接获取简历 -->
-    <select id="selectByShareUrl" resultType="com.coldwind.easyoj.model.entity.Resume">
+    <select id="selectByShareUrl" resultType="com.aiinterview.model.entity.resumer">
         SELECT * FROM resume 
         WHERE share_url = #{shareUrl} AND is_deleted = 0
     </select>
 
     <!-- 搜索简历 -->
-    <select id="searchResumes" resultType="com.coldwind.easyoj.model.entity.Resume">
+    <select id="searchResumes" resultType="com.aiinterview.model.entity.resumer">
         SELECT * FROM resume 
         WHERE is_deleted = 0
         <if test="userKey != null">
@@ -34,7 +34,7 @@
     </select>
 
     <!-- 获取热门简历 -->
-    <select id="selectPopularResumes" resultType="com.coldwind.easyoj.model.entity.Resume">
+    <select id="selectPopularResumes" resultType="com.aiinterview.model.entity.resumer">
         SELECT * FROM resume 
         WHERE is_deleted = 0
         ORDER BY view_count DESC, update_time DESC

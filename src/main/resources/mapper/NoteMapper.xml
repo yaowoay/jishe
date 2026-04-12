@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.coldwind.easyoj.mapper.NoteMapper">
+<mapper namespace="com.aiinterview.mapper.NoteMapper">
 
     <!-- 分页查询笔记 -->
-    <select id="selectNotesByPage" resultType="com.coldwind.easyoj.model.entity.note.Note">
+    <select id="selectNotesByPage" resultType="com.aiinterview.model.entity.note.Note">
         SELECT
             id, userId, title, content, category, tags, isPublic, createTime, updateTime
         FROM notes

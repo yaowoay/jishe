@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>教师院校端 - 就业审核</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css">
+    <style>
+        body { background-color: #f5f7fa; }
+        .navbar { background-color: #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .card { border: none; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .modal-header { background-color: #f8f9fa; border-bottom: 1px solid #dee2e6; }
+        .btn-primary { background-color: #3498db; border: none; }
+        .btn-primary:hover { background-color: #2980b9; }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container-fluid">
+            <span class="navbar-brand mb-0 h1">就业审核</span>
+            <button class="btn btn-sm btn-outline-danger" onclick="goBack()">返回</button>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <div class="card p-4">
+            <h4 class="mb-4">就业台账审核</h4>
+            <form id="auditForm">
+                <div class="row mb-3">
+                    <label class="col-md-2 col-form-label">学生ID</label>
+                    <div class="col-md-4">
+                        <input type="text" class="form-control" id="studentId" readonly>
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <label class="col-md-2 col-form-label">就业状态</label>
+                    <div class="col-md-4">
+                        <select class="form-control" id="employmentStatus" required>
+                            <option value="">选择状态</option>
+                            <option value="已就业">已就业</option>
+                            <option value="待就业">待就业</option>
+                            <option value="求职中">求职中</option>
+                            <option value="升学">升学</option>
+                            <option value="未落实">未落实</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <label class="col-md-2 col-form-label">公司名称</label>
+                    <div class="col-md-4">
+                        <input type="text" class="form-control" id="companyName">
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <label class="col-md-2 col-form-label">职位</label>
+                    <div class="col-md-4">
+                        <input type="text" class="form-control" id="position">
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <label class="col-md-2 col-form-label">薪资范围</label>
+                    <div class="col-md-4">
+                        <input type="text" class="form-control" id="salaryRange" placeholder="如: 8k-12k">
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <label class="col-md-2 col-form-label">工作城市</label>
+                    <div class="col-md-4">
+                        <input type="text" class="form-control" id="employmentCity">
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <label class="col-md-2 col-form-label">升学学校</label>
+                    <div class="col-md-4">
+                        <input type="text" class="form-control" id="furtherStudySchool" placeholder="如升学，填写学校名称">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <button type="button" class="btn btn-success" onclick="submitAudit()">审核通过</button>
+                        <button type="button" class="btn btn-danger" onclick="rejectAudit()">审核拒绝</button>
+                        <button type="button" class="btn btn-secondary" onclick="goBack()">返回</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = '/api';
+        const token = localStorage.getItem('token');
+        const ledgerId = new URLSearchParams(window.location.search).get('id');
+
+        function goBack() {
+            window.history.back();
+        }
+
+        function submitAudit() {
+            const data = {
+                ledgerId: parseInt(ledgerId),
+                verifyStatus: 'approved',
+                employmentStatus: document.getElementById('employmentStatus').value,
+                companyName: document.getElementById('companyName').value,
+                position: document.getElementById('position').value,
+                salaryRange: document.getElementById('salaryRange').value,
+                employmentCity: document.getElementById('employmentCity').value,
+                furtherStudySchool: document.getElementById('furtherStudySchool').value
+            };
+
+            fetch(`${API_BASE}/teacher/employment/audit`, {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            }).then(r => r.json()).then(res => {
+                alert(res.message);
+                if (res.success) goBack();
+            });
+        }
+
+        function rejectAudit() {
+            const data = {
+                ledgerId: parseInt(ledgerId),
+                verifyStatus: 'rejected',
+                employmentStatus: document.getElementById('employmentStatus').value
+            };
+
+            fetch(`${API_BASE}/teacher/employment/audit`, {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            }).then(r => r.json()).then(res => {
+                alert(res.message);
+                if (res.success) goBack();
+            });
+        }
+    </script>
+</body>
+</html>
