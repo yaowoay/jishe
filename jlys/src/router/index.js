@@ -40,7 +40,7 @@ const routes = [
     path: '/applicant',
     name: 'ApplicantLayout',
     component: () => import('@/views/layouts/ApplicantLayout.vue'),
-    meta: { requiresAuth: true, role: 'applicant' },
+    meta: { requiresAuth: true, role: ['applicant', 'student'] },
     children: [
       {
         path: 'ApplicationVisual',
@@ -319,80 +319,7 @@ const routes = [
       }
     ]
   },
-  // 教师院校端路由
-  {
-    path: '/teacher',
-    name: 'TeacherLayout',
-    component: () => import('@/views/layouts/TeacherLayout.vue'),
-    meta: { requiresAuth: true, role: 'teacher' },
-    children: [
-      {
-        path: 'dashboard',
-        name: 'TeacherDashboard',
-        component: () => import('@/views/teacher/Dashboard.vue')
-      },
-      {
-        path: 'profile',
-        name: 'TeacherProfile',
-        component: () => import('@/views/teacher/Profile.vue')
-      },
-      {
-        path: 'students',
-        name: 'TeacherStudents',
-        component: () => import('@/views/teacher/Students.vue')
-      },
-      {
-        path: 'students/warning',
-        name: 'TeacherWarningStudents',
-        component: () => import('@/views/teacher/WarningStudents.vue')
-      },
-      {
-        path: 'employment',
-        name: 'TeacherEmployment',
-        component: () => import('@/views/teacher/Employment.vue')
-      },
-      {
-        path: 'employment/stats',
-        name: 'TeacherEmploymentStats',
-        component: () => import('@/views/teacher/EmploymentStats.vue')
-      },
-      {
-        path: 'companies',
-        name: 'TeacherCompanies',
-        component: () => import('@/views/teacher/Companies.vue')
-      },
-      {
-        path: 'jobs',
-        name: 'TeacherJobs',
-        component: () => import('@/views/teacher/Jobs.vue')
-      },
-      {
-        path: 'activities',
-        name: 'TeacherActivities',
-        component: () => import('@/views/teacher/Activities.vue')
-      },
-      {
-        path: 'activities/create',
-        name: 'TeacherActivityCreate',
-        component: () => import('@/views/teacher/ActivityCreate.vue')
-      },
-      {
-        path: 'assistance',
-        name: 'TeacherAssistance',
-        component: () => import('@/views/teacher/Assistance.vue')
-      },
-      {
-        path: 'assistance/create',
-        name: 'TeacherAssistanceCreate',
-        component: () => import('@/views/teacher/AssistanceCreate.vue')
-      },
-      {
-        path: 'cooperation',
-        name: 'TeacherCooperation',
-        component: () => import('@/views/teacher/Cooperation.vue')
-      }
-    ]
-  },
+  // 教师院校端路由 - 移除重复定义
   {
     path: '/debug-auth',
     name: 'DebugAuth',
@@ -445,16 +372,22 @@ router.beforeEach((to, from, next) => {
   if (to.matched.some(record => record.meta.requiresAuth)) {
     if (!token) {
       next('/login')
-    } else if (to.meta.role && to.meta.role !== userRole) {
-      // 角色不匹配，重定向到对应角色的首页
-      if (userRole === 'applicant') {
-        next('/applicant/dashboard')
-      } else if (userRole === 'company') {
-        next('/company/dashboard')
-      } else if (userRole === 'teacher') {
-        next('/teacher/dashboard')
+    } else if (to.meta.role) {
+      // 支持数组形式的角色检查
+      const allowedRoles = Array.isArray(to.meta.role) ? to.meta.role : [to.meta.role]
+      if (!allowedRoles.includes(userRole)) {
+        // 角色不匹配，重定向到对应角色的首页
+        if (userRole === 'student') {
+          next('/applicant/dashboard')
+        } else if (userRole === 'company') {
+          next('/company/dashboard')
+        } else if (userRole === 'teacher') {
+          next('/teacher/dashboard')
+        } else {
+          next('/login')
+        }
       } else {
-        next('/login')
+        next()
       }
     } else {
       next()

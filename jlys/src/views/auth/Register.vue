@@ -30,7 +30,7 @@
         >
           <el-form-item prop="role">
             <el-radio-group v-model="registerForm.role" size="large">
-              <el-radio label="student">学生</el-radio>
+              <el-radio label="applicant">学生</el-radio>
               <el-radio label="company">企业用户</el-radio>
               <el-radio label="teacher">教师</el-radio>
             </el-radio-group>
@@ -67,7 +67,7 @@
             />
           </el-form-item>
 
-          <!-- 学生信息 - 修改为 student -->
+          <!-- 学生信息 - 修改为 applicant -->
           <template v-if="registerForm.role === 'student'">
             <el-form-item prop="studentNo">
               <el-input
@@ -321,7 +321,7 @@ export default {
         }
       } catch (error) {
         console.error('注册失败:', error)
-        ElMessage.error('注册失败，请检查网络连接')
+      /* ElMessage.error('注册失败，请检查网络连接')*/
       } finally {
         this.loading = false
       }

@@ -24,7 +24,7 @@
         <!-- 角色选择 -->
         <div class="role-selector">
           <el-radio-group v-model="loginForm.role" size="large">
-            <el-radio-button label="applicant">学生</el-radio-button>
+            <el-radio-button label="student">学生</el-radio-button> <!--改-->
             <el-radio-button label="company">企业</el-radio-button>
             <el-radio-button label="teacher">教师</el-radio-button>
           </el-radio-group>
@@ -116,6 +116,8 @@ export default {
         if (response.success) {
           const { token, userId, email, role } = response.data
 
+          console.log('登录成功，用户信息:', { token, userId, email, role })
+
           // 保存登录信息到store
           this.$store.dispatch('login', {
             token,
@@ -125,11 +127,14 @@ export default {
           ElMessage.success('登录成功')
 
           // 根据角色跳转到对应页面
-          if (role === 'applicant') {
+          if (role === 'student') {
+            console.log('跳转到学生dashboard')
             this.$router.push('/applicant/dashboard')
           } else if (role === 'company') {
+            console.log('跳转到企业dashboard')
             this.$router.push('/company/dashboard')
           } else if (role === 'teacher') {
+            console.log('跳转到教师dashboard')
             this.$router.push('/teacher/dashboard')
           }
         } else {
