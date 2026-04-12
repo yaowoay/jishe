@@ -67,7 +67,7 @@
             />
           </el-form-item>
 
-          <!-- 学生信息 - 修改为 applicant -->
+          <!-- 学生信息 -->
           <template v-if="registerForm.role === 'student'">
             <el-form-item prop="studentNo">
               <el-input

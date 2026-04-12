@@ -4,14 +4,16 @@ export default createStore({
   state: {
     user: null,
     token: localStorage.getItem('token') || null,
-    userRole: localStorage.getItem('userRole') || null
+    userRole: localStorage.getItem('userRole') || null,
+    profileCompleted: localStorage.getItem('profileCompleted') === 'true' || false
   },
 
   getters: {
     isAuthenticated: state => !!state.token,
     user: state => state.user,
     token: state => state.token,
-    userRole: state => state.userRole
+    userRole: state => state.userRole,
+    profileCompleted: state => state.profileCompleted
   },
 
   mutations: {
@@ -37,13 +39,20 @@ export default createStore({
       }
     },
 
+    SET_PROFILE_COMPLETED(state, completed) {
+      state.profileCompleted = completed
+      localStorage.setItem('profileCompleted', completed.toString())
+    },
+
     LOGOUT(state) {
       state.user = null
       state.token = null
       state.userRole = null
+      state.profileCompleted = false
       localStorage.removeItem('token')
       localStorage.removeItem('userRole')
       localStorage.removeItem('userId')
+      localStorage.removeItem('profileCompleted')
     }
   },
 
@@ -52,6 +61,7 @@ export default createStore({
       commit('SET_TOKEN', token)
       commit('SET_USER', user)
       commit('SET_USER_ROLE', user.role)
+      commit('SET_PROFILE_COMPLETED', user.profileCompleted || false)
       localStorage.setItem('userId', user.userId)
     },
 
@@ -61,6 +71,10 @@ export default createStore({
 
     setUser({ commit }, user) {
       commit('SET_USER', user)
+    },
+
+    updateProfileStatus({ commit }, completed) {
+      commit('SET_PROFILE_COMPLETED', completed)
     }
   },
 

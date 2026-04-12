@@ -24,7 +24,10 @@ public class User {
     private String password;
     
     @TableField("role")
-    private String role; // 'applicant' 或 'company'
+    private String role; // 'student', 'company' 或 'teacher'
+    
+    @TableField("profile_completed")
+    private Integer profileCompleted; // 0-未完善, 1-已完善
     
     @TableField(value = "created_at", fill = FieldFill.INSERT)
     private LocalDateTime createdAt;

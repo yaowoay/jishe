@@ -17,6 +17,12 @@ const routes = [
     name: 'Register',
     component: () => import('@/views/auth/Register.vue')
   },
+  {
+    path: '/student/profile-complete',
+    name: 'StudentProfileComplete',
+    component: () => import('@/views/student/ProfileComplete.vue'),
+    meta: { requiresAuth: true, role: 'student' }
+  },
   /*{
     path: '/interview/:id?',
     name: 'Interview',

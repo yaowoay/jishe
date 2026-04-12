@@ -59,6 +59,7 @@ public class AuthController {
             result.put("userId", user.getUserId());
             result.put("email", user.getEmail());
             result.put("role", user.getRole());
+            result.put("profileCompleted", user.getProfileCompleted() != null && user.getProfileCompleted() == 1);
             
             return ApiResponse.success("登录成功", result);
         } catch (Exception e) {

@@ -48,26 +48,12 @@ public class UserServiceImpl implements UserService {
         user.setEmail(request.getEmail());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setRole(request.getRole());
+        user.setProfileCompleted(0); // 初始化为未完善
         
         userMapper.insert(user);
         
         // 根据角色创建对应的详细信息
-        if ("student".equals(request.getRole())) {
-            StudentProfile studentProfile = new StudentProfile();
-            studentProfile.setUserId(user.getUserId());
-            studentProfile.setStudentNo(request.getStudentNo());
-            studentProfile.setRealName(request.getRealName());
-            studentProfile.setCollegeId(request.getCollegeId());
-            studentProfile.setMajorId(request.getMajorId());
-            studentProfile.setClassName(request.getClassName());
-            studentProfile.setEducationLevel(request.getEducationLevel());
-            studentProfile.setGraduationYear(request.getGraduationYear());
-            studentProfile.setGpa(request.getGpa());
-            studentProfile.setSkills(request.getSkills());
-            studentProfile.setExpectedCity(request.getExpectedCity());
-            studentProfile.setExpectedSalaryMin(request.getExpectedSalaryMin());
-            studentProfileMapper.insert(studentProfile);
-        } else if ("company".equals(request.getRole())) {
+        if ("company".equals(request.getRole())) {
             Company company = new Company();
             company.setUserId(user.getUserId());
             company.setCompanyName(request.getCompanyName());

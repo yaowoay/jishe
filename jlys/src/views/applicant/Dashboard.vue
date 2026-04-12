@@ -1,4 +1,11 @@
 <template>
+  <!-- 档案完善引导弹窗 -->
+  <ProfileGuideDialog
+    v-model="showProfileGuide"
+    @complete="handleCompleteProfile"
+    @later="handleLaterProfile"
+  />
+  
   <!-- 原有模板内容不变 -->
   <div class="ai-dashboard-container">
     <!-- 顶部标题 -->
@@ -161,6 +168,8 @@ import {
   Connection
 } from '@element-plus/icons-vue'
 import CozeAssistant from '@/components/interview/CozeAssistant.vue'
+import ProfileGuideDialog from '@/components/ProfileGuideDialog.vue'
+
 export default {
   name: 'ApplicantDashboard',
   components: {
@@ -176,10 +185,12 @@ export default {
     Edit,
     DataAnalysis,
     Connection,
-    CozeAssistant
+    CozeAssistant,
+    ProfileGuideDialog
   },
   data() {
     return {
+      showProfileGuide: false,
       stats: {
         resumeCount: 0,
         interviewCount: 0,
@@ -198,8 +209,34 @@ export default {
   },
   mounted() {
     this.loadStats()
+    this.checkProfileStatus()
   },
   methods: {
+    checkProfileStatus() {
+      // 检查用户角色和档案完成状态
+      const userRole = this.$store.getters.userRole
+      const profileCompleted = this.$store.getters.profileCompleted
+      
+      console.log('检查档案状态:', { userRole, profileCompleted })
+      
+      // 只有学生角色且档案未完善时才显示弹窗
+      if (userRole === 'student' && !profileCompleted) {
+        // 延迟显示弹窗，让页面先加载完成
+        setTimeout(() => {
+          this.showProfileGuide = true
+        }, 1000)
+      }
+    },
+    
+    handleCompleteProfile() {
+      // 跳转到档案完善页面
+      this.$router.push('/student/profile-complete')
+    },
+    
+    handleLaterProfile() {
+      // 用户选择稍后再说，不做任何操作
+      console.log('用户选择稍后完善档案')
+    },
     async loadStats() {
       // TODO: 从API加载统计数据
       this.stats = {

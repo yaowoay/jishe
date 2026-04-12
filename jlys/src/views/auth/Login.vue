@@ -22,13 +22,13 @@
         </div>
 
         <!-- 角色选择 -->
-        <div class="role-selector">
+<!--        <div class="role-selector">
           <el-radio-group v-model="loginForm.role" size="large">
-            <el-radio-button label="student">学生</el-radio-button> <!--改-->
+            <el-radio-button label="student">学生</el-radio-button> &lt;!&ndash;改&ndash;&gt;
             <el-radio-button label="company">企业</el-radio-button>
             <el-radio-button label="teacher">教师</el-radio-button>
           </el-radio-group>
-        </div>
+        </div>-->
 
       <el-form
         ref="loginForm"
@@ -114,21 +114,22 @@ export default {
         const response = await authApi.login(this.loginForm)
 
         if (response.success) {
-          const { token, userId, email, role } = response.data
+          const { token, userId, email, role, profileCompleted } = response.data
 
-          console.log('登录成功，用户信息:', { token, userId, email, role })
+          console.log('登录成功，用户信息:', { token, userId, email, role, profileCompleted })
 
           // 保存登录信息到store
           this.$store.dispatch('login', {
             token,
-            user: { userId, email, role }
+            user: { userId, email, role, profileCompleted }
           })
 
           ElMessage.success('登录成功')
 
-          // 根据角色跳转到对应页面
+          // 根据角色和档案完成状态跳转
           if (role === 'student') {
-            console.log('跳转到学生dashboard')
+            console.log('学生登录，档案完成状态:', profileCompleted)
+            // 学生统一跳转到dashboard，由dashboard处理档案完善提醒
             this.$router.push('/applicant/dashboard')
           } else if (role === 'company') {
             console.log('跳转到企业dashboard')

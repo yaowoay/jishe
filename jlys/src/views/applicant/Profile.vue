@@ -22,29 +22,41 @@
 
         <div v-else-if="profileData" class="profile-display">
           <el-descriptions :column="2" border>
-            <el-descriptions-item label="姓名">
-              {{ profileData.fullName || '未填写' }}
+            <el-descriptions-item label="学号">
+              {{ profileData.studentNo || '未填写' }}
             </el-descriptions-item>
-            <el-descriptions-item label="手机号">
-              {{ profileData.phone || '未填写' }}
+            <el-descriptions-item label="真实姓名">
+              {{ profileData.realName || '未填写' }}
             </el-descriptions-item>
             <el-descriptions-item label="性别">
               {{ getGenderText(profileData.gender) }}
             </el-descriptions-item>
             <el-descriptions-item label="出生日期">
-              {{ formatDate(profileData.birthdate) }}
+              {{ formatDate(profileData.birthDate) }}
+            </el-descriptions-item>
+            <el-descriptions-item label="学院">
+              {{ profileData.college || '未填写' }}
+            </el-descriptions-item>
+            <el-descriptions-item label="专业">
+              {{ profileData.major || '未填写' }}
+            </el-descriptions-item>
+            <el-descriptions-item label="班级">
+              {{ profileData.className || '未填写' }}
+            </el-descriptions-item>
+            <el-descriptions-item label="年级">
+              {{ profileData.grade || '未填写' }}
             </el-descriptions-item>
             <el-descriptions-item label="学历">
               {{ profileData.educationLevel || '未填写' }}
             </el-descriptions-item>
-            <el-descriptions-item label="工作年限">
-              {{ profileData.workYears ? `${profileData.workYears}年` : '未填写' }}
+            <el-descriptions-item label="毕业年份">
+              {{ profileData.graduationYear || '未填写' }}
             </el-descriptions-item>
-            <el-descriptions-item label="期望职位">
-              {{ profileData.expectedPosition || '未填写' }}
-            </el-descriptions-item>
-            <el-descriptions-item label="期望薪资">
-              {{ profileData.expectedSalary ? `${profileData.expectedSalary}元` : '未填写' }}
+            <el-descriptions-item label="档案完整度" span="2">
+              <el-progress 
+                :percentage="profileData.profileCompletion || 0" 
+                :color="getProgressColor(profileData.profileCompletion)"
+              />
             </el-descriptions-item>
           </el-descriptions>
         </div>
@@ -62,7 +74,7 @@
     <!-- 编辑信息弹窗 -->
     <el-dialog
       v-model="editDialogVisible"
-      title="编辑个人信息"
+      title="编辑学籍信息"
       width="800px"
       :close-on-click-modal="false"
     >
@@ -75,10 +87,10 @@
       >
         <el-row :gutter="20">
           <el-col :span="12">
-            <el-form-item label="姓名" prop="fullName">
+            <el-form-item label="学号" prop="studentNo">
               <el-input
-                v-model="editFormData.fullName"
-                placeholder="请输入您的姓名"
+                v-model="editFormData.studentNo"
+                placeholder="请输入学号"
                 maxlength="50"
                 show-word-limit
               />
@@ -86,11 +98,12 @@
           </el-col>
 
           <el-col :span="12">
-            <el-form-item label="手机号" prop="phone">
+            <el-form-item label="真实姓名" prop="realName">
               <el-input
-                v-model="editFormData.phone"
-                placeholder="请输入手机号"
-                maxlength="11"
+                v-model="editFormData.realName"
+                placeholder="请输入真实姓名"
+                maxlength="50"
+                show-word-limit
               />
             </el-form-item>
           </el-col>
@@ -108,13 +121,63 @@
           </el-col>
 
           <el-col :span="12">
-            <el-form-item label="出生日期" prop="birthdate">
+            <el-form-item label="出生日期" prop="birthDate">
               <el-date-picker
-                v-model="editFormData.birthdate"
+                v-model="editFormData.birthDate"
                 type="date"
                 placeholder="请选择出生日期"
                 style="width: 100%"
                 :disabled-date="disabledDate"
+                format="YYYY-MM-DD"
+                value-format="YYYY-MM-DD"
+              />
+            </el-form-item>
+          </el-col>
+        </el-row>
+
+        <el-row :gutter="20">
+          <el-col :span="12">
+            <el-form-item label="学院" prop="college">
+              <el-input
+                v-model="editFormData.college"
+                placeholder="请输入学院名称"
+                maxlength="100"
+                show-word-limit
+              />
+            </el-form-item>
+          </el-col>
+
+          <el-col :span="12">
+            <el-form-item label="专业" prop="major">
+              <el-input
+                v-model="editFormData.major"
+                placeholder="请输入专业名称"
+                maxlength="100"
+                show-word-limit
+              />
+            </el-form-item>
+          </el-col>
+        </el-row>
+
+        <el-row :gutter="20">
+          <el-col :span="12">
+            <el-form-item label="班级" prop="className">
+              <el-input
+                v-model="editFormData.className"
+                placeholder="请输入班级"
+                maxlength="50"
+                show-word-limit
+              />
+            </el-form-item>
+          </el-col>
+
+          <el-col :span="12">
+            <el-form-item label="年级" prop="grade">
+              <el-input
+                v-model="editFormData.grade"
+                placeholder="请输入年级"
+                maxlength="20"
+                show-word-limit
               />
             </el-form-item>
           </el-col>
@@ -124,8 +187,7 @@
           <el-col :span="12">
             <el-form-item label="学历" prop="educationLevel">
               <el-select v-model="editFormData.educationLevel" placeholder="请选择学历" style="width: 100%">
-                <el-option label="高中" value="高中" />
-                <el-option label="大专" value="大专" />
+                <el-option label="专科" value="专科" />
                 <el-option label="本科" value="本科" />
                 <el-option label="硕士" value="硕士" />
                 <el-option label="博士" value="博士" />
@@ -134,38 +196,14 @@
           </el-col>
 
           <el-col :span="12">
-            <el-form-item label="工作年限" prop="workYears">
-              <el-input-number
-                v-model="editFormData.workYears"
-                :min="0"
-                :max="50"
-                placeholder="请输入工作年限"
+            <el-form-item label="毕业年份" prop="graduationYear">
+              <el-date-picker
+                v-model="editFormData.graduationYear"
+                type="year"
+                placeholder="请选择毕业年份"
                 style="width: 100%"
-              />
-            </el-form-item>
-          </el-col>
-        </el-row>
-
-        <el-row :gutter="20">
-          <el-col :span="12">
-            <el-form-item label="期望职位" prop="expectedPosition">
-              <el-input
-                v-model="editFormData.expectedPosition"
-                placeholder="请输入期望职位"
-                maxlength="50"
-                show-word-limit
-              />
-            </el-form-item>
-          </el-col>
-
-          <el-col :span="12">
-            <el-form-item label="期望薪资" prop="expectedSalary">
-              <el-input-number
-                v-model="editFormData.expectedSalary"
-                :min="0"
-                :max="999999"
-                placeholder="请输入期望薪资"
-                style="width: 100%"
+                format="YYYY"
+                value-format="YYYY"
               />
             </el-form-item>
           </el-col>
@@ -186,7 +224,7 @@
 </template>
 
 <script>
-import { getApplicantProfile, saveApplicantProfile } from '@/api/applicant'
+import { getStudentProfile, updateStudentProfile } from '@/api/student'
 import { Edit } from '@element-plus/icons-vue'
 
 export default {
@@ -201,37 +239,46 @@ export default {
       editDialogVisible: false,
       saving: false,
       editFormData: {
-        fullName: '',
-        phone: '',
+        studentNo: '',
+        realName: '',
         gender: '',
-        birthdate: '',
+        birthDate: '',
+        college: '',
+        major: '',
+        className: '',
+        grade: '',
         educationLevel: '',
-        workYears: 0,
-        expectedPosition: '',
-        expectedSalary: null
+        graduationYear: ''
       },
       formRules: {
-        fullName: [
-          { required: true, message: '请输入姓名', trigger: 'blur' },
+        studentNo: [
+          { required: true, message: '请输入学号', trigger: 'blur' },
+          { max: 50, message: '学号长度不能超过50个字符', trigger: 'blur' }
+        ],
+        realName: [
+          { required: true, message: '请输入真实姓名', trigger: 'blur' },
           { max: 50, message: '姓名长度不能超过50个字符', trigger: 'blur' }
         ],
-        phone: [
-          { pattern: /^1[3-9]\d{9}$/, message: '请输入正确的手机号', trigger: 'blur' }
-        ],
         gender: [
-          { required: false, message: '请选择性别', trigger: 'change' }
+          { required: true, message: '请选择性别', trigger: 'change' }
+        ],
+        college: [
+          { required: true, message: '请输入学院名称', trigger: 'blur' },
+          { max: 100, message: '学院名称长度不能超过100个字符', trigger: 'blur' }
+        ],
+        major: [
+          { required: true, message: '请输入专业名称', trigger: 'blur' },
+          { max: 100, message: '专业名称长度不能超过100个字符', trigger: 'blur' }
+        ],
+        className: [
+          { required: true, message: '请输入班级', trigger: 'blur' },
+          { max: 50, message: '班级长度不能超过50个字符', trigger: 'blur' }
         ],
         educationLevel: [
-          { required: false, message: '请选择学历', trigger: 'change' }
+          { required: true, message: '请选择学历', trigger: 'change' }
         ],
-        workYears: [
-          { type: 'number', min: 0, max: 50, message: '工作年限必须在0-50年之间', trigger: 'blur' }
-        ],
-        expectedPosition: [
-          { max: 50, message: '期望职位长度不能超过50个字符', trigger: 'blur' }
-        ],
-        expectedSalary: [
-          { type: 'number', min: 0, max: 999999, message: '期望薪资必须在0-999999之间', trigger: 'blur' }
+        graduationYear: [
+          { required: true, message: '请选择毕业年份', trigger: 'change' }
         ]
       }
     }
@@ -243,18 +290,16 @@ export default {
     async loadProfile() {
       try {
         this.loading = true
-        const response = await getApplicantProfile()
+        const response = await getStudentProfile()
 
-        // 由于响应拦截器直接返回response.data，所以response就是后端的ApiResponse
         if (response && response.success) {
-          // 即使success为true，data也可能为null（表示暂无个人信息）
-          this.profileData = response.data
+          this.profileData = response.data.profile
         } else {
           this.profileData = null
         }
       } catch (error) {
-        console.error('加载个人信息失败:', error)
-        this.$message.error('加载个人信息失败')
+        console.error('加载学生档案失败:', error)
+        this.$message.error('加载学生档案失败')
         this.profileData = null
       } finally {
         this.loading = false
@@ -262,43 +307,42 @@ export default {
     },
 
     openEditDialog() {
-      // 打开编辑弹窗，并填充现有数据
       this.fillEditForm()
       this.editDialogVisible = true
     },
 
     fillEditForm() {
-      // 将现有数据填充到编辑表单中
       if (this.profileData) {
         this.editFormData = {
-          fullName: this.profileData.fullName || '',
-          phone: this.profileData.phone || '',
+          studentNo: this.profileData.studentNo || '',
+          realName: this.profileData.realName || '',
           gender: this.profileData.gender || '',
-          birthdate: this.profileData.birthdate ? new Date(this.profileData.birthdate) : '',
+          birthDate: this.profileData.birthDate || '',
+          college: this.profileData.college || '',
+          major: this.profileData.major || '',
+          className: this.profileData.className || '',
+          grade: this.profileData.grade || '',
           educationLevel: this.profileData.educationLevel || '',
-          workYears: this.profileData.workYears || 0,
-          expectedPosition: this.profileData.expectedPosition || '',
-          expectedSalary: this.profileData.expectedSalary || null
+          graduationYear: this.profileData.graduationYear || ''
         }
       } else {
-        // 如果没有现有数据，重置表单
         this.resetForm()
       }
     },
 
     resetForm() {
-      // 重置表单到初始状态
       this.editFormData = {
-        fullName: '',
-        phone: '',
+        studentNo: '',
+        realName: '',
         gender: '',
-        birthdate: '',
+        birthDate: '',
+        college: '',
+        major: '',
+        className: '',
+        grade: '',
         educationLevel: '',
-        workYears: 0,
-        expectedPosition: '',
-        expectedSalary: null
+        graduationYear: ''
       }
-      // 清除表单验证
       this.$nextTick(() => {
         if (this.$refs.editFormRef) {
           this.$refs.editFormRef.clearValidate()
@@ -308,24 +352,19 @@ export default {
 
     async handleSave() {
       try {
-        // 表单验证
         await this.$refs.editFormRef.validate()
-
         this.saving = true
 
-        // 处理日期格式
-        const submitData = { ...this.editFormData }
-        if (submitData.birthdate) {
-          submitData.birthdate = submitData.birthdate.toISOString().split('T')[0]
-        }
-
-        // 调用保存API
-        const response = await saveApplicantProfile(submitData)
+        const response = await updateStudentProfile(this.editFormData)
 
         if (response && response.success) {
           this.$message.success('保存成功')
           this.editDialogVisible = false
-          // 重新加载个人信息
+          
+          // 更新store中的档案完成状态
+          this.$store.dispatch('updateProfileStatus', true)
+          
+          // 重新加载学生档案
           await this.loadProfile()
         } else {
           this.$message.error(response?.message || '保存失败')
@@ -339,7 +378,6 @@ export default {
     },
 
     disabledDate(time) {
-      // 禁用未来日期
       return time.getTime() > Date.now()
     },
 
@@ -355,6 +393,12 @@ export default {
     formatDate(date) {
       if (!date) return '未填写'
       return new Date(date).toLocaleDateString('zh-CN')
+    },
+
+    getProgressColor(percentage) {
+      if (percentage >= 80) return '#67c23a'
+      if (percentage >= 60) return '#e6a23c'
+      return '#f56c6c'
     }
   }
 }
