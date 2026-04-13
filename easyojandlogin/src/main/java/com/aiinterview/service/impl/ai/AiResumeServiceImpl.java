@@ -213,7 +213,7 @@ public class AiResumeServiceImpl implements AiResumeService {
         request.setEmail(getStringValue(jsonObject, "email", ""));
         request.setPosition(getStringValue(jsonObject, "position", ""));
         request.setWorkYears(getIntegerValue(jsonObject, "workYears", 0));
-        request.setLocation(getStringValue(jsonObject, "location", ""));
+//        request.setLocation(getStringValue(jsonObject, "location", ""));
         request.setProfile(getStringValue(jsonObject, "profile", ""));
 
         // 工作经历
@@ -345,7 +345,7 @@ public class AiResumeServiceImpl implements AiResumeService {
         request.setEmail("请填写邮箱");
         request.setPosition("请填写期望职位");
         request.setWorkYears(0);
-        request.setLocation("请填写所在地");
+//        request.setLocation("请填写所在地");
         request.setProfile("请根据您的实际情况填写个人简介");
         return request;
     }

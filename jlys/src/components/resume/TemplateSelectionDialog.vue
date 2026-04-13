@@ -15,8 +15,13 @@
           @click="selectTemplate(template.id)"
       >
         <div class="template-preview">
-          <div class="preview-content" :class="template.id">
-            <div class="preview-header">
+          <img 
+            :src="template.preview" 
+            :alt="template.name"
+            @error="handleImageError"
+          />
+          <div class="template-overlay">
+            <div class="overlay-content">
               <h3>{{ template.name }}</h3>
               <p>{{ template.description }}</p>
             </div>
@@ -30,10 +35,10 @@
                 v-for="tag in template.tags"
                 :key="tag"
                 size="small"
-                :type="tag.type"
+                type="info"
                 effect="plain"
             >
-              {{ tag.text }}
+              {{ tag }}
             </el-tag>
           </div>
         </div>
@@ -52,7 +57,9 @@
 </template>
 
 <script>
-import { ref, watch } from 'vue'
+import { ref, watch, onMounted } from 'vue'
+import { getResumeTemplates } from '@/api/resume'
+import { ElMessage } from 'element-plus'
 
 export default {
   name: 'TemplateSelectionDialog',
@@ -62,18 +69,22 @@ export default {
       default: false
     },
     currentTemplate: {
-      type: String,
-      default: 'template1'
+      type: [String, Number],
+      default: null
     }
   },
   emits: ['update:modelValue', 'template-selected'],
   setup(props, { emit }) {
     const visible = ref(props.modelValue)
     const selectedTemplate = ref(props.currentTemplate)
+    const templates = ref([])
 
     // 监听modelValue变化
     watch(() => props.modelValue, (newVal) => {
       visible.value = newVal
+      if (newVal) {
+        loadTemplates()
+      }
     })
 
     // 监听visible变化
@@ -86,52 +97,49 @@ export default {
       selectedTemplate.value = newVal
     })
 
-    const templates = ref([
-      {
-        id: 'template1',
-        name: '经典商务',
-        description: '简洁大方的商务风格，适合大多数职位',
-        preview: require('@/assets/images/feature2.png'), // 注意：需替换为实际图片路径
-        tags: [
-          { text: '商务', type: 'primary' },
-          { text: '简洁', type: 'success' },
-          { text: '通用', type: 'info' }
-        ]
-      },
-      {
-        id: 'template2',
-        name: '现代简约',
-        description: '现代感十足，突出个人特色',
-        preview: require('@/assets/images/feature1.png'), // 注意：需替换为实际图片路径
-        tags: [
-          { text: '现代', type: 'warning' },
-          { text: '简约', type: 'success' },
-          { text: '时尚', type: 'danger' }
-        ]
-      },
-      {
-        id: 'template3',
-        name: '创意设计',
-        description: '富有创意的设计风格，适合创意类职位',
-        preview: require('@/assets/images/feature3.png'), // 注意：需替换为实际图片路径
-        tags: [
-          { text: '创意', type: 'danger' },
-          { text: '设计', type: 'warning' },
-          { text: '艺术', type: 'info' }
-        ]
-      },
-      {
-        id: 'template4',
-        name: '专业技术',
-        description: '突出技术能力，适合技术类职位',
-        preview: require('@/assets/images/feature5.png'), // 注意：需替换为实际图片路径
-        tags: [
-          { text: '技术', type: 'primary' },
-          { text: '专业', type: 'success' },
-          { text: '严谨', type: 'info' }
-        ]
+    // 加载模板列表
+    const loadTemplates = async () => {
+      try {
+        const res = await getResumeTemplates()
+        if (res.code === 0 && Array.isArray(res.data)) {
+          templates.value = res.data.map(template => ({
+            id: template.template_id,
+            name: template.template_name,
+            description: template.description || '暂无描述',
+            preview: template.preview_image || '/images/default-template-preview.svg',
+            type: template.template_type,
+            path: template.template_path,
+            category: template.category,
+            tags: getTemplateTags(template)
+          }))
+        }
+      } catch (error) {
+        console.error('Load templates error:', error)
+        ElMessage.error('加载模板失败')
       }
-    ])
+    }
+
+    // 根据模板信息生成标签
+    const getTemplateTags = (template) => {
+      const tags = []
+      
+      // 根据模板类型添加标签
+      if (template.template_type === 'latex') tags.push('LaTeX')
+      if (template.template_type === 'html') tags.push('HTML')
+      
+      // 根据分类添加标签
+      if (template.category === 'it') tags.push('IT')
+      if (template.category === 'academic') tags.push('学术')
+      if (template.category === 'professional') tags.push('专业')
+      
+      // 根据模板名称添加特色标签
+      if (template.template_name.includes('照片') || template.template_name.includes('photo')) tags.push('带照片')
+      if (template.template_name.includes('专业')) tags.push('专业')
+      if (template.template_name.includes('简约')) tags.push('简约')
+      if (template.template_name.includes('中文')) tags.push('中文')
+      
+      return tags.length > 0 ? tags : ['通用']
+    }
 
     const selectTemplate = (templateId) => {
       selectedTemplate.value = templateId
@@ -146,13 +154,19 @@ export default {
       emit('update:modelValue', false)
     }
 
+    // 处理图片加载错误
+    const handleImageError = (event) => {
+      event.target.src = '/images/default-template-preview.svg'
+    }
+
     return {
       visible,
       selectedTemplate,
       templates,
       selectTemplate,
       confirmSelection,
-      handleClose
+      handleClose,
+      handleImageError
     }
   }
 }
@@ -168,68 +182,80 @@ export default {
 
 .template-card {
   border: 2px solid #e4e7ed;
-  border-radius: 8px;
-  padding: 16px;
+  border-radius: 12px;
+  overflow: hidden;
   cursor: pointer;
   transition: all 0.3s ease;
+  background: white;
 }
 
 .template-card:hover {
   border-color: #409eff;
   box-shadow: 0 4px 12px rgba(64, 158, 255, 0.1);
+  transform: translateY(-2px);
 }
 
 .template-card.active {
   border-color: #409eff;
-  background-color: #f0f9ff;
+  box-shadow: 0 4px 12px rgba(64, 158, 255, 0.2);
 }
 
 .template-preview {
-  margin-bottom: 12px;
-}
-
-.preview-content {
-  height: 120px;
-  border-radius: 4px;
   position: relative;
+  height: 160px;
   overflow: hidden;
-  background-size: cover;
-  background-position: center;
+  background: #f8f9fa;
 }
 
-.preview-content.template1 {
-  background-image: url('@/assets/images/feature2.png');
+.template-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
 }
 
-.preview-content.template2 {
-  background-image: url('@/assets/images/feature1.png');
+.template-card:hover .template-preview img {
+  transform: scale(1.05);
 }
 
-.preview-content.template3 {
-  background-image: url('@/assets/images/feature3.png');
-}
-
-.preview-content.template4 {
-  background-image: url('@/assets/images/feature5.png');
-}
-
-.preview-header {
+.template-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.6), transparent);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  display: flex;
+  align-items: flex-start;
   padding: 16px;
-  color: white;
-  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
-  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.5), transparent);
 }
 
-.preview-header h3 {
+.template-card:hover .template-overlay {
+  opacity: 1;
+}
+
+.overlay-content {
+  color: white;
+}
+
+.overlay-content h3 {
   margin: 0 0 8px 0;
   font-size: 16px;
   font-weight: 600;
+  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
 }
 
-.preview-header p {
+.overlay-content p {
   margin: 0;
   font-size: 12px;
   opacity: 0.9;
+  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+.template-info {
+  padding: 16px;
 }
 
 .template-info h4 {
@@ -254,5 +280,16 @@ export default {
 
 .dialog-footer {
   text-align: right;
+}
+
+@media (max-width: 768px) {
+  .template-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  
+  .template-preview {
+    height: 120px;
+  }
 }
 </style>

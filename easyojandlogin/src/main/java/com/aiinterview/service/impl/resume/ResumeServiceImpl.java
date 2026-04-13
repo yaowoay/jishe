@@ -1,15 +1,16 @@
 package com.aiinterview.service.impl.resume;
-import com.aiinterview.model.entity.*;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+
 import com.aiinterview.exception.BusinessException;
 import com.aiinterview.mapper.*;
 import com.aiinterview.model.dto.*;
 import com.aiinterview.model.dto.request.ResumeCreateRequest;
 import com.aiinterview.model.dto.request.ResumeUpdateRequest;
 import com.aiinterview.model.dto.response.ResumeResponse;
+import com.aiinterview.model.entity.*;
 import com.aiinterview.service.resume.ResumeService;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -17,12 +18,13 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
- * 简历服务实现类
+ * 简历服务实现类 (已修正版)
  */
 @Slf4j
 @Service
@@ -35,219 +37,228 @@ public class ResumeServiceImpl implements ResumeService {
     private final ProjectExperienceMapper projectExperienceMapper;
     private final SkillMapper skillMapper;
     private final AdditionalInfoMapper additionalInfoMapper;
-    
+
     @Override
     @Transactional
-    public ResumeResponse createResume(ResumeCreateRequest request, String userKey) {
-        // 创建简历主表
+    public ResumeResponse createResume(ResumeCreateRequest request, Long userId) {
         resumer resume = new resumer();
         BeanUtils.copyProperties(request, resume);
-        resume.setUserKey(userKey);
+
+        resume.setUserId(userId);
         resume.setIsDefault(false);
         resume.setViewCount(0);
-        
+
         resumerMapper.insert(resume);
-        
-        // 保存详细信息
         saveResumeDetails(resume.getId(), request);
-        
-        return getResumeById(resume.getId(), userKey);
+
+        return getResumeById(resume.getId(), userId);
     }
-    
+
     @Override
     @Transactional
-    public ResumeResponse updateResume(Long resumeId, ResumeUpdateRequest request, String userKey) {
-        // 验证权限
-        resumer existingResume = validateResumeOwnership(resumeId, userKey);
-        
-        // 更新简历主表
+    public ResumeResponse updateResume(Long resumeId, ResumeUpdateRequest request, Long userId) {
+        resumer existingResume = validateResumeOwnership(resumeId, userId);
+
         BeanUtils.copyProperties(request, existingResume);
         resumerMapper.updateById(existingResume);
-        
-        // 删除旧的详细信息
+
         deleteResumeDetails(resumeId);
-        
-        // 保存新的详细信息
         saveResumeDetailsForUpdate(resumeId, request);
-        
-        return getResumeById(resumeId, userKey);
+
+        return getResumeById(resumeId, userId);
     }
-    
+
     @Override
     @Transactional
-    public void deleteResume(Long resumeId, String userKey) {
-        validateResumeOwnership(resumeId, userKey);
-        
-        // 软删除简历
+    public void deleteResume(Long resumeId, Long userId) {
+        validateResumeOwnership(resumeId, userId);
+
         resumerMapper.deleteById(resumeId);
-        
-        // 删除详细信息
         deleteResumeDetails(resumeId);
     }
-    
+
     @Override
-    public ResumeResponse getResumeById(Long resumeId, String userKey) {
-        resumer resume = validateResumeOwnership(resumeId, userKey);
+    public ResumeResponse getResumeById(Long resumeId, Long userId) {
+        resumer resume = validateResumeOwnership(resumeId, userId);
         return buildResumeResponse(resume);
     }
-    
+
     @Override
-    public List<ResumeResponse> getUserResumes(String userKey) {
-        List<resumer> resumes = resumerMapper.selectByUserKey(userKey);
+    public List<ResumeResponse> getUserResumes(Long userId) {
+        List<resumer> resumes = resumerMapper.selectList(
+                new QueryWrapper<resumer>().eq("user_id", userId)
+        );
         return resumes.stream()
                 .map(this::buildResumeResponse)
                 .collect(Collectors.toList());
     }
-    
+
     @Override
-    public org.springframework.data.domain.Page<ResumeResponse> getUserResumesPage(String userKey, Pageable pageable) {
+    public PageImpl<ResumeResponse> getUserResumesPage(Long userId, Pageable pageable) {
         QueryWrapper<resumer> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("user_key", userKey);
-        queryWrapper.orderByDesc("update_time");
-        
-        IPage<resumer> page = new Page<>(pageable.getPageNumber(), pageable.getPageSize());
+        queryWrapper.eq("user_id", userId);
+        queryWrapper.orderByDesc("updated_at"); // P0: update_time -> updated_at
+
+        // P0: 修正分页页码（Spring Pageable 从0开始，MP Page 从1开始）
+        IPage<resumer> page = new Page<>(pageable.getPageNumber() + 1, pageable.getPageSize());
         IPage<resumer> result = resumerMapper.selectPage(page, queryWrapper);
-        
+
         List<ResumeResponse> responses = result.getRecords().stream()
                 .map(this::buildResumeResponse)
                 .collect(Collectors.toList());
-        
+
         return new PageImpl<>(responses, pageable, result.getTotal());
     }
-    
+
     @Override
     @Transactional
-    public void setDefaultResume(Long resumeId, String userKey) {
-        validateResumeOwnership(resumeId, userKey);
-        
+    public void setDefaultResume(Long resumeId, Long userId) {
+        validateResumeOwnership(resumeId, userId);
+
         // 取消其他默认简历
-        QueryWrapper<resumer> updateWrapper = new QueryWrapper<>();
-        updateWrapper.eq("user_key", userKey);
-        updateWrapper.eq("is_default", true);
-        
-        resumer updateResume = new resumer();
-        updateResume.setIsDefault(false);
-        resumerMapper.update(updateResume, updateWrapper);
-        
+        resumer updateresumer = new resumer();
+        updateresumer.setIsDefault(false);
+        resumerMapper.update(updateresumer,
+                new QueryWrapper<resumer>().eq("user_id", userId).eq("is_default", true)
+        );
+
         // 设置新的默认简历
         resumer resume = new resumer();
         resume.setId(resumeId);
         resume.setIsDefault(true);
         resumerMapper.updateById(resume);
     }
-    
+
     @Override
     @Transactional
-    public ResumeResponse copyResume(Long resumeId, String userKey) {
-        resumer originalResume = validateResumeOwnership(resumeId, userKey);
-        
-        // 创建新简历
+    public ResumeResponse copyResume(Long resumeId, Long userId) {
+        resumer originalResume = validateResumeOwnership(resumeId, userId);
+
         resumer newResume = new resumer();
         BeanUtils.copyProperties(originalResume, newResume);
         newResume.setId(null);
         newResume.setName(originalResume.getName() + " - 副本");
         newResume.setIsDefault(false);
-        newResume.setShareUrl(null);
+        newResume.setShareCode(null); // P0: shareUrl -> shareCode
         newResume.setViewCount(0);
-        
+
         resumerMapper.insert(newResume);
-        
-        // 复制详细信息
         copyResumeDetails(resumeId, newResume.getId());
-        
-        return getResumeById(newResume.getId(), userKey);
+
+        return getResumeById(newResume.getId(), userId);
     }
 
     @Override
-    public String generateShareUrl(Long resumeId, String userKey) {
-        validateResumeOwnership(resumeId, userKey);
-        
-        String shareUrl = UUID.randomUUID().toString().replace("-", "");
-        
+    public String generateShareCode(Long resumeId, Long userId) {
+        validateResumeOwnership(resumeId, userId);
+
+        String shareCode = UUID.randomUUID().toString().replace("-", "");
+
         resumer resume = new resumer();
         resume.setId(resumeId);
-        resume.setShareUrl(shareUrl);
+        resume.setShareCode(shareCode); // P0: shareUrl -> shareCode
         resumerMapper.updateById(resume);
-        
-        return shareUrl;
+
+        return shareCode;
     }
 
     @Override
-    public ResumeResponse getResumeByShareUrl(String shareUrl) {
-        resumer resume = resumerMapper.selectByShareUrl(shareUrl);
+    public ResumeResponse getResumeByShareCode(String shareCode) {
+        // P0: Mapper 方法名和字段名修正
+        resumer resume = resumerMapper.selectByShareCode(shareCode);
         if (resume == null) {
             throw new BusinessException(400, "分享链接无效");
         }
-        
-        // 更新查看次数
+
         resumerMapper.updateViewCount(resume.getId());
-        
         return buildResumeResponse(resume);
     }
 
     @Override
-    public org.springframework.data.domain.Page<ResumeResponse> searchResumes(String keyword, Pageable pageable) {
-        List<resumer> resumes = resumerMapper.searchResumes(keyword, null);
-        
+    public PageImpl<ResumeResponse> searchResumes(String keyword, Pageable pageable) {
+        // P0: 修正查询逻辑以适配新字段
+        QueryWrapper<resumer> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("is_deleted", false);
+        if (keyword != null && !keyword.isEmpty()) {
+            queryWrapper.and(wrapper -> wrapper
+                    .like("name", keyword)
+                    .or().like("full_name", keyword)
+                    .or().like("position", keyword)
+                    .or().like("profile", keyword)
+            );
+        }
+        queryWrapper.orderByDesc("updated_at");
+
+        // 手动分页（如果 Mapper 不支持 Page 参数）
+        long total = resumerMapper.selectCount(queryWrapper);
+        queryWrapper.last("LIMIT " + pageable.getOffset() + "," + pageable.getPageSize());
+
+        List<resumer> resumes = resumerMapper.selectList(queryWrapper);
         List<ResumeResponse> responses = resumes.stream()
                 .map(this::buildResumeResponse)
                 .collect(Collectors.toList());
-        
-        return new PageImpl<>(responses, pageable, resumes.size());
+
+        return new PageImpl<>(responses, pageable, total);
     }
 
     @Override
     public List<ResumeResponse> getPopularResumes(int limit) {
-        List<resumer> resumes = resumerMapper.selectPopularResumes(limit);
+        // P0: 修正排序字段
+        List<resumer> resumes = resumerMapper.selectList(
+                new QueryWrapper<resumer>()
+                        .eq("is_deleted", false)
+                        .orderByDesc("view_count")
+                        .last("LIMIT " + limit)
+        );
         return resumes.stream()
                 .map(this::buildResumeResponse)
                 .collect(Collectors.toList());
     }
 
     @Override
-    public List<ResumeResponse> getRecentResumes(String userKey, int limit) {
+    public List<ResumeResponse> getRecentResumes(Long userId, int limit) {
         QueryWrapper<resumer> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("user_key", userKey);
-        queryWrapper.orderByDesc("update_time");
+        queryWrapper.eq("user_id", userId); // P0: user_key -> user_id
+        queryWrapper.orderByDesc("updated_at"); // P0: update_time -> updated_at
         queryWrapper.last("LIMIT " + limit);
-        
+
         List<resumer> resumes = resumerMapper.selectList(queryWrapper);
         return resumes.stream()
                 .map(this::buildResumeResponse)
                 .collect(Collectors.toList());
     }
-    
+
     /**
      * 验证简历所有权
      */
-    private resumer validateResumeOwnership(Long resumeId, String userKey) {
-        resumer resume = resumerMapper.selectById(resumeId);
-        if (resume == null) {
-            throw new BusinessException(400, "简历不存在");
+    private resumer validateResumeOwnership(Long resumeId, Long userId) {
+        resumer resumer = resumerMapper.selectById(resumeId);
+        if (resumer == null || resumer.getIsDeleted()) {
+            throw new BusinessException(404, "简历不存在");
         }
-        if (!userKey.equals(resume.getUserKey())) {
+        // P0: 比较 userId
+        if (!userId.equals(resumer.getUserId())) {
             throw new BusinessException(403, "无权限操作此简历");
         }
-        return resume;
+        return resumer;
     }
-    
+
     /**
      * 构建简历响应
      */
     private ResumeResponse buildResumeResponse(resumer resume) {
         ResumeResponse response = new ResumeResponse();
         BeanUtils.copyProperties(resume, response);
-        
-        // 获取详细信息
+
         response.setWorkExperiences(getWorkExperiences(resume.getId()));
         response.setEducations(getEducations(resume.getId()));
         response.setProjectExperiences(getProjectExperiences(resume.getId()));
         response.setSkills(getSkills(resume.getId()));
         response.setAdditionalInfos(getAdditionalInfos(resume.getId()));
-        
+
         return response;
     }
-    
+
     /**
      * 保存简历详细信息
      */
@@ -260,7 +271,7 @@ public class ResumeServiceImpl implements ResumeService {
                 workExperienceMapper.insert(entity);
             }
         }
-        
+
         if (request.getEducations() != null) {
             for (EducationDTO dto : request.getEducations()) {
                 Education entity = new Education();
@@ -269,7 +280,7 @@ public class ResumeServiceImpl implements ResumeService {
                 educationMapper.insert(entity);
             }
         }
-        
+
         if (request.getProjectExperiences() != null) {
             for (ProjectExperienceDTO dto : request.getProjectExperiences()) {
                 ProjectExperience entity = new ProjectExperience();
@@ -278,7 +289,7 @@ public class ResumeServiceImpl implements ResumeService {
                 projectExperienceMapper.insert(entity);
             }
         }
-        
+
         if (request.getSkills() != null) {
             for (SkillDTO dto : request.getSkills()) {
                 Skill entity = new Skill();
@@ -287,7 +298,7 @@ public class ResumeServiceImpl implements ResumeService {
                 skillMapper.insert(entity);
             }
         }
-        
+
         if (request.getAdditionalInfos() != null) {
             for (AdditionalInfoDTO dto : request.getAdditionalInfos()) {
                 AdditionalInfo entity = new AdditionalInfo();
@@ -297,7 +308,7 @@ public class ResumeServiceImpl implements ResumeService {
             }
         }
     }
-    
+
     /**
      * 保存简历详细信息（更新用）
      */
@@ -310,7 +321,7 @@ public class ResumeServiceImpl implements ResumeService {
                 workExperienceMapper.insert(entity);
             }
         }
-        
+
         if (request.getEducations() != null) {
             for (EducationDTO dto : request.getEducations()) {
                 Education entity = new Education();
@@ -319,7 +330,7 @@ public class ResumeServiceImpl implements ResumeService {
                 educationMapper.insert(entity);
             }
         }
-        
+
         if (request.getProjectExperiences() != null) {
             for (ProjectExperienceDTO dto : request.getProjectExperiences()) {
                 ProjectExperience entity = new ProjectExperience();
@@ -328,7 +339,7 @@ public class ResumeServiceImpl implements ResumeService {
                 projectExperienceMapper.insert(entity);
             }
         }
-        
+
         if (request.getSkills() != null) {
             for (SkillDTO dto : request.getSkills()) {
                 Skill entity = new Skill();
@@ -337,7 +348,7 @@ public class ResumeServiceImpl implements ResumeService {
                 skillMapper.insert(entity);
             }
         }
-        
+
         if (request.getAdditionalInfos() != null) {
             for (AdditionalInfoDTO dto : request.getAdditionalInfos()) {
                 AdditionalInfo entity = new AdditionalInfo();
@@ -347,7 +358,7 @@ public class ResumeServiceImpl implements ResumeService {
             }
         }
     }
-    
+
     /**
      * 删除简历详细信息
      */
@@ -358,7 +369,7 @@ public class ResumeServiceImpl implements ResumeService {
         skillMapper.deleteByResumeId(resumeId);
         additionalInfoMapper.deleteByResumeId(resumeId);
     }
-    
+
     /**
      * 复制简历详细信息
      */
@@ -370,7 +381,7 @@ public class ResumeServiceImpl implements ResumeService {
             entity.setResumeId(targetResumeId);
             workExperienceMapper.insert(entity);
         }
-        
+
         // 复制教育经历
         List<Education> educations = educationMapper.selectByResumeId(sourceResumeId);
         for (Education entity : educations) {
@@ -378,7 +389,7 @@ public class ResumeServiceImpl implements ResumeService {
             entity.setResumeId(targetResumeId);
             educationMapper.insert(entity);
         }
-        
+
         // 复制项目经验
         List<ProjectExperience> projectExperiences = projectExperienceMapper.selectByResumeId(sourceResumeId);
         for (ProjectExperience entity : projectExperiences) {
@@ -386,7 +397,7 @@ public class ResumeServiceImpl implements ResumeService {
             entity.setResumeId(targetResumeId);
             projectExperienceMapper.insert(entity);
         }
-        
+
         // 复制技能
         List<Skill> skills = skillMapper.selectByResumeId(sourceResumeId);
         for (Skill entity : skills) {
@@ -394,7 +405,7 @@ public class ResumeServiceImpl implements ResumeService {
             entity.setResumeId(targetResumeId);
             skillMapper.insert(entity);
         }
-        
+
         // 复制其他信息
         List<AdditionalInfo> additionalInfos = additionalInfoMapper.selectByResumeId(sourceResumeId);
         for (AdditionalInfo entity : additionalInfos) {
@@ -403,7 +414,7 @@ public class ResumeServiceImpl implements ResumeService {
             additionalInfoMapper.insert(entity);
         }
     }
-    
+
     /**
      * 获取工作经历
      */
@@ -415,7 +426,7 @@ public class ResumeServiceImpl implements ResumeService {
             return dto;
         }).collect(Collectors.toList());
     }
-    
+
     /**
      * 获取教育经历
      */
@@ -427,7 +438,7 @@ public class ResumeServiceImpl implements ResumeService {
             return dto;
         }).collect(Collectors.toList());
     }
-    
+
     /**
      * 获取项目经验
      */
@@ -439,7 +450,7 @@ public class ResumeServiceImpl implements ResumeService {
             return dto;
         }).collect(Collectors.toList());
     }
-    
+
     /**
      * 获取技能
      */
@@ -451,7 +462,7 @@ public class ResumeServiceImpl implements ResumeService {
             return dto;
         }).collect(Collectors.toList());
     }
-    
+
     /**
      * 获取其他信息
      */
@@ -468,9 +479,9 @@ public class ResumeServiceImpl implements ResumeService {
     @Override
     public List<resumer> getResumesByUserId(Long userId) {
         QueryWrapper<resumer> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("user_key", String.valueOf(userId))
-                   .eq("is_deleted", false)
-                   .orderByDesc("update_time");
+        queryWrapper.eq("user_id", userId) // P0: user_key -> user_id
+                .eq("is_deleted", false)
+                .orderByDesc("updated_at"); // P0: update_time -> updated_at
         return resumerMapper.selectList(queryWrapper);
     }
 
@@ -481,9 +492,9 @@ public class ResumeServiceImpl implements ResumeService {
             return null;
         }
         // 如果提供了userId，验证权限
-        if (userId != null && !resume.getUserKey().equals(String.valueOf(userId))) {
+        if (userId != null && !resume.getUserId().equals(userId)) {
             return null;
         }
-        return resume.getShareUrl(); // 或者其他存储文件路径的字段
+        return resume.getShareCode(); // P0: shareUrl -> shareCode
     }
 }

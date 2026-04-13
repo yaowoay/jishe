@@ -77,8 +77,8 @@ public class AiResumeController {
             } else {
                 resumeRequest = aiResumeService.generateResumeFromUserInfo(aiRequest.getUserInfo());
             }
-            // 保存简历
-            resumeService.createResume(resumeRequest, userKey);
+//            // 保存简历
+//            resumeService.createResume(resumeRequest, userId);
             // 封装 links 返回
             ResumeLinksResponse linksResponse = ResumeLinksResponse.fromResumeCreateRequest(resumeRequest);
             return BaseResponse.success(linksResponse, "简历生成并保存成功");

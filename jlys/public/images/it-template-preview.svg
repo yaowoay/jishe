@@ -1,0 +1,50 @@
+<svg width="300" height="400" viewBox="0 0 300 400" fill="none" xmlns="http://www.w3.org/2000/svg">
+<!-- 背景 -->
+<rect width="300" height="400" fill="#FAFAFA"/>
+<!-- 简历容器 -->
+<rect x="20" y="20" width="260" height="360" fill="white" stroke="#E0E0E0" rx="8"/>
+
+<!-- 头部区域 -->
+<rect x="30" y="30" width="240" height="60" fill="#2196F3" rx="4"/>
+<text x="150" y="50" fill="white" font-family="Arial" font-size="16" font-weight="bold" text-anchor="middle">张三</text>
+<text x="150" y="70" fill="white" font-family="Arial" font-size="12" text-anchor="middle">前端开发工程师</text>
+
+<!-- 联系信息 -->
+<rect x="40" y="110" width="220" height="2" fill="#E0E0E0"/>
+<rect x="40" y="120" width="100" height="8" fill="#757575"/>
+<rect x="40" y="135" width="120" height="8" fill="#757575"/>
+
+<!-- 技能标签 -->
+<rect x="40" y="160" width="220" height="12" fill="#4CAF50"/>
+<text x="45" y="170" fill="white" font-family="Arial" font-size="10" font-weight="bold">技能专长</text>
+
+<rect x="40" y="180" width="50" height="16" fill="#FF9800" rx="8"/>
+<text x="65" y="190" fill="white" font-family="Arial" font-size="8" text-anchor="middle">Vue.js</text>
+
+<rect x="100" y="180" width="50" height="16" fill="#FF9800" rx="8"/>
+<text x="125" y="190" fill="white" font-family="Arial" font-size="8" text-anchor="middle">React</text>
+
+<rect x="160" y="180" width="60" height="16" fill="#FF9800" rx="8"/>
+<text x="190" y="190" fill="white" font-family="Arial" font-size="8" text-anchor="middle">JavaScript</text>
+
+<!-- 工作经验 -->
+<rect x="40" y="220" width="220" height="12" fill="#4CAF50"/>
+<text x="45" y="230" fill="white" font-family="Arial" font-size="10" font-weight="bold">工作经验</text>
+
+<rect x="40" y="245" width="180" height="8" fill="#757575"/>
+<rect x="40" y="260" width="200" height="6" fill="#BDBDBD"/>
+<rect x="40" y="270" width="160" height="6" fill="#BDBDBD"/>
+
+<!-- 项目经验 -->
+<rect x="40" y="300" width="220" height="12" fill="#4CAF50"/>
+<text x="45" y="310" fill="white" font-family="Arial" font-size="10" font-weight="bold">项目经验</text>
+
+<rect x="40" y="325" width="170" height="8" fill="#757575"/>
+<rect x="40" y="340" width="190" height="6" fill="#BDBDBD"/>
+<rect x="40" y="350" width="150" height="6" fill="#BDBDBD"/>
+
+<!-- 装饰元素 -->
+<circle cx="250" cy="50" r="3" fill="#FFC107"/>
+<circle cx="240" cy="60" r="2" fill="#E91E63"/>
+<circle cx="260" cy="65" r="2" fill="#9C27B0"/>
+</svg>

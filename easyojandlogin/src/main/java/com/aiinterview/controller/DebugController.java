@@ -21,7 +21,7 @@ public class DebugController {
     public Map<String, Object> debugGet(HttpServletRequest request) {
         System.out.println("==========================================");
         System.out.println("=== DebugController 捕获GET请求 ===");
-        System.out.println("请求URI: " + request.getRequestURI());
+        System.out.println("请求333333URI: " + request.getRequestURI());
         System.out.println("请求URL: " + request.getRequestURL());
         System.out.println("==========================================");
         

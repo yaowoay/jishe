@@ -4,9 +4,6 @@ import com.baomidou.mybatisplus.annotation.*;
 import lombok.Data;
 import java.time.LocalDateTime;
 
-/**
- * 简历实体类
- */
 @Data
 @TableName("resume")
 public class resumer {
@@ -14,100 +11,98 @@ public class resumer {
     @TableId(type = IdType.AUTO)
     private Long id;
 
-    /**
-     * 用户唯一标识（手机号或邮箱）
-     */
-    @TableField("USER_KEY")
-    private String userKey;
+    /** 用户ID（对应 users.user_id） */
+    @TableField("user_id")
+    private Long userId;
 
-    /**
-     * 简历名称
-     */
-    @TableField("NAME")
+    /** 简历名称 */
+    @TableField("name")
     private String name;
 
-    /**
-     * 姓名
-     */
-    @TableField("FULL_NAME")
+    /** 真实姓名 */
+    @TableField("full_name")
     private String fullName;
 
-    /**
-     * 电话
-     */
-    @TableField("PHONE")
+    /** 电话 */
+    @TableField("phone")
     private String phone;
 
-    /**
-     * 邮箱
-     */
-    @TableField("EMAIL")
+    /** 邮箱 */
+    @TableField("email")
     private String email;
 
-    /**
-     * 期望职位
-     */
-    @TableField("POSITION")
+    /** 头像 */
+    @TableField("avatar_url")
+    private String avatarUrl;
+
+    /** 期望职位 */
+    @TableField("position")
     private String position;
 
-    /**
-     * 工作年限
-     */
-    @TableField("WORK_YEARS")
+    /** 工作年限 */
+    @TableField("work_years")
     private Integer workYears;
 
-    /**
-     * 所在地
-     */
-    @TableField("LOCATION")
-    private String location;
+    /** 期望城市 */
+    @TableField("expected_city")
+    private String expectedCity;
 
-    /**
-     * 个人简介
-     */
-    @TableField("PROFILE")
+    /** 期望薪资下限 */
+    @TableField("expected_salary_min")
+    private Integer expectedSalaryMin;
+
+    /** 期望薪资上限 */
+    @TableField("expected_salary_max")
+    private Integer expectedSalaryMax;
+
+    /** 期望行业 */
+    @TableField("expected_industry")
+    private String expectedIndustry;
+
+    /** 个人简介 */
+    @TableField("profile")
     private String profile;
 
-    /**
-     * 简历模板类型 (template1, template2, template3, template4)
-     */
-    @TableField("TEMPLATE")
-    private String template;
+    /** 模板ID */
+    @TableField("template_id")
+    private Integer templateId;
 
-    /**
-     * 是否默认简历
-     */
-    @TableField("IS_DEFAULT")
+    /** 模板类型 */
+    @TableField("template_type")
+    private String templateType;
+
+    /** 模板配置 */
+    @TableField("template_config")
+    private String templateConfig;
+
+    /** 是否默认 */
+    @TableField("is_default")
     private Boolean isDefault;
 
-    /**
-     * 软删除标记
-     */
+    /** 软删除 */
     @TableLogic
-    @TableField("IS_DELETED")
+    @TableField("is_deleted")
     private Boolean isDeleted;
 
-    /**
-     * 分享链接
-     */
-    @TableField("SHARE_URL")
-    private String shareUrl;
+    /** 分享码 */
+    @TableField("share_code")
+    private String shareCode;
 
-    /**
-     * 查看次数
-     */
-    @TableField("VIEW_COUNT")
+    /** 查看次数 */
+    @TableField("view_count")
     private Integer viewCount;
 
-    /**
-     * 创建时间
-     */
-    @TableField(value = "CREATE_TIME", fill = FieldFill.INSERT)
-    private LocalDateTime createTime;
+    /** 下载次数 */
+    @TableField("download_count")
+    private Integer downloadCount;
 
-    /**
-     * 更新时间
-     */
-    @TableField(value = "UPDATE_TIME", fill = FieldFill.INSERT_UPDATE)
-    private LocalDateTime updateTime;
+    /** 简历状态 */
+    @TableField("status")
+    private String status;
+
+    @TableField(value = "created_at", fill = FieldFill.INSERT)
+    private LocalDateTime createdAt;
+
+    @TableField(value = "updated_at", fill = FieldFill.INSERT_UPDATE)
+    private LocalDateTime updatedAt;
 }

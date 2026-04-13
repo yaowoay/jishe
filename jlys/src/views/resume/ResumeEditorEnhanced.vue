@@ -567,7 +567,7 @@ import ResumePreview from '@/components/resume/ResumePreview.vue'
 import TemplateSelectionDialog from '@/components/resume/TemplateSelectionDialog.vue'
 
 // 只保留必要的接口导入
-import { getResume, createResume, updateResume, optimizeResumeWithAI, generateResumeWithAI } from '@/api/resume'
+import { getResume, createResume, updateResume, optimizeResumeWithAI, generateResumeWithAI, getResumeTemplates } from '@/api/resume'
 
 export default {
   name: 'ResumeEditorEnhanced',
@@ -700,78 +700,62 @@ export default {
     // 模板分类
     const templateCategories = reactive([
       {
+        key: 'it',
+        name: 'IT技术',
+        icon: 'Monitor'
+      },
+      {
         key: 'professional',
         name: '商务专业',
         icon: 'Briefcase'
       },
       {
-        key: 'creative',
-        name: '创意设计',
-        icon: 'Brush'
-      },
-      {
-        key: 'technical',
-        name: '技术开发',
-        icon: 'Monitor'
-      },
-      {
         key: 'academic',
         name: '学术研究',
         icon: 'Reading'
+      },
+      {
+        key: 'general',
+        name: '通用模板',
+        icon: 'Grid'
       }
     ])
 
-    // 简历模板
-    const resumeTemplates = reactive([
-      {
-        id: 'modern',
-        name: '现代简约',
-        category: 'professional',
-        description: '极简线条与清新配色，适合互联网、运营、行政等通用岗位',
-        preview: require('@/assets/images/feature1.png'), // 注意：需替换为实际图片路径
-        tags: ['简约', '通用', '推荐']
-      },
-      {
-        id: 'classic',
-        name: '经典商务',
-        category: 'professional',
-        description: '深色稳重风格，适合金融、管理、传统行业等正式场合',
-        preview: require('@/assets/images/feature2.png'), // 注意：需替换为实际图片路径
-        tags: ['正式', '商务', '传统']
-      },
-      {
-        id: 'creative',
-        name: '创意设计',
-        category: 'creative',
-        description: '色彩丰富、排版灵活，适合设计师、广告、媒体等创意岗位',
-        preview: require('@/assets/images/feature3.png'), // 注意：需替换为实际图片路径
-        tags: ['创意', '设计', '个性']
-      },
-      {
-        id: 'technical',
-        name: '技术极客',
-        category: 'technical',
-        description: '代码感与结构化布局，适合开发、测试、数据等技术岗位',
-        preview: require('@/assets/images/feature4.png'), // 注意：需替换为实际图片路径
-        tags: ['技术', '简洁', '专业']
-      },
-      {
-        id: 'academic',
-        name: '学术研究',
-        category: 'academic',
-        description: '学术蓝白配色，适合科研、教育、留学等学术场景',
-        preview: require('@/assets/images/feature5.png'), // 注意：需替换为实际图片路径
-        tags: ['学术', '正式', '研究']
-      },
-      {
-        id: 'colorful',
-        name: '多彩活力',
-        category: 'creative',
-        description: '明快色块与活泼排版，适合新媒体、市场、校园等年轻岗位',
-        preview: require('@/assets/images/feature6.png'), // 注意：需替换为实际图片路径
-        tags: ['多彩', '活力', '年轻']
+    // 简历模板 - 从后端动态获取
+    const resumeTemplates = ref([])
+
+    // 加载模板列表
+    const loadTemplates = async () => {
+      try {
+        const res = await getResumeTemplates()
+        if (res.code === 0 && Array.isArray(res.data)) {
+          resumeTemplates.value = res.data.map(template => ({
+            id: template.template_id,
+            name: template.template_name,
+            category: template.category || 'general',
+            description: template.description || '',
+            preview: template.preview_image || '/images/default-template-preview.png',
+            type: template.template_type,
+            path: template.template_path,
+            tags: getTemplateTags(template)
+          }))
+        }
+      } catch (error) {
+        console.error('Load templates error:', error)
+        ElMessage.error('加载模板失败')
       }
-    ])
+    }
+
+    // 根据模板信息生成标签
+    const getTemplateTags = (template) => {
+      const tags = []
+      if (template.category === 'it') tags.push('技术')
+      if (template.template_type === 'latex') tags.push('LaTeX')
+      if (template.template_type === 'html') tags.push('HTML')
+      if (template.template_name.includes('专业')) tags.push('专业')
+      if (template.template_name.includes('简约')) tags.push('简约')
+      return tags.length > 0 ? tags : ['通用']
+    }
 
     /*
     // 从后端动态获取模板
@@ -796,7 +780,7 @@ export default {
     const resumeForm = reactive({
       title: '我的简历',
       template: 'template1', // 默认使用template1
-      templateId: 1,
+      templateId: null, // 模板ID，可以为null
       basicInfo: {
         name: '',
         phone: '',
@@ -824,6 +808,7 @@ export default {
     // 页面初始化
     onMounted(async () => {
       const id = route.params.id
+      await loadTemplates() // 先加载模板
       if (id && id !== 'new') {
         resumeId.value = parseInt(id)
         await loadResume()
@@ -859,8 +844,9 @@ export default {
         // 将后端数据结构转换为前端resumeForm结构
         resumeForm.title = data.name || ''
         resumeForm.template = data.template || 'template1'
+        resumeForm.templateId = data.templateId || null // 支持null值
         console.log('加载的简历数据:', data)
-        console.log('设置的模板:', resumeForm.template)
+        console.log('设置的模板:', resumeForm.template, '模板ID:', resumeForm.templateId)
         console.log('基本信息:', data.fullName, data.phone, data.email, data.position)
 
         // 基本信息
@@ -997,6 +983,7 @@ export default {
             location: resumeForm.basicInfo.address,
             profile: resumeForm.basicInfo.summary,
             template: resumeForm.template || 'template1',
+            templateId: resumeForm.templateId, // 添加模板ID字段
             workExperiences: fixDateList(resumeForm.workExperience),
             educations: fixDateList(resumeForm.education),
             projectExperiences: fixDateList(resumeForm.projects),
@@ -1045,6 +1032,7 @@ export default {
               location: resumeForm.basicInfo.address,
               profile: resumeForm.basicInfo.summary,
               template: resumeForm.template || 'template1',
+              templateId: resumeForm.templateId, // 添加模板ID字段
               workExperiences: fixDateList(resumeForm.workExperience),
               educations: fixDateList(resumeForm.education),
               projectExperiences: fixDateList(resumeForm.projects),
@@ -1239,13 +1227,21 @@ export default {
 
     // 模板相关方法
     const filteredTemplates = computed(() => {
-      return resumeTemplates.filter(template => template.category === selectedCategory.value)
+      return resumeTemplates.value.filter(template => template.category === selectedCategory.value)
     })
 
     const selectAndApplyTemplate = (templateId) => {
       selectedTemplate.value = templateId
       resumeForm.templateId = templateId
-      ElMessage.success('模板已应用')
+      
+      // 找到对应的模板信息
+      const template = resumeTemplates.value.find(t => t.id === templateId)
+      if (template) {
+        resumeForm.template = template.name
+        ElMessage.success(`已应用模板：${template.name}`)
+      } else {
+        ElMessage.success('模板已应用')
+      }
     }
 
     // 窗口大小变化处理
@@ -1628,9 +1624,18 @@ export default {
 
     // 模板选择处理
     const handleTemplateSelected = (templateId) => {
-      resumeForm.template = templateId
-      console.log('模板已选择:', templateId)
-      ElMessage.success('模板已应用，请手动保存以应用更改')
+      resumeForm.templateId = templateId
+      
+      // 找到对应的模板信息
+      const template = resumeTemplates.value.find(t => t.id === templateId)
+      if (template) {
+        resumeForm.template = template.name
+        console.log('模板已选择:', templateId, template.name)
+        ElMessage.success(`已应用模板：${template.name}，请手动保存以应用更改`)
+      } else {
+        console.log('模板已选择:', templateId)
+        ElMessage.success('模板已应用，请手动保存以应用更改')
+      }
     }
 
     // 返回
@@ -1692,6 +1697,7 @@ export default {
       filteredResumeData,
       // 方法
       loadResume,
+      loadTemplates,
       saveResume,
       autoSave,
       setActiveView,

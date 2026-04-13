@@ -24,14 +24,14 @@ import java.util.Arrays;
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
-    
+
     private final UserMapper userMapper;
     private final StudentProfileMapper studentProfileMapper;
     private final CompanyMapper companyMapper;
     private final TeacherMapper teacherMapper;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtils jwtUtils;
-    
+
     @Override
     @Transactional
     public User register(RegisterRequest request) {
@@ -42,32 +42,18 @@ public class UserServiceImpl implements UserService {
         if (existingUser != null) {
             throw new RuntimeException("邮箱已被注册");
         }
-        
+
         // 创建用户
         User user = new User();
         user.setEmail(request.getEmail());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setRole(request.getRole());
-        
+        user.setProfileCompleted(0); // 初始化为未完善
+
         userMapper.insert(user);
-        
+
         // 根据角色创建对应的详细信息
-        if ("student".equals(request.getRole())) {
-            StudentProfile studentProfile = new StudentProfile();
-            studentProfile.setUserId(user.getUserId());
-            studentProfile.setStudentNo(request.getStudentNo());
-            studentProfile.setRealName(request.getRealName());
-            studentProfile.setCollegeId(request.getCollegeId());
-            studentProfile.setMajorId(request.getMajorId());
-            studentProfile.setClassName(request.getClassName());
-            studentProfile.setEducationLevel(request.getEducationLevel());
-            studentProfile.setGraduationYear(request.getGraduationYear());
-            studentProfile.setGpa(request.getGpa());
-            studentProfile.setSkills(request.getSkills());
-            studentProfile.setExpectedCity(request.getExpectedCity());
-            studentProfile.setExpectedSalaryMin(request.getExpectedSalaryMin());
-            studentProfileMapper.insert(studentProfile);
-        } else if ("company".equals(request.getRole())) {
+/*        if ("company".equals(request.getRole())) {
             Company company = new Company();
             company.setUserId(user.getUserId());
             company.setCompanyName(request.getCompanyName());
@@ -93,11 +79,11 @@ public class UserServiceImpl implements UserService {
             teacher.setEmail(request.getEmail());
             teacher.setStatus("active");
             teacherMapper.insert(teacher);
-        }
-        
+        }*/
+
         return user;
     }
-    
+
     @Override
     public String login(LoginRequest request) {
         // 查找用户
@@ -105,23 +91,23 @@ public class UserServiceImpl implements UserService {
         if (user == null) {
             throw new RuntimeException("用户不存在");
         }
-        
+
         // 验证密码
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             throw new RuntimeException("密码错误");
         }
-        
+
         // 生成JWT token
         return jwtUtils.generateToken(user.getUserId(), user.getEmail(), user.getRole());
     }
-    
+
     @Override
     public User findByEmail(String email) {
         QueryWrapper<User> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("email", email);
         return userMapper.selectOne(queryWrapper);
     }
-    
+
     @Override
     public User findById(Long userId) {
         return userMapper.selectById(userId);

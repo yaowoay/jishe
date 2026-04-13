@@ -8,8 +8,9 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.Year;
 
 /**
  * 学生档案实体类
@@ -23,7 +24,7 @@ public class StudentProfile {
     private Long id;
 
     @TableField("user_id")
-    private Long userId;
+    private Integer userId;
 
     @TableField("student_no")
     private String studentNo;
@@ -31,32 +32,32 @@ public class StudentProfile {
     @TableField("real_name")
     private String realName;
 
-    @TableField("college_id")
-    private Long collegeId;
+    @TableField("gender")
+    private String gender; // 'male', 'female', 'other'
 
-    @TableField("major_id")
-    private Long majorId;
+    @TableField("birth_date")
+    private LocalDate birthDate;
+
+    @TableField("college")
+    private String college;
+
+    @TableField("major")
+    private String major;
 
     @TableField("class_name")
     private String className;
 
+    @TableField("grade")
+    private String grade;
+
     @TableField("education_level")
-    private String educationLevel;
+    private String educationLevel; // '专科', '本科', '硕士', '博士'
 
     @TableField("graduation_year")
-    private Integer graduationYear;
+    private Year graduationYear;
 
-    @TableField("gpa")
-    private BigDecimal gpa;
-
-    @TableField("skills")
-    private String skills;
-
-    @TableField("expected_city")
-    private String expectedCity;
-
-    @TableField("expected_salary_min")
-    private Integer expectedSalaryMin;
+    @TableField("profile_completion")
+    private Integer profileCompletion; // 0-100
 
     @TableField(value = "created_at", fill = FieldFill.INSERT)
     private LocalDateTime createdAt;

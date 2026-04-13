@@ -216,7 +216,15 @@ export function validateGenerationConfig() {
 // 获取简历模板列表
 export function getResumeTemplates() {
   return request({
-    url: '/resume-generation/templates',
+    url: '/resume/templates',
+    method: 'get'
+  })
+}
+
+// 获取模板详情
+export function getTemplateById(templateId) {
+  return request({
+    url: `/resume/templates/${templateId}`,
     method: 'get'
   })
 }

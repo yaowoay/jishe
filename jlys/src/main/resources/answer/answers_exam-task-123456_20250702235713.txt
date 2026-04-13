@@ -1,7 +1,0 @@
-Task ID: exam-task-123456
-Submit Time: 2025-07-02 23:57:13
-Status: 正常提交
-========================================
-q1: A
-q2: 42
-q3: SELECT * FROM users

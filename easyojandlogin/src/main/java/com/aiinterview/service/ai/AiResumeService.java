@@ -5,6 +5,7 @@ import com.aiinterview.model.dto.request.ResumeCreateRequest;
 /**
  * AI简历生成服务接口
  */
+
 public interface AiResumeService {
     
     /**
