@@ -1,10 +1,10 @@
 <template>
   <div class="resume-preview" :class="{ 'mobile-view': isMobile }">
     <!-- 使用动态模板渲染器 -->
-    <ResumeTemplateRenderer 
-      v-if="!isEmpty"
-      :resume="convertedResumeData" 
-      :template="template || 'template1'"
+    <ResumeTemplateRenderer
+        v-if="!isEmpty"
+        :resume="convertedResumeData"
+        :template="resumeData.templateId || 1"
     />
     
     <!-- 空状态提示 -->

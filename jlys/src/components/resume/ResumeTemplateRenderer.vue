@@ -1,17 +1,16 @@
 <template>
   <div class="resume-template-renderer">
-    <!-- 根据template字段动态渲染不同的模板 -->
-    <ResumeTemplate1 v-if="template === 'template1'" :resume="resume" />
-    <ResumeTemplate2 v-else-if="template === 'template2'" :resume="resume" />
-    <ResumeTemplate3 v-else-if="template === 'template3'" :resume="resume" />
-    <ResumeTemplate4 v-else-if="template === 'template4'" :resume="resume" />
+    <!-- 根据模板ID动态渲染不同的模板 -->
+    <ResumeTemplate1 v-if="templateId === 1" :resume="resume" />
+    <ResumeTemplate2 v-else-if="templateId === 2" :resume="resume" />
+    <ResumeTemplate3 v-else-if="templateId === 3" :resume="resume" />
     <!-- 默认使用template1 -->
     <ResumeTemplate1 v-else :resume="resume" />
   </div>
 </template>
 
 <script>
-import { defineProps } from 'vue'
+import { computed } from 'vue'
 import ResumeTemplate1 from './ResumeTemplate1.vue'
 import ResumeTemplate2 from './ResumeTemplate2.vue'
 import ResumeTemplate3 from './ResumeTemplate3.vue'
@@ -31,9 +30,32 @@ export default {
       required: true
     },
     template: {
-      type: String,
+      type: [String, Number],
       default: 'template1'
     }
+  },
+  setup(props) {
+    // 将template转换为模板ID
+    const templateId = computed(() => {
+      // 如果是数字ID
+      if (typeof props.template === 'number') return props.template
+      // 如果是字符串"1"、"2"、"3"
+      if (typeof props.template === 'string' && /^\d+$/.test(props.template)) {
+        return parseInt(props.template)
+      }
+      // 根据模板名称映射
+      const nameMap = {
+        'IT专业简历': 1,
+        '中文简历模板': 2,
+        '带照片简历': 3,
+        'template1': 1,
+        'template2': 2,
+        'template3': 3
+      }
+      return nameMap[props.template] || 1
+    })
+
+    return { templateId }
   }
 }
 </script>

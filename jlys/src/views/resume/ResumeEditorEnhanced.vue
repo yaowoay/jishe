@@ -328,8 +328,7 @@
                 v-for="template in filteredTemplates"
                 :key="template.id"
                 class="template-item"
-                :class="{ selected: selectedTemplate === template.id }"
-                @click="selectAndApplyTemplate(template.id)"
+                :class="{ selected: Number(selectedTemplate) === Number(template.id) }"                @click="selectAndApplyTemplate(template.id)"
             >
               <div class="template-preview">
                 <img :src="template.preview" :alt="template.name" />
@@ -539,6 +538,7 @@
       <TemplateSelectionDialog
           v-model="templateDialogVisible"
           :current-template="resumeForm.template"
+          :templates="resumeTemplates"
           @template-selected="handleTemplateSelected"
       />
     </el-dialog>
@@ -630,9 +630,8 @@ export default {
     const templateAreaWidth = ref(400)
 
     // 模板相关
-    const selectedTemplate = ref('modern')
-    const selectedCategory = ref('professional')
-
+    const selectedTemplate = ref(null)
+    const selectedCategory = ref('all')
     // 拖拽相关
     const isResizing = ref(false)
     const minEditWidth = ref(400)
@@ -699,26 +698,11 @@ export default {
 
     // 模板分类
     const templateCategories = reactive([
-      {
-        key: 'it',
-        name: 'IT技术',
-        icon: 'Monitor'
-      },
-      {
-        key: 'professional',
-        name: '商务专业',
-        icon: 'Briefcase'
-      },
-      {
-        key: 'academic',
-        name: '学术研究',
-        icon: 'Reading'
-      },
-      {
-        key: 'general',
-        name: '通用模板',
-        icon: 'Grid'
-      }
+      { key: 'all', name: '全部', icon: 'Grid' },  // 添加这一行
+      { key: 'it', name: 'IT技术', icon: 'Monitor' },
+      { key: 'professional', name: '商务专业', icon: 'Briefcase' },
+      { key: 'academic', name: '学术研究', icon: 'Reading' },
+      { key: 'general', name: '通用模板', icon: 'Grid' }
     ])
 
     // 简历模板 - 从后端动态获取
@@ -728,26 +712,32 @@ export default {
     const loadTemplates = async () => {
       try {
         const res = await getResumeTemplates()
-        if (res.code === 0 && Array.isArray(res.data)) {
-          resumeTemplates.value = res.data.map(template => ({
-            id: template.template_id,
-            name: template.template_name,
-            category: template.category || 'general',
-            description: template.description || '',
-            preview: template.preview_image || '/images/default-template-preview.png',
-            type: template.template_type,
-            path: template.template_path,
-            tags: getTemplateTags(template)
-          }))
+        if (res.code === 0 && res.data) {
+          resumeTemplates.value = res.data.map(template => {
+            let previewUrl = '/images/default-template-preview.svg'
+            // 改成 template.templateId（注意大小写）
+            if (template.templateId === 1) previewUrl = '/template/resume-it-master/resume.png'
+            if (template.templateId === 2) previewUrl = '/template/resume-zh_CN/images/resume_example.jpg'
+            if (template.templateId === 3) previewUrl = '/template/resume_with_photo-main/photo.jpg'
+
+            return {
+              id: template.templateId,  // 改成 template.templateId
+              name: template.templateName,
+              description: template.description || '暂无描述',
+              preview: previewUrl,
+              type: template.templateType,
+              path: template.templatePath,
+              category: template.category,
+              tags: getTemplateTags(template)
+            }
+          })
         }
       } catch (error) {
-        console.error('Load templates error:', error)
         ElMessage.error('加载模板失败')
       }
     }
-
     // 根据模板信息生成标签
-    const getTemplateTags = (template) => {
+    /*const getTemplateTags = (template) => {
       const tags = []
       if (template.category === 'it') tags.push('技术')
       if (template.template_type === 'latex') tags.push('LaTeX')
@@ -755,24 +745,33 @@ export default {
       if (template.template_name.includes('专业')) tags.push('专业')
       if (template.template_name.includes('简约')) tags.push('简约')
       return tags.length > 0 ? tags : ['通用']
-    }
+    }*/
 
-    /*
-    // 从后端动态获取模板
-    import { getResumeTemplates } from '@/api/resume'
+    // 从后端动态获取模
 
     onMounted(async () => {
-      // 获取模板列表
-      try {
-        const templates = await getResumeTemplates()
-        resumeTemplates.splice(0, resumeTemplates.length, ...templates)
-      } catch (e) {
-        ElMessage.error('获取模板失败')
+      const id = route.params.id
+      await loadTemplates()  // 确保这一行存在
+      if (id && id !== 'new') {
+        resumeId.value = parseInt(id)
+        await loadResume()
       }
+      window.addEventListener('resize', handleWindowResize)
     })
-    */
+    const getTemplateTags = (template) => {
+      const tags = []
+      const name = template.templateName || ''  // 改成 template.templateName
 
+      if (template.templateType === 'latex') tags.push('LaTeX')  // 改成 template.templateType
+      if (template.templateType === 'html') tags.push('HTML')
+      if (template.category === 'it') tags.push('IT')
+      if (template.category === 'general') tags.push('通用')
+      if (name.includes('照片')) tags.push('带照片')
+      if (name.includes('专业')) tags.push('专业')
+      if (name.includes('中文')) tags.push('中文')
 
+      return tags.length ? tags : ['通用']
+    }
     // 模板对话框
     const templateDialogVisible = ref(false)
 
@@ -802,6 +801,15 @@ export default {
       }
     })
 
+    const toggleTemplatePanel = () => {
+      showTemplatePanel.value = !showTemplatePanel.value
+      if (showTemplatePanel.value) {
+        showPreviewPanel.value = false
+        nextTick(() => {
+          initializePanelWidths()
+        })
+      }
+    }
     // 自动保存定时器
     let autoSaveTimer = null
 
@@ -1002,7 +1010,7 @@ export default {
           const result = await createResume(saveData)
           resumeId.value = result.id
           ElMessage.success('简历创建成功')
-          router.replace(`/layout/editResume/editor/${resumeId.value}`)
+          router.push('/applicant/resume/list')
         } catch (error) {
           ElMessage.error('保存失败')
           console.error('Save resume error:', error)
@@ -1209,7 +1217,10 @@ export default {
       }
     }
 
-    const showTemplateDialog = () => {
+    const showTemplateDialog = async () => {
+      if (resumeTemplates.value.length === 0) {
+        await loadTemplates()
+      }
       templateDialogVisible.value = true
     }
 
@@ -1225,21 +1236,24 @@ export default {
       }
     }
 
-    // 模板相关方法
     const filteredTemplates = computed(() => {
-      return resumeTemplates.value.filter(template => template.category === selectedCategory.value)
+      if (!resumeTemplates.value.length) return []
+      if (selectedCategory.value === 'all') {
+        return resumeTemplates.value
+      }
+      return resumeTemplates.value.filter(t => t.category === selectedCategory.value)
     })
-
     const selectAndApplyTemplate = (templateId) => {
-      selectedTemplate.value = templateId
-      resumeForm.templateId = templateId
-      
-      // 找到对应的模板信息
-      const template = resumeTemplates.value.find(t => t.id === templateId)
+      // 确保转成数字类型
+      const id = Number(templateId)
+      selectedTemplate.value = id
+      resumeForm.templateId = id
+
+      const template = resumeTemplates.value.find(t => Number(t.id) === id)
       if (template) {
         resumeForm.template = template.name
         ElMessage.success(`已应用模板：${template.name}`)
-      } else {
+      }else {
         ElMessage.success('模板已应用')
       }
     }
@@ -1624,20 +1638,16 @@ export default {
 
     // 模板选择处理
     const handleTemplateSelected = (templateId) => {
-      resumeForm.templateId = templateId
-      
-      // 找到对应的模板信息
-      const template = resumeTemplates.value.find(t => t.id === templateId)
+      const id = Number(templateId)
+      resumeForm.templateId = id
+      selectedTemplate.value = id
+
+      const template = resumeTemplates.value.find(t => Number(t.id) === id)
       if (template) {
         resumeForm.template = template.name
-        console.log('模板已选择:', templateId, template.name)
-        ElMessage.success(`已应用模板：${template.name}，请手动保存以应用更改`)
-      } else {
-        console.log('模板已选择:', templateId)
-        ElMessage.success('模板已应用，请手动保存以应用更改')
       }
+      ElMessage.success('模板已选择')
     }
-
     // 返回
     const goBack = () => {
       router.back()
@@ -1708,6 +1718,7 @@ export default {
       getCurrentModuleComponent,
       toggleLeftPanel,
       togglePreviewPanel,
+      toggleTemplatePanel,
       showTemplateDialog,
       selectAndApplyTemplate,
       initializePanelWidths,
