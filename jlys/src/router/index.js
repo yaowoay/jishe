@@ -146,22 +146,10 @@ const routes = [
             meta: { title: 'AI生成简历', icon: 'el-icon-magic-stick' }
           },
           {
-            path: 'upload',
-            name: 'ResumeUpload',
-            component: () => import('@/views/applicant/resume/ResumeUpload.vue'),
-            meta: { title: '上传简历', icon: 'el-icon-upload' }
-          },
-          {
             path: 'analysis',
             name: 'ResumeAnalysis',
             component: () => import('@/views/applicant/resume/ResumeAnalysis.vue'),
             meta: { title: '简历分析', icon: 'el-icon-data-analysis' }
-          },
-          {
-            path: 'manage',
-            name: 'ResumeManage',
-            component: () => import('@/views/applicant/resume/ResumeManage.vue'),
-            meta: { title: '简历管理', icon: 'el-icon-setting' }
           },
           {
             path: 'submit',

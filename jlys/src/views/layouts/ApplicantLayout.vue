@@ -60,10 +60,6 @@
                 <el-icon size="18"><Edit /></el-icon>
                 <span class="submenu-text">AI生成简历</span>
               </el-menu-item>
-              <el-menu-item index="/applicant/resume/upload">
-                <el-icon size="18"><Upload /></el-icon>
-                <span class="submenu-text">简历上传</span>
-              </el-menu-item>
               <el-menu-item index="/applicant/resume/analysis">
                 <el-icon size="18"><DataAnalysis /></el-icon>
                 <span class="submenu-text">简历分析</span>
@@ -71,10 +67,6 @@
               <el-menu-item index="/applicant/resume/submit">
                 <el-icon size="18"><Promotion /></el-icon>
                 <span class="submenu-text">投递简历</span>
-              </el-menu-item>
-              <el-menu-item index="/applicant/resume/manage">
-                <el-icon size="18"><Setting /></el-icon>
-                <span class="submenu-text">简历管理</span>
               </el-menu-item>
             </el-sub-menu>
             <el-sub-menu index="interview-assistant">
@@ -225,10 +217,8 @@ export default {
         '/applicant/dashboard': '控制台',
         '/applicant/profile': '个人中心',
         '/applicant/resume/list': '我的简历',
-        '/applicant/resume/upload': '简历上传',
         '/applicant/resume/analysis': '简历分析',
         '/applicant/resume/submit': '投递简历',
-        '/applicant/resume/manage': '简历管理',
         '/applicant/resume/generation': 'AI生成简历',
         '/applicant/interview': 'AI模拟面试',
         '/applicant/interview-center': '面试中心',
