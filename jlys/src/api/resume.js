@@ -190,7 +190,7 @@ export function setAnalysisSession(data) {
 // 生成简历
 export function generateResume(data) {
   return request({
-    url: '/resume-generation/generate',
+    url: '/make/generate1',  // 改成这个
     method: 'post',
     data
   })

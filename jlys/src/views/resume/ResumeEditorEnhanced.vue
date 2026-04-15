@@ -359,6 +359,22 @@
         </div>
       </template>
     </el-dialog>-->
+    <!-- AI生成简历悬浮框 -->
+    <!-- AI生成简历悬浮框 -->
+    <el-dialog
+        v-model="showAIGenerateFloat"
+        title="AI简历生成器"
+        width="900px"
+        :close-on-click-modal="false"
+        destroy-on-close
+    >
+      <ResumeGenerator
+          :initial-data="aiInitialData"
+          :is-float-mode="true"
+          @close="showAIGenerateFloat = false"
+      />
+    </el-dialog>
+
 
     <!-- AI优化建议弹窗 -->
     <el-dialog v-model="showOptimizeDialog" title="AI优化建议" width="700px" :close-on-click-modal="false">
@@ -426,6 +442,7 @@ import {
 
 // 导入模块组件
 import ResumeBasicInfoEnhanced from '@/components/resume/ResumeBasicInfoEnhanced.vue'
+import ResumeGenerator from '@/views/applicant/resume/ResumeGenerator.vue'
 import ResumeWorkExperience from '@/components/resume/ResumeWorkExperience.vue'
 import ResumeEducation from '@/components/resume/ResumeEducation.vue'
 import ResumeProjects from '@/components/resume/ResumeProjects.vue'
@@ -451,7 +468,8 @@ export default {
     ResumeSkills,
     ResumeOthers,
     ResumePreview,
-    TemplateSelectionDialog
+    TemplateSelectionDialog,
+    ResumeGenerator
   },
   props: {
     // 接收当前选中的模板ID
@@ -576,6 +594,9 @@ export default {
     // 简历模板 - 从后端动态获取
     const resumeTemplates = ref([])
 
+    const handleAIGenerateSuccess = () => {
+      // 可选：生成成功后的处理
+    }
     // 加载模板列表
     const loadTemplates = async () => {
       try {
@@ -1216,7 +1237,8 @@ export default {
     const handleModuleChange = () => {
       autoSave()
     }
-
+    const showAIGenerateFloat = ref(false)
+    const aiInitialData = ref({})
     // 生成模拟优化建议
     const generateOptimizeSuggestions = (resumeData) => {
       const suggestions = []
@@ -1352,8 +1374,8 @@ export default {
     const showAIGenerateDialog = () => {
       const basic = resumeForm.basicInfo
 
-      const formData = {
-        // 基本信息 - 字段名要和 Generation.vue 中的一致
+      // 准备传递给弹窗的数据
+      aiInitialData.value = {
         personalInfo: {
           name: basic.name || '',
           phone: basic.phone || '',
@@ -1364,15 +1386,12 @@ export default {
           age: ''
         },
         targetPosition: basic.position || '',
-        // 教育和工作经历
         educations: resumeForm.education || [],
         workExperiences: resumeForm.workExperience || []
       }
 
-      sessionStorage.setItem('aiResumeFormData', JSON.stringify(formData))
-      sessionStorage.setItem('aiResumeStep', 3)
-
-      router.push('/applicant/resume/generation')
+      // 打开弹窗
+      showAIGenerateFloat.value = true
     }
     /*// AI生成简历
     const handleGenerateResumeWithAI = async () => {
@@ -1557,6 +1576,8 @@ export default {
       resumeForm,
       overallProgress,
 
+      showAIGenerateFloat,
+      aiInitialData,
       // AI优化相关
       showOptimizeDialog,
       optimizeSuggestions,
@@ -1596,7 +1617,8 @@ export default {
       applyOptimizations,
       showAIGenerateDialog,
       goBack,
-      handleTemplateSelected
+      handleTemplateSelected,
+      handleAIGenerateSuccess
     }
   }
 }
@@ -2370,6 +2392,11 @@ html.dragging * {
   padding: 20px 0;
 }
 
+.ai-generate-dialog .el-dialog__body {
+  padding: 0;
+  height: 70vh;
+  overflow-y: auto;
+}
 .ai-form {
   margin-bottom: 30px;
 }

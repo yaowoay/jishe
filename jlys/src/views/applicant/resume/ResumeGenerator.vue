@@ -394,7 +394,7 @@ export default {
 
       // 数据持久化标识
       storageKey: 'resume_generator_state',
-      
+
       // 表单数据
       formData: {
         personalInfo: {
@@ -423,14 +423,14 @@ export default {
         skills: '',
         projects: ''
       },
-      
+
       // 生成设置
       generationSettings: {
         templateType: 'standard',
         style: 'professional',
         prompt: ''
       },
-      
+
       // 模板和风格选项
       templates: {
         standard: '标准简历模板',
@@ -536,46 +536,82 @@ export default {
       }
     }
   },
+  props: {
+    initialData: {
+      type: Object,
+      default: () => ({})
+    },
+    isFloatMode: {
+      type: Boolean,
+      default: false
+    }
+  },
+
   async mounted() {
     try {
       console.log('ResumeGenerator组件初始化...')
 
-      // 检查是否有从编辑器传来的数据
-      const savedFormData = sessionStorage.getItem('aiResumeFormData')
-      const savedStep = sessionStorage.getItem('aiResumeStep')
+      // 优先使用 props 传入的数据（弹窗模式）
+      if (this.initialData && Object.keys(this.initialData).length > 0) {
+        console.log('使用 props 数据:', this.initialData)
 
-      if (savedFormData) {
-        const formData = JSON.parse(savedFormData)
-
-        // Vue 3 中直接赋值，不需要 $set
-        if (formData.personalInfo) {
-          this.formData.personalInfo.name = formData.personalInfo.name || ''
-          this.formData.personalInfo.phone = formData.personalInfo.phone || ''
-          this.formData.personalInfo.email = formData.personalInfo.email || ''
-          this.formData.personalInfo.address = formData.personalInfo.address || ''
-          this.formData.personalInfo.summary = formData.personalInfo.summary || ''
+        // 填充基本信息
+        if (this.initialData.personalInfo) {
+          this.formData.personalInfo.name = this.initialData.personalInfo.name || ''
+          this.formData.personalInfo.phone = this.initialData.personalInfo.phone || ''
+          this.formData.personalInfo.email = this.initialData.personalInfo.email || ''
+          this.formData.personalInfo.address = this.initialData.personalInfo.address || ''
+          this.formData.personalInfo.summary = this.initialData.personalInfo.summary || ''
         }
-        this.formData.targetPosition = formData.targetPosition || ''
+        this.formData.targetPosition = this.initialData.targetPosition || ''
 
-        // 如果有教育和工作经历
-        if (formData.educations && formData.educations.length) {
-          this.formData.education = formData.educations
+        // 教育和工作经历
+        if (this.initialData.educations && this.initialData.educations.length) {
+          this.formData.education = this.initialData.educations
         }
-        if (formData.workExperiences && formData.workExperiences.length) {
-          this.formData.workExperience = formData.workExperiences
+        if (this.initialData.workExperiences && this.initialData.workExperiences.length) {
+          this.formData.workExperience = this.initialData.workExperiences
         }
 
-        // 如果指定了步骤，直接跳转
-        if (savedStep) {
-          this.currentStep = parseInt(savedStep)
+        // 弹窗模式下直接跳转到第3步
+        if (this.isFloatMode) {
+          this.currentStep = 3
         }
+      }
+      // 否则检查 sessionStorage（页面跳转模式）
+      else {
+        const savedFormData = sessionStorage.getItem('aiResumeFormData')
+        const savedStep = sessionStorage.getItem('aiResumeStep')
 
-        // 清除 sessionStorage
-        sessionStorage.removeItem('aiResumeFormData')
-        sessionStorage.removeItem('aiResumeStep')
-      } else {
-        // 页面加载时恢复状态
-        this.loadState()
+        if (savedFormData) {
+          const formData = JSON.parse(savedFormData)
+
+          if (formData.personalInfo) {
+            this.formData.personalInfo.name = formData.personalInfo.name || ''
+            this.formData.personalInfo.phone = formData.personalInfo.phone || ''
+            this.formData.personalInfo.email = formData.personalInfo.email || ''
+            this.formData.personalInfo.address = formData.personalInfo.address || ''
+            this.formData.personalInfo.summary = formData.personalInfo.summary || ''
+          }
+          this.formData.targetPosition = formData.targetPosition || ''
+
+          if (formData.educations && formData.educations.length) {
+            this.formData.education = formData.educations
+          }
+          if (formData.workExperiences && formData.workExperiences.length) {
+            this.formData.workExperience = formData.workExperiences
+          }
+
+          if (savedStep) {
+            this.currentStep = parseInt(savedStep)
+          }
+
+          sessionStorage.removeItem('aiResumeFormData')
+          sessionStorage.removeItem('aiResumeStep')
+        } else {
+          // 页面加载时恢复状态
+          this.loadState()
+        }
       }
 
       await Promise.allSettled([this.checkApiConfig()])
@@ -609,7 +645,87 @@ export default {
       }
       this.showTemplateSelection = true
     },
+    // 格式化简历对象为可读文本
+    formatResumeObject(data) {
+      let text = ''
 
+      // 基本信息
+      if (data.basicInfo || data.fullName || data.name) {
+        text += '========== 基本信息 ==========\n'
+        text += '姓名：' + (data.fullName || data.name || data.basicInfo?.name || '') + '\n'
+        text += '电话：' + (data.phone || data.basicInfo?.phone || '') + '\n'
+        text += '邮箱：' + (data.email || data.basicInfo?.email || '') + '\n'
+        text += '求职意向：' + (data.position || data.basicInfo?.position || '') + '\n'
+        if (data.basicInfo?.summary) text += '个人简介：' + data.basicInfo.summary + '\n'
+        text += '\n'
+      }
+
+      // 工作经历
+      const works = data.workExperiences || data.workExperience || []
+      if (works.length > 0) {
+        text += '========== 工作经历 ==========\n'
+        works.forEach((work, i) => {
+          text += '\n' + (i + 1) + '. ' + (work.company || '') + '\n'
+          text += '   职位：' + (work.position || '') + '\n'
+          if (work.startDate || work.endDate) {
+            text += '   时间：' + (work.startDate || '') + ' - ' + (work.endDate || '至今') + '\n'
+          }
+          if (work.responsibility || work.description) {
+            text += '   职责：' + (work.responsibility || work.description) + '\n'
+          }
+        })
+        text += '\n'
+      }
+
+      // 教育经历
+      const edus = data.educations || data.education || []
+      if (edus.length > 0) {
+        text += '========== 教育经历 ==========\n'
+        edus.forEach((edu, i) => {
+          text += '\n' + (i + 1) + '. ' + (edu.school || '') + '\n'
+          text += '   专业：' + (edu.major || '') + '\n'
+          text += '   学历：' + (edu.degree || '') + '\n'
+          if (edu.startDate || edu.endDate) {
+            text += '   时间：' + (edu.startDate || '') + ' - ' + (edu.endDate || '') + '\n'
+          }
+        })
+        text += '\n'
+      }
+
+      // 技能
+      const skills = data.skills || []
+      if (skills.length > 0) {
+        text += '========== 技能专长 ==========\n'
+        skills.forEach(skill => {
+          const skillName = skill.skillName || skill.name || ''
+          const level = skill.level || skill.proficiency || ''
+          text += '• ' + skillName + (level ? ' (' + level + '/5)' : '') + '\n'
+        })
+        text += '\n'
+      }
+
+      return text || JSON.stringify(data, null, 2)
+    },
+    validateForm() {
+      // 检查必要字段是否填写
+      if (!this.formData.personalInfo.name) {
+        this.$message.warning('请填写姓名')
+        return false
+      }
+      if (!this.formData.personalInfo.phone) {
+        this.$message.warning('请填写手机号码')
+        return false
+      }
+      if (!this.formData.personalInfo.email) {
+        this.$message.warning('请填写邮箱')
+        return false
+      }
+      if (!this.formData.targetPosition) {
+        this.$message.warning('请填写期望职位')
+        return false
+      }
+      return true
+    },
     // 关闭模板选择弹窗
     closeTemplateDialog() {
       this.showTemplateSelection = false
@@ -769,7 +885,6 @@ export default {
       this.progressText = '正在准备数据...'
 
       try {
-        // 构建请求数据
         const requestData = this.buildRequestData()
         console.log('请求数据:', requestData)
 
@@ -778,49 +893,82 @@ export default {
         const response = await generateResume(requestData)
         console.log('生成响应:', response)
 
-        // 检查响应结构
-        if (response && response.data) {
-          if (response.data.success) {
-            this.generatedContent = response.data.resumeContent
-            this.processGeneratedContent(response.data.resumeContent)
-            this.generated = true
-            this.progressText = '简历生成完成！'
-            this.$message && this.$message.success('简历生成成功！')
+        let isSuccess = false
+        let resultData = null
+        let errorMsg = ''
 
-            // 保存状态
-            this.saveState()
+        if (response.code !== undefined) {
+          if (response.code === 0) {
+            isSuccess = true
+            resultData = response.data
           } else {
-            throw new Error(response.data.message || '简历生成失败')
+            errorMsg = response.message || '简历生成失败'
+          }
+        } else if (response.success !== undefined) {
+          if (response.success) {
+            isSuccess = true
+            resultData = response.data
+          } else {
+            errorMsg = response.message || '简历生成失败'
+          }
+        } else if (response.data && response.data.success !== undefined) {
+          if (response.data.success) {
+            isSuccess = true
+            resultData = response.data
+          } else {
+            errorMsg = response.data.message || '简历生成失败'
           }
         } else {
-          throw new Error('API响应格式异常')
+          // 直接返回数据的情况
+          isSuccess = true
+          resultData = response
         }
 
+        if (isSuccess && resultData) {
+          console.log('处理结果数据:', resultData)
+
+          // 检查是否是 links 格式
+          if (resultData.links && resultData.links.length) {
+            this.resumeLinks = {
+              format: 'links',
+              imgUrl: resultData.links[0]?.img_url,
+              wordUrl: resultData.links[0]?.word_url
+            }
+            this.generatedContent = '简历生成成功，请点击预览或下载'
+          }
+          // 检查是否直接包含简历数据
+          else if (resultData.fullName || resultData.name || resultData.workExperiences || resultData.educations) {
+            // 直接格式化简历对象
+            const formattedText = this.formatResumeObject(resultData)
+            this.generatedContent = formattedText
+            this.resumeLinks.format = 'text'
+          }
+          else if (resultData.resumeContent) {
+            this.generatedContent = resultData.resumeContent
+            this.processGeneratedContent(resultData.resumeContent)
+          }
+          else {
+            // 尝试将整个对象格式化
+            const formattedText = this.formatResumeObject(resultData)
+            this.generatedContent = formattedText
+            this.resumeLinks.format = 'text'
+          }
+
+          this.generated = true
+          this.progressText = '简历生成完成！'
+          this.$message.success('简历生成成功！')
+          this.saveState()
+        } else {
+          throw new Error(errorMsg)
+        }
       } catch (error) {
         console.error('简历生成失败:', error)
         this.progressText = '生成失败'
-
-        let errorMessage = '简历生成失败'
-        if (error.response) {
-          // 服务器响应了错误状态码
-          errorMessage += `: ${error.response.status} ${error.response.statusText}`
-          if (error.response.data && error.response.data.message) {
-            errorMessage += ` - ${error.response.data.message}`
-          }
-        } else if (error.request) {
-          // 请求发出但没有收到响应
-          errorMessage += ': 网络连接失败，请检查网络或服务器状态'
-        } else {
-          // 其他错误
-          errorMessage += `: ${error.message}`
-        }
-
-        this.$message && this.$message.error(errorMessage)
+        this.$message.error('简历生成失败: ' + (error.message || '未知错误'))
       } finally {
         this.generating = false
       }
     },
-
     // 按模板生成简历内容
     generateResumeContentWithTemplate() {
       const template = this.templateOptions[this.selectedTemplate]
@@ -857,12 +1005,22 @@ export default {
 
     // 构建请求数据
     buildRequestData() {
-      // 构建符合后端ResumeGenerationRequest格式的请求对象
+      const info = this.formData.personalInfo
+
+      // 构建 userInfo 字符串
+      const userInfoStr = [
+        info.name ? `姓名：${info.name}` : '',
+        this.formData.targetPosition ? `目标岗位：${this.formData.targetPosition}` : '',
+        info.phone ? `电话：${info.phone}` : '',
+        info.email ? `邮箱：${info.email}` : '',
+        info.summary ? `个人简介：${info.summary}` : ''
+      ].filter(Boolean).join('\n')
+
       return {
-        prompt: this.generationSettings.prompt || `请生成一份${this.styles[this.generationSettings.style]}的简历`
+        prompt: this.generationSettings.prompt || `请生成一份${this.styles[this.generationSettings.style]}的简历`,
+        userInfo: userInfoStr  // 必须是字符串，不能是对象
       }
     },
-
     // 处理生成的内容
     processGeneratedContent(content) {
       try {
@@ -873,6 +1031,7 @@ export default {
           this.resumeLinks.format = 'links'
           this.resumeLinks.imgUrl = parsedContent.content.img_url
           this.resumeLinks.wordUrl = parsedContent.content.word_url
+          this.generatedContent = content  // 添加这行
 
           console.log('检测到links格式响应:', this.resumeLinks)
         } else {
@@ -880,12 +1039,14 @@ export default {
           this.resumeLinks.format = 'text'
           this.resumeLinks.imgUrl = null
           this.resumeLinks.wordUrl = null
+          this.generatedContent = content  // 添加这行
         }
       } catch (e) {
         // 如果不是JSON格式，当作普通文本处理
         this.resumeLinks.format = 'text'
         this.resumeLinks.imgUrl = null
         this.resumeLinks.wordUrl = null
+        this.generatedContent = content  // 添加这行
         console.log('普通文本格式响应')
       }
     },
@@ -950,6 +1111,7 @@ export default {
     closePreview() {
       this.showPreview = false
     },
+
 
     // 下载简历
     downloadResume() {
@@ -1119,31 +1281,95 @@ export default {
 
     // 格式化简历内容用于显示
     formatResumeForDisplay(content) {
+      if (!content) return ''
+
       try {
-        // 尝试解析JSON
-        let resumeData
-        if (typeof content === 'string') {
-          resumeData = JSON.parse(content)
-        } else {
-          resumeData = content
+        // 如果 content 已经是对象，直接使用
+        let data = typeof content === 'string' ? JSON.parse(content) : content
+
+        // 如果是 links 格式
+        if (data.format === 'links') {
+          return '<div class="resume-content">简历生成成功，请点击预览或下载</div>'
         }
 
-        // 检查是否是降级的文本格式
-        if (resumeData.format === 'text') {
-          return `<div class="resume-content text-format">
-            <div class="format-notice">
-              <p><strong>注意：</strong> ${resumeData.message}</p>
-            </div>
-            <pre style="white-space: pre-wrap; font-family: Arial, sans-serif; line-height: 1.6;">${resumeData.content}</pre>
-          </div>`
+        let html = '<div class="resume-content" style="font-family: system-ui, sans-serif; line-height: 1.6;">'
+
+        // 基本信息区域
+        const name = data.fullName || data.name || data.basicInfo?.name || ''
+        const phone = data.phone || data.basicInfo?.phone || ''
+        const email = data.email || data.basicInfo?.email || ''
+        const position = data.position || data.basicInfo?.position || ''
+        const summary = data.profile || data.basicInfo?.summary || ''
+
+        if (name) {
+          html += '<h1 style="font-size: 24px; margin-bottom: 8px;">' + name + '</h1>'
+        }
+        if (position) {
+          html += '<p style="font-size: 16px; color: #3b82f6; margin-bottom: 12px;"><strong>求职意向：</strong> ' + position + '</p>'
+        }
+        if (phone || email) {
+          html += '<p style="margin-bottom: 16px;">'
+          if (phone) html += '<span>📞 ' + phone + '</span>'
+          if (phone && email) html += '&nbsp;&nbsp;|&nbsp;&nbsp;'
+          if (email) html += '<span>✉️ ' + email + '</span>'
+          html += '</p>'
+        }
+        if (summary) {
+          html += '<div style="background: #f3f4f6; padding: 12px; border-radius: 8px; margin-bottom: 20px;">'
+          html += '<p style="margin: 0;"><strong>个人简介：</strong>' + summary + '</p>'
+          html += '</div>'
         }
 
-        // 格式化JSON结构的简历
-        return this.formatStructuredResume(resumeData)
+        // 工作经历
+        const works = data.workExperiences || data.workExperience || []
+        if (works.length > 0) {
+          html += '<h3 style="font-size: 18px; border-bottom: 2px solid #3b82f6; padding-bottom: 6px; margin: 20px 0 16px;">工作经历</h3>'
+          works.forEach(work => {
+            html += '<div style="margin-bottom: 16px;">'
+            html += '<div style="font-weight: 600;">' + (work.company || '') + ' - ' + (work.position || '') + '</div>'
+            if (work.startDate || work.endDate) {
+              html += '<div style="font-size: 13px; color: #6b7280; margin: 4px 0;">' + (work.startDate || '') + ' - ' + (work.endDate || '至今') + '</div>'
+            }
+            if (work.responsibility || work.description) {
+              html += '<p style="margin: 8px 0 0 0; color: #4b5563;">' + (work.responsibility || work.description) + '</p>'
+            }
+            html += '</div>'
+          })
+        }
+
+        // 教育经历
+        const edus = data.educations || data.education || []
+        if (edus.length > 0) {
+          html += '<h3 style="font-size: 18px; border-bottom: 2px solid #3b82f6; padding-bottom: 6px; margin: 20px 0 16px;">教育背景</h3>'
+          edus.forEach(edu => {
+            html += '<div style="margin-bottom: 12px;">'
+            html += '<div style="font-weight: 600;">' + (edu.school || '') + '</div>'
+            html += '<div style="font-size: 14px; color: #4b5563;">' + (edu.major || '') + ' ' + (edu.degree || '') + '</div>'
+            if (edu.startDate || edu.endDate) {
+              html += '<div style="font-size: 13px; color: #6b7280;">' + (edu.startDate || '') + ' - ' + (edu.endDate || '') + '</div>'
+            }
+            html += '</div>'
+          })
+        }
+
+        // 技能
+        const skills = data.skills || []
+        if (skills.length > 0) {
+          html += '<h3 style="font-size: 18px; border-bottom: 2px solid #3b82f6; padding-bottom: 6px; margin: 20px 0 16px;">技能专长</h3>'
+          html += '<div style="display: flex; flex-wrap: wrap; gap: 8px;">'
+          skills.forEach(skill => {
+            const skillName = skill.skillName || skill.name || ''
+            html += '<span style="background: #e5e7eb; padding: 4px 12px; border-radius: 20px; font-size: 14px;">' + skillName + '</span>'
+          })
+          html += '</div>'
+        }
+
+        html += '</div>'
+        return html
 
       } catch (e) {
-        // 如果JSON解析失败，作为纯文本处理
-        return `<pre style="white-space: pre-wrap; font-family: Arial, sans-serif; line-height: 1.6;">${content}</pre>`
+        // 解析失败，作为纯文本显示
+        return '<pre style="white-space: pre-wrap; font-family: monospace;">' + content + '</pre>'
       }
     }
   }
