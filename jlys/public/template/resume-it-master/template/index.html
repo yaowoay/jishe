@@ -1,142 +1,95 @@
-{% extends 'base.html' %}
-{% block main %}
-<div class="container">
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>IT专业简历</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: #e8ecf1; padding: 30px; font-family: 'Microsoft YaHei', Arial, sans-serif; }
+        .resume-card { max-width: 1000px; margin: 0 auto; background: white; display: flex; border-radius: 8px; overflow: hidden; box-shadow: 0 5px 20px rgba(0,0,0,0.1); }
+        .sidebar { width: 34%; background: #2c3e50; color: white; padding: 30px 20px; }
+        .sidebar h1 { font-size: 24px; border-bottom: 2px solid #3498db; display: inline-block; padding-bottom: 5px; }
+        .sidebar h2 { font-size: 14px; color: #3498db; margin: 15px 0 20px; }
+        .side-info { list-style: none; }
+        .side-info li { margin-bottom: 20px; }
+        .side-info dt { font-weight: bold; margin-bottom: 10px; font-size: 14px; border-left: 3px solid #3498db; padding-left: 10px; }
+        .side-info dd { font-size: 13px; line-height: 1.8; margin-left: 13px; color: #ddd; }
+        .main { width: 66%; padding: 30px; }
+        .main dt { font-weight: bold; font-size: 16px; color: #2c3e50; margin: 20px 0 15px; border-bottom: 2px solid #3498db; padding-bottom: 5px; }
+        .main dt:first-child { margin-top: 0; }
+        .exp { list-style: none; }
+        .exp li { margin-bottom: 15px; font-size: 13px; color: #555; line-height: 1.6; }
+        .exp h4 { font-size: 14px; color: #2c3e50; margin-bottom: 5px; }
+        .exp h4 span { font-weight: normal; color: #999; font-size: 12px; margin-left: 10px; }
+        .skill-bar-wrap { background: rgba(255,255,255,0.2); border-radius: 10px; margin-top: 5px; }
+        .skill-bar { height: 6px; background: #3498db; border-radius: 10px; }
+        .skill-name { font-size: 13px; margin-bottom: 3px; }
+        .fa { margin-right: 5px; }
+        @media print { body { padding: 0; background: white; } .resume-card { box-shadow: none; } }
+    </style>
+</head>
+<body>
+<div class="resume-card">
     <div class="sidebar">
-        <div class="title">
-            {% include 'head.html' %}
-            <h1>{{ name }}的简历</h1>
-            <h2>{{ des }}</h2>
-        </div>
+        <h1 id="name">加载中...</h1>
+        <h2 id="position"></h2>
         <ul class="side-info">
-            <li class="someRight">
-                <dt><i class="fa fa-bookmark"></i>Basic info. 基本信息</dt>
-                <dd><span>个人信息:</span> {{ name }} / {{ gender }} / {{ age }} / {{ grade }}</dd>
-                <dd><span>学校：</span>{{school}}</dd>
-                <dd><span>专业：</span>{{profession}}</dd>
-                {% if english_level %}
-                <dd><span>英语水平:</span> {{ english_level }}</dd>
-                {% endif %}
-                {% if nickname %}
-                <dd><span>常用ID:</span> {{ nickname }}</dd>
-                {% endif %}
-                {% if blog %}
-                <dd><span>Blog:</span> <a href="{{ blog }}" target="_blank">{{ blog }}</a></dd>
-                {% endif %}
-                {% if github %}
-                <dd><span>GitHub:</span> <a href="{{ github }}" target="_blank">{{ github }}</a></dd>
-                {% endif %}
-                {% if online %}
-                <dd><span>在线简历:</span> <a href="{{ online }}" target="_blank">{{ online }}</a></dd>
-                {% endif %}
+            <li><dt><i class="fa fa-bookmark"></i> 联系方式</dt>
+                <dd><i class="fa fa-phone"></i> <span id="phone"></span></dd>
+                <dd><i class="fa fa-envelope"></i> <span id="email"></span></dd>
             </li>
-            <li class="someRight">
-                <dt><i class="fa fa-bookmark"></i>Contact. 联系方式</dt>
-                {% for item in contact %}
-                    <dd><i class="fa {{ item.icon }}"></i>{{ item.name }}: <a {% if item.name == 'Email' %}href="mailto:{{ item.value }}"{% endif %} target="_blank">{{ item.value }}</a></dd>
-                {% endfor %}
+            <li><dt><i class="fa fa-bookmark"></i> 教育背景</dt>
+                <dd id="school"></dd>
+                <dd id="major"></dd>
             </li>
-            <li class="someRight">
-                <dt><i class="fa fa-bookmark"></i>Application. 应聘岗位</dt>
-                <dd>{{ apply_to_position }}</dd>
-            </li>
-            {% if honor %}
-            <li class="someRight">
-                <dt><i class="fa fa-bookmark"></i>Honor. 奖项荣誉</dt>
-                <dd>
-                    {% for item in honor %}
-                    <ul>
-                        <li>{{ item.date |safe }} {{ item.name |safe }}</li>
-                    </ul>
-                    {% endfor %}
-                </dd>
-            </li>
-            {% endif %}
-            <li class="skill">
-                <dt><i class="fa fa-bookmark"></i>Tech. 主要技能点</dt>
-                {% for item in tech %}
-                <dd>
-                    <div class="skill-name">{{ item.name }}</div>
-                    <div class="skill-bar-wrap">
-                        <div class="skill-bar" style="width: {{ item.percentage }}"></div>
-                    </div>
-                </dd>
-                {% endfor %}
+            <li><dt><i class="fa fa-bookmark"></i> 技能专长</dt>
+                <div id="skills"></div>
             </li>
         </ul>
-        {% if intro %}
-        <div class="note">
-            {{ intro |safe }}
-        </div>
-        {% endif %}
     </div>
     <div class="main">
-        <ul class="main-info">
-            <li class="skill">
-                <dt><i class="fa fa-bookmark"></i>Skill. 技能清单</dt>
-                {% for item in skill %}
-                <ul class="exp">
-                  <li>{{ item.des |safe }}</li>
-                </ul>
-                {% endfor %}
-            </li>
-            <li class="experience">
-                <dt><i class="fa fa-bookmark"></i>Experience. 项目经验</dt>
-                {% for exp in experience %}
-                    {% if exp.section == '个人项目' %}
-                        <h2 class="exp-title">{{exp.section}}</h2>
-                        <ul class="exp">
-                            {% for item in exp.project %}
-                            <li>
-                                <div class="circle"></div>
-                                <h4>{{ item.name }} {{ item.date }}
-                                {% if item.website %}
-                                <a href="{{ item.website }}" target="_blank"><i class="fa fa-link"></i>Demo</a>
-                                {% endif %}
-                                {% if item.source_code %}
-                                <a href="{{ item.source_code }}" target="_blank"><i class="fa fa-link"></i>SourceCode</a>
-                                {% endif %}
-                                </h4>
-                                <div class="clearfix">
-                                  {% if item.img %}<img src="{{ item.img }}">{% endif %}
-                                  {{ item.des |safe }}
-                                </div>
-                            </li>
-                            {% endfor %}
-                        </ul>
-                    {% else %}
-                        <h2 class="exp-title">{{exp.section}}</h2>
-                        <ul class="exp">
-                            {% for item in exp.exper %}
-                            <li>
-                                <h4>{{ item.company }} <span>{{ item.date }}</span></h4>
-                                <p>{{ item.desc | safe}}</p>
-                                <ul>
-                                    {% for sub_item in item.project %}
-                                        <li>
-                                            <div class="circle"></div>
-                                            <h4>{{ sub_item.name }} {{ sub_item.date }}
-                                            {% if sub_item.website %}
-                                            <a href="{{ sub_item.website }}" target="_blank"><i class="fa fa-link"></i>Demo</a>
-                                            {% endif %}
-                                            {% if sub_item.source_code %}
-                                            <a href="{{ sub_item.source_code }}" target="_blank"><i class="fa fa-link"></i>SourceCode</a>
-                                            {% endif %}
-                                            </h4>
-                                            <div class="clearfix">
-                                              {% if sub_item.img %}<img src="{{ sub_item.img }}">{% endif %}
-                                              {{ sub_item.des |safe }}
-                                            </div>
-                                        </li>
-                                    {% endfor %}
-                                </ul>
-                            </li>
-                            {% endfor %}
-                        </ul>
-                    {% endif %}
-                
-                {% endfor %}
-            </li>
-        </ul>
+        <dt><i class="fa fa-bookmark"></i> 工作经历</dt>
+        <div id="workList"></div>
+        <dt><i class="fa fa-bookmark"></i> 项目经验</dt>
+        <div id="projectList"></div>
     </div>
 </div>
-{% endblock %}
+<script>
+    window.addEventListener('message', function(e) {
+        if (e.data.type === 'RESUME_DATA') {
+            const d = e.data.data;
+            document.getElementById('name').innerText = d.fullName || '姓名';
+            document.getElementById('position').innerText = d.position || '';
+            document.getElementById('phone').innerText = d.phone || '';
+            document.getElementById('email').innerText = d.email || '';
+
+            const edu = (d.educations || [])[0] || {};
+            document.getElementById('school').innerText = edu.school || '';
+            document.getElementById('major').innerText = edu.major || '';
+
+            let skillsHtml = '';
+            (d.skills || []).forEach(s => {
+                skillsHtml += `<div class="skill-name">${s.skillName}</div>
+                                   <div class="skill-bar-wrap"><div class="skill-bar" style="width: ${(s.level/5)*100}%"></div></div>`;
+            });
+            document.getElementById('skills').innerHTML = skillsHtml;
+
+            let workHtml = '';
+            (d.workExperiences || []).forEach(w => {
+                workHtml += `<li><h4>${w.company} <span>${w.startDate||''} - ${w.endDate||'至今'}</span></h4>
+                                 <p>${w.position}</p><p>${w.responsibility||''}</p></li>`;
+            });
+            document.getElementById('workList').innerHTML = `<ul class="exp">${workHtml}</ul>`;
+
+            let projHtml = '';
+            (d.projectExperiences || []).forEach(p => {
+                projHtml += `<li><h4>${p.projectName} <span>${p.startDate||''} - ${p.endDate||''}</span></h4>
+                                 <p>${p.role}</p><p>${p.description||''}</p></li>`;
+            });
+            document.getElementById('projectList').innerHTML = `<ul class="exp">${projHtml}</ul>`;
+        }
+    });
+</script>
+</body>
+</html>

@@ -721,6 +721,7 @@ export default {
         resumeForm.title = data.name || ''
         resumeForm.template = data.template || 'template1'
         resumeForm.templateId = data.templateId || null // 支持null值
+        selectedTemplate.value = data.templateId
         console.log('加载的简历数据:', data)
         console.log('设置的模板:', resumeForm.template, '模板ID:', resumeForm.templateId)
         console.log('基本信息:', data.fullName, data.phone, data.email, data.position)
@@ -923,7 +924,7 @@ export default {
                 ...(resumeForm.others.hobbies?.map(h => ({ type: 'hobby', name: h })) || [])
               ]
             }
-
+            console.log('保存时 templateId:', resumeForm.templateId)
             console.log('正在保存简历数据:', saveData)
             await updateResume(resumeId.value, saveData)
             console.log('简历保存成功')
@@ -1594,7 +1595,8 @@ export default {
       optimizeResume,
       applyOptimizations,
       showAIGenerateDialog,
-      goBack
+      goBack,
+      handleTemplateSelected
     }
   }
 }

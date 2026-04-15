@@ -5,7 +5,7 @@
     <ResumeTemplate2 v-else-if="templateId === 2" :resume="resume" />
     <ResumeTemplate3 v-else-if="templateId === 3" :resume="resume" />
     <!-- 默认使用template1 -->
-    <ResumeTemplate1 v-else :resume="resume" />
+<!--    <ResumeTemplate1 v-else :resume="resume" />-->
   </div>
 </template>
 
@@ -35,27 +35,26 @@ export default {
     }
   },
   setup(props) {
-    // 将template转换为模板ID
     const templateId = computed(() => {
-      // 如果是数字ID
-      if (typeof props.template === 'number') return props.template
-      // 如果是字符串"1"、"2"、"3"
-      if (typeof props.template === 'string' && /^\d+$/.test(props.template)) {
-        return parseInt(props.template)
+      let id = 1
+      if (typeof props.template === 'number') id = props.template
+      else if (typeof props.template === 'string' && /^\d+$/.test(props.template)) {
+        id = parseInt(props.template)
+      } else {
+        const nameMap = {
+          'IT专业简历': 1,
+          '中文简历模板': 2,
+          '带照片简历': 3,
+          'template1': 1,
+          'template2': 2,
+          'template3': 3
+        }
+        id = nameMap[props.template] || 1
       }
-      // 根据模板名称映射
-      const nameMap = {
-        'IT专业简历': 1,
-        '中文简历模板': 2,
-        '带照片简历': 3,
-        'template1': 1,
-        'template2': 2,
-        'template3': 3
-      }
-      return nameMap[props.template] || 1
+      console.log('模板ID:', id, '原始template:', props.template)  // 调试
+      return id
     })
-
-    return { templateId }
+    return {templateId}
   }
 }
 </script>
