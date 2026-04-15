@@ -158,9 +158,10 @@
       </div>
       
       <!-- 步骤3: 生成设置 -->
+      <!-- 步骤3: 生成设置 -->
       <div v-if="currentStep === 3" class="step-content">
         <h3>生成设置</h3>
-        
+
         <div class="form-grid">
           <div class="form-group">
             <label>简历模板</label>
@@ -179,28 +180,12 @@
             </select>
           </div>
         </div>
-        
-        <div class="form-group full-width">
-          <label>技能特长</label>
-          <textarea v-model="formData.skills" placeholder="请列出您的技能特长，如：JavaScript, Vue.js, Python等" rows="3"></textarea>
-        </div>
-        
-        <div class="form-group full-width">
-          <label>项目经验</label>
-          <textarea v-model="formData.projects" placeholder="请描述您的重要项目经验" rows="4"></textarea>
-        </div>
-        
-        <div class="form-group full-width">
-          <label>特殊要求</label>
-          <textarea v-model="generationSettings.prompt" placeholder="请输入对简历生成的特殊要求或补充说明" rows="3"></textarea>
-        </div>
-        
+
         <div class="step-actions">
           <button @click="prevStep" class="prev-btn">上一步</button>
           <button @click="nextStep" class="next-btn">下一步</button>
         </div>
       </div>
-      
       <!-- 步骤4: 生成简历 -->
       <div v-if="currentStep === 4" class="step-content">
         <h3>生成简历</h3>
@@ -555,15 +540,45 @@ export default {
     try {
       console.log('ResumeGenerator组件初始化...')
 
-      // 页面加载时恢复状态
-      this.loadState()
+      // 检查是否有从编辑器传来的数据
+      const savedFormData = sessionStorage.getItem('aiResumeFormData')
+      const savedStep = sessionStorage.getItem('aiResumeStep')
 
-      // 并行执行，避免一个失败影响另一个
-      await Promise.allSettled([
-        // this.loadTemplatesAndStyles(),
-        this.checkApiConfig()
-      ])
+      if (savedFormData) {
+        const formData = JSON.parse(savedFormData)
 
+        // Vue 3 中直接赋值，不需要 $set
+        if (formData.personalInfo) {
+          this.formData.personalInfo.name = formData.personalInfo.name || ''
+          this.formData.personalInfo.phone = formData.personalInfo.phone || ''
+          this.formData.personalInfo.email = formData.personalInfo.email || ''
+          this.formData.personalInfo.address = formData.personalInfo.address || ''
+          this.formData.personalInfo.summary = formData.personalInfo.summary || ''
+        }
+        this.formData.targetPosition = formData.targetPosition || ''
+
+        // 如果有教育和工作经历
+        if (formData.educations && formData.educations.length) {
+          this.formData.education = formData.educations
+        }
+        if (formData.workExperiences && formData.workExperiences.length) {
+          this.formData.workExperience = formData.workExperiences
+        }
+
+        // 如果指定了步骤，直接跳转
+        if (savedStep) {
+          this.currentStep = parseInt(savedStep)
+        }
+
+        // 清除 sessionStorage
+        sessionStorage.removeItem('aiResumeFormData')
+        sessionStorage.removeItem('aiResumeStep')
+      } else {
+        // 页面加载时恢复状态
+        this.loadState()
+      }
+
+      await Promise.allSettled([this.checkApiConfig()])
       console.log('ResumeGenerator组件初始化完成')
     } catch (error) {
       console.error('组件初始化失败:', error)

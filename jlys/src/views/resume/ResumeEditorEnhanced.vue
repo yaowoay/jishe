@@ -3,84 +3,60 @@
     <!-- 顶部导航栏 -->
     <div class="editor-header">
       <div class="header-left">
-        <el-button
-            @click="goBack"
-            text
-            class="back-btn"
-        >
-          <el-icon><ArrowLeft /></el-icon>
+        <el-button @click="goBack" text class="back-btn">
+          <el-icon>
+            <ArrowLeft />
+          </el-icon>
           返回
         </el-button>
         <div class="divider"></div>
-        <el-input
-            v-model="resumeForm.title"
-            placeholder="请输入简历标题"
-            class="title-input"
-            @blur="autoSave"
-        />
+        <el-input v-model="resumeForm.title" placeholder="请输入简历标题" class="title-input" @blur="autoSave" />
       </div>
 
       <div class="header-center">
         <div class="view-tabs">
-          <div
-              class="tab-item"
-              :class="{ active: activeView === 'edit' }"
-              @click="setActiveView('edit')"
-          >
-            <el-icon><Edit /></el-icon>
+          <div class="tab-item" :class="{ active: activeView === 'edit' }" @click="setActiveView('edit')">
+            <el-icon>
+              <Edit />
+            </el-icon>
             <span>编辑</span>
           </div>
-          <div
-              class="tab-item"
-              :class="{ active: activeView === 'preview' }"
-              @click="setActiveView('preview')"
-          >
-            <el-icon><ViewIcon /></el-icon>
+          <div class="tab-item" :class="{ active: activeView === 'preview' }" @click="setActiveView('preview')">
+            <el-icon>
+              <ViewIcon />
+            </el-icon>
             <span>预览</span>
           </div>
         </div>
       </div>
 
       <div class="header-right">
-        <el-button
-            @click="togglePreviewPanel"
-            type="link"
-            class="preview-btn"
-        >
-          <el-icon><ViewIcon /></el-icon>
+        <el-button @click="togglePreviewPanel" type="link" class="preview-btn">
+          <el-icon>
+            <ViewIcon />
+          </el-icon>
           实时预览
         </el-button>
         <!-- 顶部导航栏中的选择模板按钮 -->
-        <el-button
-            @click="showTemplateDialog"
-            type="link"
-            class="template-btn"
-        >
-          <el-icon><Grid /></el-icon>
+        <el-button @click="showTemplateDialog" type="link" class="template-btn">
+          <el-icon>
+            <Grid />
+          </el-icon>
           选择模板
         </el-button>
-        <el-button
-            @click="showAIGenerateDialog"
-            type="success"
-            class="ai-generate-btn"
-        >
-          <el-icon><MagicStick /></el-icon>
+        <el-button @click="showAIGenerateDialog" type="success" class="ai-generate-btn">
+          <el-icon>
+            <MagicStick />
+          </el-icon>
           AI生成简历
         </el-button>
-        <el-button
-            @click="optimizeResume"
-            :loading="optimizing"
-            class="ai-btn"
-        >
-          <el-icon><MagicStick /></el-icon>
+        <el-button @click="optimizeResume" :loading="optimizing" class="ai-btn">
+          <el-icon>
+            <MagicStick />
+          </el-icon>
           {{ optimizing ? 'AI优化中...' : 'AI优化' }}
         </el-button>
-        <el-button
-            @click="saveResume"
-            type="primary"
-            :loading="saving"
-            class="save-btn"
-        >
+        <el-button @click="saveResume" type="primary" :loading="saving" class="save-btn">
           {{ saving ? '保存中...' : '保存' }}
         </el-button>
       </div>
@@ -89,22 +65,16 @@
     <!-- 主体内容区域 -->
     <div class="editor-container">
       <!-- 左侧导航面板 -->
-      <div
-          class="sidebar"
-          v-show="activeView === 'edit'"
-          :class="{ collapsed: leftPanelCollapsed }"
-      >
+      <div class="sidebar" v-show="activeView === 'edit'" :class="{ collapsed: leftPanelCollapsed }">
         <!-- 面板头部 -->
         <div class="sidebar-header">
           <div class="sidebar-title" v-show="!leftPanelCollapsed">
-            <el-icon><MenuIcon /></el-icon>
+            <el-icon>
+              <MenuIcon />
+            </el-icon>
             <span>简历模块</span>
           </div>
-          <el-button
-              @click="toggleLeftPanel"
-              text
-              class="collapse-btn"
-          >
+          <el-button @click="toggleLeftPanel" text class="collapse-btn">
             <el-icon>
               <component :is="leftPanelCollapsed ? 'Expand' : 'Fold'" />
             </el-icon>
@@ -117,28 +87,18 @@
             <span class="progress-label">完成度</span>
             <span class="progress-value">{{ overallProgress }}%</span>
           </div>
-          <el-progress
-              :percentage="overallProgress"
-              :color="getProgressColor(overallProgress)"
-              :stroke-width="8"
-              :show-text="false"
-          />
+          <el-progress :percentage="overallProgress" :color="getProgressColor(overallProgress)" :stroke-width="8"
+            :show-text="false" />
         </div>
 
         <!-- 侧边栏内容 -->
         <div class="sidebar-content" v-show="!leftPanelCollapsed">
           <!-- 模块列表 -->
           <div class="module-list">
-            <div
-                v-for="module in modules"
-                :key="module.key"
-                class="module-item"
-                :class="{
-                'active': activeModule === module.key,
-                'disabled': !module.enabled && !module.required
-              }"
-                @click="setActiveModule(module.key)"
-            >
+            <div v-for="module in modules" :key="module.key" class="module-item" :class="{
+              'active': activeModule === module.key,
+              'disabled': !module.enabled && !module.required
+            }" @click="setActiveModule(module.key)">
               <div class="module-content">
                 <div class="module-left">
                   <el-icon class="module-icon">
@@ -153,17 +113,10 @@
                   </div>
                 </div>
                 <div class="module-right">
-                  <el-switch
-                      v-if="!module.required"
-                      v-model="module.enabled"
-                      size="small"
-                      @change="handleModuleToggle(module)"
-                  />
+                  <el-switch v-if="!module.required" v-model="module.enabled" size="small"
+                    @change="handleModuleToggle(module)" />
                   <div class="module-indicator">
-                    <div
-                        class="indicator-dot"
-                        :class="getModuleStatusClass(module.key)"
-                    ></div>
+                    <div class="indicator-dot" :class="getModuleStatusClass(module.key)"></div>
                   </div>
                 </div>
               </div>
@@ -173,21 +126,13 @@
 
         <!-- 收起状态的图标列表 -->
         <div class="sidebar-collapsed" v-show="leftPanelCollapsed">
-          <div
-              v-for="module in modules"
-              :key="module.key"
-              class="collapsed-item"
-              :class="{ 'active': activeModule === module.key }"
-              @click="setActiveModule(module.key)"
-              :title="module.name"
-          >
+          <div v-for="module in modules" :key="module.key" class="collapsed-item"
+            :class="{ 'active': activeModule === module.key }" @click="setActiveModule(module.key)"
+            :title="module.name">
             <el-icon>
               <component :is="module.icon" />
             </el-icon>
-            <div
-                class="indicator-dot"
-                :class="getModuleStatusClass(module.key)"
-            ></div>
+            <div class="indicator-dot" :class="getModuleStatusClass(module.key)"></div>
           </div>
         </div>
       </div>
@@ -198,13 +143,9 @@
         'with-template': showTemplatePanel && activeView === 'edit'
       }">
         <!-- 编辑区域 -->
-        <div
-            class="content-area"
-            v-show="activeView === 'edit'"
-            :style="{
-            width: (showPreviewPanel || showTemplatePanel) ? `${editAreaWidth}px` : '100%'
-          }"
-        >
+        <div class="content-area" v-show="activeView === 'edit'" :style="{
+          width: (showPreviewPanel || showTemplatePanel) ? `${editAreaWidth}px` : '100%'
+        }">
           <!-- 模块头部 -->
           <div class="content-header">
             <div class="header-info">
@@ -217,13 +158,11 @@
               </div>
             </div>
             <div class="header-actions">
-              <el-button
-                  v-if="getCurrentModule()?.key !== 'basicInfo'"
-                  @click="addModuleItem"
-                  type="primary"
-                  size="small"
-              >
-                <el-icon><Plus /></el-icon>
+              <el-button v-if="getCurrentModule()?.key !== 'basicInfo'" @click="addModuleItem" type="primary"
+                size="small">
+                <el-icon>
+                  <Plus />
+                </el-icon>
                 添加{{ getCurrentModule()?.itemName || '项目' }}
               </el-button>
             </div>
@@ -231,29 +170,20 @@
 
           <!-- 模块内容 -->
           <div class="content-body">
-            <component
-                :is="getCurrentModuleComponent()"
-                v-model="resumeForm[activeModule]"
-                @change="handleModuleChange"
-            />
+            <component :is="getCurrentModuleComponent()" v-model="resumeForm[activeModule]"
+              @change="handleModuleChange" />
           </div>
         </div>
 
         <!-- 拖拽分隔条 -->
-        <div
-            class="resize-handle"
-            v-show="activeView === 'edit' && (showPreviewPanel || showTemplatePanel)"
-            @mousedown="startResize"
-        >
+        <div class="resize-handle" v-show="activeView === 'edit' && (showPreviewPanel || showTemplatePanel)"
+          @mousedown="startResize">
           <div class="resize-line"></div>
         </div>
 
         <!-- 预览面板 -->
-        <div
-            class="preview-panel"
-            v-show="showPreviewPanel && activeView === 'edit'"
-            :style="{ width: `${previewAreaWidth}px` }"
-        >
+        <div class="preview-panel" v-show="showPreviewPanel && activeView === 'edit'"
+          :style="{ width: `${previewAreaWidth}px` }">
           <!-- 预览工具栏 -->
           <div class="preview-toolbar">
             <div class="toolbar-left">
@@ -261,12 +191,10 @@
             </div>
             <!-- 移除右侧切换按钮，只保留关闭按钮 -->
             <div class="toolbar-right">
-              <el-button
-                  @click="togglePreviewPanel"
-                  text
-                  size="small"
-              >
-                <el-icon><ArrowRight /></el-icon>
+              <el-button @click="togglePreviewPanel" text size="small">
+                <el-icon>
+                  <ArrowRight />
+                </el-icon>
               </el-button>
             </div>
           </div>
@@ -274,21 +202,13 @@
           <!-- 预览内容 -->
           <div class="preview-panel-content">
             <div class="preview-wrapper" :style="{ transform: `scale(${previewScale})` }">
-              <ResumePreview
-                  :resumeData="filteredResumeData"
-                  :template="resumeForm.template"
-                  :isMobile="false"
-              />
+              <ResumePreview :resumeData="filteredResumeData" :template="resumeForm.template" :isMobile="false" />
             </div>
           </div>
         </div>
 
         <!-- 模板面板 -->
-        <div
-            class="template-panel"
-            v-show="showTemplatePanel"
-            :style="{ width: `${templateAreaWidth}px` }"
-        >
+        <div class="template-panel" v-show="showTemplatePanel" :style="{ width: `${templateAreaWidth}px` }">
           <!--            v-show="showTemplatePanel && activeView === 'edit'"-->
           <!-- 模板工具栏 -->
           <div class="template-toolbar">
@@ -296,25 +216,18 @@
               <span class="toolbar-title">选择模板</span>
             </div>
             <div class="toolbar-right">
-              <el-button
-                  @click="toggleTemplatePanel"
-                  text
-                  size="small"
-              >
-                <el-icon><ArrowRight /></el-icon>
+              <el-button @click="toggleTemplatePanel" text size="small">
+                <el-icon>
+                  <ArrowRight />
+                </el-icon>
               </el-button>
             </div>
           </div>
 
           <!-- 模板分类 -->
           <div class="template-categories">
-            <div
-                v-for="category in templateCategories"
-                :key="category.key"
-                class="category-item"
-                :class="{ active: selectedCategory === category.key }"
-                @click="selectedCategory = category.key"
-            >
+            <div v-for="category in templateCategories" :key="category.key" class="category-item"
+              :class="{ active: selectedCategory === category.key }" @click="selectedCategory = category.key">
               <el-icon>
                 <component :is="category.icon" />
               </el-icon>
@@ -324,28 +237,22 @@
 
           <!-- 模板列表 -->
           <div class="template-list">
-            <div
-                v-for="template in filteredTemplates"
-                :key="template.id"
-                class="template-item"
-                :class="{ selected: Number(selectedTemplate) === Number(template.id) }"                @click="selectAndApplyTemplate(template.id)"
-            >
+            <div v-for="template in filteredTemplates" :key="template.id" class="template-item"
+              :class="{ selected: Number(selectedTemplate) === Number(template.id) }"
+              @click="selectAndApplyTemplate(template.id)">
               <div class="template-preview">
                 <img :src="template.preview" :alt="template.name" />
                 <div class="template-overlay">
-                  <el-icon><ViewIcon /></el-icon>
+                  <el-icon>
+                    <ViewIcon />
+                  </el-icon>
                 </div>
               </div>
               <div class="template-info">
                 <h4 class="template-name">{{ template.name }}</h4>
                 <p class="template-desc">{{ template.description }}</p>
                 <div class="template-tags">
-                  <el-tag
-                      v-for="tag in template.tags"
-                      :key="tag"
-                      size="small"
-                      type="info"
-                  >
+                  <el-tag v-for="tag in template.tags" :key="tag" size="small" type="info">
                     {{ tag }}
                   </el-tag>
                 </div>
@@ -356,58 +263,42 @@
 
         <!-- 全屏预览 -->
         <div class="full-preview" v-show="activeView === 'preview'">
-          <ResumePreview
-              :resumeData="resumeForm"
-              :template="resumeForm.template"
-              :isMobile="false"
-          />
+          <ResumePreview :resumeData="resumeForm" :template="resumeForm.template" :isMobile="false" />
         </div>
       </div>
     </div>
 
     <!-- AI生成简历对话框 -->
-    <el-dialog
-        v-model="showAIDialog"
-        title="AI生成简历"
-        width="600px"
-        :close-on-click-modal="false"
-    >
+<!--    <el-dialog v-model="showAIDialog" title="AI生成简历" width="600px" :close-on-click-modal="false">
       <div class="ai-generate-content">
         <div class="ai-form">
           <el-form :model="aiForm" label-width="100px">
             <el-form-item label="用户信息">
-              <el-input
-                  v-model="aiForm.userInfo"
-                  type="textarea"
-                  :rows="4"
-                  placeholder="请描述您的个人信息，包括：姓名、年龄、学历、工作经验、技能特长等"
-              />
+              <el-input v-model="aiForm.userInfo" type="textarea" :rows="4"
+                placeholder="请描述您的个人信息，包括：姓名、年龄、学历、工作经验、技能特长等" />
             </el-form-item>
             <el-form-item label="目标职位">
-              <el-input
-                  v-model="aiForm.jobTitle"
-                  placeholder="请输入目标职位，如：Java开发工程师、产品经理等（可选）"
-              />
+              <el-input v-model="aiForm.jobTitle" placeholder="请输入目标职位，如：Java开发工程师、产品经理等（可选）" />
             </el-form-item>
           </el-form>
         </div>
 
         <div v-if="aiGenerateResults && aiGenerateResults.length" class="ai-result">
           <div class="result-header">
-            <el-icon class="success-icon"><CircleCheck /></el-icon>
+            <el-icon class="success-icon">
+              <CircleCheck />
+            </el-icon>
             <h4>AI简历生成成功！</h4>
             <p>共生成 {{ aiGenerateResults.length }} 份简历，您可以查看或下载</p>
           </div>
           <div class="result-links">
-            <div
-                class="link-card"
-                v-for="(item, idx) in aiGenerateResults"
-                :key="idx"
-                style="flex-direction: row; gap: 32px; align-items: stretch;"
-            >
+            <div class="link-card" v-for="(item, idx) in aiGenerateResults" :key="idx"
+              style="flex-direction: row; gap: 32px; align-items: stretch;">
               <div style="display: flex; flex-direction: column; flex: 1;">
                 <div class="link-icon">
-                  <el-icon><Document /></el-icon>
+                  <el-icon>
+                    <Document />
+                  </el-icon>
                 </div>
                 <div class="link-content">
                   <h5>Word文档（第{{ idx + 1 }}份）</h5>
@@ -415,18 +306,24 @@
                 </div>
                 <div class="link-actions">
                   <el-button type="primary" size="small" @click="openLink(item.word_url)">
-                    <el-icon><View /></el-icon>
+                    <el-icon>
+                      <View />
+                    </el-icon>
                     预览
                   </el-button>
                   <el-button type="success" size="small" @click="downloadFile(item.word_url, `AI简历${idx + 1}.docx`)">
-                    <el-icon><Download /></el-icon>
+                    <el-icon>
+                      <Download />
+                    </el-icon>
                     下载
                   </el-button>
                 </div>
               </div>
               <div style="display: flex; flex-direction: column; flex: 1;">
                 <div class="link-icon">
-                  <el-icon><Picture /></el-icon>
+                  <el-icon>
+                    <Picture />
+                  </el-icon>
                 </div>
                 <div class="link-content">
                   <h5>简历图片（第{{ idx + 1 }}份）</h5>
@@ -434,11 +331,15 @@
                 </div>
                 <div class="link-actions">
                   <el-button type="primary" size="small" @click="openLink(item.img_url)">
-                    <el-icon><View /></el-icon>
+                    <el-icon>
+                      <View />
+                    </el-icon>
                     预览
                   </el-button>
                   <el-button type="success" size="small" @click="downloadFile(item.img_url, `AI简历${idx + 1}.png`)">
-                    <el-icon><Download /></el-icon>
+                    <el-icon>
+                      <Download />
+                    </el-icon>
                     下载
                   </el-button>
                 </div>
@@ -451,48 +352,26 @@
       <template #footer>
         <div class="dialog-footer">
           <el-button @click="showAIDialog = false">关闭</el-button>
-          <el-button
-              v-if="!aiGenerateResults.length"
-              @click="handleGenerateResumeWithAI"
-              type="primary"
-              :loading="aiGenerating"
-          >
+          <el-button v-if="!aiGenerateResults.length" @click="handleGenerateResumeWithAI" type="primary"
+            :loading="aiGenerating">
             {{ aiGenerating ? '生成中...' : '生成简历' }}
           </el-button>
         </div>
       </template>
-    </el-dialog>
+    </el-dialog>-->
 
     <!-- AI优化建议弹窗 -->
-    <el-dialog
-        v-model="showOptimizeDialog"
-        title="AI优化建议"
-        width="700px"
-        :close-on-click-modal="false"
-    >
+    <el-dialog v-model="showOptimizeDialog" title="AI优化建议" width="700px" :close-on-click-modal="false">
       <div class="optimize-dialog-content">
-        <el-alert
-            title="AI分析完成"
-            type="success"
-            :closable="false"
-            show-icon
-        >
+        <el-alert title="AI分析完成" type="success" :closable="false" show-icon>
           基于您的简历内容，AI为您生成了以下优化建议，请选择是否采纳：
         </el-alert>
 
         <div class="optimize-sections" v-if="optimizeSuggestions.length > 0">
-          <div
-              v-for="(section, index) in optimizeSuggestions"
-              :key="index"
-              class="optimize-section"
-          >
+          <div v-for="(section, index) in optimizeSuggestions" :key="index" class="optimize-section">
             <div class="section-header">
               <h4>{{ section.title }}</h4>
-              <el-switch
-                  v-model="section.selected"
-                  active-text="采纳"
-                  inactive-text="跳过"
-              />
+              <el-switch v-model="section.selected" active-text="采纳" inactive-text="跳过" />
             </div>
 
             <div class="content-comparison">
@@ -509,7 +388,9 @@
         </div>
 
         <div class="loading-content" v-if="optimizing">
-          <el-icon class="is-loading"><Loading /></el-icon>
+          <el-icon class="is-loading">
+            <Loading />
+          </el-icon>
           <p>AI正在分析您的简历内容...</p>
         </div>
       </div>
@@ -517,11 +398,7 @@
       <template #footer>
         <div class="dialog-footer">
           <el-button @click="showOptimizeDialog = false">取消</el-button>
-          <el-button
-              type="primary"
-              @click="applyOptimizations"
-              :disabled="!hasSelectedOptimizations"
-          >
+          <el-button type="primary" @click="applyOptimizations" :disabled="!hasSelectedOptimizations">
             应用选中的优化
           </el-button>
         </div>
@@ -529,18 +406,9 @@
     </el-dialog>
 
     <!-- 模板选择对话框 -->
-    <el-dialog
-        v-model="templateDialogVisible"
-        title="选择简历模板"
-        width="800px"
-        :close-on-click-modal="false"
-    >
-      <TemplateSelectionDialog
-          v-model="templateDialogVisible"
-          :current-template="resumeForm.template"
-          :templates="resumeTemplates"
-          @template-selected="handleTemplateSelected"
-      />
+    <el-dialog v-model="templateDialogVisible" title="选择简历模板" width="800px" :close-on-click-modal="false">
+      <TemplateSelectionDialog v-model="templateDialogVisible" :current-template="resumeForm.template"
+        :templates="resumeTemplates" @template-selected="handleTemplateSelected" />
     </el-dialog>
   </div>
 </template>
@@ -1157,8 +1025,8 @@ export default {
       case 'others': {
         if (!data) return 0
         const hasContent = (data.certificates && data.certificates.length > 0) ||
-              (data.awards && data.awards.length > 0) ||
-              (data.hobbies && data.hobbies.length > 0)
+            (data.awards && data.awards.length > 0) ||
+            (data.hobbies && data.hobbies.length > 0)
         return hasContent ? 100 : 0
       }
 
@@ -1253,7 +1121,7 @@ export default {
       if (template) {
         resumeForm.template = template.name
         ElMessage.success(`已应用模板：${template.name}`)
-      }else {
+      } else {
         ElMessage.success('模板已应用')
       }
     }
@@ -1481,32 +1349,31 @@ export default {
 
     // 显示AI生成对话框
     const showAIGenerateDialog = () => {
-      // 自动拼接用户填写的内容
       const basic = resumeForm.basicInfo
-      const skills = (resumeForm.skills || []).map(s => s.name).filter(Boolean).join('、')
-      const work = (resumeForm.workExperience || []).map(w =>
-        `${w.company ? w.company : ''}${w.position ? '担任' + w.position : ''}${w.startDate || w.endDate ? `，${w.startDate || ''}至${w.endDate || ''}` : ''}${w.responsibilities ? '，主要负责：' + w.responsibilities : ''}`
-      ).filter(Boolean).join('；')
-      const edu = (resumeForm.education || []).map(e =>
-        `${e.school ? e.school : ''}${e.degree || e.major ? `（${[e.degree, e.major].filter(Boolean).join('，')}）` : ''}${e.startDate || e.endDate ? `，${e.startDate || ''}至${e.endDate || ''}` : ''}`
-      ).filter(Boolean).join('；')
-      const summary = basic.summary || ''
 
-      aiForm.userInfo = [
-        basic.name ? `姓名：${basic.name}` : '',
-        basic.position ? `目标岗位：${basic.position}` : '',
-        skills ? `技能：${skills}` : '',
-        work ? `工作经历：${work}` : '',
-        edu ? `教育背景：${edu}` : '',
-        summary ? `个人简介：${summary}` : ''
-      ].filter(Boolean).join('\n')
+      const formData = {
+        // 基本信息 - 字段名要和 Generation.vue 中的一致
+        personalInfo: {
+          name: basic.name || '',
+          phone: basic.phone || '',
+          email: basic.email || '',
+          address: basic.address || '',
+          summary: basic.summary || '',
+          gender: '',
+          age: ''
+        },
+        targetPosition: basic.position || '',
+        // 教育和工作经历
+        educations: resumeForm.education || [],
+        workExperiences: resumeForm.workExperience || []
+      }
 
-      aiForm.jobTitle = basic.position || ''
-      aiGenerateResults.value = []
-      showAIDialog.value = true
+      sessionStorage.setItem('aiResumeFormData', JSON.stringify(formData))
+      sessionStorage.setItem('aiResumeStep', 3)
+
+      router.push('/applicant/resume/generation')
     }
-
-    // AI生成简历
+    /*// AI生成简历
     const handleGenerateResumeWithAI = async () => {
       if (!aiForm.userInfo.trim()) {
         ElMessage.warning('请填写用户信息')
@@ -1528,7 +1395,7 @@ export default {
       } finally {
         aiGenerating.value = false
       }
-    }
+    }*/
 
     // AI生成并保存简历
 
@@ -1688,11 +1555,7 @@ export default {
       modules,
       resumeForm,
       overallProgress,
-      // AI生成相关
-      showAIDialog,
-      aiGenerating,
-      aiGenerateResults,
-      aiForm,
+
       // AI优化相关
       showOptimizeDialog,
       optimizeSuggestions,
@@ -1731,10 +1594,6 @@ export default {
       optimizeResume,
       applyOptimizations,
       showAIGenerateDialog,
-      handleGenerateResumeWithAI,
-      openLink,
-      downloadFile,
-      handleTemplateSelected,
       goBack
     }
   }
@@ -2201,7 +2060,7 @@ export default {
   border-left: 1px solid #e5e7eb;
   display: flex;
   flex-direction: column;
-  height:100%;
+  height: 100%;
 }
 
 .preview-toolbar {
@@ -2229,8 +2088,10 @@ export default {
   overflow: auto;
   padding: 20px;
   background: #f5f5f5;
-  height: calc(100% - 50px); /* 减去工具栏高度 */
-  overflow: auto; /* 内容超出时显示滚动条 */
+  height: calc(100% - 50px);
+  /* 减去工具栏高度 */
+  overflow: auto;
+  /* 内容超出时显示滚动条 */
 }
 
 .preview-wrapper {
@@ -2242,10 +2103,14 @@ export default {
   flex: 1;
   overflow: auto;
   background: #f5f5f5;
-  height: calc(100vh - 60px); /* 减去固定导航栏高度 */
-  overflow: auto; /* 允许滚动 */
-  box-sizing: border-box; /* 确保padding不影响高度计算 */
-  padding: 20px; /* 可选：添加内边距时，box-sizing会保证高度正确 */
+  height: calc(100vh - 60px);
+  /* 减去固定导航栏高度 */
+  overflow: auto;
+  /* 允许滚动 */
+  box-sizing: border-box;
+  /* 确保padding不影响高度计算 */
+  padding: 20px;
+  /* 可选：添加内边距时，box-sizing会保证高度正确 */
 }
 
 /* 模板面板样式 - 迁移自frontend，将scss语法改为css */
@@ -2684,7 +2549,8 @@ html.dragging * {
   margin-top: 12px;
 }
 
-.original-content, .optimized-content {
+.original-content,
+.optimized-content {
   padding: 12px;
   border-radius: 6px;
   border: 1px solid #dcdfe6;
@@ -2700,14 +2566,16 @@ html.dragging * {
   border-color: #b7eb8f;
 }
 
-.original-content h5, .optimized-content h5 {
+.original-content h5,
+.optimized-content h5 {
   margin: 0 0 8px 0;
   font-size: 14px;
   font-weight: 600;
   color: #606266;
 }
 
-.original-content p, .optimized-content p {
+.original-content p,
+.optimized-content p {
   margin: 0;
   font-size: 14px;
   line-height: 1.5;

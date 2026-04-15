@@ -56,10 +56,10 @@
                 <el-icon size="18"><FolderOpened /></el-icon>
                 <span class="submenu-text">我的简历</span>
               </el-menu-item>
-              <el-menu-item index="/applicant/resume/generation">
+<!--              <el-menu-item index="/applicant/resume/generation">
                 <el-icon size="18"><Edit /></el-icon>
                 <span class="submenu-text">AI生成简历</span>
-              </el-menu-item>
+              </el-menu-item>-->
               <el-menu-item index="/applicant/resume/analysis">
                 <el-icon size="18"><DataAnalysis /></el-icon>
                 <span class="submenu-text">简历分析</span>

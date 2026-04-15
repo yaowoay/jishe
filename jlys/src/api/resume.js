@@ -7,7 +7,7 @@ import request from '@/utils/request'
 // 获取简历列表
 export function getResumeList() {
   return request({
-    url: '/resume/list',
+    url: '/resumes/list',
     method: 'get'
   })
 }
@@ -15,7 +15,7 @@ export function getResumeList() {
 // 上传简历
 export function uploadResume(formData) {
   return request({
-    url: '/resume/upload',
+    url: '/resumes/upload',
     method: 'post',
     data: formData,
     headers: {
@@ -27,7 +27,7 @@ export function uploadResume(formData) {
 // 删除简历
 export function deleteResumeById(resumeId) {
   return request({
-    url: `/resume/${resumeId}`,
+    url: `/resumes/${resumeId}`,
     method: 'delete'
   })
 }
@@ -35,7 +35,7 @@ export function deleteResumeById(resumeId) {
 // 获取简历详情
 export function getResumeById(resumeId) {
   return request({
-    url: `/resume/${resumeId}`,
+    url: `/resumes/${resumeId}`,
     method: 'get'
   })
 }
@@ -43,7 +43,7 @@ export function getResumeById(resumeId) {
 // 下载简历
 export function downloadResume(resumeId) {
   return request({
-    url: `/resume/${resumeId}/download`,
+    url: `/resumes/${resumeId}/download`,
     method: 'get',
     responseType: 'blob'
   })
@@ -52,7 +52,7 @@ export function downloadResume(resumeId) {
 // 分析简历
 export function analyzeResume(resumeId) {
   return request({
-    url: `/resume/${resumeId}/analyze`,
+    url: `/resumes/${resumeId}/analyze`,
     method: 'post'
   })
 }
