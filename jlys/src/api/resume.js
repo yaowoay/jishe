@@ -4,10 +4,18 @@ import request from '@/utils/request'
  * 简历相关API
  */
 
-// 获取简历列表
+// 获取简历列表（上传的文件）- 用于"我的简历"模块
 export function getResumeList() {
   return request({
-    url: '/resumes/list',
+    url: '/resume/my-list',  // 改为 /resume/my-list 用于"我的简历"模块
+    method: 'get'
+  })
+}
+
+// 获取简历列表（用于分析）- 用于"简历分析"模块
+export function getAnalysisResumeList() {
+  return request({
+    url: '/resume/analysis-list',  // 新增 /resume/analysis-list 用于"简历分析"模块
     method: 'get'
   })
 }
@@ -15,7 +23,7 @@ export function getResumeList() {
 // 上传简历
 export function uploadResume(formData) {
   return request({
-    url: '/resumes/upload',
+    url: '/resume/upload',  // 改为 /resume/upload
     method: 'post',
     data: formData,
     headers: {
@@ -27,7 +35,7 @@ export function uploadResume(formData) {
 // 删除简历
 export function deleteResumeById(resumeId) {
   return request({
-    url: `/resumes/${resumeId}`,
+    url: `/resume/${resumeId}`,  // 改为 /resume/{id}
     method: 'delete'
   })
 }
@@ -332,5 +340,13 @@ export function analyzeResumeMatch(formData) {
       'Content-Type': 'multipart/form-data'
     },
     timeout: 300000 // 5分钟超时，因为AI分析需要较长时间
+  })
+}
+
+// 简历匹配分析健康检查
+export function checkResumeMatchHealth() {
+  return request({
+    url: '/match/health',
+    method: 'get'
   })
 }

@@ -64,6 +64,10 @@
                 <el-icon size="18"><DataAnalysis /></el-icon>
                 <span class="submenu-text">简历分析</span>
               </el-menu-item>
+              <el-menu-item index="/applicant/resume/match-analysis">
+                <el-icon size="18"><DataAnalysis /></el-icon>
+                <span class="submenu-text">简历匹配分析</span>
+              </el-menu-item>
               <el-menu-item index="/applicant/resume/submit">
                 <el-icon size="18"><Promotion /></el-icon>
                 <span class="submenu-text">投递简历</span>
@@ -218,6 +222,7 @@ export default {
         '/applicant/profile': '个人中心',
         '/applicant/resume/list': '我的简历',
         '/applicant/resume/analysis': '简历分析',
+        '/applicant/resume/match-analysis': '简历匹配分析',
         '/applicant/resume/submit': '投递简历',
         '/applicant/resume/generation': 'AI生成简历',
         '/applicant/interview': 'AI模拟面试',

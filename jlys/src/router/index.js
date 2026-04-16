@@ -152,6 +152,12 @@ const routes = [
             meta: { title: '简历分析', icon: 'el-icon-data-analysis' }
           },
           {
+            path: 'match-analysis',
+            name: 'ResumeMatchAnalysis',
+            component: () => import('@/views/applicant/resume/ResumeMatchAnalysis.vue'),
+            meta: { title: '简历匹配分析', icon: 'el-icon-data-analysis' }
+          },
+          {
             path: 'submit',
             name: 'ResumeSubmit',
             component: () => import('@/views/applicant/resume/ResumeSubmit.vue'),

@@ -362,7 +362,7 @@ export default {
   margin: 0 auto;
   padding: 20px;
   background: #f8fafc;
-  min-height: 100vh;
+  min-height: auto;
 }
 
 /* 报告头部 */

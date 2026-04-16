@@ -404,7 +404,8 @@ export default {
           throw new Error('请先登录')
         }
 
-        const response = await fetch(`${API_BASE_URL}/resumes`, {
+        // 改为调用 /resume/analysis-list 用于简历分析模块
+        const response = await fetch(`${API_BASE_URL}/resume/analysis-list`, {
           method: 'GET',
           headers: {
             'Authorization': `Bearer ${token}`,

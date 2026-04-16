@@ -402,8 +402,8 @@
 </template>
 
 <script>
-import { ref, onMounted, nextTick } from 'vue'
-import { ElMessage, ElLoading } from 'element-plus'
+import { ref, nextTick } from 'vue'
+import { ElMessage } from 'element-plus'
 import { analyzeResumeMatch } from '@/api/resume'
 
 export default {
@@ -875,11 +875,12 @@ export default {
 }
 </script>
 
-<style scoped>
-:root {
-  --primary: #2c6fbb;
+<style>
+/* 不使用 scoped，确保样式能正确应用 */
+.resume-analysis {
+  --primary: #4361ee;
   --primary-light: #e6f0fa;
-  --secondary: #3498db;
+  --secondary: #5e3aff;
   --accent: #1abc9c;
   --warning: #e74c3c;
   --success: #27ae60;
@@ -891,14 +892,11 @@ export default {
   --border: #dee2e6;
   --light: #f8f9fa;
   --dark: #212529;
-}
 
-.resume-analysis {
   background: linear-gradient(135deg, #f5f7fa 0%, #e4edf5 100%);
   color: #333;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  min-height: 100vh;
-  padding: 20px 0;
+  padding: 20px 0 40px 0;
 }
 
 .container {
@@ -956,29 +954,29 @@ export default {
   transform: translateY(-5px);
 }
 
-.card-header {
-  background: linear-gradient(to right, var(--primary), var(--secondary));
-  color: white;
+.resume-analysis .card-header {
+  background: linear-gradient(to right, #4361ee, #4a3aff) !important;
+  color: white !important;
   border-radius: 15px 15px 0 0 !important;
   font-weight: 600;
   padding: 15px 20px;
 }
 
-.card-body {
+.resume-analysis .card-body {
   padding: 20px;
 }
 
-.card-footer {
+.resume-analysis .card-footer {
   border-top: 1px solid #e3f2fd;
   padding: 20px;
   border-radius: 0 0 15px 15px !important;
 }
 
-.bg-light {
+.resume-analysis .bg-light {
   background-color: #f8f9fa !important;
 }
 
-.upload-area {
+.resume-analysis .upload-area {
   border: 2px dashed #ccc;
   border-radius: 10px;
   padding: 40px 20px;
@@ -988,18 +986,18 @@ export default {
   transition: all 0.3s;
 }
 
-.upload-area:hover {
-  border-color: var(--primary);
+.resume-analysis .upload-area:hover {
+  border-color: #4361ee;
   background: #f0f5ff;
 }
 
-.upload-area i {
+.resume-analysis .upload-area i {
   font-size: 3rem;
-  color: var(--primary);
+  color: #4361ee;
   margin-bottom: 15px;
 }
 
-.btn {
+.resume-analysis .btn {
   padding: 10px 25px;
   font-weight: 600;
   border-radius: 30px;
@@ -1008,26 +1006,26 @@ export default {
   transition: all 0.3s;
 }
 
-.btn-primary {
-  background: linear-gradient(to right, var(--primary), var(--secondary));
-  color: white;
+.resume-analysis .btn-primary {
+  background: linear-gradient(to right, #4361ee, #4a3aff) !important;
+  color: white !important;
 }
 
-.btn-primary:hover:not(:disabled) {
-  background: linear-gradient(to right, #3a56e0, #3832b8);
+.resume-analysis .btn-primary:hover:not(:disabled) {
+  background: linear-gradient(to right, #3a56e0, #3832b8) !important;
   transform: translateY(-2px);
   box-shadow: 0 4px 8px rgba(0,0,0,0.2);
 }
 
-.btn-primary:disabled {
+.resume-analysis .btn-primary:disabled {
   opacity: 0.6;
   cursor: not-allowed;
 }
 
-.btn-outline-primary {
-  background: transparent;
-  color: var(--primary);
-  border: 2px solid var(--primary);
+.resume-analysis .btn-outline-primary {
+  background: transparent !important;
+  color: #4361ee !important;
+  border: 2px solid #4361ee !important;
 }
 
 .btn-lg {
@@ -1105,7 +1103,7 @@ export default {
   border-radius: 8px;
   border: 1px solid #e9ecef;
   margin: 0;
-  max-height: 600px;
+  max-height: 400px;
   overflow-y: auto;
 }
 
@@ -1123,13 +1121,13 @@ export default {
   border-radius: 10px;
   padding: 25px;
   box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
-  max-height: 500px;
+  max-height: 400px;
   overflow-y: auto;
   transition: max-height 0.3s ease;
 }
 
 .resume-preview.full-preview {
-  max-height: none;
+  max-height: 800px;
 }
 
 .resume-header-section {

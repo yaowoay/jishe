@@ -474,9 +474,24 @@ html, body, #app {
   box-sizing: border-box;
 }
 
-/* 隐藏全局滚动条 */
+/* 自定义全局滚动条样式（不完全隐藏，保留可用性） */
 ::-webkit-scrollbar {
-  display: none;
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
 }
 
 /* 主容器和内容区通用自适应布局 */

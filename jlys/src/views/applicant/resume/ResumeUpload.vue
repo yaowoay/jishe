@@ -316,15 +316,38 @@ export default {
           headers: uploadHeaders,
           body: formData
         })
-          .then(response => response.json())
+          .then(response => {
+            console.log('Upload response status:', response.status)
+            console.log('Upload response headers:', response.headers)
+
+            // 先检查 HTTP 状态码
+            if (!response.ok) {
+              return response.json().then(data => {
+                throw new Error(`HTTP ${response.status}: ${data.message || '上传失败'}`)
+              }).catch(err => {
+                throw new Error(`HTTP ${response.status}: 上传失败`)
+              })
+            }
+
+            return response.json()
+          })
           .then(data => {
-            if (data.success) {
+            console.log('Upload response data:', data)
+            console.log('Upload response data.success:', data.success, 'type:', typeof data.success)
+
+            // 检查业务状态 - success 可能是布尔值或字符串
+            const isSuccess = data.success === true || data.success === 'true' || data.success === 1
+
+            if (isSuccess) {
+              console.log('Upload success:', data)
               resolve(data)
             } else {
+              console.error('Upload failed - success is false:', data)
               reject(new Error(data.message || '上传失败'))
             }
           })
           .catch(error => {
+            console.error('Upload error:', error)
             reject(error)
           })
       })

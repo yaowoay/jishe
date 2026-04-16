@@ -15,8 +15,9 @@ export default {
 /* 简历模块容器样式 */
 .resume-module {
   width: 100%;
-  height: 100%;
+  min-height: 100%;
   background: #f5f5f5;
-  overflow: hidden; /* 禁止滚动条 */
+  overflow-y: auto; /* 允许垂直滚动 */
+  overflow-x: hidden; /* 禁止水平滚动 */
 }
 </style>
