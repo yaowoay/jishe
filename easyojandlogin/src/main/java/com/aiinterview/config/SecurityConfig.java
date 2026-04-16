@@ -42,6 +42,9 @@ public class SecurityConfig {
             .authorizeRequests()
                 // 认证相关路径 - 最重要，放在最前面
                 .antMatchers("/auth/**").permitAll()
+                // 简历相关路径 - 允许上传
+                .antMatchers("/resume/**").permitAll()
+                .antMatchers("/resumes/**").permitAll()
                 // DISC测试相关路径
                 .antMatchers("/disc-test/**").permitAll()
                 // 人脸检测相关路径

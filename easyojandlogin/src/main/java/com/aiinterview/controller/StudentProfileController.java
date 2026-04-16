@@ -2,7 +2,7 @@ package com.aiinterview.controller;
 
 import com.aiinterview.model.dto.StudentProfileRequest;
 import com.aiinterview.model.dto.api.ApiResponse;
-import com.aiinterview.model.entity.teacher.StudentProfile;
+import com.aiinterview.model.entity.student.StudentProfile;
 import com.aiinterview.service.student.StudentProfileService;
 import com.aiinterview.utils.JwtUtils;
 import lombok.RequiredArgsConstructor;

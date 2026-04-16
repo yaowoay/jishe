@@ -1,7 +1,7 @@
 package com.aiinterview.service.student;
 
 import com.aiinterview.model.dto.StudentProfileRequest;
-import com.aiinterview.model.entity.teacher.StudentProfile;
+import com.aiinterview.model.entity.student.StudentProfile;
 
 /**
  * 学生档案服务接口

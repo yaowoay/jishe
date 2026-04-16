@@ -9,12 +9,13 @@ import com.aiinterview.model.entity.applicant.Applicant;
 public interface ApplicantService {
     
     /**
-     * 根据用户ID获取求职者信息
+     * 根据用户ID获取求职者信息（聚合 student_profile + resume）
      */
     ApplicantProfileDTO getApplicantByUserId(Long userId);
     
     /**
-     * 创建或更新求职者信息
+     * 保存或更新求职者信息
+     * 实际会写入 student_profile和resume 表
      */
     ApplicantProfileDTO saveOrUpdateApplicant(Long userId, ApplicantProfileDTO applicantProfileDTO);
     

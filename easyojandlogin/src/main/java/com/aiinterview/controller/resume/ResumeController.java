@@ -40,6 +40,15 @@ public class ResumeController {
         return BaseResponse.success(resumeService.getUserResumes(userId), "获取我的简历列表成功");
     }
 
+    @GetMapping("/list")
+    public BaseResponse<List<ResumeResponse>> getResumeList(HttpServletRequest request) {
+        Long userId = getUserId(request);
+        if (userId == null) {
+            return BaseResponse.error(401, "未登录");
+        }
+        return BaseResponse.success(resumeService.getUserResumes(userId), "获取简历列表成功");
+    }
+
     @GetMapping
     public BaseResponse<List<ResumeResponse>> getUserResumes(HttpServletRequest request) {
         Long userId = getUserId(request);
@@ -114,6 +123,28 @@ public class ResumeController {
             return BaseResponse.error(401, "未登录");
         }
         return BaseResponse.success(resumeService.getResumeById(resumeId, userId), "获取简历成功");
+    }
+
+    /* ================= 文件上传 ================= */
+
+    @PostMapping("/upload")
+    public BaseResponse<Object> uploadResume(
+            HttpServletRequest request,
+            @RequestParam("file") org.springframework.web.multipart.MultipartFile file) {
+
+        Long userId = getUserId(request);
+        if (userId == null) {
+            return BaseResponse.error(401, "未登录");
+        }
+
+        try {
+            String filename = file.getOriginalFilename();
+            Object resume = resumeService.uploadResume(file, userId, filename);
+            return BaseResponse.success(resume, "简历上传成功");
+        } catch (Exception e) {
+            log.error("简历上传失败: {}", e.getMessage());
+            return BaseResponse.error(500, "简历上传失败: " + e.getMessage());
+        }
     }
 
     /* ================= 功能扩展 ================= */

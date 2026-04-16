@@ -1,4 +1,4 @@
-package com.aiinterview.model.entity.teacher;
+package com.aiinterview.model.entity.student;
 
 import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.IdType;
@@ -20,11 +20,11 @@ import java.time.Year;
 @TableName("student_profile")
 public class StudentProfile {
 
-    @TableId(value = "id", type = IdType.AUTO)
-    private Long id;
+    @TableId(value = "student_id", type = IdType.AUTO)
+    private Long studentId;
 
     @TableField("user_id")
-    private Integer userId;
+    private Long userId;
 
     @TableField("student_no")
     private String studentNo;

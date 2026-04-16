@@ -19,7 +19,7 @@ public class resumer {
     @TableField("name")
     private String name;
 
-    /** 真实姓名 */
+    /** 真实姓名 ss*/
     @TableField("full_name")
     private String fullName;
 

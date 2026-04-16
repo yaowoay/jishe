@@ -1,83 +1,100 @@
 package com.aiinterview.service.impl.applicant;
 
 import com.aiinterview.model.dto.applicant.ApplicantProfileDTO;
+import com.aiinterview.mapper.StudentProfileMapper;
+import com.aiinterview.mapper.ResumerMapper;
+import com.aiinterview.model.entity.resumer;
+import com.aiinterview.model.entity.student.StudentProfile;
 import com.aiinterview.model.entity.applicant.Applicant;
-import com.aiinterview.mapper.ApplicantMapper;
 import com.aiinterview.service.applicat.ApplicantService;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
  * 求职者信息服务实现类
+ * 说明：使用 resumer 实体对应 resume 表（在线简历编辑）
+ *      使用 StudentProfile 实体对应 student_profile 表（学生基本信息）
  */
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class ApplicantServiceImpl implements ApplicantService {
 
-    private final ApplicantMapper applicantMapper;
+    private final StudentProfileMapper studentProfileMapper;
+    private final ResumerMapper resumerMapper;
 
     @Override
     public ApplicantProfileDTO getApplicantByUserId(Long userId) {
         try {
-            QueryWrapper<Applicant> queryWrapper = new QueryWrapper<>();
-            queryWrapper.eq("user_id", userId);
-            Applicant applicant = applicantMapper.selectOne(queryWrapper);
+            StudentProfile student = studentProfileMapper.selectByUserId(userId);
+            resumer resume = resumerMapper.selectDefaultByUserId(userId);
 
-            if (applicant == null) {
+            if (student == null && resume == null) {
                 return null;
             }
 
             ApplicantProfileDTO dto = new ApplicantProfileDTO();
-            BeanUtils.copyProperties(applicant, dto);
+
+            if (student != null) {
+                dto.setFullName(student.getRealName());
+                dto.setGender(student.getGender());
+                dto.setEducationLevel(student.getEducationLevel());
+            }
+
+            if (resume != null) {
+                dto.setExpectedPosition(resume.getPosition());
+                dto.setWorkYears(resume.getWorkYears());
+                dto.setPhone(resume.getPhone());
+            }
+
             return dto;
         } catch (Exception e) {
             log.error("获取求职者信息失败: userId={}, error={}", userId, e.getMessage());
-            throw new RuntimeException("获取求职者信息失败");
+            return null;
         }
     }
 
     @Override
     @Transactional
-    public ApplicantProfileDTO saveOrUpdateApplicant(Long userId, ApplicantProfileDTO applicantProfileDTO) {
+    public ApplicantProfileDTO saveOrUpdateApplicant(Long userId, ApplicantProfileDTO dto) {
         try {
-            log.info("开始保存求职者信息: userId={}, data={}", userId, applicantProfileDTO);
+            StudentProfile student = studentProfileMapper.selectByUserId(userId);
+            if (student == null) {
+                student = new StudentProfile();
+                student.setUserId(userId);
+            }
+            student.setRealName(dto.getFullName());
+            student.setGender(dto.getGender());
+            student.setEducationLevel(dto.getEducationLevel());
 
-            QueryWrapper<Applicant> queryWrapper = new QueryWrapper<>();
-            queryWrapper.eq("user_id", userId);
-            Applicant existingApplicant = applicantMapper.selectOne(queryWrapper);
-
-            log.info("查询现有记录结果: {}", existingApplicant != null ? "找到记录" : "未找到记录");
-
-            Applicant applicant;
-            if (existingApplicant != null) {
-                // 更新现有记录
-                applicant = existingApplicant;
-                log.info("更新现有记录，ID: {}", applicant.getApplicantId());
-                BeanUtils.copyProperties(applicantProfileDTO, applicant, "applicantId", "userId");
-                applicantMapper.updateById(applicant);
-                log.info("更新完成");
+            if (student.getStudentId() == null) {
+                studentProfileMapper.insert(student);
             } else {
-                // 创建新记录
-                applicant = new Applicant();
-                log.info("创建新记录");
-                BeanUtils.copyProperties(applicantProfileDTO, applicant, "applicantId");
-                applicant.setUserId(userId);
-                log.info("准备插入数据: {}", applicant);
-                applicantMapper.insert(applicant);
-                log.info("插入完成，新ID: {}", applicant.getApplicantId());
+                studentProfileMapper.updateById(student);
             }
 
-            ApplicantProfileDTO result = new ApplicantProfileDTO();
-            BeanUtils.copyProperties(applicant, result);
-            log.info("保存成功，返回结果: {}", result);
-            return result;
+            resumer resume = resumerMapper.selectDefaultByUserId(userId);
+            if (resume == null) {
+                resume = new resumer();
+                resume.setUserId(userId);
+                resume.setIsDefault(true);
+            }
+            resume.setPosition(dto.getExpectedPosition());
+            resume.setWorkYears(dto.getWorkYears());
+            resume.setPhone(dto.getPhone());
+
+            if (resume.getId() == null) {
+                resumerMapper.insert(resume);
+            } else {
+                resumerMapper.updateById(resume);
+            }
+
+            log.info("求职者信息保存成功: userId={}", userId);
+            return dto;
         } catch (Exception e) {
-            log.error("保存求职者信息失败: userId={}, error={}", userId, e.getMessage(), e);
+            log.error("保存求职者信息失败: userId={}, error={}", userId, e.getMessage());
             throw new RuntimeException("保存求职者信息失败: " + e.getMessage());
         }
     }
@@ -85,24 +102,17 @@ public class ApplicantServiceImpl implements ApplicantService {
     @Override
     public boolean hasApplicantProfile(Long userId) {
         try {
-            QueryWrapper<Applicant> queryWrapper = new QueryWrapper<>();
-            queryWrapper.eq("user_id", userId);
-            return applicantMapper.selectCount(queryWrapper) > 0;
+            StudentProfile student = studentProfileMapper.selectByUserId(userId);
+            return student != null;
         } catch (Exception e) {
-            log.error("检查求职者信息失败: userId={}, error={}", userId, e.getMessage());
+            log.error("检查求职者档案失败: userId={}, error={}", userId, e.getMessage());
             return false;
         }
     }
 
     @Override
     public Applicant getApplicantEntityByUserId(Long userId) {
-        try {
-            QueryWrapper<Applicant> queryWrapper = new QueryWrapper<>();
-            queryWrapper.eq("user_id", userId);
-            return applicantMapper.selectOne(queryWrapper);
-        } catch (Exception e) {
-            log.error("获取求职者实体失败: userId={}, error={}", userId, e.getMessage());
-            throw new RuntimeException("获取求职者实体失败");
-        }
+        log.warn("调用已废弃的方法 getApplicantEntityByUserId，Applicant 实体已不再使用");
+        return null;
     }
 }

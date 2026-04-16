@@ -4,15 +4,22 @@ import com.aiinterview.model.dto.request.ResumeCreateRequest;
 import com.aiinterview.model.dto.request.ResumeUpdateRequest;
 import com.aiinterview.model.dto.response.ResumeResponse;
 import com.aiinterview.model.entity.resumer;
+import com.aiinterview.model.entity.resume.Resume;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
 /**
- * 简历服务接口（已与 ResumeServiceImpl 完全对齐）
+ * 简历服务接口
+ * 说明：
+ * - resumer 实体对应 resume 表（在线编辑简历）
+ * - Resume 实体对应 resumes 表（文件上传简历）
  */
 public interface ResumeService {
+
+    // ==================== 在线简历编辑（resumer 实体） ====================
 
     /**
      * 创建简历
@@ -80,12 +87,44 @@ public interface ResumeService {
     List<ResumeResponse> getRecentResumes(Long userId, int limit);
 
     /**
-     * 根据用户ID获取简历实体列表（非软件杯）
+     * 根据用户ID获取简历实体列表（resumer 实体）
      */
-    List<resumer> getResumesByUserId(Long userId);
+    List<resumer> getResumersByUserId(Long userId);
+
+    // ==================== 文件上传简历（Resume 实体） ====================
 
     /**
-     * 获取简历文件路径（非软件杯）
+     * 上传简历文件
+     */
+    Resume uploadResume(MultipartFile file, Long userId, String filename);
+
+    /**
+     * 获取用户的上传简历列表
+     */
+    List<Resume> getUploadedResumesByUserId(Long userId);
+
+    /**
+     * 根据ID获取上传简历详情
+     */
+    Resume getUploadedResumeById(Long resumeId, Long userId);
+
+    /**
+     * 删除上传的简历
+     */
+    boolean deleteUploadedResume(Long resumeId, Long userId);
+
+    /**
+     * 分析简历
+     */
+    String analyzeResume(Long resumeId, Long userId);
+
+    /**
+     * 获取简历文件路径
      */
     String getResumeFilePath(Long resumeId, Long userId);
+
+    /**
+     * 更新简历分析状态
+     */
+    boolean updateAnalysisStatus(Long resumeId, boolean analyzed, String analysisResult);
 }

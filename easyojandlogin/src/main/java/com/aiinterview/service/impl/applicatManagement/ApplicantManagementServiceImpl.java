@@ -3,7 +3,6 @@ package com.aiinterview.service.impl.applicatManagement;
 import com.aiinterview.mapper.*;
 import com.aiinterview.model.dto.applicant.ApplicantDetailDTO;
 import com.aiinterview.model.entity.application.Application;
-import com.aiinterview.model.entity.applicant.Applicant;
 import com.aiinterview.model.entity.job.Job;
 import com.aiinterview.model.entity.interview.AIInterview;
 import com.aiinterview.model.entity.interview.InterviewScores;
@@ -34,7 +33,7 @@ public class ApplicantManagementServiceImpl implements ApplicantManagementServic
 
     private final ApplicationMapper applicationMapper;
     private final ApplicationService applicationService;
-    private final ApplicantMapper applicantMapper;
+    // 已移除 ApplicantMapper - 改用 user_id 直接查询
     private final JobMapper jobMapper;
     private final AIInterviewMapper aiInterviewMapper;
     private final InterviewScoresMapper interviewScoresMapper;
@@ -50,20 +49,15 @@ public class ApplicantManagementServiceImpl implements ApplicantManagementServic
         try {
             log.info("获取用户最近面试记录: userId={}, limit={}", userId, limit);
 
-            // 获取申请人信息
-            Applicant applicant = getApplicantByUserId(userId);
-            if (applicant == null) {
-                throw new RuntimeException("用户未找到对应的申请人");
-            }
-
             // 设置默认限制数量
             if (limit == null || limit <= 0) {
                 limit = 5;
             }
 
             // 查询最近的面试记录，包含AI面试总分
+            // 修复：直接使用 user_id 替代 applicant_id
             QueryWrapper<Application> queryWrapper = new QueryWrapper<>();
-            queryWrapper.eq("applicant_id", applicant.getApplicantId())
+            queryWrapper.eq("user_id", userId)
                        .orderByDesc("apply_time")
                        .last("LIMIT " + limit);
 
@@ -109,15 +103,10 @@ public class ApplicantManagementServiceImpl implements ApplicantManagementServic
         try {
             log.info("获取用户全部面试记录: userId={}", userId);
 
-            // 获取申请人信息
-            Applicant applicant = getApplicantByUserId(userId);
-            if (applicant == null) {
-                throw new RuntimeException("用户未找到对应的申请人");
-            }
-
             // 查询全部面试记录
+            // 修复：直接使用 user_id 替代 applicant_id
             QueryWrapper<Application> queryWrapper = new QueryWrapper<>();
-            queryWrapper.eq("applicant_id", applicant.getApplicantId())
+            queryWrapper.eq("user_id", userId)
                        .orderByDesc("apply_time");
 
             List<Application> applications = applicationMapper.selectList(queryWrapper);
@@ -203,7 +192,8 @@ public class ApplicantManagementServiceImpl implements ApplicantManagementServic
 
             for (Application application : applications) {
                 try {
-                    Applicant applicant = applicantMapper.selectById(application.getApplicantId());
+                    // 修复：改用 user_id 替代 applicant_id
+                    Long userId = application.getUserId();
                     com.aiinterview.model.entity.resume.Resume resume = resumeMapper.selectById(application.getResumeId());
 
                     // 查询简历分析报告
@@ -222,8 +212,7 @@ public class ApplicantManagementServiceImpl implements ApplicantManagementServic
                     ResumeScores resumeScores = resumeScoresMapper.selectOne(scoresQuery);
 
                     Map<String, Object> applicantInfo = new HashMap<>();
-                    applicantInfo.put("applicant_id", applicant.getApplicantId());
-                    applicantInfo.put("full_name", applicant.getFullName());
+                    applicantInfo.put("user_id", userId);
                     applicantInfo.put("resume", resume != null ? resume.getResumeId() : null);
                     applicantInfo.put("status", application.getStatus());
                     applicantInfo.put("application_id", application.getApplicationId());
@@ -300,15 +289,17 @@ public class ApplicantManagementServiceImpl implements ApplicantManagementServic
                     }
 
                     // 查询申请人信息
-                    Applicant applicant = applicantMapper.selectById(application.getApplicantId());
-                    if (applicant == null) {
+                    // 修复：直接从 application 中获取 user_id，不再使用 applicant_id
+                    Long userId = application.getUserId();
+                    if (userId == null) {
                         continue;
                     }
 
                     Map<String, Object> candidate = new HashMap<>();
                     candidate.put("application_id", application.getApplicationId());
-                    candidate.put("applicant_id", applicant.getApplicantId());
-                    candidate.put("full_name", applicant.getFullName());
+                    candidate.put("user_id", userId);
+                    // 注意：full_name 需要从其他地方获取（如 student_profile 或 resume 表）
+                    // 暂时移除，由前端处理或后续补充
                     candidate.put("overall_score", interview.getOverallScore());
                     candidate.put("interview_scores", interviewScores);
                     candidate.put("job_title", job.getTitle());
@@ -733,20 +724,6 @@ public class ApplicantManagementServiceImpl implements ApplicantManagementServic
     }
 
     // ==================== 辅助方法 ====================
-
-    /**
-     * 根据用户ID获取申请人信息
-     */
-    private Applicant getApplicantByUserId(Long userId) {
-        try {
-            QueryWrapper<Applicant> queryWrapper = new QueryWrapper<>();
-            queryWrapper.eq("user_id", userId);
-            return applicantMapper.selectOne(queryWrapper);
-        } catch (Exception e) {
-            log.error("根据用户ID获取申请人失败: userId={}, error={}", userId, e.getMessage());
-            throw new RuntimeException("获取申请人信息失败");
-        }
-    }
 
     /**
      * 验证申请是否属于该公司

@@ -3,7 +3,7 @@ package com.aiinterview.service.impl.student;
 import com.aiinterview.mapper.StudentProfileMapper;
 import com.aiinterview.mapper.UserMapper;
 import com.aiinterview.model.dto.StudentProfileRequest;
-import com.aiinterview.model.entity.teacher.StudentProfile;
+import com.aiinterview.model.entity.student.StudentProfile;
 import com.aiinterview.model.entity.user.User;
 import com.aiinterview.service.student.StudentProfileService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -42,7 +42,7 @@ public class StudentProfileServiceImpl implements StudentProfileService {
         if (profile == null) {
             // 创建新档案
             profile = new StudentProfile();
-            profile.setUserId(userId.intValue());
+            profile.setUserId((long) userId.intValue());
             profile.setStudentNo(request.getStudentNo());
             profile.setRealName(request.getRealName());
             profile.setGender(request.getGender());

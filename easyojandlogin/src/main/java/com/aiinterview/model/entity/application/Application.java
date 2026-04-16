@@ -20,8 +20,8 @@ public class Application {
     @TableField("job_id")
     private Long jobId;
 
-    @TableField("applicant_id")
-    private Long applicantId;
+    @TableField("user_id")
+    private Long userId;
 
     @TableField("apply_time")
     private LocalDateTime applyTime;

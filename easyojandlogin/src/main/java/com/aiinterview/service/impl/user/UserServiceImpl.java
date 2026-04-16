@@ -3,10 +3,6 @@ package com.aiinterview.service.impl.user;
 import com.aiinterview.mapper.*;
 import com.aiinterview.model.dto.LoginRequest;
 import com.aiinterview.model.dto.RegisterRequest;
-import com.aiinterview.model.entity.applicant.Applicant;
-import com.aiinterview.model.entity.company.Company;
-import com.aiinterview.model.entity.teacher.StudentProfile;
-import com.aiinterview.model.entity.teacher.Teacher;
 import com.aiinterview.model.entity.user.User;
 import com.aiinterview.service.user.UserService;
 import com.aiinterview.utils.JwtUtils;
@@ -15,8 +11,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Arrays;
 
 /**
  * 用户服务实现类

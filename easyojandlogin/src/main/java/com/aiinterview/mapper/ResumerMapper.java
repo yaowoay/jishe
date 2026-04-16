@@ -40,4 +40,6 @@ public interface ResumerMapper extends BaseMapper<resumer> { // P0: resumer -> R
      * 更新查看次数
      */
     int updateViewCount(@Param("id") Long id);
+
+    resumer selectDefaultByUserId(Long userId);
 }

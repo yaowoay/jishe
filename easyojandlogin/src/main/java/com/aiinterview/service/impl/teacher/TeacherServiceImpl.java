@@ -18,7 +18,7 @@ import com.aiinterview.model.entity.company.Company;
 import com.aiinterview.model.entity.job.Job;
 import com.aiinterview.model.entity.teacher.AssistanceRecord;
 import com.aiinterview.model.entity.teacher.EmploymentLedger;
-import com.aiinterview.model.entity.teacher.StudentProfile;
+import com.aiinterview.model.entity.student.StudentProfile;
 import com.aiinterview.model.entity.teacher.Teacher;
 import com.aiinterview.service.teacher.TeacherService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
