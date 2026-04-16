@@ -13,7 +13,6 @@ import com.aiinterview.service.resume.ResumeService;
 import com.aiinterview.utils.JwtUtils;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.*;
@@ -27,7 +26,6 @@ import javax.validation.Valid;
 import java.io.File;
 import java.util.List;
 import java.util.Map;
-import java.util.HashMap;
 
 /**
  * 简历投递申请控制器
@@ -35,7 +33,6 @@ import java.util.HashMap;
 @Slf4j
 @RestController
 @RequestMapping("/application")
-@RequiredArgsConstructor
 @CrossOrigin(origins = "*")
 public class ApplicationController {
 

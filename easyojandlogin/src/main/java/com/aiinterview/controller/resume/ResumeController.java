@@ -1,7 +1,6 @@
 package com.aiinterview.controller.resume;
 
 import com.aiinterview.common.BaseResponse;
-import com.aiinterview.model.dto.api.ApiResponse;
 import com.aiinterview.model.dto.request.ResumeCreateRequest;
 import com.aiinterview.model.dto.request.ResumeUpdateRequest;
 import com.aiinterview.model.dto.response.ResumeResponse;
@@ -9,22 +8,17 @@ import com.aiinterview.service.resume.ResumeService;
 import com.aiinterview.utils.JwtUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.web.bind.annotation.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
-import java.io.File;
-import java.io.IOException;
 import java.util.List;
-import java.util.UUID;
 
 @Slf4j
 @RestController
@@ -54,14 +48,14 @@ public class ResumeController {
         return BaseResponse.success(resumeService.getUserResumes(userId), "获取简历列表成功");
     }
 
-    @GetMapping("/list")
-    public BaseResponse<List<ResumeResponse>> getResumeList(HttpServletRequest request) {
-        Long userId = getUserId(request);
-        if (userId == null) {
-            return BaseResponse.error(401, "未登录");
-        }
-        return BaseResponse.success(resumeService.getUserResumes(userId), "获取简历列表成功");
-    }
+//    @GetMapping("/list")
+//    public BaseResponse<List<ResumeResponse>> getResumeList(HttpServletRequest request) {
+//        Long userId = getUserId(request);
+//        if (userId == null) {
+//            return BaseResponse.error(401, "未登录");
+//        }
+//        return BaseResponse.success(resumeService.getUserResumes(userId), "获取简历列表成功");
+//    }
 
     @GetMapping
     public BaseResponse<List<ResumeResponse>> getUserResumes(HttpServletRequest request) {
@@ -293,60 +287,60 @@ public class ResumeController {
         log.warn("无法获取用户ID");
         return null;
     }
+// 两个 /upload接口冲突
+//        @Value("${file.upload.path}")
+//        private String uploadPath;
 
-        @Value("${file.upload.path}")
-        private String uploadPath;
-
-        /**
-         * 上传简历文件
-         */
-        @PostMapping("/upload")
-        public ApiResponse<String> uploadResume(@RequestParam("file") MultipartFile file) {
-            try {
-                // 1. 检查文件是否为空
-                if (file.isEmpty()) {
-                    return ApiResponse.error("文件不能为空");
-                }
-
-                // 2. 检查文件类型
-                String originalFilename = file.getOriginalFilename();
-                String fileExtension = originalFilename.substring(originalFilename.lastIndexOf("."));
-                String[] allowedTypes = {".pdf", ".doc", ".docx"};
-                boolean isAllowed = false;
-                for (String type : allowedTypes) {
-                    if (type.equalsIgnoreCase(fileExtension)) {
-                        isAllowed = true;
-                        break;
-                    }
-                }
-                if (!isAllowed) {
-                    return ApiResponse.error("只支持 PDF、DOC、DOCX 格式的文件");
-                }
-
-                // 3. 生成新文件名
-                String newFileName = UUID.randomUUID().toString() + fileExtension;
-
-                // 4. 创建上传目录
-                String uploadDir = uploadPath + "/resumes/";
-                File dir = new File(uploadDir);
-                if (!dir.exists()) {
-                    dir.mkdirs();
-                }
-
-                // 5. 保存文件
-                File destFile = new File(uploadDir + newFileName);
-                file.transferTo(destFile);
-
-                // 6. 返回文件访问路径
-                String fileUrl = "/uploads/resumes/" + newFileName;
-                log.info("文件上传成功: {}", fileUrl);
-
-                return ApiResponse.success(fileUrl);
-            } catch (IOException e) {
-                log.error("文件上传失败", e);
-                return ApiResponse.error("文件上传失败: " + e.getMessage());
-            }
-        }
+//        /**
+//         * 上传简历文件
+//         */
+//        @PostMapping("/upload")
+//        public ApiResponse<String> uploadResume(@RequestParam("file") MultipartFile file) {
+//            try {
+//                // 1. 检查文件是否为空
+//                if (file.isEmpty()) {
+//                    return ApiResponse.error("文件不能为空");
+//                }
+//
+//                // 2. 检查文件类型
+//                String originalFilename = file.getOriginalFilename();
+//                String fileExtension = originalFilename.substring(originalFilename.lastIndexOf("."));
+//                String[] allowedTypes = {".pdf", ".doc", ".docx"};
+//                boolean isAllowed = false;
+//                for (String type : allowedTypes) {
+//                    if (type.equalsIgnoreCase(fileExtension)) {
+//                        isAllowed = true;
+//                        break;
+//                    }
+//                }
+//                if (!isAllowed) {
+//                    return ApiResponse.error("只支持 PDF、DOC、DOCX 格式的文件");
+//                }
+//
+//                // 3. 生成新文件名
+//                String newFileName = UUID.randomUUID().toString() + fileExtension;
+//
+//                // 4. 创建上传目录
+//                String uploadDir = uploadPath + "/resumes/";
+//                File dir = new File(uploadDir);
+//                if (!dir.exists()) {
+//                    dir.mkdirs();
+//                }
+//
+//                // 5. 保存文件
+//                File destFile = new File(uploadDir + newFileName);
+//                file.transferTo(destFile);
+//
+//                // 6. 返回文件访问路径
+//                String fileUrl = "/uploads/resumes/" + newFileName;
+//                log.info("文件上传成功: {}", fileUrl);
+//
+//                return ApiResponse.success(fileUrl);
+//            } catch (IOException e) {
+//                log.error("文件上传失败", e);
+//                return ApiResponse.error("文件上传失败: " + e.getMessage());
+//            }
+//        }
     }
 
 
