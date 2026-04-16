@@ -31,7 +31,7 @@ public class ResumeResponse {
     private Integer viewCount;
     private LocalDateTime createTime;
     private LocalDateTime updateTime;
-    
+    private Integer templateId;
     // 详细信息列表
     private List<WorkExperienceDTO> workExperiences;
     private List<EducationDTO> educations;

@@ -14,6 +14,8 @@ public class resumer {
     /** 用户ID（对应 users.user_id） */
     @TableField("user_id")
     private Long userId;
+@TableField("user_key")
+    private Long userkey;
 
     /** 简历名称 */
     @TableField("name")

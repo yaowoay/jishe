@@ -4,8 +4,10 @@ import com.aiinterview.common.BaseResponse;
 import com.aiinterview.model.dto.request.ResumeCreateRequest;
 import com.aiinterview.service.ai.AiResumeService;
 import com.aiinterview.service.resume.ResumeService;
+import com.aiinterview.utils.JwtUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -25,7 +27,8 @@ public class AiResumeController {
 
     private final AiResumeService aiResumeService;
     private final ResumeService resumeService;
-
+    @Autowired
+    private JwtUtils jwtUtils;
     /**
      * 生成简历
      */
@@ -33,27 +36,44 @@ public class AiResumeController {
     public BaseResponse<ResumeLinksResponse> generateResume(
             HttpServletRequest httpRequest,
             @RequestBody AiResumeRequest aiRequest) {
-        String userKey = getUserKeyFromSession(httpRequest);
-        if (userKey == null) {
+
+        // 改为从 JWT Token 获取用户ID
+        Long userId = getUserIdFromToken(httpRequest);
+        if (userId == null) {
             return BaseResponse.error(401, "未登录");
         }
+
         try {
             ResumeCreateRequest resumeRequest;
             if (aiRequest.getJobTitle() != null && !aiRequest.getJobTitle().isEmpty()) {
                 resumeRequest = aiResumeService.generateResumeForJob(
-                    aiRequest.getJobTitle(), 
-                    aiRequest.getUserInfo()
+                        aiRequest.getJobTitle(),
+                        aiRequest.getUserInfo()
                 );
             } else {
                 resumeRequest = aiResumeService.generateResumeFromUserInfo(aiRequest.getUserInfo());
             }
-            // 封装 links 返回
             ResumeLinksResponse linksResponse = ResumeLinksResponse.fromResumeCreateRequest(resumeRequest);
             return BaseResponse.success(linksResponse, "AI生成简历成功");
         } catch (Exception e) {
             log.error("AI生成简历失败", e);
             return BaseResponse.error(500, "AI生成简历失败: " + e.getMessage());
         }
+    }
+
+    // 添加获取用户ID的方法
+    private Long getUserIdFromToken(HttpServletRequest request) {
+        String authHeader = request.getHeader("Authorization");
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            try {
+                String token = authHeader.substring(7);
+                // 根据你的 JWT 工具类获取用户ID
+                return jwtUtils.getUserIdFromToken(token);
+            } catch (Exception e) {
+                log.warn("解析token失败: {}", e.getMessage());
+            }
+        }
+        return null;
     }
 
     /**

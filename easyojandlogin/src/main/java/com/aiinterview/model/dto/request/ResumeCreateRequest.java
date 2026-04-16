@@ -51,7 +51,7 @@ public class ResumeCreateRequest {
 
     /* ================= 模板相关 ================= */
 
-    private Long templateId;
+    private Integer templateId;
 
     @Size(max = 50, message = "模板类型长度不能超过50个字符")
     private String templateType;

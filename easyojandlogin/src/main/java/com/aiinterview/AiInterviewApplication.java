@@ -11,7 +11,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @MapperScan({"com.aiinterview.mapper", "com.aiinterview.repository"})
 public class AiInterviewApplication {
 
+
     public static void main(String[] args) {
         SpringApplication.run(AiInterviewApplication.class, args);
+
     }
 }

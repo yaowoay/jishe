@@ -69,6 +69,14 @@ public class ApplicationController {
 
             log.info("收到简历投递请求: userId={}, jobId={}, resumeId={}", userId, jobId, resumeId);
 
+            // ========== 添加这些打印语句 ==========
+            System.out.println("=== 调试信息 ===");
+            System.out.println("userId: " + userId);
+            System.out.println("jobId: " + jobId);
+            System.out.println("resumeId: " + resumeId);
+            System.out.println("submitDTO: " + submitDTO);
+            // ==================================
+
             // 提交投递申请
             Application application = applicationService.submitApplication(userId, jobId, resumeId);
 
@@ -80,7 +88,6 @@ public class ApplicationController {
             return ApiResponse.error(e.getMessage());
         }
     }
-
     /**
      * 简历筛选打分（独立接口：用于后台分析）
      */

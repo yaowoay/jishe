@@ -1,5 +1,7 @@
 package com.aiinterview.service.impl.application;
 
+import com.aiinterview.mapper.StudentProfileMapper;
+import com.aiinterview.mapper.UserMapper;
 import com.aiinterview.model.dto.applicant.ApplicantDetailDTO;
 import com.aiinterview.model.dto.application.ApplicationDetailDTO;
 import com.aiinterview.constants.ApplicationStatus;
@@ -7,11 +9,14 @@ import com.aiinterview.model.entity.applicant.Applicant;
 import com.aiinterview.model.entity.application.Application;
 import com.aiinterview.mapper.ApplicantMapper;
 import com.aiinterview.mapper.ApplicationMapper;
+import com.aiinterview.model.entity.teacher.StudentProfile;
+import com.aiinterview.model.entity.user.User;
 import com.aiinterview.service.application.ApplicationService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,13 +34,22 @@ public class ApplicationServiceImpl implements ApplicationService {
 
     private final ApplicationMapper applicationMapper;
     private final ApplicantMapper applicantMapper;
+    @Autowired
+    private StudentProfileMapper studentProfileMapper;
 
+    @Autowired
+    private UserMapper userMapper;
     @Override
     @Transactional
     public Application submitApplication(Long userId, Long jobId, Long resumeId) {
         try {
             // 根据userId获取applicantId
             Long applicantId = getApplicantIdByUserId(userId);
+
+            // 如果没有求职者信息，先创建一条
+            if (applicantId == null) {
+                applicantId = createApplicant(userId);
+            }
 
             // 检查是否已投递过该职位
             if (hasAppliedForJob(applicantId, jobId)) {
@@ -44,10 +58,10 @@ public class ApplicationServiceImpl implements ApplicationService {
 
             // 创建申请记录
             Application application = new Application();
-            application.setApplicantId(applicantId);  // 使用applicantId而不是userId
+            application.setApplicantId(applicantId);
             application.setJobId(jobId);
             application.setResumeId(resumeId);
-            application.setStatus("已投递");  // 设置状态为已投递
+            application.setStatus("已投递");
             application.setApplyTime(LocalDateTime.now());
 
             applicationMapper.insert(application);
@@ -61,6 +75,27 @@ public class ApplicationServiceImpl implements ApplicationService {
         }
     }
 
+    // 添加创建求职者的方法
+    /**
+     * 创建求职者（使用 student_profile 表）
+     */
+    private Long createApplicant(Long userId) {
+        Integer userIdInt = userId != null ? userId.intValue() : null;
+
+        // 先从用户表获取用户信息
+        User user = userMapper.selectById(userId);
+
+        StudentProfile studentProfile = new StudentProfile();
+        studentProfile.setUserId(userIdInt);
+        studentProfile.setRealName(user != null ? user.getEmail() : "用户" + userId);
+        studentProfile.setCreatedAt(LocalDateTime.now());
+        studentProfile.setUpdatedAt(LocalDateTime.now());
+
+        studentProfileMapper.insert(studentProfile);
+        log.info("自动创建学生档案: userId={}, studentProfileId={}", userId, studentProfile.getId());
+
+        return studentProfile.getId();
+    }
     @Override
     public List<Application> getApplicationsByUserId(Long userId) {
         try {
@@ -199,20 +234,33 @@ public class ApplicationServiceImpl implements ApplicationService {
     /**
      * 根据用户ID获取求职者ID
      */
+    /**
+     * 根据用户ID获取求职者ID（从 student_profile 表查询）
+     */
     private Long getApplicantIdByUserId(Long userId) {
         try {
-            QueryWrapper<Applicant> queryWrapper = new QueryWrapper<>();
-            queryWrapper.eq("user_id", userId);
-            Applicant applicant = applicantMapper.selectOne(queryWrapper);
-
-            if (applicant == null) {
-                throw new RuntimeException("未找到求职者信息，请先完善个人信息");
+            // 将 Long 转换为 Integer（因为 student_profile 表的 user_id 是 Integer 类型）
+            Integer userIdInt = userId != null ? userId.intValue() : null;
+            if (userIdInt == null) {
+                log.warn("用户ID为空");
+                return null;
             }
 
-            return applicant.getApplicantId();
+            // 从 student_profile 表查询
+            QueryWrapper<StudentProfile> queryWrapper = new QueryWrapper<>();
+            queryWrapper.eq("user_id", userIdInt);
+            StudentProfile studentProfile = studentProfileMapper.selectOne(queryWrapper);
+
+            if (studentProfile == null) {
+                log.warn("未找到学生档案信息，userId={}", userId);
+                return null;
+            }
+
+            // 返回 student_profile 表的 id 作为 applicantId
+            return studentProfile.getId();
         } catch (Exception e) {
-            log.error("根据用户ID获取求职者ID失败: userId={}, error={}", userId, e.getMessage());
-            throw new RuntimeException("获取求职者信息失败: " + e.getMessage());
+            log.error("根据用户ID获取学生档案ID失败: userId={}, error={}", userId, e.getMessage());
+            return null;
         }
     }
 

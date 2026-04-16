@@ -498,7 +498,7 @@ export default {
 
     const uploadUrl = process.env.NODE_ENV === 'production'
       ? '/api/resume/upload'
-      : 'http://localhost:8089/api/resume/upload'
+      : 'http://localhost:8089/api/resumes/upload'
 
     const uploadHeaders = {
       Authorization: `Bearer ${localStorage.getItem('token')}`
@@ -532,32 +532,41 @@ export default {
       }
     }
 
-    // 加载创建的简历列表
     const loadResumes = async () => {
       loading.value = true
       try {
         const res = await getMyResumes()
+        console.log('=== loadResumes 调试 ===')
+        console.log('res:', res)
+        console.log('res.code:', res.code)
+        console.log('res.data:', res.data)
+        console.log('res.data 是数组吗?', Array.isArray(res.data))
+        console.log('res.data 长度:', res.data?.length)
+
         if (res.code === 0 && Array.isArray(res.data)) {
           resumes.value = res.data
+          console.log('赋值后 resumes.value:', resumes.value)
         } else {
           resumes.value = []
+          console.log('进入 else 分支')
           ElMessage.error(res.message || '加载简历列表失败')
         }
       } catch (error) {
+        console.error('Load resumes error:', error)
         resumes.value = []
         ElMessage.error('加载简历列表失败')
-        console.error('Load resumes error:', error)
       } finally {
         loading.value = false
       }
     }
-
     // 加载上传的简历列表
     const loadUploadedResumeList = async () => {
       uploadedLoading.value = true
       try {
         const response = await getResumeList()
-        if (response.success) {
+        // 兼容两种返回格式
+        const isSuccess = response.success === true || response.code === 0
+        if (isSuccess) {
           uploadedResumeList.value = response.data || []
         } else {
           ElMessage.error(response.message || '获取简历列表失败')
@@ -574,7 +583,9 @@ export default {
     const loadApplicationHistory = async () => {
       try {
         const response = await getApplicationHistory()
-        if (response.success) {
+        // 兼容两种返回格式
+        const isSuccess = response.success === true || response.code === 0
+        if (isSuccess) {
           applicationHistory.value = response.data || []
         }
       } catch (error) {

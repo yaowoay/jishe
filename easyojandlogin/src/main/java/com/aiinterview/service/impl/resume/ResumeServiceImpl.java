@@ -47,10 +47,11 @@ public class ResumeServiceImpl implements ResumeService {
         resume.setUserId(userId);
         resume.setIsDefault(false);
         resume.setViewCount(0);
-
+        // 保存简历时
+        resume.setTemplateId(request.getTemplateId());  // 确保这行存在
         resumerMapper.insert(resume);
         saveResumeDetails(resume.getId(), request);
-
+        log.info("保存的 templateId: {}", resume.getTemplateId());  // 添加日志
         return getResumeById(resume.getId(), userId);
     }
 

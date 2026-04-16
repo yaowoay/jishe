@@ -37,7 +37,8 @@ public class ResumeUpdateRequest {
      * 简历模板类型
      */
     private String template;
-    
+
+    private Integer templateId;  // 添加这个字段
     // 详细信息列表
     private List<WorkExperienceDTO> workExperiences;
     private List<EducationDTO> educations;

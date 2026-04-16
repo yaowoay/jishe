@@ -8,6 +8,23 @@ module.exports = defineConfig({
     port: 3001,
     open: true,
     proxy: {
+      // 代理所有后端请求（不需要 /api 前缀）
+      '/resumes': {
+        target: 'http://localhost:8089',
+        changeOrigin: true
+      },
+      '/application': {
+        target: 'http://localhost:8089',
+        changeOrigin: true
+      },
+      '/jobs': {
+        target: 'http://localhost:8089',
+        changeOrigin: true
+      },
+      '/users': {
+        target: 'http://localhost:8089',
+        changeOrigin: true
+      },
       '/api': {
         target: 'http://localhost:8089',
         changeOrigin: true,
@@ -20,6 +37,11 @@ module.exports = defineConfig({
         changeOrigin: true,
         pathRewrite: {
           '^/external-api': '/v1'
+        },
+        // 添加这个 ↓↓↓
+        '/application': {
+          target: 'http://localhost:8089',
+          changeOrigin: true
         }
       }
     }
