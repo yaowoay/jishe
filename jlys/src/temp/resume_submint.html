@@ -234,62 +234,90 @@ function bindEvents() {
 }
 
 /* 处理投递 */
+/* 处理投递 */
 function handleApply() {
     const jobId = this.dataset.jobId;
     const jobTitle = this.dataset.jobTitle;
+    const token = localStorage.getItem('token');
 
-    fetch('/api/get_resumes')
+    if (!token) {
+        alert('请先登录');
+        return;
+    }
+
+    // 1. 获取简历列表（使用正确的接口）
+    fetch('/resumes/list', {
+        headers: {
+            'Authorization': 'Bearer ' + token
+        }
+    })
         .then(r => r.json())
         .then(d => {
-            if (!d.success || d.resumes.length === 0) {
+            // 根据你们后端实际返回格式：{ code: 0, data: [...] }
+            if (d.code !== 0 || !d.data || d.data.length === 0) {
                 alert('请先上传简历');
                 return;
             }
 
-            // 动态生成投递弹窗
-            document.getElementById('modalContainer').innerHTML = `
-                <div class="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-                    <div class="bg-white rounded-lg shadow-xl w-full max-w-md p-6">
-                        <h2 class="text-lg font-bold mb-4">投递简历 - ${jobTitle}</h2>
-                        <form id="submitForm">
-                            <label class="block text-sm font-medium mb-1">选择简历</label>
-                            <select name="resume" class="w-full border rounded-md px-3 py-2 mb-4">
-                                ${d.resumes.map(r => `<option value="${r.id}">${r.filename}</option>`).join('')}
-                            </select>
-                            <div class="flex justify-end space-x-2">
-                                <button type="button" onclick="closeModal()" class="px-4 py-2 border rounded-md hover:bg-gray-100">取消</button>
-                                <button type="submit" class="px-4 py-2 bg-primary text-white rounded-md hover:bg-primary/90">确认投递</button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            `;
+            const resumes = d.data;
 
-            // 提交
+            // 2. 动态生成投递弹窗
+            document.getElementById('modalContainer').innerHTML = `
+            <div class="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+                <div class="bg-white rounded-lg shadow-xl w-full max-w-md p-6">
+                    <h2 class="text-lg font-bold mb-4">投递简历 - ${jobTitle}</h2>
+                    <form id="submitForm">
+                        <label class="block text-sm font-medium mb-1">选择简历</label>
+                        <select name="resume" class="w-full border rounded-md px-3 py-2 mb-4">
+                            ${resumes.map(r => `<option value="${r.id}">${r.name || r.filename || '未命名简历'}</option>`).join('')}
+                        </select>
+                        <div class="flex justify-end space-x-2">
+                            <button type="button" onclick="closeModal()" class="px-4 py-2 border rounded-md hover:bg-gray-100">取消</button>
+                            <button type="submit" class="px-4 py-2 bg-primary text-white rounded-md hover:bg-primary/90">确认投递</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        `;
+
+            // 3. 提交投递（使用正确的接口）
             document.getElementById('submitForm').addEventListener('submit', e => {
                 e.preventDefault();
                 const resumeId = e.target.resume.value;
 
-                fetch('/api/resume_submit', {
+                fetch('/application/submit', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ job_id: jobId, resume_id: resumeId })
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + token
+                    },
+                    body: JSON.stringify({ jobId: parseInt(jobId), resumeId: parseInt(resumeId) })
                 })
                     .then(r => r.json())
                     .then(res => {
-                        if (res.success) {
+                        // 根据你们后端返回格式：{ code: 0, message: '...' }
+                        if (res.code === 0) {
                             alert('投递成功');
-                            submittedJobIds.push(jobId);
-                            renderJobs(originalJobs);
-                            closeModal();
+                            // 刷新页面或更新状态
+                            location.reload();
                         } else {
                             alert(res.message || '投递失败');
                         }
+                    })
+                    .catch(err => {
+                        console.error('投递失败:', err);
+                        alert('投递失败，请重试');
                     });
             });
+        })
+        .catch(err => {
+            console.error('获取简历失败:', err);
+            alert('获取简历失败，请重试');
         });
 }
-
+function closeModal() {
+    document.getElementById('modalContainer').innerHTML = '';
+}
 /* 查看详情 */
 function handleView() {
     const jobId = this.dataset.jobId;

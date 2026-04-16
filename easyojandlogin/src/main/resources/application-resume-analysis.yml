@@ -46,7 +46,7 @@ mybatis-plus:
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
 
 # 数据库连接池配置（如果使用Druid）
-spring:
+
   datasource:
     druid:
       # 初始连接数
@@ -93,7 +93,7 @@ cors:
   allow-credentials: true
 
 # 缓存配置（如果使用Redis）
-spring:
+
   redis:
     host: localhost
     port: 6379

@@ -14,4 +14,5 @@ public class ApplicationSubmitDTO {
     
     @NotNull(message = "简历ID不能为空")
     private Long resumeId;
+    private String coverLetter;  // 可选
 }

@@ -1,15 +1,20 @@
 package com.aiinterview.service.impl.application;
 
+import com.aiinterview.mapper.StudentProfileMapper;
+import com.aiinterview.mapper.UserMapper;
 import com.aiinterview.model.dto.applicant.ApplicantDetailDTO;
 import com.aiinterview.model.dto.application.ApplicationDetailDTO;
 import com.aiinterview.constants.ApplicationStatus;
 import com.aiinterview.model.entity.application.Application;
 import com.aiinterview.mapper.ApplicationMapper;
+import com.aiinterview.model.entity.student.StudentProfile;
+import com.aiinterview.model.entity.user.User;
 import com.aiinterview.service.application.ApplicationService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,7 +32,11 @@ import java.util.stream.Collectors;
 public class ApplicationServiceImpl implements ApplicationService {
 
     private final ApplicationMapper applicationMapper;
+    @Autowired
+    private StudentProfileMapper studentProfileMapper;
 
+    @Autowired
+    private UserMapper userMapper;
     @Override
     @Transactional
     public Application submitApplication(Long userId, Long jobId, Long resumeId) {
@@ -35,11 +44,13 @@ public class ApplicationServiceImpl implements ApplicationService {
             if (hasAppliedForJob(userId, jobId)) {
                 throw new RuntimeException("您已投递过该职位");
             }
+
+            // 创建申请记录
             Application application = new Application();
             application.setUserId(userId);
             application.setJobId(jobId);
             application.setResumeId(resumeId);
-            application.setStatus("pending");
+            application.setStatus("已投递");  // 设置状态为已投递
             application.setApplyTime(LocalDateTime.now());
             applicationMapper.insert(application);
             log.info("简历投递成功: 用户ID={}, 职位ID={}, 简历ID={}", userId, jobId, resumeId);
@@ -50,6 +61,27 @@ public class ApplicationServiceImpl implements ApplicationService {
         }
     }
 
+    // 添加创建求职者的方法
+    /**
+     * 创建求职者（使用 student_profile 表）
+     */
+//    private Long createApplicant(Long userId) {
+//        Integer userIdInt = userId != null ? userId.intValue() : null;
+//
+//        // 先从用户表获取用户信息
+//        User user = userMapper.selectById(userId);
+//
+//        StudentProfile studentProfile = new StudentProfile();
+//        studentProfile.setUserId(userIdInt);
+//        studentProfile.setRealName(user != null ? user.getEmail() : "用户" + userId);
+//        studentProfile.setCreatedAt(LocalDateTime.now());
+//        studentProfile.setUpdatedAt(LocalDateTime.now());
+//
+//        studentProfileMapper.insert(studentProfile);
+//        log.info("自动创建学生档案: userId={}, studentProfileId={}", userId, studentProfile.getId());
+//
+//        return studentProfile.getId();
+//    }
     @Override
     public List<Application> getApplicationsByUserId(Long userId) {
         try {
@@ -80,6 +112,8 @@ public class ApplicationServiceImpl implements ApplicationService {
         try {
             log.info("获取用户投递记录详细信息: userId={}", userId);
             List<ApplicationDetailDTO> details = applicationMapper.selectApplicationDetailsByUserId(userId);
+
+            // 为每个记录设置状态的中文显示名称
             details.forEach(detail -> {
                 detail.setStatusDisplayName(ApplicationStatus.getDisplayName(detail.getStatus()));
             });
@@ -166,6 +200,41 @@ public class ApplicationServiceImpl implements ApplicationService {
         }
     }
 
+    /**
+     * 根据用户ID获取求职者ID
+     */
+    /**
+     * 根据用户ID获取求职者ID（从 student_profile 表查询）
+     */
+//    private Long getApplicantIdByUserId(Long userId) {
+//        try {
+//            // 将 Long 转换为 Integer（因为 student_profile 表的 user_id 是 Integer 类型）
+//            Integer userIdInt = userId != null ? userId.intValue() : null;
+//            if (userIdInt == null) {
+//                log.warn("用户ID为空");
+//                return null;
+//            }
+//
+//            // 从 student_profile 表查询
+//            QueryWrapper<StudentProfile> queryWrapper = new QueryWrapper<>();
+//            queryWrapper.eq("user_id", userIdInt);
+//            StudentProfile studentProfile = studentProfileMapper.selectOne(queryWrapper);
+//
+//            if (studentProfile == null) {
+//                log.warn("未找到学生档案信息，userId={}", userId);
+//                return null;
+//            }
+//
+//            // 返回 student_profile 表的 id 作为 applicantId
+//            return studentProfile.getId();
+//        } catch (Exception e) {
+//            log.error("根据用户ID获取学生档案ID失败: userId={}, error={}", userId, e.getMessage());
+//            return null;
+//        }
+//    }
+
+    // ==================== 企业端方法 ====================
+
     @Override
     public Page<ApplicantDetailDTO> getApplicantsByCompany(Long companyId, int current, int size, String status, String keyword) {
         try {
@@ -173,6 +242,8 @@ public class ApplicationServiceImpl implements ApplicationService {
             Page<ApplicantDetailDTO> page = new Page<>(current, size);
             List<ApplicantDetailDTO> applicants = applicationMapper.selectApplicantsByCompany(page, companyId, status, keyword);
             page.setRecords(applicants);
+
+            log.info("查询到 {} 条应聘者记录", applicants.size());
             return page;
         } catch (Exception e) {
             log.error("企业获取应聘者列表失败: companyId={}, error={}", companyId, e.getMessage());
@@ -188,6 +259,8 @@ public class ApplicationServiceImpl implements ApplicationService {
             if (detail == null) {
                 throw new RuntimeException("应聘者信息不存在或无权限查看");
             }
+
+            log.info("查询应聘者详情成功: applicationId={}", applicationId);
             return detail;
         } catch (Exception e) {
             log.error("企业获取应聘者详情失败: applicationId={}, error={}", applicationId, e.getMessage());
@@ -199,14 +272,21 @@ public class ApplicationServiceImpl implements ApplicationService {
     @Transactional
     public boolean updateApplicationStatusByCompany(Long applicationId, String status, String feedback, Long companyId) {
         try {
+            log.info("企业更新申请状态: applicationId={}, status={}, companyId={}",
+                    applicationId, status, companyId);
+
+            // 验证申请是否属于该公司
             Integer count = applicationMapper.countApplicationByCompany(applicationId, companyId);
             if (count == null || count == 0) {
                 throw new RuntimeException("申请记录不存在或无权限操作");
             }
+
+            // 更新申请状态
             Application application = applicationMapper.selectById(applicationId);
             if (application == null) {
                 throw new RuntimeException("申请记录不存在");
             }
+
             application.setStatus(status);
             application.setFeedback(feedback);
             application.setUpdatedAt(LocalDateTime.now());
@@ -223,16 +303,22 @@ public class ApplicationServiceImpl implements ApplicationService {
     @Transactional
     public boolean setInterviewTime(Long applicationId, LocalDateTime interviewTime, Long companyId) {
         try {
+            log.info("设置面试时间: applicationId={}, interviewTime={}, companyId={}",
+                    applicationId, interviewTime, companyId);
+
+            // 验证申请是否属于该公司
             Integer count = applicationMapper.countApplicationByCompany(applicationId, companyId);
             if (count == null || count == 0) {
                 throw new RuntimeException("申请记录不存在或无权限操作");
             }
+
+            // 更新面试时间
             Application application = applicationMapper.selectById(applicationId);
             if (application == null) {
                 throw new RuntimeException("申请记录不存在");
             }
             application.setInterviewTime(interviewTime);
-            application.setStatus("interview");
+            application.setStatus("interview"); // 设置状态为面试中
             application.setUpdatedAt(LocalDateTime.now());
             applicationMapper.updateById(application);
             log.info("设置面试时间成功: applicationId={}", applicationId);
@@ -247,16 +333,22 @@ public class ApplicationServiceImpl implements ApplicationService {
     @Transactional
     public boolean rejectApplicationWithReason(Long applicationId, String rejectionReason, Long companyId) {
         try {
+            log.info("拒绝申请: applicationId={}, rejectionReason={}, companyId={}",
+                    applicationId, rejectionReason, companyId);
+
+            // 验证申请是否属于该公司
             Integer count = applicationMapper.countApplicationByCompany(applicationId, companyId);
             if (count == null || count == 0) {
                 throw new RuntimeException("申请记录不存在或无权限操作");
             }
+
+            // 更新拒绝原因
             Application application = applicationMapper.selectById(applicationId);
             if (application == null) {
                 throw new RuntimeException("申请记录不存在");
             }
             application.setRejectionReason(rejectionReason);
-            application.setStatus("rejected");
+            application.setStatus("淘汰"); // 设置状态为淘汰
             application.setUpdatedAt(LocalDateTime.now());
             applicationMapper.updateById(application);
             log.info("拒绝申请成功: applicationId={}", applicationId);
