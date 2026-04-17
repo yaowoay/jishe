@@ -119,8 +119,20 @@ public class ResumeController {
         if (userId == null) {
             return BaseResponse.error(401, "未登录");
         }
-        resumeService.deleteResume(resumeId, userId);
-        return BaseResponse.success(null, "简历删除成功");
+
+        // 尝试删除上传的简历（resumes表）
+        boolean deleted = resumeService.deleteUploadedResume(resumeId, userId);
+        if (deleted) {
+            return BaseResponse.success(null, "简历删除成功");
+        }
+
+        // 如果上传简历不存在，尝试删除在线编辑的简历（resume表）
+        try {
+            resumeService.deleteResume(resumeId, userId);
+            return BaseResponse.success(null, "简历删除成功");
+        } catch (Exception e) {
+            return BaseResponse.error(404, "简历不存在");
+        }
     }
 
     @GetMapping("/{resumeId}")

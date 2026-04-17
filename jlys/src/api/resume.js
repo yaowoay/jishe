@@ -35,7 +35,7 @@ export function uploadResume(formData) {
 // 删除简历
 export function deleteResumeById(resumeId) {
   return request({
-    url: `/resume/${resumeId}`,  // 改为 /resume/{id}
+    url: `/resumes/${resumeId}`,  // 修正为 /resumes/{id}
     method: 'delete'
   })
 }

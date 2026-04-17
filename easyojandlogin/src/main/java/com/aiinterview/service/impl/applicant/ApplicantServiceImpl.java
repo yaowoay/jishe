@@ -1,11 +1,10 @@
 package com.aiinterview.service.impl.applicant;
 
-import com.aiinterview.model.dto.applicant.ApplicantProfileDTO;
-import com.aiinterview.mapper.StudentProfileMapper;
 import com.aiinterview.mapper.ResumerMapper;
+import com.aiinterview.mapper.StudentProfileMapper;
+import com.aiinterview.model.dto.applicant.ApplicantProfileDTO;
 import com.aiinterview.model.entity.resumer;
 import com.aiinterview.model.entity.student.StudentProfile;
-import com.aiinterview.model.entity.applicant.Applicant;
 import com.aiinterview.service.applicat.ApplicantService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -14,8 +13,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 /**
  * 求职者信息服务实现类
+ * 修复：已完全移除 Applicant 实体，改用 StudentProfile + Resume + User 组合
  * 说明：使用 resumer 实体对应 resume 表（在线简历编辑）
  *      使用 StudentProfile 实体对应 student_profile 表（学生基本信息）
+ *      使用 user_id 作为唯一标识
  */
 @Slf4j
 @Service
@@ -110,9 +111,9 @@ public class ApplicantServiceImpl implements ApplicantService {
         }
     }
 
-    @Override
-    public Applicant getApplicantEntityByUserId(Long userId) {
-        log.warn("调用已废弃的方法 getApplicantEntityByUserId，Applicant 实体已不再使用");
-        return null;
-    }
+    //@Override
+    //public Applicant getApplicantEntityByUserId(Long userId) {
+        //log.warn("调用已废弃的方法 getApplicantEntityByUserId，Applicant 实体已不再使用");
+        //return null;
+    //}
 }
