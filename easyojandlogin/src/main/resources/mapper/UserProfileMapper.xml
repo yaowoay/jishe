@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.aiinterview.flink.recommend.mapper.UserProfileMapper">
+
+    <select id="selectByUserId" resultType="com.aiinterview.flink.recommend.entity.UserFullProfile">
+        SELECT
+            CAST(COALESCE(sp.user_id, r.user_id) AS SIGNED) AS user_id,
+            r.position AS position,
+            CAST(r.work_years AS SIGNED) AS work_years,
+            r.expected_city AS expected_city,
+            r.expected_salary_min AS expected_salary_min,
+            r.expected_salary_max AS expected_salary_max,
+            r.expected_industry AS expected_industry,
+            sp.major AS major,
+            sp.education_level AS education_level,
+            r.skill AS skills
+        FROM student_profile sp
+        LEFT JOIN (
+            SELECT rr.*
+            FROM resume rr
+            WHERE rr.user_id = #{userId}
+              AND rr.is_deleted = 0
+            ORDER BY rr.is_default DESC, rr.updated_at DESC, rr.id DESC
+            LIMIT 1
+        ) r ON r.user_id = sp.user_id
+        WHERE sp.user_id = #{userId}
+
+        UNION ALL
+
+        SELECT
+            CAST(r.user_id AS SIGNED) AS user_id,
+            r.position AS position,
+            CAST(r.work_years AS SIGNED) AS work_years,
+            r.expected_city AS expected_city,
+            r.expected_salary_min AS expected_salary_min,
+            r.expected_salary_max AS expected_salary_max,
+            r.expected_industry AS expected_industry,
+            NULL AS major,
+            NULL AS education_level,
+            r.skill AS skills
+        FROM (
+            SELECT rr.*
+            FROM resume rr
+            WHERE rr.user_id = #{userId}
+              AND rr.is_deleted = 0
+            ORDER BY rr.is_default DESC, rr.updated_at DESC, rr.id DESC
+            LIMIT 1
+        ) r
+        WHERE NOT EXISTS (
+            SELECT 1
+            FROM student_profile sp2
+            WHERE sp2.user_id = #{userId}
+        )
+    </select>
+
+</mapper>

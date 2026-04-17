@@ -286,7 +286,94 @@
             <version>${jwt.version}</version>
             <scope>runtime</scope>
         </dependency>
-    </dependencies>
+
+            <!-- Flink 核心依赖 -->
+            <dependency>
+                <groupId>org.apache.flink</groupId>
+                <artifactId>flink-java</artifactId>
+                <version>1.14.6</version>
+                <scope>compile</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.flink</groupId>
+                <artifactId>flink-streaming-java_2.12</artifactId>
+                <version>1.14.6</version>
+                <scope>compile</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.flink</groupId>
+                <artifactId>flink-clients_2.12</artifactId>
+                <version>1.14.6</version>
+                <scope>compile</scope>
+            </dependency>
+
+            <!-- 必加：解决 RecordEmitter 找不到 -->
+            <dependency>
+                <groupId>org.apache.flink</groupId>
+                <artifactId>flink-connector-base</artifactId>
+                <version>1.14.6</version>
+                <scope>compile</scope>
+            </dependency>
+
+            <!-- Kafka 连接器 -->
+            <dependency>
+                <groupId>org.apache.flink</groupId>
+                <artifactId>flink-connector-kafka_2.12</artifactId>
+                <version>1.14.6</version>
+                <scope>compile</scope>
+            </dependency>
+
+            <!-- ✅ JDBC 连接器（正确版本） -->
+            <dependency>
+                <groupId>org.apache.flink</groupId>
+                <artifactId>flink-connector-jdbc_2.12</artifactId>
+                <version>1.14.6</version>
+                <scope>compile</scope>
+            </dependency>
+
+            <!-- ✅ MySQL 驱动 -->
+            <dependency>
+                <groupId>mysql</groupId>
+                <artifactId>mysql-connector-java</artifactId>
+                <version>8.0.33</version>
+            </dependency>
+
+        <dependency>
+            <groupId>org.apache.bahir</groupId>
+            <artifactId>flink-connector-redis_2.12</artifactId>
+            <version>1.1.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.ververica</groupId>
+            <artifactId>flink-connector-debezium</artifactId>
+            <version>2.4.2</version>
+        </dependency>
+
+        <!-- 2. MySQL CDC 连接器 (适配 Flink 1.14) -->
+        <dependency>
+            <groupId>com.ververica</groupId>
+            <artifactId>flink-connector-mysql-cdc</artifactId>
+            <version>2.4.2</version>
+        </dependency>
+
+        <!-- 3. Debezium 核心依赖 (通常会被上述连接器自动引入，如果手动添加则版本需匹配) -->
+        <dependency>
+            <groupId>io.debezium</groupId>
+            <artifactId>debezium-core</artifactId>
+            <version>1.9.7.Final</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.flink</groupId>
+            <artifactId>flink-table-planner_2.12</artifactId>
+            <version>1.14.6</version>
+            <!-- 本地运行用 provided，打包提交集群用 compile -->
+            <scope>compile</scope>
+        </dependency>
+        </dependencies>
 
     <build>
         <plugins>

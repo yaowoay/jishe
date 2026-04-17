@@ -78,6 +78,7 @@ public class SecurityConfig {
                 .antMatchers("/applicant-management").permitAll()
                 .antMatchers("/interview-evaluation").permitAll()
                 .antMatchers("/interview-evaluation/**").permitAll()
+                .antMatchers("/recommend/**").permitAll()
 
                 .anyRequest().authenticated()
             .and()

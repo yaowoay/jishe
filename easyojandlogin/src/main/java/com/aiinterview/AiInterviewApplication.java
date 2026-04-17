@@ -8,7 +8,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * AI面试系统启动类
  */
 @SpringBootApplication
-@MapperScan({"com.aiinterview.mapper", "com.aiinterview.repository"})
+@MapperScan({"com.aiinterview.**.mapper", "com.aiinterview.repository"})
 public class AiInterviewApplication {
 
 
