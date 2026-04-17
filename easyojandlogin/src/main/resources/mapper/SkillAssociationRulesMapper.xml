@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.aiinterview.mapper.SkillAssociationRulesMapper">
+
+    <resultMap id="SkillAssociationRuleMap" type="com.aiinterview.entity.SkillAssociationRule">
+        <id column="rule_id" property="ruleId"/>
+        <result column="skill_a" property="skillA"/>
+        <result column="skill_b" property="skillB"/>
+        <result column="support" property="support"/>
+        <result column="confidence" property="confidence"/>
+        <result column="lift" property="lift"/>
+        <result column="created_at" property="createdAt"/>
+    </resultMap>
+
+    <select id="selectAll" resultMap="SkillAssociationRuleMap">
+        SELECT * FROM skill_association_rules ORDER BY confidence DESC, lift DESC
+    </select>
+
+    <select id="selectByDate" resultMap="SkillAssociationRuleMap">
+        SELECT * FROM skill_association_rules WHERE DATE(created_at) = #{date} 
+        ORDER BY confidence DESC, lift DESC
+    </select>
+
+    <select id="selectTopNByConfidence" resultMap="SkillAssociationRuleMap">
+        SELECT * FROM skill_association_rules ORDER BY confidence DESC LIMIT #{topN}
+    </select>
+
+    <select id="selectTopNByLift" resultMap="SkillAssociationRuleMap">
+        SELECT * FROM skill_association_rules ORDER BY lift DESC LIMIT #{topN}
+    </select>
+
+    <select id="selectBySkillA" resultMap="SkillAssociationRuleMap">
+        SELECT * FROM skill_association_rules WHERE skill_a = #{skillA} 
+        ORDER BY confidence DESC
+    </select>
+
+    <select id="selectBySkillB" resultMap="SkillAssociationRuleMap">
+        SELECT * FROM skill_association_rules WHERE skill_b = #{skillB} 
+        ORDER BY confidence DESC
+    </select>
+
+    <select id="selectBySkillPair" resultMap="SkillAssociationRuleMap">
+        SELECT * FROM skill_association_rules WHERE skill_a = #{skillA} AND skill_b = #{skillB}
+    </select>
+
+    <insert id="insert">
+        INSERT INTO skill_association_rules (skill_a, skill_b, support, confidence, lift, created_at)
+        VALUES (#{skillA}, #{skillB}, #{support}, #{confidence}, #{lift}, NOW())
+    </insert>
+
+    <insert id="insertBatch">
+        INSERT INTO skill_association_rules (skill_a, skill_b, support, confidence, lift, created_at)
+        VALUES
+        <foreach collection="rules" item="rule" separator=",">
+            (#{rule.skillA}, #{rule.skillB}, #{rule.support}, #{rule.confidence}, #{rule.lift}, NOW())
+        </foreach>
+    </insert>
+
+    <delete id="delete">
+        DELETE FROM skill_association_rules WHERE rule_id = #{ruleId}
+    </delete>
+
+    <select id="countAll" resultType="long">
+        SELECT COUNT(*) FROM skill_association_rules
+    </select>
+
+</mapper>

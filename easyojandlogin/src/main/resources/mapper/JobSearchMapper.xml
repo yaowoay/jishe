@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.aiinterview.mapper.JobSearchMapper">
+
+    <resultMap id="RecruitmentMap" type="com.aiinterview.entity.Recruitment">
+        <id column="id" property="jobId"/>
+        <result column="position_name" property="positionName"/>
+        <result column="company_name" property="companyName"/>
+        <result column="experience_req" property="experienceReq"/>
+        <result column="education_req" property="educationReq"/>
+        <result column="work_location" property="workLocation"/>
+        <result column="salary_lower" property="salaryLower"/>
+        <result column="salary_upper" property="salaryUpper"/>
+        <result column="avg_salary" property="avgSalary"/>
+        <result column="job_description" property="jobDescription"/>
+        <result column="company_welfare" property="companyWelfare"/>
+        <result column="company_scale" property="companyScale"/>
+        <result column="company_type" property="companyType"/>
+        <result column="city" property="city"/>
+        <result column="district" property="district"/>
+        <result column="province" property="province"/>
+        <result column="publish_time" property="publishTime"/>
+        <result column="status" property="status"/>
+    </resultMap>
+
+    <select id="findRecruitmentsByAdvancedFilters" resultMap="RecruitmentMap">
+        SELECT * FROM recruitmenttable WHERE 1=1
+        <if test="keyword != null and keyword != ''">
+            AND (position_name LIKE CONCAT('%', #{keyword}, '%') 
+                 OR company_name LIKE CONCAT('%', #{keyword}, '%')
+                 OR job_description LIKE CONCAT('%', #{keyword}, '%'))
+        </if>
+        <if test="city != null and city != ''">
+            AND city = #{city}
+        </if>
+        <if test="cities != null and cities.length > 0">
+            AND city IN
+            <foreach collection="cities" item="c" open="(" separator="," close=")">
+                #{c}
+            </foreach>
+        </if>
+        <if test="minSalary != null">
+            AND salary_upper >= #{minSalary}
+        </if>
+        <if test="maxSalary != null">
+            AND salary_lower &lt;= #{maxSalary}
+        </if>
+        <if test="industry != null and industry != ''">
+            AND company_tags LIKE CONCAT('%', #{industry}, '%')
+        </if>
+        <if test="experience != null and experience != ''">
+            AND experience_req LIKE CONCAT('%', #{experience}, '%')
+        </if>
+        <if test="education != null and education != ''">
+            AND education_req LIKE CONCAT('%', #{education}, '%')
+        </if>
+        <if test="companyScale != null and companyScale != ''">
+            AND company_scale = #{companyScale}
+        </if>
+        AND status = 1
+        LIMIT #{offset}, #{limit}
+    </select>
+
+    <select id="countRecruitmentsByAdvancedFilters" resultType="int">
+        SELECT COUNT(*) FROM recruitmenttable WHERE 1=1
+        <if test="keyword != null and keyword != ''">
+            AND (position_name LIKE CONCAT('%', #{keyword}, '%') 
+                 OR company_name LIKE CONCAT('%', #{keyword}, '%')
+                 OR job_description LIKE CONCAT('%', #{keyword}, '%'))
+        </if>
+        <if test="city != null and city != ''">
+            AND city = #{city}
+        </if>
+        <if test="cities != null and cities.length > 0">
+            AND city IN
+            <foreach collection="cities" item="c" open="(" separator="," close=")">
+                #{c}
+            </foreach>
+        </if>
+        <if test="minSalary != null">
+            AND salary_upper >= #{minSalary}
+        </if>
+        <if test="maxSalary != null">
+            AND salary_lower &lt;= #{maxSalary}
+        </if>
+        <if test="industry != null and industry != ''">
+            AND company_tags LIKE CONCAT('%', #{industry}, '%')
+        </if>
+        <if test="experience != null and experience != ''">
+            AND experience_req LIKE CONCAT('%', #{experience}, '%')
+        </if>
+        <if test="education != null and education != ''">
+            AND education_req LIKE CONCAT('%', #{education}, '%')
+        </if>
+        <if test="companyScale != null and companyScale != ''">
+            AND company_scale = #{companyScale}
+        </if>
+        AND status = 1
+    </select>
+
+    <select id="findRecruitmentsByIds" resultMap="RecruitmentMap">
+        SELECT * FROM recruitmenttable WHERE id IN
+        <foreach collection="jobIds" item="jobId" open="(" separator="," close=")">
+            #{jobId}
+        </foreach>
+        AND status = 1
+    </select>
+
+    <select id="findById" resultMap="RecruitmentMap">
+        SELECT * FROM recruitmenttable WHERE id = #{jobId} AND status = 1
+    </select>
+
+    <select id="findAll" resultMap="RecruitmentMap">
+        SELECT * FROM recruitmenttable WHERE status = 1
+    </select>
+
+</mapper>

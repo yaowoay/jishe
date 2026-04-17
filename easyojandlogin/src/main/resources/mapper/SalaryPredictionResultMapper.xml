@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.aiinterview.mapper.SalaryPredictionResultMapper">
+
+    <resultMap id="SalaryPredictionResultMap" type="com.aiinterview.entity.SalaryPredictionResult">
+        <id column="pred_id" property="predId"/>
+        <result column="user_id" property="userId"/>
+        <result column="predicted_salary" property="predictedSalary"/>
+        <result column="salary_range_min" property="salaryRangeMin"/>
+        <result column="salary_range_max" property="salaryRangeMax"/>
+        <result column="confidence_score" property="confidenceScore"/>
+        <result column="created_at" property="createdAt"/>
+    </resultMap>
+
+    <select id="selectAllResults" resultMap="SalaryPredictionResultMap">
+        SELECT * FROM salary_prediction_result ORDER BY created_at DESC
+    </select>
+
+    <select id="selectResultsByDate" resultMap="SalaryPredictionResultMap">
+        SELECT * FROM salary_prediction_result WHERE DATE(created_at) = #{date} 
+        ORDER BY created_at DESC
+    </select>
+
+    <select id="selectResultsByUserId" resultMap="SalaryPredictionResultMap">
+        SELECT * FROM salary_prediction_result WHERE user_id = #{userId} 
+        ORDER BY created_at DESC
+    </select>
+
+    <select id="selectLatestResultByUserId" resultMap="SalaryPredictionResultMap">
+        SELECT * FROM salary_prediction_result WHERE user_id = #{userId} 
+        ORDER BY created_at DESC LIMIT 1
+    </select>
+
+    <insert id="insert">
+        INSERT INTO salary_prediction_result (user_id, predicted_salary, salary_range_min, 
+            salary_range_max, confidence_score, created_at)
+        VALUES (#{userId}, #{predictedSalary}, #{salaryRangeMin}, #{salaryRangeMax}, 
+            #{confidenceScore}, NOW())
+    </insert>
+
+    <insert id="insertBatch">
+        INSERT INTO salary_prediction_result (user_id, predicted_salary, salary_range_min, 
+            salary_range_max, confidence_score, created_at)
+        VALUES
+        <foreach collection="results" item="result" separator=",">
+            (#{result.userId}, #{result.predictedSalary}, #{result.salaryRangeMin}, 
+             #{result.salaryRangeMax}, #{result.confidenceScore}, NOW())
+        </foreach>
+    </insert>
+
+    <delete id="deleteByUserId">
+        DELETE FROM salary_prediction_result WHERE user_id = #{userId}
+    </delete>
+
+    <select id="countAll" resultType="long">
+        SELECT COUNT(*) FROM salary_prediction_result
+    </select>
+
+</mapper>

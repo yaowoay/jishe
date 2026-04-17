@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.aiinterview.mapper.UserActionMapper">
+
+    <resultMap id="UserActionMap" type="com.aiinterview.entity.UserAction">
+        <id column="action_id" property="actionId"/>
+        <result column="user_id" property="userId"/>
+        <result column="action_type" property="actionType"/>
+        <result column="action_target" property="actionTarget"/>
+        <result column="action_time" property="actionTime"/>
+    </resultMap>
+
+    <select id="selectByUserId" resultMap="UserActionMap">
+        SELECT * FROM user_action WHERE user_id = #{userId} ORDER BY action_time DESC
+    </select>
+
+    <select id="selectByUserIdAndTimeRange" resultMap="UserActionMap">
+        SELECT * FROM user_action WHERE user_id = #{userId} 
+        AND action_time BETWEEN #{startTime} AND #{endTime}
+        ORDER BY action_time DESC
+    </select>
+
+    <select id="selectByActionType" resultMap="UserActionMap">
+        SELECT * FROM user_action WHERE action_type = #{actionType} 
+        ORDER BY action_time DESC
+    </select>
+
+    <select id="selectByUserIdAndActionType" resultMap="UserActionMap">
+        SELECT * FROM user_action WHERE user_id = #{userId} AND action_type = #{actionType}
+        ORDER BY action_time DESC
+    </select>
+
+    <select id="selectActionStats" resultMap="UserActionMap">
+        SELECT * FROM user_action WHERE user_id = #{userId} ORDER BY action_time DESC
+    </select>
+
+    <insert id="insert">
+        INSERT INTO user_action (user_id, action_type, action_target, action_time)
+        VALUES (#{userId}, #{actionType}, #{actionTarget}, NOW())
+    </insert>
+
+    <insert id="insertBatch">
+        INSERT INTO user_action (user_id, action_type, action_target, action_time)
+        VALUES
+        <foreach collection="actions" item="action" separator=",">
+            (#{action.userId}, #{action.actionType}, #{action.actionTarget}, NOW())
+        </foreach>
+    </insert>
+
+    <delete id="deleteByUserId">
+        DELETE FROM user_action WHERE user_id = #{userId}
+    </delete>
+
+    <select id="countByUserId" resultType="long">
+        SELECT COUNT(*) FROM user_action WHERE user_id = #{userId}
+    </select>
+
+    <select id="selectActionTypeStats" resultType="map">
+        SELECT action_type, COUNT(*) as count FROM user_action 
+        WHERE user_id = #{userId} GROUP BY action_type
+    </select>
+
+</mapper>

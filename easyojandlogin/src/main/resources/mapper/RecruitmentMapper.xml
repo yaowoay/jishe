@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.aiinterview.mapper.RecruitmentMapper">
+
+    <resultMap id="RecruitmentMap" type="com.aiinterview.entity.Recruitment">
+        <id column="job_id" property="jobId"/>
+        <result column="position_name" property="positionName"/>
+        <result column="company_name" property="companyName"/>
+        <result column="experience_req" property="experienceReq"/>
+        <result column="education_req" property="educationReq"/>
+        <result column="work_location" property="workLocation"/>
+        <result column="salary" property="salary"/>
+        <result column="salary_lower" property="salaryLower"/>
+        <result column="salary_upper" property="salaryUpper"/>
+        <result column="avg_salary" property="avgSalary"/>
+        <result column="job_description" property="jobDescription"/>
+        <result column="company_welfare" property="companyWelfare"/>
+        <result column="company_scale" property="companyScale"/>
+        <result column="company_type" property="companyType"/>
+        <result column="company_tags" property="companyTags"/>
+        <result column="skills_profession" property="skillsProfession"/>
+        <result column="skills_soft" property="skillsSoft"/>
+        <result column="city" property="city"/>
+        <result column="district" property="district"/>
+        <result column="province" property="province"/>
+        <result column="publish_time" property="publishTime"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="status" property="status"/>
+    </resultMap>
+
+    <select id="selectAll" resultMap="RecruitmentMap">
+        SELECT * FROM recruitment WHERE status = 1
+    </select>
+
+    <select id="selectById" resultMap="RecruitmentMap">
+        SELECT * FROM recruitment WHERE job_id = #{jobId}
+    </select>
+
+    <select id="selectByCity" resultMap="RecruitmentMap">
+        SELECT * FROM recruitment WHERE city = #{city} AND status = 1
+    </select>
+
+    <select id="selectByCompany" resultMap="RecruitmentMap">
+        SELECT * FROM recruitment WHERE company_name = #{companyName} AND status = 1
+    </select>
+
+    <select id="selectByPositionName" resultMap="RecruitmentMap">
+        SELECT * FROM recruitment WHERE position_name LIKE CONCAT('%', #{positionName}, '%') AND status = 1
+    </select>
+
+    <select id="selectBySalaryRange" resultMap="RecruitmentMap">
+        SELECT * FROM recruitment 
+        WHERE salary_lower >= #{minSalary} AND salary_upper &lt;= #{maxSalary} AND status = 1
+    </select>
+
+    <insert id="insert">
+        INSERT INTO recruitment (position_name, company_name, experience_req, education_req, 
+            work_location, salary, salary_lower, salary_upper, avg_salary, job_description,
+            company_welfare, company_scale, company_type, company_tags, skills_profession,
+            skills_soft, city, district, province, publish_time, create_time, status)
+        VALUES (#{positionName}, #{companyName}, #{experienceReq}, #{educationReq},
+            #{workLocation}, #{salary}, #{salaryLower}, #{salaryUpper}, #{avgSalary},
+            #{jobDescription}, #{companyWelfare}, #{companyScale}, #{companyType},
+            #{companyTags}, #{skillsProfession}, #{skillsSoft}, #{city}, #{district},
+            #{province}, #{publishTime}, NOW(), 1)
+    </insert>
+
+    <update id="update">
+        UPDATE recruitment SET
+            position_name = #{positionName},
+            company_name = #{companyName},
+            salary_lower = #{salaryLower},
+            salary_upper = #{salaryUpper},
+            avg_salary = #{avgSalary},
+            update_time = NOW()
+        WHERE job_id = #{jobId}
+    </update>
+
+    <delete id="delete">
+        UPDATE recruitment SET status = 0, update_time = NOW() WHERE job_id = #{jobId}
+    </delete>
+
+    <select id="selectPage" resultMap="RecruitmentMap">
+        SELECT * FROM recruitment WHERE status = 1 LIMIT #{offset}, #{limit}
+    </select>
+
+    <select id="countAll" resultType="long">
+        SELECT COUNT(*) FROM recruitment WHERE status = 1
+    </select>
+
+</mapper>
