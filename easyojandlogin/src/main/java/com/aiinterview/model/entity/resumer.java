@@ -61,6 +61,10 @@ public class resumer {
     @TableField("expected_industry")
     private String expectedIndustry;
 
+    /** 技能标签（逗号分隔） */
+    @TableField("skill")
+    private String skill;
+
     /** 个人简介 */
     @TableField("profile")
     private String profile;

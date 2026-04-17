@@ -21,6 +21,7 @@
         <result column="expected_salary_min" property="expectedSalaryMin"/>
         <result column="expected_salary_max" property="expectedSalaryMax"/>
         <result column="expected_industry" property="expectedIndustry"/>
+        <result column="skill" property="skill"/>
         <result column="profile" property="profile"/>
         <result column="template_id" property="templateId"/>
         <result column="template_type" property="templateType"/>
