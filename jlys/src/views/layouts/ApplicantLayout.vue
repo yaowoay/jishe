@@ -99,9 +99,67 @@
               <el-icon size="20"><Notebook /></el-icon>
               <span class="menu-text">AI笔记</span>
             </el-menu-item>
+            <el-sub-menu index="data-analysis">
+              <template #title>
+                <el-icon size="18"><DataAnalysis /></el-icon>
+                <span class="menu-text">数据可视化</span>
+              </template>
+              <el-menu-item index="/applicant/salary-analysis">
+                <el-icon size="18"><TrendCharts /></el-icon>
+                <span class="submenu-text">薪资维度分析</span>
+              </el-menu-item>
+              <el-menu-item index="/applicant/position-analysis">
+                <el-icon size="18"><Position /></el-icon>
+                <span class="submenu-text">岗位维度分析</span>
+              </el-menu-item>
+              <el-menu-item index="/applicant/company-analysis">
+                <el-icon size="18"><OfficeBuilding /></el-icon>
+                <span class="submenu-text">招聘企业分析</span>
+              </el-menu-item>
+              <el-menu-item index="/applicant/skill-rules">
+                <el-icon size="18"><Link /></el-icon>
+                <span class="submenu-text">关联规则分析</span>
+              </el-menu-item>
+            </el-sub-menu>
+            <el-sub-menu index="job-management">
+              <template #title>
+                <el-icon size="18"><Briefcase /></el-icon>
+                <span class="menu-text">职位管理</span>
+              </template>
+              <el-menu-item index="/applicant/intelligent-recommend">
+                <el-icon size="18"><MagicStick /></el-icon>
+                <span class="submenu-text">智能推荐系统</span>
+              </el-menu-item>
+              <el-menu-item index="/applicant/job-list">
+                <el-icon size="18"><Search /></el-icon>
+                <span class="submenu-text">职位列表</span>
+              </el-menu-item>
+              <el-menu-item index="/applicant/salary-predict">
+                <el-icon size="18"><TrendCharts /></el-icon>
+                <span class="submenu-text">薪资预测</span>
+              </el-menu-item>
+            </el-sub-menu>
+            <el-sub-menu index="personal-center">
+              <template #title>
+                <el-icon size="18"><User /></el-icon>
+                <span class="menu-text">个人中心</span>
+              </template>
+              <el-menu-item index="/applicant/my-collections">
+                <el-icon size="18"><Star /></el-icon>
+                <span class="submenu-text">我的收藏</span>
+              </el-menu-item>
+              <el-menu-item index="/applicant/behavior-analysis">
+                <el-icon size="18"><DataAnalysis /></el-icon>
+                <span class="submenu-text">行为分析</span>
+              </el-menu-item>
+            </el-sub-menu>
+            <el-menu-item index="/applicant/visual-screen">
+              <el-icon size="20"><Monitor /></el-icon>
+              <span class="menu-text">可视化大屏</span>
+            </el-menu-item>
             <el-menu-item index="/applicant/profile">
               <el-icon size="20"><Setting /></el-icon>
-              <span class="menu-text">个人中心</span>
+              <span class="menu-text">个人设置</span>
             </el-menu-item>
           </el-menu>
           <div class="aside-spacer"></div>
@@ -184,7 +242,15 @@ import {
   QuestionFilled,
   SwitchButton,
   Monitor,
-  Notebook
+  Notebook,
+  Briefcase,
+  Search,
+  Star,
+  TrendCharts,
+  Position,
+  OfficeBuilding,
+  Link,
+  MagicStick
 } from '@element-plus/icons-vue'
 import { ElMessageBox } from 'element-plus'
 export default {
@@ -206,7 +272,15 @@ export default {
     QuestionFilled,
     SwitchButton,
     Monitor,
-    Notebook
+    Notebook,
+    Briefcase,
+    Search,
+    Star,
+    TrendCharts,
+    Position,
+    OfficeBuilding,
+    Link,
+    MagicStick
   },
   data() {
     return {
@@ -219,7 +293,7 @@ export default {
       const path = this.$route.path
       const routeMap = {
         '/applicant/dashboard': '控制台',
-        '/applicant/profile': '个人中心',
+        '/applicant/profile': '个人设置',
         '/applicant/resume/list': '我的简历',
         '/applicant/resume/analysis': '简历分析',
         '/applicant/resume/match-analysis': '简历匹配分析',
@@ -230,7 +304,17 @@ export default {
         '/applicant/professional-test': '专业题笔试',
         '/applicant/personality-test': '职业性格测评',
         '/applicant/ApplicationVisual': '可视化面板',
-        '/applicant/notes': 'AI笔记'
+        '/applicant/notes': 'AI笔记',
+        '/applicant/salary-analysis': '薪资维度分析',
+        '/applicant/position-analysis': '岗位维度分析',
+        '/applicant/company-analysis': '招聘企业分析',
+        '/applicant/skill-rules': '关联规则分析',
+        '/applicant/intelligent-recommend': '智能推荐系统',
+        '/applicant/job-list': '职位列表',
+        '/applicant/salary-predict': '薪资预测',
+        '/applicant/my-collections': '我的收藏',
+        '/applicant/behavior-analysis': '行为分析',
+        '/applicant/visual-screen': '可视化大屏'
       }
 
       // 处理动态路由

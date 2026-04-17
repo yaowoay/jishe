@@ -197,6 +197,70 @@ const routes = [
         path: 'notes',
         name: 'ApplicantNotes',
         component: () => import('@/components/functions/Notes/NoteBooks.vue')
+      },
+      // 数据可视化模块
+      {
+        path: 'salary-analysis',
+        name: 'SalaryAnalysis',
+        component: () => import('@/views/dataAnalysis/SalaryDistribution.vue'),
+        meta: { title: '薪资维度分析', icon: 'el-icon-trend-charts' }
+      },
+      {
+        path: 'position-analysis',
+        name: 'PositionAnalysis',
+        component: () => import('@/views/dataAnalysis/EduRequirement.vue'),
+        meta: { title: '岗位维度分析', icon: 'el-icon-position' }
+      },
+      {
+        path: 'company-analysis',
+        name: 'CompanyAnalysis',
+        component: () => import('@/views/dataAnalysis/CompanyAnalysis.vue'),
+        meta: { title: '招聘企业分析', icon: 'el-icon-office-building' }
+      },
+      {
+        path: 'skill-rules',
+        name: 'SkillRules',
+        component: () => import('@/views/dataAnalysis/SkillAssociationRules.vue'),
+        meta: { title: '关联规则分析', icon: 'el-icon-link' }
+      },
+      // 职位管理模块
+      {
+        path: 'intelligent-recommend',
+        name: 'IntelligentRecommend',
+        component: () => import('@/views/jobManagement/IntelligentRecommendationSimple.vue'),
+        meta: { title: '智能推荐系统', icon: 'el-icon-magic-stick' }
+      },
+      {
+        path: 'job-list',
+        name: 'JobListPage',
+        component: () => import('@/views/jobManagement/JobList.vue'),
+        meta: { title: '职位列表', icon: 'el-icon-search' }
+      },
+      {
+        path: 'salary-predict',
+        name: 'SalaryPredict',
+        component: () => import('@/views/jobManagement/SalaryPrediction.vue'),
+        meta: { title: '薪资预测', icon: 'el-icon-trend-charts' }
+      },
+      // 个人中心模块
+      {
+        path: 'my-collections',
+        name: 'MyCollectionsPage',
+        component: () => import('@/views/personalCenter/MyCollections.vue'),
+        meta: { title: '我的收藏', icon: 'el-icon-star-on' }
+      },
+      {
+        path: 'behavior-analysis',
+        name: 'BehaviorAnalysisPage',
+        component: () => import('@/views/personalCenter/UserBehaviorDashboard.vue'),
+        meta: { title: '行为分析', icon: 'el-icon-data-analysis' }
+      },
+      // 可视化大屏
+      {
+        path: 'visual-screen',
+        name: 'VisualScreen',
+        component: () => import('@/views/visualScreen/VisualScreen.vue'),
+        meta: { title: '可视化大屏', icon: 'el-icon-monitor' }
       }
       // {
       //   path: 'exam-center/:applicationId/:jobId',
