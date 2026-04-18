@@ -40,6 +40,7 @@ public class SecurityConfig {
             .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             .and()
             .authorizeRequests()
+                .antMatchers("/**/auth/**").permitAll()
                 // 认证相关路径 - 最重要，放在最前面
                 .antMatchers("/auth/**").permitAll()
                 // 简历相关路径 - 允许上传
