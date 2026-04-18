@@ -1,7 +1,7 @@
 server:
   port: 8089
   servlet:
-    context-peslintath: /api
+    context-path: /api
   tomcat:
     uri-encoding: UTF-8
     threads:
@@ -17,9 +17,7 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://localhost:3306/ai_interview_v2?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
     username: root
-    password: 12345
-
-    # Druid连接池配置
+    password: QAQ.1117    # Druid连接池配置
     type: com.alibaba.druid.pool.DruidDataSource
     druid:
       initial-size: 5
@@ -100,6 +98,22 @@ mybatis-plus:
   configuration:
     map-underscore-to-camel-case: true
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+# Dify API 配置
+dify:
+  exam:
+    api:
+      base-url: "https://api.dify.ai/v1"
+      auth-token: "app-NgAYdZAp7nQYBJ8tXefhtnn0"
+  interview:
+    api:
+      base-url: "https://api.dify.ai/v1"
+      auth-token: "app-your-interview-token"
+
+# 答案缓存配置
+answer:
+  cache:
+    expiration-minutes: 120
     cache-enabled: true
     lazy-loading-enabled: true
     multiple-result-sets-enabled: true
