@@ -3,7 +3,8 @@ module.exports = {
   env: {
     node: true,
     browser: true,
-    es2021: true
+    es2021: true,
+    'vue/setup-compiler-macros': true  // 添加这一行
   },
   extends: [
     'plugin:vue/vue3-essential',
@@ -12,6 +13,17 @@ module.exports = {
   parserOptions: {
     ecmaVersion: 2020,
     sourceType: 'module'
+  },
+  globals: {
+    defineProps: 'readonly',   // 添加
+    defineEmits: 'readonly',   // 添加
+    defineExpose: 'readonly',  // 添加
+    defineOptions: 'readonly', // 添加
+    defineSlots: 'readonly',   // 添加
+    withDefaults: 'readonly' ,  // 添加
+    skillAssociationRulesAPI: 'readonly',
+    api: 'readonly',
+    userBehaviorAPI: 'readonly'
   },
   rules: {
     'no-console': process.env.NODE_ENV === 'production' ? 'warn' : 'off',

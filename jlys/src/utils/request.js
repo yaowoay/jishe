@@ -4,7 +4,7 @@ import router from '@/router'
 
 // 创建axios实例
 const service = axios.create({
-  baseURL: '/api', // 使用相对路径，让代理处理
+  baseURL: 'http://localhost:8089', // 使用相对路径，让代理处理
   timeout: 120000, // 增加到120秒，适应AI生成时间
   headers: {
     'Content-Type': 'application/json;charset=UTF-8'

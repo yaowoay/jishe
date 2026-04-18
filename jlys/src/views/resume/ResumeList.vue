@@ -498,7 +498,7 @@ export default {
 
     const uploadUrl = process.env.NODE_ENV === 'production'
       ? '/api/resume/upload'
-      : 'http://localhost:8089/api/resumes/upload'
+      : 'http://localhost:8089/resume/upload'
 
     const uploadHeaders = {
       Authorization: `Bearer ${localStorage.getItem('token')}`
@@ -564,10 +564,12 @@ export default {
       uploadedLoading.value = true
       try {
         const response = await getResumeList()
+        console.log('获取列表返回:', response)  // 👈 看返回什么
         // 兼容两种返回格式
         const isSuccess = response.success === true || response.code === 0
         if (isSuccess) {
           uploadedResumeList.value = response.data || []
+          console.log('更新后的列表:', uploadedResumeList.value)  // 👈 看数据
         } else {
           ElMessage.error(response.message || '获取简历列表失败')
         }
@@ -624,7 +626,7 @@ export default {
           try {
             await deleteResume(resume.id)
             ElMessage.success('删除成功')
-            loadResumes()
+            loadUploadedResumeList()
           } catch (e) {
             ElMessage.error('删除失败')
           }
@@ -633,7 +635,7 @@ export default {
         try {
           await copyResume(resume.id)
           ElMessage.success('复制成功')
-          loadResumes()
+          loadUploadedResumeList()
         } catch (e) {
           ElMessage.error('复制失败')
         }
@@ -648,6 +650,17 @@ export default {
           }
         } catch (e) {
           ElMessage.error('生成分享链接失败')
+        }
+        try {
+          const result = await deleteResume(resume.id)  // 接收返回值
+          console.log('删除返回结果:', result)  // 👈 看返回什么
+          console.log('删除的ID:', resume.id)
+          ElMessage.success('删除成功')
+          await loadUploadedResumeList()  // 等待刷新完成
+          console.log('刷新后的列表:', uploadedResumeList.value)  // 👈 看列表是否更新
+        } catch (e) {
+          console.error('删除失败:', e)
+          ElMessage.error('删除失败')
         }
       }
     }

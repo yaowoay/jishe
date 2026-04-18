@@ -398,15 +398,21 @@ export default {
   height: 100vh;
   background: #ffffff;
   border-right: 1px solid #e6f1ff;
-  overflow: hidden;
+  /* 👇 修改这里：允许滚动 */
+  overflow-y: auto;
+  overflow-x: hidden;
   display: flex;
   flex-direction: column;
 }
-
+/* 👇 新增：美化滚动条 */
+.aside::-webkit-scrollbar {
+  width: 6px;
+}
 /* 用户信息卡片 */
 .aside-user-section {
   padding: 20px 16px;
   border-bottom: 1px solid #e6f1ff;
+  flex-shrink: 0;  /* 👈 不压缩，固定显示 */
 }
 
 .aside-user-card {
@@ -461,13 +467,20 @@ export default {
   font-weight: 500;
 }
 
-/* 菜单样式 */
+/* 菜单区域 - 可滚动 */
 .aside-menu {
-  flex: 1;
+  flex: 1;  /* 👈 占据剩余空间 */
   border: none;
   padding: 0 8px;
+  /* 👇 确保菜单内部也可以滚动 */
+  overflow-y: visible;
 }
 
+/* 底部空白区域 - 不占用滚动空间 */
+.aside-spacer {
+  flex-shrink: 0;
+  height: 20px;
+}
 :deep(.aside-menu .el-menu-item),
 :deep(.aside-menu .el-sub-menu__title) {
   height: 48px;
@@ -627,7 +640,8 @@ export default {
 .main-content {
   padding: 24px;
   background: transparent;
-  overflow-y: auto;
+  overflow-y: auto;     /* 关键：内容区域滚动 */
+  height: calc(100vh - 64px);  /* 减去头部高度 */
 }
 
 /* 响应式设计 */
@@ -658,6 +672,10 @@ export default {
 
   .main-content {
     padding: 16px;
+    background: transparent;
+    overflow-y: auto;
+    overflow-x: hidden;/* 内容区域自己滚动 */
+    height: 100vh;
   }
 
   .breadcrumb {
