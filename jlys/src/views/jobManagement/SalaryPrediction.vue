@@ -289,7 +289,7 @@ import {
   TrendCharts, Refresh, Download, User
 } from '@element-plus/icons-vue'
 import * as echarts from 'echarts'
-import { salaryPredictionAPI } from '@/services/api'
+import * as salaryPredictionAPI from '@/api/salaryPrediction'
 
 // 响应式数据
 const predicting = ref(false)

@@ -303,6 +303,7 @@ import {
   Link, Refresh, Download, TrendCharts, DataAnalysis, Star, ArrowRight, Search
 } from '@element-plus/icons-vue'
 import * as echarts from 'echarts'
+import * as skillAssociationRulesAPI from '@/api/skillAssociationRules'
 
 // 响应式数据
 const loading = ref(false)
