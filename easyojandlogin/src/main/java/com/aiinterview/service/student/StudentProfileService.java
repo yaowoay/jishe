@@ -1,6 +1,6 @@
 package com.aiinterview.service.student;
 
-import com.aiinterview.model.dto.StudentProfileRequest;
+import com.aiinterview.model.dto.student.StudentProfileRequest;
 import com.aiinterview.model.entity.student.StudentProfile;
 
 /**

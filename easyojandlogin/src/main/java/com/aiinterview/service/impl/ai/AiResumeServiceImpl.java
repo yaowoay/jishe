@@ -1,10 +1,10 @@
 package com.aiinterview.service.impl.ai;
 
+import com.aiinterview.model.dto.resume.*;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.aiinterview.model.dto.*;
-import com.aiinterview.model.dto.request.ResumeCreateRequest;
+import com.aiinterview.model.dto.resume.ResumeCreateRequest;
 import com.aiinterview.service.ai.AiResumeService;
 import com.aiinterview.utils.ResumeGeneration;
 import lombok.extern.slf4j.Slf4j;

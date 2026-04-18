@@ -3,7 +3,7 @@
 
 <mapper namespace="com.aiinterview.mapper.JobRecommendationMapper">
 
-    <resultMap id="JobRecommendationMap" type="com.aiinterview.entity.JobRecommendation">
+    <resultMap id="JobRecommendationMap" type="com.aiinterview.model.entity.JobRecommendation">
         <id column="rec_id" property="recId"/>
         <result column="user_id" property="userId"/>
         <result column="job_id" property="jobId"/>

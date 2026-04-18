@@ -1,6 +1,6 @@
 package com.aiinterview.service;
 
-import com.aiinterview.entity.Recruitment;
+import com.aiinterview.model.entity.job.Recruitment;
 import java.util.List;
 
 /**

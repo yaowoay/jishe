@@ -1,6 +1,6 @@
 package com.aiinterview.service.impl;
 
-import com.aiinterview.entity.SkillAssociationRule;
+import com.aiinterview.model.entity.SkillAssociationRule;
 import com.aiinterview.mapper.SkillAssociationRulesMapper;
 import com.aiinterview.service.SkillAssociationRulesService;
 import org.springframework.beans.factory.annotation.Autowired;

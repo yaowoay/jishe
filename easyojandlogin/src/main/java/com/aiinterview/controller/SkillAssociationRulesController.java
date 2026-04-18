@@ -2,7 +2,7 @@ package com.aiinterview.controller;
 
 import com.aiinterview.common.BaseResponse;
 import com.aiinterview.common.ResultUtils;
-import com.aiinterview.entity.SkillAssociationRule;
+import com.aiinterview.model.entity.SkillAssociationRule;
 import com.aiinterview.service.SkillAssociationRulesService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;

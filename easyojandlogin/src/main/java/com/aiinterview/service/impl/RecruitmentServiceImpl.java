@@ -1,6 +1,6 @@
 package com.aiinterview.service.impl;
 
-import com.aiinterview.entity.Recruitment;
+import com.aiinterview.model.entity.job.Recruitment;
 import com.aiinterview.mapper.RecruitmentMapper;
 import com.aiinterview.service.RecruitmentService;
 import org.springframework.beans.factory.annotation.Autowired;

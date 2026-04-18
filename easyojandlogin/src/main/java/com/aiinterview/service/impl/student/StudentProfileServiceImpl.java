@@ -2,7 +2,7 @@ package com.aiinterview.service.impl.student;
 
 import com.aiinterview.mapper.StudentProfileMapper;
 import com.aiinterview.mapper.UserMapper;
-import com.aiinterview.model.dto.StudentProfileRequest;
+import com.aiinterview.model.dto.student.StudentProfileRequest;
 import com.aiinterview.model.entity.student.StudentProfile;
 import com.aiinterview.model.entity.user.User;
 import com.aiinterview.service.student.StudentProfileService;

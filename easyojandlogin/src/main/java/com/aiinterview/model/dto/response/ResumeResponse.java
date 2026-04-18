@@ -1,6 +1,6 @@
 package com.aiinterview.model.dto.response;
 
-import com.aiinterview.model.dto.*;
+import com.aiinterview.model.dto.resume.*;
 import lombok.Data;
 import java.time.LocalDateTime;
 import java.util.List;

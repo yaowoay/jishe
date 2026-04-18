@@ -1,6 +1,6 @@
 package com.aiinterview.service;
 
-import com.aiinterview.entity.UserAction;
+import com.aiinterview.model.entity.student.UserAction;
 import java.util.List;
 import java.util.Map;
 

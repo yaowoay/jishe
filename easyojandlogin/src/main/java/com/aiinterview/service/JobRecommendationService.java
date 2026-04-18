@@ -1,6 +1,6 @@
 package com.aiinterview.service;
 
-import com.aiinterview.entity.JobRecommendation;
+import com.aiinterview.model.entity.JobRecommendation;
 import java.util.List;
 
 /**

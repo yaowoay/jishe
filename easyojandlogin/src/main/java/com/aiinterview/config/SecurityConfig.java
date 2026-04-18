@@ -40,6 +40,7 @@ public class SecurityConfig {
             .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             .and()
             .authorizeRequests()
+                .antMatchers("/api/**").permitAll()
                 .antMatchers("/**/auth/**").permitAll()
                 // 认证相关路径 - 最重要，放在最前面
                 .antMatchers("/auth/**").permitAll()

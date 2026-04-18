@@ -1,8 +1,8 @@
 package com.aiinterview.controller;
 
 import com.aiinterview.model.dto.api.ApiResponse;
-import com.aiinterview.model.dto.LoginRequest;
-import com.aiinterview.model.dto.RegisterRequest;
+import com.aiinterview.model.dto.request.LoginRequest;
+import com.aiinterview.model.dto.request.RegisterRequest;
 import com.aiinterview.model.entity.user.User;
 import com.aiinterview.service.user.UserService;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +20,6 @@ import java.util.Map;
 @RestController
 @RequestMapping("/auth")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "*")
 public class AuthController {
 
     private final UserService userService;

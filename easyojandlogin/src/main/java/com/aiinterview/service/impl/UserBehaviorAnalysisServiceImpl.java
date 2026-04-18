@@ -1,6 +1,6 @@
 package com.aiinterview.service.impl;
 
-import com.aiinterview.entity.UserAction;
+import com.aiinterview.model.entity.student.UserAction;
 import com.aiinterview.mapper.UserActionMapper;
 import com.aiinterview.service.UserBehaviorAnalysisService;
 import org.springframework.beans.factory.annotation.Autowired;

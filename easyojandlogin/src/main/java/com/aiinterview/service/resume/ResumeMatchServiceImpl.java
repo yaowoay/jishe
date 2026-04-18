@@ -2,9 +2,9 @@ package com.aiinterview.service.resume;
 
 import cn.hutool.json.JSONUtil;
 import com.aiinterview.model.dto.resume.ResumeMatchRequest;
-import com.aiinterview.service.dify.DifyFileUploadService;
-import com.aiinterview.service.dify.vo.FileInfo;
-import com.aiinterview.service.dify.vo.FileItem;
+import com.aiinterview.service.ai.dify.DifyFileUploadService;
+import com.aiinterview.service.ai.dify.vo.FileInfo;
+import com.aiinterview.service.ai.dify.vo.FileItem;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.MediaType;

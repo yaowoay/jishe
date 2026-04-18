@@ -1,6 +1,6 @@
 package com.aiinterview.service.impl;
 
-import com.aiinterview.entity.SalaryPredictionResult;
+import com.aiinterview.model.entity.SalaryPredictionResult;
 import com.aiinterview.mapper.SalaryPredictionResultMapper;
 import com.aiinterview.service.SalaryPredictionService;
 import org.springframework.beans.factory.annotation.Autowired;

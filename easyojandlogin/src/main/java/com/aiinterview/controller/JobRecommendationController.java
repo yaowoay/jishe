@@ -2,7 +2,7 @@ package com.aiinterview.controller;
 
 import com.aiinterview.common.BaseResponse;
 import com.aiinterview.common.ResultUtils;
-import com.aiinterview.entity.JobRecommendation;
+import com.aiinterview.model.entity.JobRecommendation;
 import com.aiinterview.service.JobRecommendationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;

@@ -1,7 +1,7 @@
 package com.aiinterview.service.user;
 
-import com.aiinterview.model.dto.LoginRequest;
-import com.aiinterview.model.dto.RegisterRequest;
+import com.aiinterview.model.dto.request.LoginRequest;
+import com.aiinterview.model.dto.request.RegisterRequest;
 import com.aiinterview.model.entity.user.User;
 
 /**

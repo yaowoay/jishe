@@ -1,6 +1,6 @@
 package com.aiinterview.mapper;
 
-import com.aiinterview.entity.UserJobCollection;
+import com.aiinterview.model.entity.student.UserJobCollection;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import java.util.List;

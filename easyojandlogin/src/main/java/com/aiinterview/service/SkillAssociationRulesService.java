@@ -1,6 +1,6 @@
 package com.aiinterview.service;
 
-import com.aiinterview.entity.SkillAssociationRule;
+import com.aiinterview.model.entity.SkillAssociationRule;
 import java.util.List;
 
 /**

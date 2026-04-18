@@ -1,6 +1,6 @@
 package com.aiinterview.mapper;
 
-import com.aiinterview.entity.SkillAssociationRule;
+import com.aiinterview.model.entity.SkillAssociationRule;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import java.util.List;

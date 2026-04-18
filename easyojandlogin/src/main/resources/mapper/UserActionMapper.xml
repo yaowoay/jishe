@@ -3,7 +3,7 @@
 
 <mapper namespace="com.aiinterview.mapper.UserActionMapper">
 
-    <resultMap id="UserActionMap" type="com.aiinterview.entity.UserAction">
+    <resultMap id="UserActionMap" type="com.aiinterview.model.entity.student.UserAction">
         <id column="action_id" property="actionId"/>
         <result column="user_id" property="userId"/>
         <result column="action_type" property="actionType"/>

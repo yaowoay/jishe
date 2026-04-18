@@ -1,6 +1,6 @@
 package com.aiinterview.service.ai;
 
-import com.aiinterview.model.dto.request.ResumeCreateRequest;
+import com.aiinterview.model.dto.resume.ResumeCreateRequest;
 
 /**
  * AI简历生成服务接口

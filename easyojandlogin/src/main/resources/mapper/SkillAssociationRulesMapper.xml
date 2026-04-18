@@ -3,7 +3,7 @@
 
 <mapper namespace="com.aiinterview.mapper.SkillAssociationRulesMapper">
 
-    <resultMap id="SkillAssociationRuleMap" type="com.aiinterview.entity.SkillAssociationRule">
+    <resultMap id="SkillAssociationRuleMap" type="com.aiinterview.model.entity.SkillAssociationRule">
         <id column="rule_id" property="ruleId"/>
         <result column="skill_a" property="skillA"/>
         <result column="skill_b" property="skillB"/>

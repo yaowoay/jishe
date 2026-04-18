@@ -1,6 +1,6 @@
 package com.aiinterview.service;
 
-import com.aiinterview.entity.SalaryPredictionResult;
+import com.aiinterview.model.entity.SalaryPredictionResult;
 import java.util.List;
 
 /**

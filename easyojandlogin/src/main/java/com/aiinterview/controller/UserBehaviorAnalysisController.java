@@ -2,7 +2,7 @@ package com.aiinterview.controller;
 
 import com.aiinterview.common.BaseResponse;
 import com.aiinterview.common.ResultUtils;
-import com.aiinterview.entity.UserAction;
+import com.aiinterview.model.entity.student.UserAction;
 import com.aiinterview.service.UserBehaviorAnalysisService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;

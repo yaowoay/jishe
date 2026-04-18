@@ -2,7 +2,7 @@ package com.aiinterview.controller;
 
 import com.aiinterview.common.BaseResponse;
 import com.aiinterview.common.ResultUtils;
-import com.aiinterview.entity.SalaryPredictionResult;
+import com.aiinterview.model.entity.SalaryPredictionResult;
 import com.aiinterview.service.SalaryPredictionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;

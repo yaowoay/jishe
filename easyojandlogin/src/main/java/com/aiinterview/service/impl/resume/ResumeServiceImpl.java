@@ -2,10 +2,10 @@ package com.aiinterview.service.impl.resume;
 
 import com.aiinterview.exception.BusinessException;
 import com.aiinterview.mapper.*;
-import com.aiinterview.model.dto.*;
-import com.aiinterview.model.dto.request.ResumeCreateRequest;
-import com.aiinterview.model.dto.request.ResumeUpdateRequest;
+import com.aiinterview.model.dto.resume.ResumeCreateRequest;
+import com.aiinterview.model.dto.resume.ResumeUpdateRequest;
 import com.aiinterview.model.dto.response.ResumeResponse;
+import com.aiinterview.model.dto.resume.*;
 import com.aiinterview.model.entity.*;
 import com.aiinterview.model.entity.resume.Resume;
 import com.aiinterview.service.resume.ResumeService;

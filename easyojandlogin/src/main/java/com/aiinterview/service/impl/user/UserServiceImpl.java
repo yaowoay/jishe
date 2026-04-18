@@ -1,8 +1,8 @@
 package com.aiinterview.service.impl.user;
 
 import com.aiinterview.mapper.*;
-import com.aiinterview.model.dto.LoginRequest;
-import com.aiinterview.model.dto.RegisterRequest;
+import com.aiinterview.model.dto.request.LoginRequest;
+import com.aiinterview.model.dto.request.RegisterRequest;
 import com.aiinterview.model.entity.user.User;
 import com.aiinterview.service.user.UserService;
 import com.aiinterview.utils.JwtUtils;

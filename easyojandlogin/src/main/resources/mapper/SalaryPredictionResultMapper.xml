@@ -3,7 +3,7 @@
 
 <mapper namespace="com.aiinterview.mapper.SalaryPredictionResultMapper">
 
-    <resultMap id="SalaryPredictionResultMap" type="com.aiinterview.entity.SalaryPredictionResult">
+    <resultMap id="SalaryPredictionResultMap" type="com.aiinterview.model.entity.SalaryPredictionResult">
         <id column="pred_id" property="predId"/>
         <result column="user_id" property="userId"/>
         <result column="predicted_salary" property="predictedSalary"/>

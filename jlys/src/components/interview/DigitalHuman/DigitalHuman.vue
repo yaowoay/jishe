@@ -274,24 +274,24 @@ function setSDKEvenet() {
   if (avatarPlatform2 != null) {
     avatarPlatform2
       .on(SDKEvents.connected, function (initResp) {
-        console.log('✅ 数字人SDK连接成功:', initResp)
+        console.log('数字人SDK连接成功:', initResp)
         sdkConnected.value = true
       })
       .on(SDKEvents.stream_start, function () {
-        console.log('✅ 数字人流媒体开始')
+        console.log('数字人流媒体开始')
       })
       .on(SDKEvents.disconnected, function (err) {
-        console.log('❌ 数字人SDK断开连接:', err)
+        console.log('数字人SDK断开连接:', err)
         sdkConnected.value = false
       })
       .on(SDKEvents.tts_start, function () {
-        console.log('🔊 TTS开始播放')
+        console.log('TTS开始播放')
       })
       .on(SDKEvents.tts_end, function () {
-        console.log('🔇 TTS播放结束')
+        console.log('TTS播放结束')
       })
       .on(SDKEvents.error, function (error) {
-        console.error('❌ 数字人SDK错误:', error)
+        console.error('数字人SDK错误:', error)
       })
       .on(SDKEvents.nlp, function (nlpData) {
         console.log('语义理解内容nlp:', nlpData)
@@ -357,11 +357,11 @@ function SetApiInfo2() {
     console.warn('数字人API配置不完整，使用默认配置进行测试')
     // 使用硬编码的测试配置
     const params = {
-      appId: 'f17c4801',
-      apiKey: '2f9b00fae64ab6db2dd7c8fd34e0aea2',
-      apiSecret: 'N2E1MTc0ZTRiNmJkNDc1ZWM5NGRiNDE2',
+      appId: '79e7ff4f',
+      apiKey: 'bd87246792bcdcf41d778ffed9c3445b',
+      apiSecret: 'MWU5ODQ4MWZlYTRhZjJhOTZkZWFmZjY3',
       serverUrl: 'wss://avatar.cn-huadong-1.xf-yun.com/v1/interact',
-      sceneId: '214767895530573824'
+      sceneId: '303724129247432704'
 
     }
 
@@ -402,8 +402,10 @@ function SetGlobalParams() {
       avatar_dispatch: { interactive_mode: 0 },
       subtitle: { subtitle: 0, font_color: '#FFFFFF', font_name: 'Sanji.Suxian.Simple', position_x: 100, position_y: 0, font_size: 10, width: 100, height: 100 },
       background: { // 背景信息
-        type: 'url', // （非必传）上传图片的类型，支持url以及res_key。（res_key请到交互平台-素材管理-背景中上传获取)
-        data: 'https://aicloudfile.xfyousheng.com/api/v1/comuptfm/7Yfq8Hwi8YrQzbaa7TNjz5Zodbfl9cfl7SeayHVvycRY9c0pzI8QebNYeI1c?authorization=c2ltcGxlLWp3dCBhaz1qamZpc2QwdXUwNXVqaGozdTQwaWc7ZXhwPTIwNjg2NTAwMzQ7YWxnbz1obWFjLXNoYTI1NjtzaWc9elpxblQvYjV4REUxN1dsNllSTmpSdk14VU5UaytrVWhJTFVZZVlScjF6Yz0=' // （非必传）图片的值，当type='url'时,data='http://xxx/xxx.png'，当type='res_key'时，data='res_key值'（res_key请到交互平台-素材管理-背景中上传获取)
+        type:'res_key',
+        data:'22SLM2teIw+aqR6Xsm2JbH6Ng310kDam2NiCY/RQ9n6s3nYJXloZWW1l64/g32vrn7d2lJQR7m9xD5EHYkVs113K3Jn2eluAuk73uTvKcJdksdXt2yfIwz3STXfvn3FPjR/aFKuaVBhrW3YyYPbIV8nsEi4/6H6X8Pr39Nu9Fu4iFlRTp3qUZ0JmsqdkP3yZIYHfMfWiljAyC4FuBCg0Y4idpMWA5hv9XJz75jD6UzebjCRMLBV4lFLeGyw9X+UiPt3dKB/2wqz2VkNBDoSLdsis0kmU5y33ECJ1oj9+eDtMhuBAZKvHZRtADRJwInjH2LTPMM99L5IgIys+QwD9iOTaHn7qYH8NrxZFnjElVc4='
+        //type: 'url', // （非必传）上传图片的类型，支持url以及res_key。（res_key请到交互平台-素材管理-背景中上传获取)
+        //data: 'https://aicloudfile.xfyousheng.com/api/v1/comuptfm/7Yfq8Hwi8YrQzbaa7TNjz5Zodbfl9cfl7SeayHVvycRY9c0pzI8QebNYeI1c?authorization=c2ltcGxlLWp3dCBhaz1qamZpc2QwdXUwNXVqaGozdTQwaWc7ZXhwPTIwNjg2NTAwMzQ7YWxnbz1obWFjLXNoYTI1NjtzaWc9elpxblQvYjV4REUxN1dsNllSTmpSdk14VU5UaytrVWhJTFVZZVlScjF6Yz0=' // （非必传）图片的值，当type='url'时,data='http://xxx/xxx.png'，当type='res_key'时，data='res_key值'（res_key请到交互平台-素材管理-背景中上传获取)
       },
       air: { // 动作模式
         air: 1, // （非必传）是否开启自动动作，0关闭，1开启（需配合nlp=true时生效)，当开启时，星火大模型会根据语义理解的内容自动插入动作
@@ -448,30 +450,30 @@ function writeText(textParam, useNlp = true) {
       tts: ttsConfig
     }
 
-    console.log('🎤 尝试数字人播报:', text)
-    console.log('📝 配置:', writeConfig)
+    console.log('尝试数字人播报:', text)
+    console.log('配置:', writeConfig)
 
     // 使用Promise包装来捕获异步错误
     Promise.resolve().then(() => {
       return avatarPlatform2.writeText(text, writeConfig)
     }).then(() => {
-      console.log('✅ 文本已发送到数字人SDK')
+      console.log('文本已发送到数字人SDK')
     }).catch((error) => {
-      console.warn('❌ 数字人播报失败，切换到模拟模式:', error.message || error)
+      console.warn('数字人播报失败，切换到模拟模式:', error.message || error)
       // 播报失败时，使用模拟播报
       simulateDigitalHumanSpeech(text, useNlp)
     })
 
   } catch (error) {
-    console.warn('❌ 数字人SDK调用异常，使用模拟播报:', error.message || error)
+    console.warn('数字人SDK调用异常，使用模拟播报:', error.message || error)
     simulateDigitalHumanSpeech(text, useNlp)
   }
 }
 
 // 模拟数字人播报（用于开发测试）
 function simulateDigitalHumanSpeech(text, useNlp) {
-  console.log('🤖 模拟数字人播报:', text)
-  console.log('📋 播报模式:', useNlp ? 'NLP智能回复' : '直接播报')
+  console.log('模拟数字人播报:', text)
+  console.log('播报模式:', useNlp ? 'NLP智能回复' : '直接播报')
 
   // 模拟NLP处理
   if (useNlp) {
@@ -506,7 +508,7 @@ function simulateDigitalHumanSpeech(text, useNlp) {
         timestamp: Date.now()
       }
 
-      console.log('🤖 模拟NLP回复:', mockResponse)
+      console.log('模拟NLP回复:', mockResponse)
 
       // 向父组件发送模拟的NLP内容
       emit('nlp-content', mockNlpData)
@@ -514,7 +516,7 @@ function simulateDigitalHumanSpeech(text, useNlp) {
   } else {
     // 直接播报模式，模拟播报完成
     setTimeout(() => {
-      console.log('🤖 模拟直接播报完成:', text)
+      console.log('模拟直接播报完成:', text)
 
       // 对于直接播报，也可以触发完成事件
       const mockNlpData = {
@@ -559,12 +561,12 @@ function simulateDigitalHumanSpeech(text, useNlp) {
 
 onMounted(() => {
   try {
-    console.log('🚀 开始初始化数字人组件')
+    console.log(' 开始初始化数字人组件')
 
     // 添加全局错误处理
     window.addEventListener('unhandledrejection', (event) => {
       if (event.reason && event.reason.message && event.reason.message.includes('InvalidConnect')) {
-        console.warn('⚠️ 捕获到数字人连接异常，已自动处理')
+        console.warn(' 捕获到数字人连接异常，已自动处理')
         event.preventDefault() // 阻止错误冒泡
       }
     })
@@ -583,27 +585,27 @@ onMounted(() => {
           avatarPlatform2.stop()
           avatarPlatform2.start({ wrapper: document.querySelector('#wrapper') })
             .then(() => {
-              console.log('✅ 数字人启动成功')
+              console.log('数字人启动成功')
             })
             .catch((e) => {
-              console.error('❌ 数字人启动失败:', e.code, e.message, e.name)
+              console.error('数字人启动失败:', e.code, e.message, e.name)
               console.warn('数字人启动失败，但不影响面试功能')
             })
         } catch (error) {
-          console.error('❌ 数字人启动异常:', error)
+          console.error('数字人启动异常:', error)
           console.warn('数字人启动异常，但不影响面试功能')
         }
       } else {
-        console.warn('⚠️ 数字人SDK未初始化，跳过启动')
+        console.warn(' 数字人SDK未初始化，跳过启动')
       }
       window.removeEventListener('click', startOnce)
     }
 
     window.addEventListener('click', startOnce)
-    console.log('✅ 数字人组件初始化完成')
+    console.log('数字人组件初始化完成')
 
   } catch (error) {
-    console.error('❌ 数字人组件初始化失败:', error)
+    console.error(' 数字人组件初始化失败:', error)
     console.warn('数字人组件初始化失败，但不影响面试功能')
   }
 })

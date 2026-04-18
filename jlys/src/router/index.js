@@ -196,7 +196,7 @@ const routes = [
       {
         path: 'notes',
         name: 'ApplicantNotes',
-        component: () => import('@/components/functions/Notes/NoteBooks.vue')
+        component: () => import('@/components/Notes/NoteBooks.vue')
       },
       // 数据可视化模块
       {
@@ -402,24 +402,44 @@ const routes = [
     component: () => import('@/views/DebugAuth.vue')
   },
   {
-    path: '/simulatExam',
+    path: '/layout/simulatExam',
     name: 'SimulatExam',
     component: () => import('@/components/interview/SimulatExam.vue')
   },
   {
-    path: '/officialExam/:applicationId?',
+    path: '/simulatExam',
+    name: 'SimulatExamOld',
+    component: () => import('@/components/interview/SimulatExam.vue')
+  },
+  {
+    path: '/layout/offecialExam',
     name: 'OfficialExam',
     component: () => import('@/components/interview/OfficialExam.vue')
   },
   {
+    path: '/layout/offecialExam/:applicationId?',
+    name: 'OfficialExamWithId',
+    component: () => import('@/components/interview/OfficialExam.vue')
+  },
+  {
+    path: '/officialExam/:applicationId?',
+    name: 'OfficialExamOld',
+    component: () => import('@/components/interview/OfficialExam.vue')
+  },
+  {
     path: '/officialExam',
-    name: 'OfficialExam',
+    name: 'OfficialExamOldNoId',
     component: () => import('@/components/interview/OfficialExam.vue')
   },
   {
     path: '/beforeExam',
     name: 'BeforeExam',
     component: () => import('@/components/interview/BeforeExam.vue')
+  },
+  {
+    path: '/layout/writtenExam',
+    name: 'WrittenExam',
+    component: () => import('@/components/interview/WrittenExam.vue')
   },
   {
     path: '/interview/report',

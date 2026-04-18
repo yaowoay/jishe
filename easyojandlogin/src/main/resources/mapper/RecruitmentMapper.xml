@@ -3,7 +3,7 @@
 
 <mapper namespace="com.aiinterview.mapper.RecruitmentMapper">
 
-    <resultMap id="RecruitmentMap" type="com.aiinterview.entity.Recruitment">
+    <resultMap id="RecruitmentMap" type="com.aiinterview.model.entity.job.Recruitment">
         <id column="job_id" property="jobId"/>
         <result column="position_name" property="positionName"/>
         <result column="company_name" property="companyName"/>

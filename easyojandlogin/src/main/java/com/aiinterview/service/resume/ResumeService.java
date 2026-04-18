@@ -1,7 +1,7 @@
 package com.aiinterview.service.resume;
 
-import com.aiinterview.model.dto.request.ResumeCreateRequest;
-import com.aiinterview.model.dto.request.ResumeUpdateRequest;
+import com.aiinterview.model.dto.resume.ResumeCreateRequest;
+import com.aiinterview.model.dto.resume.ResumeUpdateRequest;
 import com.aiinterview.model.dto.response.ResumeResponse;
 import com.aiinterview.model.entity.resumer;
 import com.aiinterview.model.entity.resume.Resume;
