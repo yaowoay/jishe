@@ -33,3 +33,20 @@ export function checkTeacherProfileStatus() {
     method: 'get'
   })
 }
+
+// src/api/teacher.js
+export function getActivities() {}
+export function createActivity() {}
+export function getAssistanceRecords() {}
+export function saveAssistanceRecord() {}
+export function getCompanies() {}
+export function auditCompany() {}
+export function getCooperationApplications() {}
+export function auditCooperationApplication() {}
+export function getTeacherDashboard() {}
+export function getEmploymentList() {}
+export function auditEmployment() {}
+export function getEmploymentStats() {}
+export function getJobs() {}
+export function auditJob() {}
+export function queryStudents() {}

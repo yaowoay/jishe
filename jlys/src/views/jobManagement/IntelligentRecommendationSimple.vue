@@ -454,6 +454,7 @@ import {
   MagicStick, Refresh, View, SuccessFilled,
   Star, TrendCharts
 } from '@element-plus/icons-vue'
+import * as api from '@/api/jobs'
 
 // 响应式数据
 const loading = ref(false)

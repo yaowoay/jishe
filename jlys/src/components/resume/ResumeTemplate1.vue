@@ -8,9 +8,9 @@
           <h2>{{ resume.position || '期望职位' }}</h2>
         </div>
 
-        <ul class="side-info">
+        <dl class="side-info">
           <!-- 基本信息 -->
-          <li class="someRight">
+          <div class="someRight">
             <dt><i class="fa fa-bookmark"></i>Basic info. 基本信息</dt>
             <dd><span>个人信息:</span> {{ resume.fullName || '' }} / {{ gender }} / {{ age }} / {{ grade }}</dd>
             <dd><span>学校：</span>{{ school }}</dd>
@@ -19,35 +19,35 @@
             <dd v-if="nickname"><span>常用ID:</span> {{ nickname }}</dd>
             <dd v-if="blog"><span>Blog:</span> <a :href="blog" target="_blank">{{ blog }}</a></dd>
             <dd v-if="github"><span>GitHub:</span> <a :href="github" target="_blank">{{ github }}</a></dd>
-          </li>
+          </div>
 
           <!-- 联系方式 -->
-          <li class="someRight">
+          <div class="someRight">
             <dt><i class="fa fa-bookmark"></i>Contact. 联系方式</dt>
             <dd v-for="(item, idx) in contactList" :key="idx">
               <i :class="'fa ' + item.icon"></i>{{ item.name }}:
               <a :href="item.link" target="_blank">{{ item.value }}</a>
             </dd>
-          </li>
+          </div>
 
           <!-- 应聘岗位 -->
-          <li class="someRight">
+          <div class="someRight">
             <dt><i class="fa fa-bookmark"></i>Application. 应聘岗位</dt>
             <dd>{{ resume.position || '未填写' }}</dd>
-          </li>
+          </div>
 
           <!-- 奖项荣誉 -->
-          <li v-if="honorList.length" class="someRight">
+          <div v-if="honorList.length" class="someRight">
             <dt><i class="fa fa-bookmark"></i>Honor. 奖项荣誉</dt>
             <dd v-for="(item, idx) in honorList" :key="idx">
               <ul>
                 <li>{{ item.date }} {{ item.name }}</li>
               </ul>
             </dd>
-          </li>
+          </div>
 
           <!-- 技能点 -->
-          <li class="skill">
+          <div class="skill">
             <dt><i class="fa fa-bookmark"></i>Tech. 主要技能点</dt>
             <dd v-for="(skill, idx) in techList" :key="idx">
               <div class="skill-name">{{ skill.name }}</div>
@@ -55,8 +55,8 @@
                 <div class="skill-bar" :style="{ width: skill.percentage }"></div>
               </div>
             </dd>
-          </li>
-        </ul>
+          </div>
+        </dl>
 
         <!-- 个人简介 -->
         <div v-if="resume.profile" class="note">
