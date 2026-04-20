@@ -81,19 +81,20 @@
 
     <!-- 功能导航标签 -->
     <el-tabs v-model="activeTab" class="recommendation-tabs" @tab-change="handleTabChange">
-      <!-- 智能推荐主页 -->
+      <!-- 智能推荐主页（已按需求注释）
       <el-tab-pane label="智能推荐" name="recommendations">
         <div class="tab-content">
           <EnhancedJobRecommend ref="enhancedRecommendRef" />
         </div>
       </el-tab-pane>
+      -->
 
 
       <!-- 匹配度评分 -->
-      <el-tab-pane label="匹配度评分" name="matching">
+      <el-tab-pane label="职位推荐" name="matching">
         <div class="tab-content">
-          <!-- 用户画像设置 -->
-          <el-card class="profile-card" shadow="hover">
+      
+          <!-- <el-card class="profile-card" shadow="hover">
             <template #header>
               <div class="card-header">
                 <span>用户画像设置</span>
@@ -183,7 +184,7 @@
                 </div>
               </el-form-item>
             </el-form>
-          </el-card>
+          </el-card> -->
 
           <!-- 匹配结果 -->
           <el-card class="matching-results" shadow="hover" style="margin-top: 20px;">
@@ -192,10 +193,8 @@
                 <span>职位匹配结果</span>
                 <div class="header-actions">
                   <el-select v-model="sortBy" size="small" style="margin-right: 10px;">
-                    <el-option label="综合匹配度" value="overallScore"></el-option>
-                    <el-option label="技能匹配" value="skillMatch"></el-option>
-                    <el-option label="薪资匹配" value="salaryMatch"></el-option>
-                    <el-option label="经验匹配" value="experienceMatch"></el-option>
+                    <el-option label="按匹配度" value="matchScore"></el-option>
+                    <el-option label="按最高薪资" value="salaryMax"></el-option>
                   </el-select>
                   <el-button type="primary" size="small" @click="calculateMatching" :loading="matchingLoading">
                     重新计算
@@ -205,15 +204,16 @@
             </template>
 
             <div class="job-list" v-loading="matchingLoading">
+              <el-empty v-if="!matchingLoading && matchingJobs.length === 0" description="暂无合适推荐" />
               <div v-for="job in matchingJobs" :key="job.jobId" class="job-match-item">
                 <!-- 总体匹配度 -->
                 <div class="match-header">
                   <div class="job-basic-info">
                     <h3 class="job-title" :title="job.positionName">{{ job.positionName }}</h3>
                     <div class="job-meta">
-                      <span class="company">{{ job.companyName }}</span>
+                      <span class="company">{{ job.companyName || '未知公司' }}</span>
                       <el-divider direction="vertical" />
-                      <span class="location">{{ job.cityName }}</span>
+                      <span class="location">{{ job.cityName || '未知城市' }}</span>
                       <el-divider direction="vertical" />
                       <span class="salary">{{ formatSalary(job) }}</span>
                     </div>
@@ -222,89 +222,44 @@
                     <div class="match-score-circle">
                       <el-progress
                         type="circle"
-                        :percentage="Math.round(job.matchResult.overallScore * 100)"
-                        :color="getMatchColor(job.matchResult.overallScore)"
+                        :percentage="Math.round(job.matchScore || 0)"
+                        :color="getMatchColor((job.matchScore || 0) / 100)"
                         :width="80"
                       />
                     </div>
-                    <div class="match-level">{{ getMatchLevel(job.matchResult.overallScore) }}</div>
+                    <el-tag :type="getRecommendTagType(job.recommendTag)" size="small">
+                      {{ job.recommendTag || getMatchLevel((job.matchScore || 0) / 100) }}
+                    </el-tag>
                   </div>
                 </div>
 
-                <!-- 详细匹配分析（纵向堆叠） -->
+                <!-- 推荐信息 -->
                 <div class="match-details">
                   <div class="detail-item">
-                    <div class="detail-label">技能匹配</div>
+                    <div class="detail-label">行业</div>
                     <div class="detail-body">
-                      <el-progress
-                        :percentage="Math.round(job.matchResult.skillMatch * 100)"
-                        :color="getMatchColor(job.matchResult.skillMatch)"
-                        :show-text="true"
-                      />
-                      <div class="match-tags">
-                        <el-tag
-                          v-for="skill in job.matchResult.matchedSkills"
-                          :key="skill"
-                          size="small"
-                          type="success"
-                        >
-                          {{ skill }}
-                        </el-tag>
-                      </div>
+                      <div>{{ job.industry || '未填写' }}</div>
                     </div>
                   </div>
 
                   <div class="detail-item">
-                    <div class="detail-label">薪资匹配</div>
+                    <div class="detail-label">公司规模</div>
                     <div class="detail-body">
-                      <el-progress
-                        :percentage="Math.round(job.matchResult.salaryMatch * 100)"
-                        :color="getMatchColor(job.matchResult.salaryMatch)"
-                        :show-text="true"
-                      />
-                      <div class="salary-info">
-                        <span>期望: {{ userProfile.expectedSalaryRange[0] }}-{{ userProfile.expectedSalaryRange[1] }}K</span>
-                        <br>
-                        <span>提供: {{ formatSalary(job) }}</span>
-                      </div>
+                      <div>{{ job.scale || '未披露' }}</div>
                     </div>
                   </div>
 
                   <div class="detail-item">
-                    <div class="detail-label">经验匹配</div>
+                    <div class="detail-label">融资情况</div>
                     <div class="detail-body">
-                      <el-progress
-                        :percentage="Math.round(job.matchResult.experienceMatch * 100)"
-                        :color="getMatchColor(job.matchResult.experienceMatch)"
-                        :show-text="true"
-                      />
-                      <div class="experience-info">
-                        <span>要求: {{ job.experienceRequirement }}</span>
-                        <br>
-                        <span>您的: {{ userProfile.experience }}</span>
-                      </div>
+                      <div>{{ job.companyType || '未披露' }}</div>
                     </div>
                   </div>
 
                   <div class="detail-item">
-                    <div class="detail-label">地理位置</div>
+                    <div class="detail-label">推荐理由</div>
                     <div class="detail-body">
-                      <el-progress
-                        :percentage="Math.round(job.matchResult.locationMatch * 100)"
-                        :color="getMatchColor(job.matchResult.locationMatch)"
-                        :show-text="true"
-                      />
-                      <div class="location-info">
-                        <span>{{ job.cityName }}</span>
-                        <el-tag
-                          v-if="userProfile.preferredCities.includes(job.cityName)"
-                          size="small"
-                          type="success"
-                          style="margin-left: 8px;"
-                        >
-                          偏好城市
-                        </el-tag>
-                      </div>
+                      <div class="experience-info">{{ job.recommendReason || '暂无推荐理由' }}</div>
                     </div>
                   </div>
                 </div>
@@ -343,20 +298,20 @@
             <div class="job-tags">
               <el-tag type="primary" size="large">{{ formatSalary(selectedJob) }}</el-tag>
               <el-tag type="info" size="large">{{ selectedJob.cityName || selectedJob.city || '未知' }}</el-tag>
-              <el-tag type="success" size="large">{{ selectedJob.experienceRequirement || selectedJob.experienceReq || '经验不限' }}</el-tag>
+              <el-tag type="success" size="large">{{ selectedJob.workYears || '经验不限' }}</el-tag>
             </div>
           </div>
 
           <div class="company-info">
-            <h3>{{ selectedJob.companyName }}</h3>
-            <p class="company-desc">{{ selectedJob.companyDesc || '暂无公司描述' }}</p>
+            <h3>{{ selectedJob.companyName || '未知公司' }}</h3>
+            <p class="company-desc">公司规模：{{ selectedJob.scale || '未披露' }} | 融资情况：{{ selectedJob.companyType || '未披露' }}</p>
           </div>
         </el-card>
 
-        <!-- 匹配度分析 -->
-        <el-card class="match-analysis" shadow="never" style="margin-top: 20px;" v-if="selectedJob.matchResult">
+        <!-- 推荐分析 -->
+        <el-card class="match-analysis" shadow="never" style="margin-top: 20px;">
           <template #header>
-            <span>匹配度分析</span>
+            <span>推荐分析</span>
           </template>
 
           <el-row :gutter="20">
@@ -365,30 +320,26 @@
                 <h4>综合匹配度</h4>
                 <el-progress
                   type="circle"
-                  :percentage="Math.round(selectedJob.matchResult.overallScore * 100)"
-                  :color="getMatchColor(selectedJob.matchResult.overallScore)"
+                  :percentage="Math.round(selectedJob.matchScore || 0)"
+                  :color="getMatchColor((selectedJob.matchScore || 0) / 100)"
                   :width="120"
                 />
-                <p class="match-level-text">{{ getMatchLevel(selectedJob.matchResult.overallScore) }}</p>
+                <p class="match-level-text">{{ selectedJob.recommendTag || getMatchLevel((selectedJob.matchScore || 0) / 100) }}</p>
               </div>
             </el-col>
             <el-col :span="12">
               <div class="detailed-scores">
                 <div class="score-row">
-                  <span>技能匹配:</span>
-                  <el-progress :percentage="Math.round(selectedJob.matchResult.skillMatch * 100)" :show-text="true" />
+                  <span>行业:</span>
+                  <div>{{ selectedJob.industry || '未填写' }}</div>
                 </div>
                 <div class="score-row">
-                  <span>薪资匹配:</span>
-                  <el-progress :percentage="Math.round(selectedJob.matchResult.salaryMatch * 100)" :show-text="true" />
+                  <span>公司规模:</span>
+                  <div>{{ selectedJob.scale || '未披露' }}</div>
                 </div>
                 <div class="score-row">
-                  <span>经验匹配:</span>
-                  <el-progress :percentage="Math.round(selectedJob.matchResult.experienceMatch * 100)" :show-text="true" />
-                </div>
-                <div class="score-row">
-                  <span>位置匹配:</span>
-                  <el-progress :percentage="Math.round(selectedJob.matchResult.locationMatch * 100)" :show-text="true" />
+                  <span>融资情况:</span>
+                  <div>{{ selectedJob.companyType || '未披露' }}</div>
                 </div>
               </div>
             </el-col>
@@ -409,24 +360,35 @@
               {{ formatSalary(selectedJob) }}
             </el-descriptions-item>
             <el-descriptions-item label="工作经验">
-              {{ selectedJob.experienceRequirement || selectedJob.experienceReq || '经验不限' }}
+              {{ selectedJob.workYears || '经验不限' }}
             </el-descriptions-item>
             <el-descriptions-item label="学历要求">
-              {{ selectedJob.education || selectedJob.educationReq || selectedJob.educationRequirement || '学历不限' }}
+              {{ selectedJob.education || '学历不限' }}
             </el-descriptions-item>
             <el-descriptions-item label="职位类型" :span="2">
-              {{ selectedJob.positionType || selectedJob.jobType || '全职' }}
+              {{ selectedJob.type || '全职' }}
+            </el-descriptions-item>
+            <el-descriptions-item label="推荐标签">
+              <el-tag :type="getRecommendTagType(selectedJob.recommendTag)">
+                {{ selectedJob.recommendTag || '暂无' }}
+              </el-tag>
+            </el-descriptions-item>
+            <el-descriptions-item label="匹配分数">
+              <div class="score-with-dot">
+                <span class="score-dot" :class="`dot-${getRecommendTagType(selectedJob.recommendTag)}`"></span>
+                <span>{{ Math.round(selectedJob.matchScore || 0) }}</span>
+              </div>
             </el-descriptions-item>
           </el-descriptions>
 
           <div class="job-description" style="margin-top: 20px;">
-            <h4>职位描述</h4>
-            <p>{{ getJobDescription(selectedJob) }}</p>
+            <h4>技能要求</h4>
+            <p>{{ selectedJob.skills || '暂无技能信息' }}</p>
           </div>
 
           <div class="job-requirements" style="margin-top: 20px;">
-            <h4>任职要求</h4>
-            <p>{{ getJobRequirements(selectedJob) }}</p>
+            <h4>推荐理由</h4>
+            <p>{{ selectedJob.recommendReason || '暂无推荐理由' }}</p>
           </div>
         </el-card>
 
@@ -458,8 +420,7 @@ import * as api from '@/api/jobs'
 
 // 响应式数据
 const loading = ref(false)
-const activeTab = ref('recommendations')
-const enhancedRecommendRef = ref()
+const activeTab = ref('matching')
 
 // 从 localStorage 获取用户 ID
 const currentUserId = ref(parseInt(localStorage.getItem('userId')) || 1)
@@ -469,7 +430,7 @@ const matchingLoading = ref(false)
 const inputVisible = ref(false)
 const inputValue = ref('')
 const inputRef = ref()
-const sortBy = ref('overallScore')
+const sortBy = ref('matchScore')
 const matchingJobs = ref([])
 const selectedJob = ref(null)
 const showJobDetailDialog = ref(false)
@@ -499,16 +460,18 @@ const handleTabChange = (tabName) => {
   }
 }
 
-const refreshAllRecommendations = () => {
+const refreshAllRecommendations = async () => {
   loading.value = true
-  if (enhancedRecommendRef.value) {
-    enhancedRecommendRef.value.refreshRecommendations()
-  }
-  updateStats()
-  setTimeout(() => {
+  try {
+    await Promise.all([updateStats(), calculateMatching()])
     loading.value = false
     ElMessage.success('推荐已刷新')
-  }, 1000)
+  } catch (error) {
+    console.error('刷新推荐失败:', error)
+    ElMessage.error('刷新失败，请稍后重试')
+  } finally {
+    loading.value = false
+  }
 }
 
 const updateStats = async () => {
@@ -535,7 +498,11 @@ const updateStats = async () => {
 // 匹配度评分相关方法
 const formatSalary = (jobOrValue) => {
   if (typeof jobOrValue === 'object') {
-    // 传入的是 job 对象
+    const min = Number(jobOrValue.salaryMin)
+    const max = Number(jobOrValue.salaryMax)
+    if (!Number.isNaN(min) && !Number.isNaN(max) && (min > 0 || max > 0)) {
+      return `${min}-${max}`
+    }
     const salary = parseJobSalary(jobOrValue)
     return salary > 0 ? `${salary.toFixed(1)}K` : '面议'
   }
@@ -605,32 +572,48 @@ const handleInputConfirm = () => {
 const calculateMatching = async () => {
   matchingLoading.value = true
   try {
-    // 调用真实 API 获取职位数据
-    const response = await api.searchJobs({}, 1, 10)
-    const jobs = response.data?.jobs || []
+    // 调用推荐 API 获取匹配结果列表
+    const response = await api.getFlinkRecommendations(currentUserId.value)
+    const jobs = Array.isArray(response) ? response : (response?.data || [])
 
-    // 计算匹配度
-    matchingJobs.value = jobs.map(job => ({
-      jobId: job.jobId || job.id,
-      positionName: job.positionName,
-      companyName: job.companyName,
-      cityName: job.city || job.cityName,
-      avgSalary: parseJobSalary(job),
-      experienceRequirement: job.experienceReq || job.experienceRequirement,
-      educationRequirement: job.educationReq || job.educationRequirement,
-      skills: extractSkillsFromJob(job),
-      matchResult: calculateRealMatchResult(job)
-    }))
+    matchingJobs.value = jobs.map(normalizeRecommendationJob)
 
     // 按匹配度排序
     sortJobs()
 
-    ElMessage.success('匹配度计算完成')
+    if (matchingJobs.value.length === 0) {
+      ElMessage.info('暂无合适推荐')
+    } else {
+      ElMessage.success('推荐结果加载完成')
+    }
   } catch (error) {
     console.error('计算匹配度失败:', error)
-    ElMessage.error('计算失败，请重试')
+    matchingJobs.value = []
+    ElMessage.error('获取推荐结果失败')
   } finally {
     matchingLoading.value = false
+  }
+}
+
+const normalizeRecommendationJob = (job) => {
+  return {
+    jobId: job.jobId || job.id,
+    positionName: job.positionName || job.name || '未知职位',
+    companyName: job.companyName || job.company_name || '未知公司',
+    cityName: job.cityName || job.city || '未知城市',
+    city: job.city || job.cityName || '未知城市',
+    salaryMin: Number(job.salaryMin || 0),
+    salaryMax: Number(job.salaryMax || 0),
+    type: job.type || '全职',
+    industry: job.industry || '',
+    scale: job.scale || '',
+    companyType: job.companyType || job.company_type || '',
+    skills: job.skills || '',
+    education: job.education || '',
+    workYears: job.workYears || '',
+    matchScore: Number(job.matchScore || 0),
+    recommendReason: job.recommendReason || '',
+    recommendTag: job.recommendTag || ''
   }
 }
 
@@ -792,8 +775,8 @@ const calculateExperienceMatchScore = (jobExp, userExp) => {
 
 const sortJobs = () => {
   matchingJobs.value.sort((a, b) => {
-    const scoreA = a.matchResult[sortBy.value]
-    const scoreB = b.matchResult[sortBy.value]
+    const scoreA = Number(a[sortBy.value] || 0)
+    const scoreB = Number(b[sortBy.value] || 0)
     return scoreB - scoreA
   })
 }
@@ -810,6 +793,14 @@ const getMatchLevel = (score) => {
   if (score >= 0.6) return '较好匹配'
   if (score >= 0.4) return '一般匹配'
   return '匹配度低'
+}
+
+const getRecommendTagType = (tag) => {
+  if (tag === '高匹配') return 'success'
+  if (tag === '较匹配') return 'warning'
+  if (tag === '可探索') return 'info'
+  if (tag === '低匹配') return 'danger'
+  return 'info'
 }
 
 // 职位操作方法
@@ -849,6 +840,7 @@ const collectJob = async (job) => {
 // 组件挂载时初始化
 onMounted(() => {
   updateStats()
+  calculateMatching()
 })
 </script>
 <style scoped>
@@ -1087,6 +1079,35 @@ onMounted(() => {
   font-size: 14px;
   font-weight: 500;
   color: #1d2129;
+}
+
+.score-with-dot {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.score-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.dot-success {
+  background-color: #67c23a;
+}
+
+.dot-warning {
+  background-color: #e6a23c;
+}
+
+.dot-info {
+  background-color: #409eff;
+}
+
+.dot-danger {
+  background-color: #f56c6c;
 }
 
 .match-details {
