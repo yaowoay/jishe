@@ -8,8 +8,8 @@
         </svg>
       </div>
       <div class="stat-content">
-        <div class="stat-label">今日岗位发布量</div>
-        <div class="stat-value">20</div>
+        <div class="stat-label">毕业生总人数</div>
+        <div class="stat-value">{{ graduateCountText }}</div>
 <!--        <div class="stat-desc">AI与大数据分析工程师</div>-->
       </div>
     </div>
@@ -36,8 +36,8 @@
         </svg>
       </div>
       <div class="stat-content">
-        <div class="stat-label">岗位数量</div>
-        <div class="stat-value">4100</div>
+        <div class="stat-label">毕业去向落实率</div>
+        <div class="stat-value">73%</div>
         <div class="stat-desc"></div>
       </div>
     </div>
@@ -50,16 +50,48 @@
         </svg>
       </div>
       <div class="stat-content">
-        <div class="stat-label">热门技能</div>
-        <div class="stat-value">Java</div>
-        <div class="stat-desc">提及率 36%</div>
+        <div class="stat-label">协议签约率</div>
+        <div class="stat-value">36%</div>
+<!--        <div class="stat-desc">36%</div>-->
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-// 这里可以添加组件逻辑
+import { computed, onMounted, onUnmounted, ref } from 'vue'
+import { getCurrentYearGraduateCount } from '@/api/student'
+
+const graduateCount = ref(null)
+let refreshTimer = null
+
+const graduateCountText = computed(() => {
+  if (graduateCount.value === null) {
+    return '--'
+  }
+  return Number(graduateCount.value).toLocaleString('zh-CN')
+})
+
+const fetchGraduateCount = async () => {
+  try {
+    const response = await getCurrentYearGraduateCount()
+    graduateCount.value = response?.data?.graduateCount ?? 0
+  } catch (error) {
+    console.error('获取毕业生总人数失败:', error)
+  }
+}
+
+onMounted(() => {
+  fetchGraduateCount()
+  refreshTimer = setInterval(fetchGraduateCount, 60000)
+})
+
+onUnmounted(() => {
+  if (refreshTimer) {
+    clearInterval(refreshTimer)
+    refreshTimer = null
+  }
+})
 </script>
 
 <style scoped>

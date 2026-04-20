@@ -33,3 +33,11 @@ export function checkProfileStatus() {
     method: 'get'
   })
 }
+
+// 获取当前年份毕业生总人数
+export function getCurrentYearGraduateCount() {
+  return request({
+    url: '/student/profile/graduate/count',
+    method: 'get'
+  })
+}

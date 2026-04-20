@@ -90,4 +90,11 @@ public class StudentProfileServiceImpl implements StudentProfileService {
         User user = userMapper.selectById(userId);
         return user != null && user.getProfileCompleted() != null && user.getProfileCompleted() == 1;
     }
+
+    @Override
+    public Long countGraduatesByYear(Integer graduationYear) {
+        QueryWrapper<StudentProfile> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("graduation_year", graduationYear);
+        return studentProfileMapper.selectCount(queryWrapper);
+    }
 }

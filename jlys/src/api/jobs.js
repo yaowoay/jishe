@@ -109,6 +109,16 @@ export function getRecommendationCount(userId) {
 }
 
 /**
+ * 获取实时职位推荐结果（Flink推荐链路）
+ */
+export function getFlinkRecommendations(userId) {
+  return request({
+    url: `/recommend/position/${userId}`,
+    method: 'get'
+  })
+}
+
+/**
  * 收藏职位
  */
 export function collectJob(userId, jobId) {

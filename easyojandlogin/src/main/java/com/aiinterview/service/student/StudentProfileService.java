@@ -22,4 +22,9 @@ public interface StudentProfileService {
      * 检查学生档案是否已完善
      */
     boolean isProfileCompleted(Long userId);
+
+    /**
+     * 统计指定毕业年份的毕业生数量
+     */
+    Long countGraduatesByYear(Integer graduationYear);
 }

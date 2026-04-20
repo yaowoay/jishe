@@ -38,7 +38,10 @@ public interface PositionMapper extends BaseMapper<Position> {
             "j.job_skills AS skills, " +
             "j.education_requirement AS education, " +
             "j.experience_requirement AS workYears, " +
-             "c.industry AS industry " +
+             "c.industry AS industry, " +
+             "c.company_name AS companyName, " +
+             "c.scale AS scale, " +
+             "c.company_type AS companyType " +
              "FROM jobs j " +
              "LEFT JOIN companies c ON c.company_id = j.company_id")
     List<Position> selectAllWithIndustry();

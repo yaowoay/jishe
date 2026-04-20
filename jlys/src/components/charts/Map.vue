@@ -141,7 +141,7 @@ const mapEcharts = (geoJSON) => {
           borderWidth: 1.2,
           borderType: 'solid'
         },
-        emphasis: { 
+        emphasis: {
           disabled: false,
           itemStyle: {
             areaColor: 'rgba(28, 58, 108, 0.8)',

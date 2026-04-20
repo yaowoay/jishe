@@ -129,6 +129,11 @@
               <el-icon size="18"><Setting /></el-icon>
               <span class="menu-text">个人中心</span>
             </el-menu-item>
+
+            <el-menu-item index="/teacher/employmentscreen">
+              <el-icon size="18"><OfficeBuilding /></el-icon>
+              <span class="menu-text">就业质量分析大屏</span>
+            </el-menu-item>
           </el-menu>
         </el-aside>
       </div>

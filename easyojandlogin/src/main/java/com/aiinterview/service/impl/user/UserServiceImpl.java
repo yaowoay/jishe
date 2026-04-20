@@ -8,7 +8,7 @@ import com.aiinterview.service.user.UserService;
 import com.aiinterview.utils.JwtUtils;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,11 +19,12 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
+    private static final BCryptPasswordEncoder PASSWORD_ENCODER = new BCryptPasswordEncoder();
+
     private final UserMapper userMapper;
     private final StudentProfileMapper studentProfileMapper;
     private final CompanyMapper companyMapper;
     private final TeacherMapper teacherMapper;
-    private final PasswordEncoder passwordEncoder;
     private final JwtUtils jwtUtils;
 
     @Override
@@ -40,7 +41,7 @@ public class UserServiceImpl implements UserService {
         // 创建用户
         User user = new User();
         user.setEmail(request.getEmail());
-        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        user.setPassword(request.getPassword());
         user.setRole(request.getRole());
         user.setProfileCompleted(0); // 初始化为未完善
 
@@ -87,7 +88,17 @@ public class UserServiceImpl implements UserService {
         }
 
         // 验证密码
-        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+        String storedPassword = user.getPassword();
+        String rawPassword = request.getPassword();
+        boolean passwordMatches = storedPassword != null
+            && (storedPassword.equals(rawPassword)
+            || (storedPassword.startsWith("$2a$")
+            || storedPassword.startsWith("$2b$")
+            || storedPassword.startsWith("$2y$")
+            ? PASSWORD_ENCODER.matches(rawPassword, storedPassword)
+            : false));
+
+        if (!passwordMatches) {
             throw new RuntimeException("密码错误");
         }
 
