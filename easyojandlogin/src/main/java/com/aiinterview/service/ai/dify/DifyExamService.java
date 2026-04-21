@@ -42,7 +42,7 @@ public class DifyExamService {
                 .clientConnector(new ReactorClientHttpConnector(
                         HttpClient.create()
                                 .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 30000)
-                                .responseTimeout(Duration.ofSeconds(120))
+                                .responseTimeout(Duration.ofSeconds(150))
                 ))
                 .build();
 
@@ -66,78 +66,67 @@ public class DifyExamService {
     ) {
         String taskId = "task_" + System.currentTimeMillis() + "_" + System.nanoTime();
 
-        // 临时使用本地模拟数据，避免 Dify API 调用失败
-        log.info("使用本地模拟数据生成笔试题目");
+        log.info("开始调用 Dify API 生成笔试题目");
+        log.info("参数: jobPosition={}, skills={}, experience={}, questionCount={}, difficultyLevel={}, focusArea={}",
+                jobPosition, skills, experience, questionCount, difficultyLevel, focusArea);
 
-        // 创建模拟题目列表 - 字段名必须与数据库表和 ExamQuestionDetailServiceImpl 中的字段名一致
-        java.util.List<Map<String, Object>> questionsList = new java.util.ArrayList<>();
+        // 构建请求体
+        Map<String, Object> requestBody = new HashMap<>();
 
-        Map<String, Object> q1 = new HashMap<>();
-        q1.put("questionId", "q1");
-        q1.put("type", "choice");
-        q1.put("questionContent", "什么是 " + jobPosition + "？");
-        q1.put("A", "选项A");
-        q1.put("B", "选项B");
-        q1.put("C", "选项C");
-        q1.put("D", "选项D");
-        q1.put("answer", "A");
-        q1.put("difficulty", "初级");
-        q1.put("knowledgePoint", jobPosition + "基础");
-        q1.put("scenario", "职位定义");
-        q1.put("trapDetection", "注意区分相似概念");
-        questionsList.add(q1);
+        // 构建 inputs 参数
+        Map<String, Object> inputs = new HashMap<>();
+        inputs.put("jobPosition", jobPosition);
+        inputs.put("skills", skills);
+        inputs.put("exp", experience);
+        inputs.put("questionCount", questionCount);
+        inputs.put("level", difficultyLevel);
+        inputs.put("focusArea", focusArea);
 
-        Map<String, Object> q2 = new HashMap<>();
-        q2.put("questionId", "q2");
-        q2.put("type", "choice");
-        q2.put("questionContent", "请解释 " + skills + " 的核心概念");
-        q2.put("A", "概念1");
-        q2.put("B", "概念2");
-        q2.put("C", "概念3");
-        q2.put("D", "概念4");
-        q2.put("answer", "B");
-        q2.put("difficulty", "中级");
-        q2.put("knowledgePoint", skills + "核心概念");
-        q2.put("scenario", "技能应用");
-        q2.put("trapDetection", "容易混淆的概念");
-        questionsList.add(q2);
 
-        Map<String, Object> q3 = new HashMap<>();
-        q3.put("questionId", "q3");
-        q3.put("type", "true_false");
-        q3.put("questionContent", "根据 " + experience + " 的经验，以下说法是否正确？");
-        q3.put("A", "正确");
-        q3.put("B", "错误");
-        q3.put("answer", "A");
-        q3.put("difficulty", "高级");
-        q3.put("knowledgePoint", experience + "经验应用");
-        q3.put("scenario", "实际问题处理");
-        q3.put("trapDetection", "需要实际经验判断");
-        questionsList.add(q3);
+        requestBody.put("inputs", inputs);
+        requestBody.put("response_mode", "sreaming"); //非阻塞式异步响应
+        requestBody.put("user", "user-" + System.currentTimeMillis());
 
-        Map<String, Object> mockQuestions = new HashMap<>();
-        mockQuestions.put("questions", questionsList);
+        log.info("Dify API 请求体: {}", JSONUtil.toJsonStr(requestBody));
 
-        Map<String, Object> outputs = new HashMap<>();
-        outputs.put("questions", mockQuestions);
+        // 调用 Dify API
+        return webClient.post()
+                .uri(difyApiUrl + "/workflows/run")
+                .header("Authorization", "Bearer " + difyApiKey)
+                .header("Content-Type", "application/json")
+                .bodyValue(requestBody)
+                .retrieve()
+                .bodyToMono(new ParameterizedTypeReference<Map<String, Object>>() {})
+                .doOnNext(response -> {
+                    log.info("Dify API 响应: {}", JSONUtil.toJsonStr(response));
+                })
+                .map(response -> {
+                    // 从 Dify 响应中提取 data 节点
+                    Map<String, Object> difyData = (Map<String, Object>) response.get("data");
 
-        Map<String, Object> data = new HashMap<>();
-        data.put("outputs", outputs);
+                    // 构建返回结果，保持与 Controller 期望的结构一致
+                    Map<String, Object> result = new HashMap<>();
+                    result.put("task_id", taskId);
+                    result.put("data", difyData);  // 直接使用 Dify 返回的 data 节点
 
-        Map<String, Object> result = new HashMap<>();
-        result.put("task_id", taskId);
-        result.put("data", data);
+                    // 缓存结果
+                    Map<String, Object> cacheData = new HashMap<>();
+                    cacheData.put("task_id", taskId);
+                    cacheData.put("data", difyData);
+                    cacheData.put("timestamp", System.currentTimeMillis());
+                    questionCache.put(taskId, cacheData);
 
-        // 缓存结果
-        Map<String, Object> cacheData = new HashMap<>();
-        cacheData.put("task_id", taskId);
-        cacheData.put("data", data);
-        cacheData.put("timestamp", System.currentTimeMillis());
-        questionCache.put(taskId, cacheData);
+                    log.info("题目已缓存，taskId: {}, data结构: {}", taskId, difyData != null ? difyData.keySet() : "null");
 
-        log.info("本地模拟题目已缓存，taskId: {}", taskId);
-
-        return Mono.just(result);
+                    return result;
+                })
+                .doOnError(error -> {
+                    log.error("调用 Dify API 失败", error);
+                })
+                .onErrorResume(error -> {
+                    log.error("Dify API 调用失败，返回错误信息: {}", error.getMessage());
+                    return Mono.error(new RuntimeException("生成笔试题目失败: " + error.getMessage()));
+                });
     }
 
     public Mono<Map<String, Object>> getGeneratedQuestions(String taskId) {

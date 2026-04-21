@@ -386,11 +386,10 @@
                     <source>1.8</source>
                     <target>1.8</target>
                     <encoding>UTF-8</encoding>
-                    <showDeprecation>true</showDeprecation>
-                    <showWarnings>true</showWarnings>
+                    <showDeprecation>false</showDeprecation>
+                    <showWarnings>false</showWarnings>
                     <compilerArgs>
-                        <arg>-Xlint:deprecation</arg>
-                        <arg>-Xlint:unchecked</arg>
+                        <arg>-Xlint:-options</arg>
                     </compilerArgs>
                     <annotationProcessorPaths>
                         <path>

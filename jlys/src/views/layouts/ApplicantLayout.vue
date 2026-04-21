@@ -23,7 +23,7 @@
                 </div>
                 <div class="user-info">
                   <div class="user-name">{{ userInfo.fullName || '用户' }}</div>
-                  <div class="user-role">求职者</div>
+                  <div class="user-role">学生</div>
                 </div>
               </div>
             </el-card>
@@ -38,28 +38,22 @@
               :collapse="false"
               :collapse-transition="false"
           >
-            <el-menu-item index="/applicant/ApplicationVisual">
-              <el-icon size="18"><House /></el-icon>
-              <span class="menu-text">可视化面板</span>
-            </el-menu-item>
+            <!-- 首页 -->
             <el-menu-item index="/applicant/dashboard">
               <el-icon size="18"><House /></el-icon>
-              <span class="menu-text">求职者控制台</span>
+              <span class="menu-text">首页</span>
             </el-menu-item>
 
+            <!-- 简历管理 -->
             <el-sub-menu index="resume">
               <template #title>
                 <el-icon size="18"><Document /></el-icon>
-                <span class="menu-text">智能简历工坊</span>
+                <span class="menu-text">简历管理</span>
               </template>
               <el-menu-item index="/applicant/resume/list">
                 <el-icon size="18"><FolderOpened /></el-icon>
                 <span class="submenu-text">我的简历</span>
               </el-menu-item>
-<!--              <el-menu-item index="/applicant/resume/generation">
-                <el-icon size="18"><Edit /></el-icon>
-                <span class="submenu-text">AI生成简历</span>
-              </el-menu-item>-->
               <el-menu-item index="/applicant/resume/analysis">
                 <el-icon size="18"><DataAnalysis /></el-icon>
                 <span class="submenu-text">简历分析</span>
@@ -73,92 +67,106 @@
                 <span class="submenu-text">投递简历</span>
               </el-menu-item>
             </el-sub-menu>
-            <el-sub-menu index="interview-assistant">
-              <template #title>
-                <el-icon size="18"><ChatDotRound /></el-icon>
-                <span class="menu-text">AI面试助手</span>
-              </template>
-              <el-menu-item index="/applicant/interview">
-                <el-icon size="18"><VideoPlay /></el-icon>
-                <span class="submenu-text">AI模拟面试</span>
-              </el-menu-item>
-              <el-menu-item index="/applicant/professional-test">
-                <el-icon size="18"><Edit /></el-icon>
-                <span class="submenu-text">专业题笔试</span>
-              </el-menu-item>
-              <el-menu-item index="/applicant/personality-test">
-                <el-icon size="18"><User /></el-icon>
-                <span class="submenu-text">职业性格测评</span>
-              </el-menu-item>
-            </el-sub-menu>
-            <el-menu-item index="/applicant/interview-center">
-              <el-icon size="20"><VideoPlay /></el-icon>
-              <span class="menu-text">面试中心</span>
-            </el-menu-item>
-            <el-menu-item index="/applicant/notes">
-              <el-icon size="20"><Notebook /></el-icon>
-              <span class="menu-text">AI笔记</span>
-            </el-menu-item>
-            <el-sub-menu index="data-analysis">
-              <template #title>
-                <el-icon size="18"><DataAnalysis /></el-icon>
-                <span class="menu-text">数据可视化</span>
-              </template>
-              <el-menu-item index="/applicant/salary-analysis">
-                <el-icon size="18"><TrendCharts /></el-icon>
-                <span class="submenu-text">薪资维度分析</span>
-              </el-menu-item>
-              <el-menu-item index="/applicant/position-analysis">
-                <el-icon size="18"><Position /></el-icon>
-                <span class="submenu-text">岗位维度分析</span>
-              </el-menu-item>
-              <el-menu-item index="/applicant/company-analysis">
-                <el-icon size="18"><OfficeBuilding /></el-icon>
-                <span class="submenu-text">招聘企业分析</span>
-              </el-menu-item>
-              <el-menu-item index="/applicant/skill-rules">
-                <el-icon size="18"><Link /></el-icon>
-                <span class="submenu-text">关联规则分析</span>
-              </el-menu-item>
-            </el-sub-menu>
+
+            <!-- 求职管理 -->
             <el-sub-menu index="job-management">
               <template #title>
                 <el-icon size="18"><Briefcase /></el-icon>
-                <span class="menu-text">职位管理</span>
+                <span class="menu-text">求职管理</span>
               </template>
               <el-menu-item index="/applicant/intelligent-recommend">
                 <el-icon size="18"><MagicStick /></el-icon>
-                <span class="submenu-text">智能推荐系统</span>
+                <span class="submenu-text">智能推荐</span>
               </el-menu-item>
               <el-menu-item index="/applicant/job-list">
                 <el-icon size="18"><Search /></el-icon>
-                <span class="submenu-text">职位列表</span>
+                <span class="submenu-text">职位搜索</span>
               </el-menu-item>
+              <el-menu-item index="/applicant/my-collections">
+                <el-icon size="18"><Star /></el-icon>
+                <span class="submenu-text">我的收藏</span>
+              </el-menu-item>
+              <el-menu-item index="/applicant/interview-center">
+                <el-icon size="18"><VideoPlay /></el-icon>
+                <span class="submenu-text">面试中心</span>
+              </el-menu-item>
+            </el-sub-menu>
+
+            <!-- AI训练营 -->
+            <el-sub-menu index="ai-training">
+              <template #title>
+                <el-icon size="18"><ChatDotRound /></el-icon>
+                <span class="menu-text">AI训练营</span>
+              </template>
+              <el-menu-item index="/applicant/interview">
+                <el-icon size="18"><VideoPlay /></el-icon>
+                <span class="submenu-text">模拟面试</span>
+              </el-menu-item>
+              <el-menu-item index="/applicant/professional-test">
+                <el-icon size="18"><Edit /></el-icon>
+                <span class="submenu-text">专业笔试</span>
+              </el-menu-item>
+              <el-menu-item index="/applicant/personality-test">
+                <el-icon size="18"><User /></el-icon>
+                <span class="submenu-text">性格测评</span>
+              </el-menu-item>
+            </el-sub-menu>
+
+            <!-- 数据分析 -->
+            <el-sub-menu index="data-analysis">
+              <template #title>
+                <el-icon size="18"><DataAnalysis /></el-icon>
+                <span class="menu-text">数据分析</span>
+              </template>
               <el-menu-item index="/applicant/salary-predict">
                 <el-icon size="18"><TrendCharts /></el-icon>
                 <span class="submenu-text">薪资预测</span>
               </el-menu-item>
-            </el-sub-menu>
-            <el-sub-menu index="personal-center">
-              <template #title>
-                <el-icon size="18"><User /></el-icon>
-                <span class="menu-text">个人中心</span>
-              </template>
-              <el-menu-item index="/applicant/my-collections">
-                <el-icon size="18"><Star /></el-icon>
-                <span class="submenu-text">我的收藏</span>
+              <el-menu-item index="/applicant/salary-analysis">
+                <el-icon size="18"><TrendCharts /></el-icon>
+                <span class="submenu-text">薪资分析</span>
+              </el-menu-item>
+              <el-menu-item index="/applicant/position-analysis">
+                <el-icon size="18"><Position /></el-icon>
+                <span class="submenu-text">岗位分析</span>
+              </el-menu-item>
+              <el-menu-item index="/applicant/company-analysis">
+                <el-icon size="18"><OfficeBuilding /></el-icon>
+                <span class="submenu-text">企业分析</span>
+              </el-menu-item>
+              <el-menu-item index="/applicant/skill-rules">
+                <el-icon size="18"><Link /></el-icon>
+                <span class="submenu-text">技能关联</span>
               </el-menu-item>
               <el-menu-item index="/applicant/behavior-analysis">
                 <el-icon size="18"><DataAnalysis /></el-icon>
                 <span class="submenu-text">行为分析</span>
               </el-menu-item>
             </el-sub-menu>
-            <el-menu-item index="/applicant/visual-screen">
-              <el-icon size="20"><Monitor /></el-icon>
-              <span class="menu-text">可视化大屏</span>
-            </el-menu-item>
+
+            <!-- 工具箱 -->
+            <el-sub-menu index="tools">
+              <template #title>
+                <el-icon size="18"><Notebook /></el-icon>
+                <span class="menu-text">工具箱</span>
+              </template>
+              <el-menu-item index="/applicant/notes">
+                <el-icon size="18"><Notebook /></el-icon>
+                <span class="submenu-text">AI笔记</span>
+              </el-menu-item>
+              <el-menu-item index="/applicant/visual-screen">
+                <el-icon size="18"><Monitor /></el-icon>
+                <span class="submenu-text">数据大屏</span>
+              </el-menu-item>
+              <el-menu-item index="/applicant/ApplicationVisual">
+                <el-icon size="18"><Monitor /></el-icon>
+                <span class="submenu-text">应聘可视化</span>
+              </el-menu-item>
+            </el-sub-menu>
+
+            <!-- 个人设置 -->
             <el-menu-item index="/applicant/profile">
-              <el-icon size="20"><Setting /></el-icon>
+              <el-icon size="18"><Setting /></el-icon>
               <span class="menu-text">个人设置</span>
             </el-menu-item>
           </el-menu>

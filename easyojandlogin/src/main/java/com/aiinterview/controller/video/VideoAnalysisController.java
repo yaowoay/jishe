@@ -36,7 +36,7 @@ public class VideoAnalysisController {
             // @Parameter(description = "面试ID")
             @RequestParam Long interviewId,
             // @Parameter(description = "视频文件")
-            @RequestParam("video") MultipartFile videoFile,
+            @RequestParam("videos") MultipartFile videoFile,
             // @Parameter(description = "转录文本")
             @RequestParam(value = "transcript", required = false) String transcript) {
         
@@ -89,7 +89,7 @@ public class VideoAnalysisController {
             // @Parameter(description = "面试ID")
             @RequestParam Long interviewId,
             // @Parameter(description = "视频文件")
-            @RequestParam("video") MultipartFile videoFile,
+            @RequestParam("videos") MultipartFile videoFile,
             // @Parameter(description = "转录文本")
             @RequestParam(value = "transcript", required = false) String transcript) {
         

@@ -13,12 +13,12 @@
     <div class="dashboard-header">
       <div class="header-title">
         <span>欢迎使用</span>
-        <span class="highlight">智面星图</span>
+        <span class="highlight">数智通途</span>
       </div>
-      <div class="header-subtitle">企业智能招聘管理平台，高效精准招聘人才</div>
+      <div class="header-subtitle">企业智能招聘管理平台，数据驱动精准招聘</div>
       <!-- 产品特色描述 -->
       <div class="feature-description">
-        智能职位发布 · AI简历筛选 · 在线面试管理 · 人才评估分析 · 招聘数据统计 · 企业品牌展示
+        大数据职位发布 · AI简历筛选 · 在线面试管理 · 人才评估分析 · 招聘数据统计 · 企业品牌展示
       </div>
     </div>
 

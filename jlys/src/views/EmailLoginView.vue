@@ -12,7 +12,7 @@
           <img :src="logoImage" alt="Logo" class="logo-img" />
         </div>
         <h2 class="welcome-text">邮箱登录</h2>
-        <p class="subtitle">AI驱动的全流程面试提升平台</p>
+        <p class="subtitle">大数据洞察与AI多模态面试融合的校园就业智配平台</p>
       </div>
       <div class="login-form">
         <el-form ref="loginForm" :model="loginForm" size="large">

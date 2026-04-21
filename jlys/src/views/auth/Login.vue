@@ -5,7 +5,7 @@
       <div class="header-left">
         <div class="logo">
           <i class="fas fa-robot"></i>
-          <span>AI面试官</span>
+          <span>数智通途</span>
         </div>
       </div>
       <div class="header-right">
@@ -18,7 +18,7 @@
       <div class="login-card">
         <div class="login-header">
           <h2>登录系统</h2>
-          <p>欢迎回到AI面试官系统</p>
+          <p>欢迎使用数智通途校园就业智配平台</p>
         </div>
 
         <!-- 角色选择 -->

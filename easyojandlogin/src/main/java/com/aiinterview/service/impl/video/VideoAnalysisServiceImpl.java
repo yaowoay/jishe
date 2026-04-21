@@ -158,7 +158,7 @@ public class VideoAnalysisServiceImpl implements VideoAnalysisService {
             headers.setContentType(MediaType.MULTIPART_FORM_DATA);
             
             MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
-            body.add("video", new org.springframework.core.io.FileSystemResource(videoPath));
+            body.add("videos", new org.springframework.core.io.FileSystemResource(videoPath));
             if (transcript != null && !transcript.trim().isEmpty()) {
                 body.add("transcript", transcript);
             }

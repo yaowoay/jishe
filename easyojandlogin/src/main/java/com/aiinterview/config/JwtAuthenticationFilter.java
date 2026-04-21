@@ -106,7 +106,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         // 视频上传路径检查
-        if (path.contains("video/upload") || path.contains("video/info")) {
+        if (path.contains("videos/upload") || path.contains("videos/info")) {
             System.out.println("=== JWT Filter Debug ===");
             System.out.println("Request URI: " + path);
             System.out.println("Skipping JWT filter for video upload");

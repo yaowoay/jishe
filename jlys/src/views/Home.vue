@@ -5,7 +5,7 @@
       <div class="header-left">
         <div class="logo">
           <i class="fas fa-robot"></i>
-          <span>智面星图</span>
+          <span>数智通途</span>
         </div>
       </div>
       <div class="header-right">
@@ -15,14 +15,14 @@
     <!-- 主视觉区 -->
     <div class="main-content">
       <div class="center-content">
-        <h1>获得你的面试<span class="highlight">超级Buff</span></h1>
+        <h1>开启你的<span class="highlight">智配就业</span>之旅</h1>
         <!-- AI数字人头像卡片 -->
         <div class="ai-avatar-card">
           <img src="@/assets/images/logo.png" alt="AI面试官" class="ai-avatar" />
           <div class="avatar-glow"></div>
         </div>
-        <div class="ai-subtitle">智面星图助力你的求职之路</div>
-        <p>AI驱动的多模态智能面试系统，通过数字人面试官、实时表情分析和个性化评估报告，助你轻松应对各种面试挑战！</p>
+        <div class="ai-subtitle">数智通途，职达未来</div>
+        <p>大数据洞察与AI多模态面试融合的校园就业智配平台，三端贯通·数据驱动·AI赋能·精准就业，助力校园人才与企业需求精准匹配！</p>
         <div class="hero-cta">
           <a class="btn btn-register btn-main" @click="goToRegister">立即体验</a>
           <a href="#" class="btn btn-demo btn-main">观看演示</a>
@@ -41,40 +41,40 @@
             <div class="feature-icon">
               <i class="fas fa-user-tie"></i>
             </div>
-            <h3>AI数字人面试官</h3>
-            <p>智能数字人面试官，支持多种岗位角色，还原真实面试场景</p>
+            <h3>AI多模态面试官</h3>
+            <p>融合语音、视觉、文本的智能面试官，多维度评估候选人综合能力</p>
             <a href="#" class="btn btn-login" @click="$router.push('/layout/simulatExam')">了解更多</a>
           </div>
           <div class="feature-card">
             <div class="feature-icon">
               <i class="fas fa-file-alt"></i>
             </div>
-            <h3>智能简历分析</h3>
-            <p>AI优化简历内容，精准匹配职位要求，一键生成专业级简历</p>
+            <h3>大数据简历洞察</h3>
+            <p>基于大数据分析的简历智能优化，精准匹配岗位需求，提升求职成功率</p>
             <a href="#" class="btn btn-login" @click="$router.push('/layout/editResume')">了解更多</a>
           </div>
           <div class="feature-card">
             <div class="feature-icon">
               <i class="fas fa-chart-line"></i>
             </div>
-            <h3>多模态分析</h3>
-            <p>综合语音、表情、行为等多维度数据，智能分析面试表现和心理状态</p>
+            <h3>智配算法引擎</h3>
+            <p>运用先进算法分析求职者与岗位匹配度，实现人岗精准智配</p>
             <a href="#" class="btn btn-login">了解更多</a>
           </div>
           <div class="feature-card">
             <div class="feature-icon">
               <i class="fas fa-clipboard-list"></i>
             </div>
-            <h3>三维评估报告</h3>
-            <p>面试后生成详细报告，包含技术能力、表达能力和问题解决能力分析</p>
+            <h3>全维度能力画像</h3>
+            <p>构建求职者多维能力画像，为企业提供全面的人才评估报告</p>
             <a href="#" class="btn btn-login" @click="$router.push('/test-assess-report-v2')">了解更多</a>
           </div>
           <div class="feature-card">
             <div class="feature-icon">
               <i class="fas fa-brain"></i>
             </div>
-            <h3>智能笔试系统</h3>
-            <p>基于AI的个性化笔试题目生成，智能推荐专属学习路径</p>
+            <h3>校园就业服务</h3>
+            <p>专为高校定制的就业服务体系，提供从求职指导到企业对接的全流程支持</p>
             <a href="#" class="btn btn-login" @click="$router.push('/layout/beforeWritten')">了解更多</a>
           </div>
           <div class="feature-card">
@@ -89,24 +89,24 @@
             <div class="feature-icon">
               <i class="fas fa-building"></i>
             </div>
-            <h3>企业招聘管理</h3>
-            <p>职位发布管理、应聘者跟踪、面试安排，全流程招聘数据分析</p>
+            <h3>企业智能招聘</h3>
+            <p>数据驱动的招聘管理平台，提升招聘效率，降低人才获取成本</p>
             <a href="#" class="btn btn-login" @click="$router.push('/company')">了解更多</a>
           </div>
           <div class="feature-card">
             <div class="feature-icon">
               <i class="fas fa-users"></i>
             </div>
-            <h3>候选人管理</h3>
-            <p>智能简历筛选、批量面试安排、候选人评分排序和状态跟踪</p>
+            <h3>人才库智能管理</h3>
+            <p>构建企业专属人才库，实现人才资源的智能化管理与精准匹配</p>
             <a href="#" class="btn btn-login" @click="$router.push('/company/applicants')">了解更多</a>
           </div>
           <div class="feature-card">
             <div class="feature-icon">
               <i class="fas fa-chart-bar"></i>
             </div>
-            <h3>招聘数据分析</h3>
-            <p>面试通过率统计、招聘效率分析、人才质量评估报告</p>
+            <h3>就业大数据洞察</h3>
+            <p>深度挖掘就业市场数据，为决策提供科学依据和趋势预测</p>
             <a href="#" class="btn btn-login" @click="$router.push('/company/analytics')">了解更多</a>
           </div>
         </div>
@@ -115,8 +115,8 @@
     <section class="user-types">
       <div class="container">
         <div class="section-title">
-          <h2>双重价值体系</h2>
-          <p>为企业和求职者提供全方位智能化服务</p>
+          <h2>三端贯通的智配体系</h2>
+          <p>学生端·企业端·高校端，构建完整的校园就业生态圈</p>
         </div>
         <div class="value-grid">
           <div class="value-section jobseeker-section">
@@ -125,25 +125,25 @@
                 <i class="fas fa-user-graduate"></i>
                 <span>求职者</span>
               </div>
-              <h3>全面提升面试竞争力</h3>
-              <p>从简历优化到面试技巧，AI助力求职成功</p>
+              <h3>全面提升就业竞争力</h3>
+              <p>从简历优化到面试技巧，数据驱动助力求职成功</p>
             </div>
             <div class="value-features">
               <div class="feature-item">
                 <i class="fas fa-robot"></i>
-                <span>AI面试官实战训练</span>
+                <span>AI多模态面试训练</span>
               </div>
               <div class="feature-item">
                 <i class="fas fa-file-alt"></i>
-                <span>智能简历优化建议</span>
+                <span>大数据简历洞察</span>
               </div>
               <div class="feature-item">
                 <i class="fas fa-route"></i>
-                <span>个性化学习路径</span>
+                <span>智配算法匹配</span>
               </div>
               <div class="feature-item">
                 <i class="fas fa-chart-line"></i>
-                <span>多模态智能分析反馈</span>
+                <span>多维度智能分析反馈</span>
               </div>
               <div class="feature-item">
                 <i class="fas fa-clipboard-check"></i>
@@ -164,8 +164,8 @@
                 <i class="fas fa-briefcase"></i>
                 <span>企业HR</span>
               </div>
-              <h3>高效智能的招聘管理</h3>
-              <p>从职位发布到人才筛选，AI赋能招聘全流程</p>
+              <h3>数据驱动的智能招聘</h3>
+              <p>从职位发布到人才筛选，大数据赋能招聘全流程</p>
             </div>
             <div class="value-features">
               <div class="feature-item">
@@ -174,7 +174,7 @@
               </div>
               <div class="feature-item">
                 <i class="fas fa-search"></i>
-                <span>AI简历智能筛选</span>
+                <span>大数据简历智能筛选</span>
               </div>
               <div class="feature-item">
                 <i class="fas fa-calendar-alt"></i>
@@ -186,7 +186,7 @@
               </div>
               <div class="feature-item">
                 <i class="fas fa-chart-bar"></i>
-                <span>招聘数据深度分析</span>
+                <span>就业大数据深度分析</span>
               </div>
             </div>
             <div class="value-action">
@@ -242,29 +242,29 @@
     <section class="process">
       <div class="container">
         <div class="section-title">
-          <h2>智能招聘全流程</h2>
-          <p>从人才发现到精准匹配，AI赋能的完整招聘解决方案</p>
+          <h2>智能就业全流程</h2>
+          <p>从人才发现到精准匹配，数据驱动的完整就业解决方案</p>
         </div>
         <div class="steps">
           <div class="step">
             <div class="step-number">1</div>
-            <h4>智能简历匹配</h4>
-            <p>AI分析简历与职位匹配度，精准筛选优质候选人</p>
+            <h4>大数据简历匹配</h4>
+            <p>运用大数据分析简历与职位匹配度，精准筛选优质候选人</p>
           </div>
           <div class="step">
             <div class="step-number">2</div>
-            <h4>多模态面试评估</h4>
-            <p>数字人面试官+多维度分析，全面评估候选人能力</p>
+            <h4>多模态智能评估</h4>
+            <p>AI多模态面试官+多维度分析，全面评估候选人能力</p>
           </div>
           <div class="step">
             <div class="step-number">3</div>
-            <h4>智能决策支持</h4>
+            <h4>数据驱动决策支持</h4>
             <p>综合评估报告与数据分析，辅助HR做出最优决策</p>
           </div>
           <div class="step">
             <div class="step-number">4</div>
-            <h4>持续优化改进</h4>
-            <p>基于招聘数据反馈，不断优化匹配算法和评估标准</p>
+            <h4>智配算法持续优化</h4>
+            <p>基于就业数据反馈，不断优化匹配算法和评估标准</p>
           </div>
         </div>
       </div>
@@ -275,9 +275,9 @@
           <div class="footer-column">
             <div class="logo">
               <i class="fas fa-robot"></i>
-              <span>AI面试官</span>
+              <span>数智通途</span>
             </div>
-            <p>AI赋能的面试训练平台，帮助求职者获得面试竞争优势，轻松斩获心仪Offer。</p>
+            <p>大数据洞察与AI多模态面试融合的校园就业智配平台，助力校园人才与企业需求精准匹配。</p>
             <div class="social-links">
               <a href="#"><i class="fab fa-weixin"></i></a>
               <a href="#"><i class="fab fa-zhihu"></i></a>
@@ -288,21 +288,21 @@
           <div class="footer-column">
             <h3>产品功能</h3>
             <ul class="footer-links">
-              <li><a href="#" @click="$router.push('/layout/editResume')">智能简历生成</a></li>
-              <li><a href="#" @click="$router.push('/layout/simulatExam')">AI模拟面试</a></li>
-              <li><a href="#" @click="$router.push('/layout/offecialExam')">正式面试挑战</a></li>
-              <li><a href="#" @click="$router.push('/test-assess-report-v2')">能力评估报告</a></li>
-              <li><a href="#" @click="$router.push('/layout/beforeWritten')">学习路线规划</a></li>
+              <li><a href="#" @click="$router.push('/layout/editResume')">大数据简历生成</a></li>
+              <li><a href="#" @click="$router.push('/layout/simulatExam')">AI多模态面试</a></li>
+              <li><a href="#" @click="$router.push('/layout/offecialExam')">智配面试挑战</a></li>
+              <li><a href="#" @click="$router.push('/test-assess-report-v2')">全维度能力评估</a></li>
+              <li><a href="#" @click="$router.push('/layout/beforeWritten')">就业路线规划</a></li>
             </ul>
           </div>
           <div class="footer-column">
             <h3>学习资源</h3>
             <ul class="footer-links">
-              <li><a href="#" @click="$router.push('/layout/oj')">面试题库</a></li>
-              <li><a href="#">面经分享</a></li>
-              <li><a href="#">行业趋势</a></li>
-              <li><a href="#">求职指南</a></li>
-              <li><a href="#">技能图谱</a></li>
+              <li><a href="#" @click="$router.push('/layout/oj')">就业题库</a></li>
+              <li><a href="#">就业经验分享</a></li>
+              <li><a href="#">行业就业趋势</a></li>
+              <li><a href="#">校园就业指南</a></li>
+              <li><a href="#">技能需求图谱</a></li>
             </ul>
           </div>
           <div class="footer-column">
@@ -316,7 +316,7 @@
           </div>
         </div>
         <div class="copyright">
-          <p>&copy; 2023 AI面试官系统 版权所有 | 京ICP备XXXXXX号</p>
+          <p>&copy; 2023 数智通途校园就业智配平台 版权所有 | 京ICP备XXXXXX号</p>
         </div>
       </div>
     </footer>

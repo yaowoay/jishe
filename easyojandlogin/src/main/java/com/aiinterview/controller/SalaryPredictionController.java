@@ -29,7 +29,7 @@ public class SalaryPredictionController {
             SalaryPredictionResult result = salaryPredictionService.getLatestPrediction(userId);
             return ResultUtils.success(result);
         } catch (Exception e) {
-            return ResultUtils.error(500, "获取最新预测结果失败");
+            return ResultUtils.<SalaryPredictionResult>error(500, "获取最新预测结果失败");
         }
     }
 
@@ -43,7 +43,7 @@ public class SalaryPredictionController {
             List<SalaryPredictionResult> results = salaryPredictionService.getUserPredictions(userId);
             return ResultUtils.success(results);
         } catch (Exception e) {
-            return ResultUtils.error(500, "查询用户预测结果失败");
+            return ResultUtils.<List<SalaryPredictionResult>>error(500, "查询用户预测结果失败");
         }
     }
 
@@ -59,7 +59,7 @@ public class SalaryPredictionController {
             List<SalaryPredictionResult> results = salaryPredictionService.getUserPredictionsByPage(userId, pageNum, pageSize);
             return ResultUtils.success(results);
         } catch (Exception e) {
-            return ResultUtils.error(500, "分页查询预测结果失败");
+            return ResultUtils.<List<SalaryPredictionResult>>error(500, "分页查询预测结果失败");
         }
     }
 

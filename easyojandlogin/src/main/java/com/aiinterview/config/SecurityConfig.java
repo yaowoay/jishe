@@ -47,7 +47,7 @@ public class SecurityConfig {
                 // 视频分析相关路径
                 .antMatchers("/video-analysis/**").permitAll()
                 // 视频上传相关路径
-                .antMatchers("/video/**").permitAll()
+                .antMatchers("/videos/**").permitAll()
                 // 面试记录相关路径
                 .antMatchers("/ai-interviews/**").permitAll()
                 // 其他公开路径
