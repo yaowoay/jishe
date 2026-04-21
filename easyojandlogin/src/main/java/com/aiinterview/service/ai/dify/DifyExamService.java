@@ -5,7 +5,6 @@ import io.netty.channel.ChannelOption;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.MediaType;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -84,7 +83,7 @@ public class DifyExamService {
 
 
         requestBody.put("inputs", inputs);
-        requestBody.put("response_mode", "sreaming"); //非阻塞式异步响应
+        requestBody.put("response_mode", "streaming"); //非阻塞式异步响应
         requestBody.put("user", "user-" + System.currentTimeMillis());
 
         log.info("Dify API 请求体: {}", JSONUtil.toJsonStr(requestBody));

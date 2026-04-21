@@ -12,6 +12,7 @@ import com.aiinterview.service.exam.ExamUserAnswerService;
 import com.aiinterview.service.exam.ExamJudgmentDetailService;
 import lombok.extern.slf4j.Slf4j;
 import lombok.var;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
@@ -21,6 +22,7 @@ import java.util.Map;
 
 @Slf4j
 @RestController
+@PreAuthorize("hasRole('xxx')")
 @RequestMapping("/exam")
 public class ExamController {
 

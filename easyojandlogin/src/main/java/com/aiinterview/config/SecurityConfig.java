@@ -32,7 +32,7 @@ public class SecurityConfig {
             .csrf().disable()
             .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             .and()
-            .authorizeRequests()
+            .authorizeRequests() //允许访问的接口
                 .antMatchers("/api/**").permitAll()
                 .antMatchers("/**/auth/**").permitAll()
                 // 认证相关路径 - 最重要，放在最前面
@@ -74,7 +74,7 @@ public class SecurityConfig {
                 .antMatchers("/interview-evaluation").permitAll()
                 .antMatchers("/interview-evaluation/**").permitAll()
                 .antMatchers("/recommend/**").permitAll()
-                .antMatchers("/student/profile/graduate/count").permitAll()
+                .antMatchers("/student/**").permitAll()
 //                .antMatchers("/student/profile").permitAll()
 
                 .anyRequest().authenticated()
