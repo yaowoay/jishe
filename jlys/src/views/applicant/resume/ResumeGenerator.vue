@@ -1391,6 +1391,9 @@ export default {
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
   padding: 32px;
+  /* 添加这些 */
+  max-height: 70vh;
+  overflow-y: auto;
 }
 
 /* 标题区域样式 */

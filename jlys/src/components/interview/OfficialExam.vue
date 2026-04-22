@@ -300,7 +300,8 @@ import DigitalHuman from './DigitalHuman/DigitalHuman.vue'
 import VideoAnalysis from './VideoAnalysis.vue'
 import { getInterviewQuestionsByApplicationId, startInterviewExam, submitInterviewAnswers, saveInterviewAnswer, updateInterviewStatusByApplication, quickEvaluateInterview, saveAIInterviewRecord } from '@/api/interview'
 import { ElMessage } from 'element-plus'
-
+// 先在文件顶部导入 axios
+import axios from 'axios'
 // 路由
 const router = useRouter()
 
@@ -763,6 +764,7 @@ function checkForNextQuestion(aiResponse) {
 }
 
 // 完成结构化面试
+// 完成结构化面试（已修复：阿里云视频上传 无分号版）
 async function finishStructuredInterview() {
   try {
     // 添加结束语
@@ -780,6 +782,40 @@ async function finishStructuredInterview() {
       digitalHumanRef.value.writeText(endMessage, false)
     }
 
+    // ===================== 上传面试视频到阿里云 OSS =====================
+    // ===================== 上传面试视频到阿里云 OSS =====================
+    ElMessage.info('正在上传面试视频，请稍候...')
+
+    try {
+      // 从数字人组件获取真实录制的面试视频
+      const videoBlob = digitalHumanRef.value?.recordedBlob
+
+      if (videoBlob && applicationId.value) {
+        console.log('📤 开始上传真实面试视频到阿里云')
+
+        const videoFile = new File([videoBlob], `interview_${applicationId.value}.mp4`, {
+          type: 'video/mp4'
+        })
+
+        const formData = new FormData()
+        formData.append('video', videoFile)
+        formData.append('interviewId', applicationId.value)
+
+        await axios.post('http://localhost:8080/video/upload', formData, {
+          headers: { 'Content-Type': 'multipart/form-data' }
+        })
+
+        console.log('✅ 真实面试视频已上传阿里云！')
+        ElMessage.success('视频上传成功')
+      } else {
+        console.log('⚠️ 未找到面试视频，跳过上传')
+        ElMessage.warning('未检测到面试视频')
+      }
+    } catch (uploadErr) {
+      console.error('❌ 视频上传失败：', uploadErr)
+      ElMessage.error('视频上传失败，可继续查看报告')
+    }
+    // ====================================================================
     // 最终提交完整面试数据
     if (applicationId.value && userAnswers.value.length > 0) {
       try {
@@ -821,38 +857,31 @@ async function finishStructuredInterview() {
 
         // 准备报告数据
         const reportData = {
-          // 基础面试信息
           applicationId: applicationId.value,
           interviewType: '结构化面试',
           endTime: new Date().toISOString(),
           duration: calculateDuration(),
           questions: interviewQuestions.value.map(q => q.question || q.text || q),
           answers: userAnswers.value.map(ua => ua.allAnswers ? ua.allAnswers.join(' ') : ''),
-
-          // 评估结果数据
           evaluationData: evaluationData
         }
 
-        // 保存到sessionStorage供报告页面使用
         sessionStorage.setItem('interviewReportData', JSON.stringify(reportData))
-        console.log('📊 报告数据已保存:', reportData)
+        console.log('📊 报告数据已保存')
 
         // 清理本地备份
-        if (applicationId.value) {
-          localStorage.removeItem(`interview_backup_${applicationId.value}`)
-          console.log('🗑️ 已清理本地备份数据')
-        }
+        localStorage.removeItem(`interview_backup_${applicationId.value}`)
 
-        // 跳转到报告页面
+        // 跳转到报告页
         setTimeout(() => {
           router.push('/interview/report')
         }, 1000)
+
       } catch (error) {
         console.error('❌ 提交面试数据失败:', error)
       }
     }
 
-    // 滚动到最新消息
     nextTick(() => {
       scrollToBottom()
     })
@@ -861,7 +890,6 @@ async function finishStructuredInterview() {
     console.error('完成结构化面试时出错:', error)
   }
 }
-
 //按钮进入结构化页面
 // function pushInterviewReport(){
 //   router.push('/interview/report')
