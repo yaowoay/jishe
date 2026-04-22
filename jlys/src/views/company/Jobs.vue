@@ -380,6 +380,8 @@ export default {
 
     const filteredJobs = computed(() => {
       let result = jobs.value
+      console.log('filteredJobs 计算属性被调用, jobs.value:', jobs.value)
+      console.log('jobs.value 长度:', jobs.value.length)
 
       // 关键词搜索
       if (searchForm.keyword) {
@@ -402,6 +404,8 @@ export default {
         result = result.filter(job => job.isActive === isActive)
       }
 
+      console.log('filteredJobs 结果:', result)
+      console.log('filteredJobs 结果长度:', result.length)
       return result
     })
 
@@ -421,8 +425,11 @@ export default {
       loading.value = true
       try {
         const response = await getCompanyJobs()
+        console.log('职位列表响应:', response)
         if (response.success) {
           jobs.value = response.data || []
+          console.log('职位数据:', jobs.value)
+          console.log('职位数量:', jobs.value.length)
         } else {
           ElMessage.error(response.message || '获取职位列表失败')
         }

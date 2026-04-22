@@ -402,8 +402,14 @@ export default {
       loading.value = true
       try {
         const response = await getActiveJobs()
+        console.log('简历投递页-职位列表响应:', response)
         if (response.success) {
           jobs.value = response.data || []
+          console.log('简历投递页-职位数据:', jobs.value)
+          console.log('简历投递页-职位数量:', jobs.value.length)
+          if (jobs.value.length > 0) {
+            console.log('简历投递页-第一个职位示例:', jobs.value[0])
+          }
         } else {
           ElMessage.error(response.message || '获取职位列表失败')
         }
