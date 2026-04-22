@@ -25,49 +25,58 @@ import java.util.Collections;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
     
     private final JwtUtils jwtUtils;
-    
+
     @Override
     protected void doFilterInternal(HttpServletRequest request,
-                                  HttpServletResponse response,
-                                  FilterChain filterChain) throws ServletException, IOException {
+                                    HttpServletResponse response,
+                                    FilterChain filterChain) throws ServletException, IOException {
 
         String requestURI = request.getRequestURI();
-        log.debug("处理请求: {}", requestURI);
+        System.out.println("========== JWT过滤器开始 ==========");
+        System.out.println("请求URI: " + requestURI);
+
+        String authHeader = request.getHeader("Authorization");
+        System.out.println("Authorization头: " + authHeader);
 
         String token = getTokenFromRequest(request);
+        System.out.println("提取的token: " + (token != null ? token.substring(0, Math.min(50, token.length())) : "null"));
 
         if (token != null) {
             try {
-                // 验证token并获取用户信息
                 String username = jwtUtils.getUsernameFromToken(token);
                 String role = jwtUtils.getRoleFromToken(token);
                 Long userId = jwtUtils.getUserIdFromToken(token);
 
+                System.out.println("解析结果 - username: " + username + ", userId: " + userId + ", role: " + role);
+
                 if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-                    // 创建认证对象
+                    // 创建User对象
+                    com.aiinterview.model.entity.user.User user = new com.aiinterview.model.entity.user.User();
+                    user.setUserId(userId);
+                    user.setEmail(username);
+                    user.setRole(role);
+
                     UsernamePasswordAuthenticationToken authentication =
-                        new UsernamePasswordAuthenticationToken(
-                            username,
-                            null,
-                            Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + role.toUpperCase()))
-                        );
+                            new UsernamePasswordAuthenticationToken(user, null,
+                                    Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + role.toUpperCase())));
 
-                    // 设置用户详细信息
-                    authentication.setDetails(userId);
-
-                    // 设置到安全上下文
                     SecurityContextHolder.getContext().setAuthentication(authentication);
-
-                    log.debug("JWT认证成功: 用户={}, 角色={}, ID={}", username, role, userId);
+                    System.out.println("认证设置成功！用户: " + username);
+                } else {
+                    System.out.println("认证设置失败 - username为空或已有认证");
                 }
             } catch (Exception e) {
-                log.warn("JWT认证失败: 路径={}, 错误={}", requestURI, e.getMessage());
-                // 清除安全上下文
-                SecurityContextHolder.clearContext();
+                System.err.println("JWT解析异常: " + e.getMessage());
+                e.printStackTrace();
             }
         } else {
-            log.debug("未找到JWT token: {}", requestURI);
+            System.out.println("没有找到token");
         }
+
+        System.out.println("最终SecurityContext中的认证: " + SecurityContextHolder.getContext().getAuthentication());
+        System.out.println("Principal: " + (SecurityContextHolder.getContext().getAuthentication() != null ?
+                SecurityContextHolder.getContext().getAuthentication().getPrincipal() : "null"));
+        System.out.println("========== JWT过滤器结束 ==========");
 
         filterChain.doFilter(request, response);
     }
@@ -83,7 +92,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         return null;
     }
     
-    @Override
+    /*@Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
         String path = request.getRequestURI();
 
@@ -115,13 +124,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         // 面试记录路径检查
-        if (path.contains("ai-interviews")) {
+   *//*     if (path.contains("ai-interviews")) {
             System.out.println("=== JWT Filter Debug ===");
             System.out.println("Request URI: " + path);
             System.out.println("Skipping JWT filter for ai-interviews");
             System.out.println("========================");
             return true;  // 直接跳过面试记录的所有请求
-        }
+        }*//*
 
         // 面试评估路径检查
         if (path.contains("interview-evaluation")) {
@@ -142,6 +151,25 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                path.startsWith("/api/jobs/type/")||
                 path.startsWith("/api/external-resume")||
                path.startsWith("/api/job-description");
+
+        return shouldSkip;
+    }*/
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        String path = request.getRequestURI();
+
+        // 只跳过登录、注册等公开接口
+        boolean shouldSkip = path.startsWith("/api/auth/") ||
+                path.startsWith("/api/email/") ||
+                path.startsWith("/auth/") ||
+                path.startsWith("/api/public/") ||
+                path.startsWith("/api/error") ||
+                path.startsWith("/api/actuator/") ||
+                path.equals("/api/jobs/active") ||
+                path.equals("/api/jobs/search") ||
+                path.startsWith("/api/jobs/type/") ||
+                path.startsWith("/api/external-resume") ||
+                path.startsWith("/api/job-description");
 
         return shouldSkip;
     }
