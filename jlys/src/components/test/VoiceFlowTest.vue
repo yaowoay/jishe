@@ -63,7 +63,7 @@ import DigitalHuman from '../functions/AiInterview/DigitalHuman/DigitalHuman.vue
 
 const digitalHumanRef = ref(null)
 const selectedAvatarId = ref('110117005')
-const testText = ref('你好，我是数字人面试官，很高兴见到你。')
+const testText = ref('你好，我是AI多模态面试官，很高兴见到你。')
 const logs = ref([])
 
 const avatarConfig = reactive({

@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -93,6 +94,26 @@ public class StudentProfileController {
             return ApiResponse.success("获取状态成功", result);
         } catch (Exception e) {
             log.error("获取状态失败: {}", e.getMessage());
+            return ApiResponse.error(e.getMessage());
+        }
+    }
+
+    /**
+     * 统计今年毕业生数量（2026届）
+     */
+    @GetMapping("/graduate/count")
+    public ApiResponse<Map<String, Object>> countCurrentYearGraduates() {
+        try {
+            final int currentGraduationYear = LocalDate.now().getYear();
+            Long graduateCount = studentProfileService.countGraduatesByYear(currentGraduationYear);
+
+            Map<String, Object> result = new HashMap<>();
+            result.put("graduationYear", currentGraduationYear);
+            result.put("graduateCount", graduateCount);
+
+            return ApiResponse.success("获取毕业生数量成功", result);
+        } catch (Exception e) {
+            log.error("统计毕业生数量失败: {}", e.getMessage());
             return ApiResponse.error(e.getMessage());
         }
     }

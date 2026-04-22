@@ -5,7 +5,7 @@ import request from '@/utils/request'
  */
 export function getAllRules() {
   return request({
-    url: '/api/skill-association-rules',
+    url: '  /skill-association-rules',
     method: 'get'
   })
 }
@@ -15,7 +15,7 @@ export function getAllRules() {
  */
 export function getRulesBySkillA(skillA) {
   return request({
-    url: `/api/skill-association-rules/skill-a/${skillA}`,
+    url: `  /skill-association-rules/skill-a/${skillA}`,
     method: 'get'
   })
 }
@@ -25,7 +25,7 @@ export function getRulesBySkillA(skillA) {
  */
 export function getRulesBySkillB(skillB) {
   return request({
-    url: `/api/skill-association-rules/skill-b/${skillB}`,
+    url: `  /skill-association-rules/skill-b/${skillB}`,
     method: 'get'
   })
 }
@@ -35,7 +35,7 @@ export function getRulesBySkillB(skillB) {
  */
 export function getRuleBySkillPair(skillA, skillB) {
   return request({
-    url: '/api/skill-association-rules/skill-pair',
+    url: '  /skill-association-rules/skill-pair',
     method: 'get',
     params: { skillA, skillB }
   })
@@ -46,7 +46,7 @@ export function getRuleBySkillPair(skillA, skillB) {
  */
 export function getRulesOrderByConfidence() {
   return request({
-    url: '/api/skill-association-rules/order-by-confidence',
+    url: '  /skill-association-rules/order-by-confidence',
     method: 'get'
   })
 }
@@ -56,7 +56,7 @@ export function getRulesOrderByConfidence() {
  */
 export function getRulesOrderByLift() {
   return request({
-    url: '/api/skill-association-rules/order-by-lift',
+    url: '  /skill-association-rules/order-by-lift',
     method: 'get'
   })
 }
@@ -66,7 +66,7 @@ export function getRulesOrderByLift() {
  */
 export function getRulesByPage(pageNum, pageSize) {
   return request({
-    url: '/api/skill-association-rules/page',
+    url: '  /skill-association-rules/page',
     method: 'get',
     params: { pageNum, pageSize }
   })
@@ -77,7 +77,7 @@ export function getRulesByPage(pageNum, pageSize) {
  */
 export function addRule(rule) {
   return request({
-    url: '/api/skill-association-rules/add',
+    url: '  /skill-association-rules/add',
     method: 'post',
     data: rule
   })
@@ -88,7 +88,7 @@ export function addRule(rule) {
  */
 export function updateRule(rule) {
   return request({
-    url: '/api/skill-association-rules/update',
+    url: '  /skill-association-rules/update',
     method: 'put',
     data: rule
   })
@@ -99,7 +99,7 @@ export function updateRule(rule) {
  */
 export function deleteRule(ruleId) {
   return request({
-    url: `/api/skill-association-rules/${ruleId}`,
+    url: `  /skill-association-rules/${ruleId}`,
     method: 'delete'
   })
 }
@@ -109,7 +109,7 @@ export function deleteRule(ruleId) {
  */
 export function getRuleCount() {
   return request({
-    url: '/api/skill-association-rules/count',
+    url: '  /skill-association-rules/count',
     method: 'get'
   })
 }
@@ -119,7 +119,7 @@ export function getRuleCount() {
  */
 export function getSkillsByPosition(positionName) {
   return request({
-    url: '/api/skill-association-rules/skills-by-position',
+    url: '  /skill-association-rules/skills-by-position',
     method: 'get',
     params: { positionName }
   })

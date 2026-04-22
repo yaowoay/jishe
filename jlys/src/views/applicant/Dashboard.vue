@@ -12,12 +12,12 @@
     <div class="dashboard-header">
       <div class="header-title">
         <span>欢迎使用</span>
-        <span class="highlight">智面星图</span>
+        <span class="highlight">数智通途</span>
       </div>
-      <div class="header-subtitle">您的专属AI面试训练平台，助力求职成功</div>
+      <div class="header-subtitle">您的专属校园就业智配平台，助力求职成功</div>
       <!-- 产品特色描述 -->
       <div class="feature-description">
-        智能简历生成 · AI模拟面试 · 个性化反馈 · 职业性格测评 · 专业笔试训练 · 求职数据分析
+        大数据简历洞察 · AI多模态面试 · 个性化反馈 · 职业性格测评 · 专业笔试训练 · 就业数据分析
       </div>
     </div>
     <!-- 数据统计卡片 -->
@@ -84,7 +84,7 @@
           <el-icon class="upload-icon"><Upload /></el-icon>
           <el-input
               v-model="inputMessage"
-              placeholder="我是智面Buff AI助手，随意点击搜索框就能唤醒我哦~~"
+              placeholder="我是数智通途AI助手，随意点击搜索框就能唤醒我哦~~"
               type="text"
               class="new-modern-input"
               @keydown.enter.prevent="showAIAssistant"
@@ -108,8 +108,8 @@
           <el-card class="func-card" shadow="hover" @click="$router.push('/applicant/resume/manage')">
             <div class="card-content">
               <el-icon class="func-icon"><Document /></el-icon>
-              <div class="func-title">智能简历工坊</div>
-              <div class="func-desc">AI辅助简历生成和优化建议</div>
+              <div class="func-title">大数据简历工坊</div>
+              <div class="func-desc">基于大数据的简历生成和优化建议</div>
             </div>
           </el-card>
         </el-col>
@@ -117,8 +117,8 @@
           <el-card class="func-card" shadow="hover" @click="$router.push('/applicant/interview')">
             <div class="card-content">
               <el-icon class="func-icon"><VideoPlay /></el-icon>
-              <div class="func-title">AI模拟面试</div>
-              <div class="func-desc">真实面试场景模拟和反馈</div>
+              <div class="func-title">AI多模态面试</div>
+              <div class="func-desc">真实面试场景模拟和智能反馈</div>
             </div>
           </el-card>
         </el-col>
@@ -143,7 +143,7 @@
         class="coze-dialog"
     >
       <template #title>
-        <span>智面Buff AI助手</span>
+        <span>数智通途AI助手</span>
       </template>
       <div style="height: 600px; max-height: 70vh; overflow: auto;">
         <CozeAssistant v-if="assistantDialogVisible" />

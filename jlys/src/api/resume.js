@@ -4,6 +4,23 @@ import request from '@/utils/request'
  * 简历相关API
  */
 
+// 获取求职信息
+export function getJobInfo() {
+  return request({
+    url: '/resume/job-info',
+    method: 'get'
+  })
+}
+
+// 保存求职信息
+export function saveJobInfo(data) {
+  return request({
+    url: '/resume/job-info',
+    method: 'post',
+    data
+  })
+}
+
 // 获取简历列表（上传的文件）- 用于"我的简历"模块
 export function getResumeList() {
   return request({

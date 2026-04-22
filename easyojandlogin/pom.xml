@@ -373,6 +373,27 @@
             <!-- 本地运行用 provided，打包提交集群用 compile -->
             <scope>compile</scope>
         </dependency>
+
+        <!-- Flink Web UI -->
+        <dependency>
+            <groupId>org.apache.flink</groupId>
+            <artifactId>flink-runtime-web_2.12</artifactId>
+            <version>1.14.6</version>
+        </dependency>
+
+        <!-- Flink REST API（Web UI 通信依赖） -->
+        <dependency>
+            <groupId>org.apache.flink</groupId>
+            <artifactId>flink-runtime-web_2.12</artifactId>
+            <version>1.14.6</version>
+        </dependency>
+
+        <!-- Flink Metrics（可选，Web UI 性能监控需要） -->
+        <dependency>
+            <groupId>org.apache.flink</groupId>
+            <artifactId>flink-metrics-core</artifactId>
+            <version>1.14.6</version>
+        </dependency>
         </dependencies>
 
     <build>
@@ -386,11 +407,10 @@
                     <source>1.8</source>
                     <target>1.8</target>
                     <encoding>UTF-8</encoding>
-                    <showDeprecation>true</showDeprecation>
-                    <showWarnings>true</showWarnings>
+                    <showDeprecation>false</showDeprecation>
+                    <showWarnings>false</showWarnings>
                     <compilerArgs>
-                        <arg>-Xlint:deprecation</arg>
-                        <arg>-Xlint:unchecked</arg>
+                        <arg>-Xlint:-options</arg>
                     </compilerArgs>
                     <annotationProcessorPaths>
                         <path>

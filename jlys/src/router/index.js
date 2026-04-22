@@ -345,6 +345,13 @@ const routes = [
         name: 'TeacherProfile',
         component: () => import('@/views/teacher/Profile.vue')
       }
+      ,
+      {
+        path: 'employmentscreen',
+        name: 'EmploymentScreen',
+        component: () => import('@/views/visualScreen/EmploymentScreen.vue'),
+        meta: { title: '可视化大屏', icon: 'el-icon-monitor' }
+      }
     ]
   },
   {

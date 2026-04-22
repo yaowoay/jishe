@@ -87,7 +87,7 @@ import DigitalHuman from '../functions/AiInterview/DigitalHuman/DigitalHuman.vue
 
 const digitalHumanRef = ref(null)
 const selectedTone = ref('professional')
-const testText = ref('你好，欢迎参加本次面试，我是你的AI面试官。')
+const testText = ref('你好，欢迎参加本次面试，我是你的AI多模态面试官。')
 const logs = ref([])
 
 const avatarConfig = reactive({

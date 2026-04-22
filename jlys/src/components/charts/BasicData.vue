@@ -8,9 +8,9 @@
         </svg>
       </div>
       <div class="stat-content">
-        <div class="stat-label">最高薪资</div>
-        <div class="stat-value">¥66K</div>
-        <div class="stat-desc">AI与大数据分析工程师</div>
+        <div class="stat-label">今日岗位发布量</div>
+        <div class="stat-value">20</div>
+<!--        <div class="stat-desc">AI与大数据分析工程师</div>-->
       </div>
     </div>
 

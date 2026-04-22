@@ -42,6 +42,16 @@ public class Position {
     @TableField(exist = false)
     private String industry;
 
+    @TableField(exist = false)
+    private String companyName;
+
+    @TableField(exist = false)
+    private String scale;
+
+    // 对应 companies.financing_status，用于前端展示公司融资情况
+    @TableField(exist = false)
+    private String companyType;
+
     // 匹配度得分（非数据库字段，用于推荐排序）
     @TableField(exist = false)
     private Double matchScore;

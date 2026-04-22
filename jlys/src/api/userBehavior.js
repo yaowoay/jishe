@@ -5,7 +5,7 @@ import request from '@/utils/request'
  */
 export function recordUserAction(action) {
   return request({
-    url: '/api/user-behavior-analysis/record',
+    url: '  /user-behavior-analysis/record',
     method: 'post',
     data: action
   })
@@ -16,7 +16,7 @@ export function recordUserAction(action) {
  */
 export function recordUserActionBatch(actions) {
   return request({
-    url: '/api/user-behavior-analysis/batch-record',
+    url: '  /user-behavior-analysis/batch-record',
     method: 'post',
     data: actions
   })
@@ -27,7 +27,7 @@ export function recordUserActionBatch(actions) {
  */
 export function getUserActions(userId) {
   return request({
-    url: `/api/user-behavior-analysis/user/${userId}`,
+    url: `  /user-behavior-analysis/user/${userId}`,
     method: 'get'
   })
 }
@@ -37,7 +37,7 @@ export function getUserActions(userId) {
  */
 export function getUserActionsByTimeRange(userId, startTime, endTime) {
   return request({
-    url: `/api/user-behavior-analysis/user/${userId}/time-range`,
+    url: `  /user-behavior-analysis/user/${userId}/time-range`,
     method: 'get',
     params: { startTime, endTime }
   })
@@ -48,7 +48,7 @@ export function getUserActionsByTimeRange(userId, startTime, endTime) {
  */
 export function getUserBehaviorStats(userId) {
   return request({
-    url: `/api/user-behavior-analysis/user/${userId}/stats`,
+    url: `  /user-behavior-analysis/user/${userId}/stats`,
     method: 'get'
   })
 }
@@ -58,7 +58,7 @@ export function getUserBehaviorStats(userId) {
  */
 export function getUserActionTypeStats(userId) {
   return request({
-    url: `/api/user-behavior-analysis/user/${userId}/action-type-stats`,
+    url: `  /user-behavior-analysis/user/${userId}/action-type-stats`,
     method: 'get'
   })
 }
@@ -68,7 +68,7 @@ export function getUserActionTypeStats(userId) {
  */
 export function analyzeUserBehaviorPattern(userId, timeRangeDays = 30) {
   return request({
-    url: `/api/user-behavior-analysis/user/${userId}/pattern`,
+    url: `  /user-behavior-analysis/user/${userId}/pattern`,
     method: 'get',
     params: { timeRangeDays }
   })
@@ -79,7 +79,7 @@ export function analyzeUserBehaviorPattern(userId, timeRangeDays = 30) {
  */
 export function getUserActivityStats(userId) {
   return request({
-    url: `/api/user-behavior-analysis/user/${userId}/activity-stats`,
+    url: `  /user-behavior-analysis/user/${userId}/activity-stats`,
     method: 'get'
   })
 }
@@ -89,7 +89,7 @@ export function getUserActivityStats(userId) {
  */
 export function getUserInterestTags(userId) {
   return request({
-    url: `/api/user-behavior-analysis/user/${userId}/interest-tags`,
+    url: `  /user-behavior-analysis/user/${userId}/interest-tags`,
     method: 'get'
   })
 }
@@ -99,7 +99,7 @@ export function getUserInterestTags(userId) {
  */
 export function deleteUserActions(userId) {
   return request({
-    url: `/api/user-behavior-analysis/user/${userId}`,
+    url: `  /user-behavior-analysis/user/${userId}`,
     method: 'delete'
   })
 }
@@ -109,7 +109,7 @@ export function deleteUserActions(userId) {
  */
 export function getUserActionCount(userId) {
   return request({
-    url: `/api/user-behavior-analysis/user/${userId}/count`,
+    url: `  /user-behavior-analysis/user/${userId}/count`,
     method: 'get'
   })
 }

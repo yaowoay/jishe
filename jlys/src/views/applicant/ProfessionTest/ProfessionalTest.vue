@@ -178,7 +178,7 @@ export default {
           id: 2,
           name: '后端开发',
           description: 'Java、Python、Node.js、数据库等后端技术',
-          icon: 'Code',
+          icon: 'Monitor',
           testCount: 8,
           difficulty: '中级',
           questionCount: 10,

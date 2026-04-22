@@ -24,20 +24,20 @@ import java.time.format.DateTimeFormatter;
 public class VideoUploadController {
 
     // 视频保存路径
-    private static final String VIDEO_UPLOAD_DIR = "src/main/resources/video/";
+    private static final String VIDEO_UPLOAD_DIR = "E:/Projects/hautproject/2026/li/easyojandlogin/src/main/resources/videos/";
     
     /**
      * 上传面试视频
      */
     @PostMapping("/upload")
     public ResponseEntity<ApiResponse<VideoUploadResponse>> uploadVideo(
-            @RequestParam("video") MultipartFile videoFile,
+            @RequestParam("videos") MultipartFile videoFile,
             @RequestParam("interviewId") Long interviewId) {
 
         try {
-            log.info("🎥 接收到视频上传请求，面试ID: {}, 文件大小: {} MB",
+            log.info("接收到视频上传请求，面试ID: {}, 文件大小: {} MB",
                 interviewId, videoFile.getSize() / 1024.0 / 1024.0);
-            log.info("📁 文件名: {}, 内容类型: {}", videoFile.getOriginalFilename(), videoFile.getContentType());
+            log.info("文件名: {}, 内容类型: {}", videoFile.getOriginalFilename(), videoFile.getContentType());
             
             // 验证文件
             if (videoFile.isEmpty()) {
@@ -47,7 +47,7 @@ public class VideoUploadController {
             
             // 检查文件类型
             String contentType = videoFile.getContentType();
-            if (contentType == null || !contentType.startsWith("video/")) {
+            if (contentType == null || !contentType.startsWith("videos/")) {
                 return ResponseEntity.badRequest()
                     .body(ApiResponse.error("只能上传视频文件"));
             }

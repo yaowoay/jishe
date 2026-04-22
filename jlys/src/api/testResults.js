@@ -8,7 +8,7 @@ import request from '@/utils/request'
  */
 export function saveTestResult(testData) {
   return request({
-    url: '/api/test-results',
+    url: '  /test-results',
     method: 'post',
     data: testData
   })
@@ -21,7 +21,7 @@ export function saveTestResult(testData) {
  */
 export function getTestHistory(params = {}) {
   return request({
-    url: '/api/test-results/history',
+    url: '  /test-results/history',
     method: 'get',
     params: {
       page: params.page || 1,
@@ -40,7 +40,7 @@ export function getTestHistory(params = {}) {
  */
 export function getTestResultDetail(resultId) {
   return request({
-    url: `/api/test-results/${resultId}`,
+    url: `  /test-results/${resultId}`,
     method: 'get'
   })
 }
@@ -52,7 +52,7 @@ export function getTestResultDetail(resultId) {
  */
 export function getTestStatistics(params = {}) {
   return request({
-    url: '/api/test-results/statistics',
+    url: '  /test-results/statistics',
     method: 'get',
     params: {
       category: params.category,
@@ -68,7 +68,7 @@ export function getTestStatistics(params = {}) {
  */
 export function deleteTestResult(resultId) {
   return request({
-    url: `/api/test-results/${resultId}`,
+    url: `  /test-results/${resultId}`,
     method: 'delete'
   })
 }
@@ -80,7 +80,7 @@ export function deleteTestResult(resultId) {
  */
 export function batchDeleteTestResults(resultIds) {
   return request({
-    url: '/api/test-results/batch-delete',
+    url: '  /test-results/batch-delete',
     method: 'post',
     data: { resultIds }
   })
@@ -93,7 +93,7 @@ export function batchDeleteTestResults(resultIds) {
  */
 export function exportTestResults(params = {}) {
   return request({
-    url: '/api/test-results/export',
+    url: '  /test-results/export',
     method: 'get',
     params: {
       format: params.format || 'excel', // excel, pdf, csv
@@ -112,7 +112,7 @@ export function exportTestResults(params = {}) {
  */
 export function getAbilityAnalysis(params = {}) {
   return request({
-    url: '/api/test-results/ability-analysis',
+    url: '  /test-results/ability-analysis',
     method: 'get',
     params: {
       category: params.category,
@@ -129,7 +129,7 @@ export function getAbilityAnalysis(params = {}) {
  */
 export function getLearningRecommendations(params = {}) {
   return request({
-    url: '/api/test-results/recommendations',
+    url: '  /test-results/recommendations',
     method: 'get',
     params: {
       category: params.category,

@@ -1,5 +1,5 @@
 package com.aiinterview.flink.recommend;
-
+import org.apache.flink.configuration.Configuration;
 import com.alibaba.fastjson.JSONObject;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.common.functions.AggregateFunction;
@@ -20,7 +20,11 @@ import java.sql.*;
 
 public class BehaviorRealTimeProfileJob {
     public static void main(String[] args) throws Exception {
-        StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
+        Configuration conf = new Configuration();
+        conf.setInteger("rest.port", 8081);
+
+        StreamExecutionEnvironment env =
+                StreamExecutionEnvironment.createLocalEnvironmentWithWebUI(conf);
         env.enableCheckpointing(60000);
 
         // 1. 配置Kafka Source
