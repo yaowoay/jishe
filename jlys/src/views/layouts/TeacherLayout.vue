@@ -229,6 +229,7 @@ onMounted(() => {
   .el-container {
     height: 100%;
     display: flex;
+    overflow: hidden;
   }
 
   .sidebar-wrapper {

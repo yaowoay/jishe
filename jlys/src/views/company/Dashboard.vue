@@ -191,7 +191,7 @@ import {
   InfoFilled
 } from '@element-plus/icons-vue'
 import ProfileGuideDialog from '@/components/ProfileGuideDialog.vue'
-
+import { getCompanyProfile } from '@/api/company'  // ✅ 导入API
 export default {
   name: 'CompanyDashboard',
   components: {
@@ -211,6 +211,7 @@ export default {
   data() {
     return {
       showProfileGuide: false,
+      profileCompletion: 0,  // ✅ 添加完整度
       stats: {
         jobCount: 0,
         applicantCount: 0,
@@ -231,27 +232,51 @@ export default {
       ]
     }
   },
-  mounted() {
+  async mounted() {
     this.loadStats()
-    this.checkProfileStatus()
+    await this.checkProfileStatus()  // ✅ 改为异步
   },
   methods: {
-    checkProfileStatus() {
-      // 检查用户角色和档案完成状态
-      const userRole = this.$store.getters.userRole
-      const profileCompleted = this.$store.getters.profileCompleted
-      
-      console.log('检查企业档案状态:', { userRole, profileCompleted })
-      
-      // 只有企业角色且档案未完善时才显示弹窗
-      if (userRole === 'company' && !profileCompleted) {
-        // 延迟显示弹窗，让页面先加载完成
+    // ✅ 修改检查档案状态的方法
+    async checkProfileStatus() {
+      try {
+        const response = await getCompanyProfile()
+
+        if (response && response.success && response.data && response.data.profile) {
+          const profile = response.data.profile
+
+          // 计算档案完整度
+          let score = 0
+          if (profile.companyName && profile.companyName.trim()) score += 20
+          if (profile.industry && profile.industry.trim()) score += 20
+          if (profile.scale && profile.scale.trim()) score += 20
+          if (profile.contactPhone && profile.contactPhone.trim()) score += 20
+          if (profile.address && profile.address.trim()) score += 7
+          if (profile.website && profile.website.trim()) score += 7
+          if (profile.description && profile.description.trim()) score += 6
+
+          this.profileCompletion = Math.min(100, Math.round(score))
+
+          // 完整度低于60才显示弹窗
+          if (this.profileCompletion < 60) {
+            setTimeout(() => {
+              this.showProfileGuide = true
+            }, 1000)
+          }
+        } else {
+          // 没有企业信息，显示弹窗
+          setTimeout(() => {
+            this.showProfileGuide = true
+          }, 1000)
+        }
+      } catch (error) {
+        console.error('获取企业信息失败:', error)
+        // 获取失败也显示弹窗
         setTimeout(() => {
           this.showProfileGuide = true
         }, 1000)
       }
     },
-    
     handleCompleteProfile() {
       // 跳转到企业档案完善页面
       this.$router.push('/company/profile-complete')

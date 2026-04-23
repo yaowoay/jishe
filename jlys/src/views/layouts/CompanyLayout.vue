@@ -148,7 +148,7 @@ import {
   SwitchButton
 } from '@element-plus/icons-vue'
 import { ElMessageBox } from 'element-plus'
-
+import { getCompanyProfile } from '@/api/company'  // ✅ 导入API
 export default {
   name: 'CompanyLayout',
   components: {
@@ -166,7 +166,10 @@ export default {
   data() {
     return {
       userInfo: {},
-      isSidebarVisible: false
+      isSidebarVisible: false,
+      profileCompletion: 0,
+      showProfileTip: false      // 是否显示完善信息提示
+
     }
   },
   computed: {
@@ -186,7 +189,41 @@ export default {
       return path
     }
   },
+  mounted() {
+    this.loadCompanyProfile()  // ✅ 页面加载时获取企业信息
+  },
   methods: {
+    // ✅ 加载企业信息，计算完整度
+    async loadCompanyProfile() {
+      try {
+        const response = await getCompanyProfile()
+        if (response && response.success && response.data && response.data.profile) {
+          const profile = response.data.profile
+
+          // 计算档案完整度
+          let score = 0
+          if (profile.companyName && profile.companyName.trim()) score += 20
+          if (profile.industry && profile.industry.trim()) score += 20
+          if (profile.scale && profile.scale.trim()) score += 20
+          if (profile.contactPhone && profile.contactPhone.trim()) score += 20
+          if (profile.address && profile.address.trim()) score += 7
+          if (profile.website && profile.website.trim()) score += 7
+          if (profile.description && profile.description.trim()) score += 6
+
+          this.profileCompletion = Math.min(100, Math.round(score))
+          // 完整度低于60显示提示
+          this.showProfileTip = this.profileCompletion < 60
+        } else {
+          this.profileCompletion = 0
+          this.showProfileTip = true
+        }
+      } catch (error) {
+        console.error('加载企业信息失败:', error)
+        this.profileCompletion = 0
+        this.showProfileTip = true
+      }
+    },
+
     showSidebar() {
       this.isSidebarVisible = true
     },
@@ -322,6 +359,8 @@ export default {
   flex: 1;
   border: none;
   padding: 0 8px;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
 }
 
 :deep(.aside-menu .el-menu-item) {
@@ -470,7 +509,11 @@ export default {
 .main-content {
   padding: 24px;
   background: transparent;
-  overflow-y: auto;
+  overflow-y: auto !important;  /* 强制滚动 */
+  overflow-x: hidden !important;
+  height: calc(100vh - 64px) !important;
+  max-height: calc(100vh - 64px) !important;
+  flex: 1;
 }
 
 /* 响应式设计 */

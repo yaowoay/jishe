@@ -12,12 +12,19 @@ const service = axios.create({
 })
 
 // 请求拦截器
+// 请求拦截器
 service.interceptors.request.use(
   config => {
-    // 从localStorage获取token
     const token = localStorage.getItem('token')
+    console.log('=== 请求拦截器 ===')
+    console.log('请求URL:', config.url)
+    console.log('token是否存在:', !!token)
+
     if (token) {
       config.headers.Authorization = `Bearer ${token}`
+      console.log('已添加Authorization:', config.headers.Authorization)
+    } else {
+      console.warn('token不存在！')
     }
     return config
   },
@@ -26,7 +33,6 @@ service.interceptors.request.use(
     return Promise.reject(error)
   }
 )
-
 // 响应拦截器
 service.interceptors.response.use(
   response => {

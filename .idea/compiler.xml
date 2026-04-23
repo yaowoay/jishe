@@ -22,7 +22,7 @@
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
-      <module name="ai-interview-backend" options="-parameters -Xlint:deprecation -Xlint:unchecked" />
+      <module name="ai-interview-backend" options="-parameters -Xlint:-options" />
       <module name="easy-oj-backend" options="-parameters" />
     </option>
   </component>

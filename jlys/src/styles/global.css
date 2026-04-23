@@ -857,3 +857,50 @@ textarea::placeholder {
 .el-textarea {
   position: relative !important;
 }
+
+/* ========== 企业面板专用滚动样式 ========== */
+
+/* 企业布局主内容区滚动 */
+.layout-container .main-content {
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    height: calc(100vh - 64px) !important;
+    scroll-behavior: smooth;
+}
+
+/* 企业侧边栏菜单滚动 */
+.layout-container .aside-menu {
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    max-height: calc(100vh - 200px);
+}
+
+/* 企业信息页面滚动 */
+.profile {
+    overflow-y: auto !important;
+    height: 100%;
+}
+
+/* 应聘者管理页面表格滚动 */
+.applicant-management .el-table__body-wrapper {
+    overflow-y: auto !important;
+    max-height: 600px;
+}
+
+/* 职位管理页面滚动 */
+.jobs-management .el-table__body-wrapper {
+    overflow-y: auto !important;
+    max-height: 600px;
+}
+
+/* 面试管理页面滚动 */
+.interviews-management .el-table__body-wrapper {
+    overflow-y: auto !important;
+    max-height: 600px;
+}
+
+/* 弹窗内容滚动 */
+.el-dialog__body {
+    max-height: 60vh;
+    overflow-y: auto !important;
+}

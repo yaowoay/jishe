@@ -49,9 +49,9 @@
               {{ profileData.creditScore || '未评分' }}
             </el-descriptions-item>
             <el-descriptions-item label="档案完整度" span="2">
-              <el-progress 
-                :percentage="profileData.profileCompletion || 0" 
-                :color="getProgressColor(profileData.profileCompletion)"
+              <el-progress
+                  :percentage="profileCompletion"
+                  :color="getProgressColor(profileCompletion)"
               />
             </el-descriptions-item>
             <el-descriptions-item label="公司简介" span="2">
@@ -222,6 +222,27 @@ export default {
       }
     }
   },
+  computed: {
+    // ✅ 动态计算档案完整度
+    profileCompletion() {
+      if (!this.profileData) return 0
+
+      let score = 0
+
+      // 必填字段（每个20分，共4个=80分）
+      if (this.profileData.companyName && this.profileData.companyName.trim()) score += 20
+      if (this.profileData.industry && this.profileData.industry.trim()) score += 20
+      if (this.profileData.scale && this.profileData.scale.trim()) score += 20
+      if (this.profileData.contactPhone && this.profileData.contactPhone.trim()) score += 20
+
+      // 可选字段（每个约6.7分，共3个=20分）
+      if (this.profileData.address && this.profileData.address.trim()) score += 7
+      if (this.profileData.website && this.profileData.website.trim()) score += 7
+      if (this.profileData.description && this.profileData.description.trim()) score += 6
+
+      return Math.min(100, Math.round(score))
+    }
+  },
   async mounted() {
     await this.loadProfile()
   },
@@ -272,7 +293,7 @@ export default {
         industry: '',
         address: '',
         scale: '',
-        website: '',
+        website: this.editFormData.website || null,
         contactPhone: '',
         description: ''
       }
@@ -293,12 +314,17 @@ export default {
         if (response && response.success) {
           this.$message.success('保存成功')
           this.editDialogVisible = false
-          
+
+          // ✅ 重新加载数据
+          await this.loadProfile()
+
+          // ✅ 通知父组件（企业布局）刷新
+          this.$emit('profile-updated')
+
           // 更新store中的档案完成状态
           this.$store.dispatch('updateProfileStatus', true)
           
-          // 重新加载企业档案
-          await this.loadProfile()
+
         } else {
           this.$message.error(response?.message || '保存失败')
         }
