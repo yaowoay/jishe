@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.aiinterview.mapper.UserJobCollectionMapper">
+
+    <resultMap id="UserJobCollectionMap" type="com.aiinterview.model.entity.student.UserJobCollection">
+        <id column="collection_id" property="collectionId"/>
+        <result column="user_id" property="userId"/>
+        <result column="job_id" property="jobId"/>
+        <result column="collect_time" property="collectTime"/>
+        <result column="is_deleted" property="isDeleted"/>
+    </resultMap>
+
+    <!-- 添加收藏（如果已存在则恢复） -->
+    <insert id="insert" parameterType="com.aiinterview.model.entity.student.UserJobCollection">
+        INSERT INTO user_job_collection (user_id, job_id, collect_time, is_deleted)
+        VALUES (#{userId}, #{jobId}, NOW(), 0)
+        ON DUPLICATE KEY UPDATE
+            is_deleted = 0,
+            collect_time = NOW()
+    </insert>
+
+    <!-- 取消收藏（逻辑删除） -->
+    <update id="delete">
+        UPDATE user_job_collection 
+        SET is_deleted = 1 
+        WHERE user_id = #{userId} AND job_id = #{jobId}
+    </update>
+
+    <!-- 查询用户收藏列表 -->
+    <select id="selectByUserId" resultMap="UserJobCollectionMap">
+        SELECT * FROM user_job_collection 
+        WHERE user_id = #{userId} AND is_deleted = 0
+        ORDER BY collect_time DESC
+    </select>
+
+    <!-- 检查是否已收藏 -->
+    <select id="selectByUserAndJob" resultMap="UserJobCollectionMap">
+        SELECT * FROM user_job_collection 
+        WHERE user_id = #{userId} AND job_id = #{jobId} AND is_deleted = 0
+    </select>
+
+    <!-- 获取用户收藏总数 -->
+    <select id="countByUserId" resultType="long">
+        SELECT COUNT(*) FROM user_job_collection 
+        WHERE user_id = #{userId} AND is_deleted = 0
+    </select>
+
+    <!-- 分页查询用户收藏 -->
+    <select id="selectPageByUserId" resultMap="UserJobCollectionMap">
+        SELECT * FROM user_job_collection 
+        WHERE user_id = #{userId} AND is_deleted = 0
+        ORDER BY collect_time DESC
+        LIMIT #{offset}, #{limit}
+    </select>
+
+</mapper>

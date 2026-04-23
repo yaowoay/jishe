@@ -1,5 +1,6 @@
 package com.aiinterview.service.impl.job;
 
+import com.aiinterview.model.dto.job.JobDetailDTO;
 import com.aiinterview.model.entity.job.Job;
 import com.aiinterview.mapper.JobMapper;
 import com.aiinterview.service.job.JobService;
@@ -20,7 +21,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class JobServiceImpl implements JobService {
-    
+
     private final JobMapper jobMapper;
     
     @Override
@@ -71,6 +72,16 @@ public class JobServiceImpl implements JobService {
             throw new RuntimeException("获取职位详情失败");
         }
     }
+
+    @Override
+    public JobDetailDTO getJobDetailById(Long jobId) {
+        try {
+            return jobMapper.selectJobDetailById(jobId);
+        } catch (Exception e) {
+            log.error("获取职位详情失败: {}", e.getMessage());
+            throw new RuntimeException("获取职位详情失败");
+        }
+    }
     
     @Override
     public List<Job> getJobsByCompanyId(Long companyId) {
@@ -79,6 +90,16 @@ public class JobServiceImpl implements JobService {
             queryWrapper.eq("company_id", companyId)
                        .orderByDesc("created_at");
             return jobMapper.selectList(queryWrapper);
+        } catch (Exception e) {
+            log.error("获取公司职位列表失败: {}", e.getMessage());
+            throw new RuntimeException("获取职位列表失败");
+        }
+    }
+
+    @Override
+    public List<JobDetailDTO> getJobsByCompanyIdWithCompany(Long companyId) {
+        try {
+            return jobMapper.selectJobsByCompanyIdWithCompany(companyId);
         } catch (Exception e) {
             log.error("获取公司职位列表失败: {}", e.getMessage());
             throw new RuntimeException("获取职位列表失败");
@@ -100,11 +121,37 @@ public class JobServiceImpl implements JobService {
     }
     
     @Override
+    public List<JobDetailDTO> searchJobsWithCompany(String keyword, String jobType, String location) {
+        try {
+            return jobMapper.searchJobsWithCompany(keyword, jobType, location);
+        } catch (Exception e) {
+            log.error("搜索职位失败: {}", e.getMessage());
+            throw new RuntimeException("搜索职位失败");
+        }
+    }
+
+    @Override
+    public List<JobDetailDTO> advancedSearchJobs(
+            String keyword, String jobType, String location, String city,
+            Integer minSalary, Integer maxSalary, String industry,
+            String experience, String education, String companyScale) {
+        try {
+            return jobMapper.advancedSearchJobs(
+                keyword, jobType, location, city, minSalary, maxSalary,
+                industry, experience, education, companyScale
+            );
+        } catch (Exception e) {
+            log.error("高级搜索职位失败: {}", e.getMessage());
+            throw new RuntimeException("搜索职位失败");
+        }
+    }
+
+    @Override
     public List<Job> searchJobs(String keyword, String jobType, String location) {
         try {
             QueryWrapper<Job> queryWrapper = new QueryWrapper<>();
             queryWrapper.eq("is_active", true);
-            
+
             if (keyword != null && !keyword.trim().isEmpty()) {
                 queryWrapper.and(wrapper -> wrapper
                     .like("title", keyword)
@@ -114,15 +161,15 @@ public class JobServiceImpl implements JobService {
                     .like("requirements", keyword)
                 );
             }
-            
+
             if (jobType != null && !jobType.trim().isEmpty()) {
                 queryWrapper.eq("job_type", jobType);
             }
-            
+
             if (location != null && !location.trim().isEmpty()) {
                 queryWrapper.like("location", location);
             }
-            
+
             queryWrapper.orderByDesc("post_date");
             return jobMapper.selectList(queryWrapper);
         } catch (Exception e) {
@@ -177,6 +224,18 @@ public class JobServiceImpl implements JobService {
         }
     }
     
+    @Override
+    public List<JobDetailDTO> getActiveJobsWithCompany() {
+        try {
+            List<JobDetailDTO> jobs = jobMapper.selectActiveJobsWithCompany();
+            log.info("查询活跃职位成功，共 {} 条", jobs.size());
+            return jobs;
+        } catch (Exception e) {
+            log.error("获取活跃职位失败: {}", e.getMessage(), e);
+            throw new RuntimeException("获取职位列表失败");
+        }
+    }
+
     @Override
     public List<Job> getActiveJobs() {
         try {

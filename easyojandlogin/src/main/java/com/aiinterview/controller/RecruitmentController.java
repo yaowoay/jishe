@@ -12,7 +12,7 @@ import java.util.List;
  * 招聘职位Controller
  */
 @RestController
-@RequestMapping("/api/recruitment")
+@RequestMapping("/recruitment")
 @CrossOrigin(origins = "*", maxAge = 3600)
 public class RecruitmentController {
 

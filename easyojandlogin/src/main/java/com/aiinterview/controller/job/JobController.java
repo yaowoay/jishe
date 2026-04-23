@@ -1,6 +1,7 @@
 package com.aiinterview.controller.job;
 
 import com.aiinterview.model.dto.api.ApiResponse;
+import com.aiinterview.model.dto.job.JobDetailDTO;
 import com.aiinterview.model.entity.company.Company;
 import com.aiinterview.model.entity.job.Job;
 import com.aiinterview.mapper.CompanyMapper;
@@ -30,7 +31,7 @@ public class JobController {
     private final JobService jobService;
     private final JwtUtils jwtUtils;
     private final CompanyMapper companyMapper;
-    
+
     /**
      * 发布新职位
      */
@@ -39,7 +40,7 @@ public class JobController {
         try {
             Long companyId = getCompanyIdFromToken(request);
             job.setCompanyId(companyId);
-            
+
             Job createdJob = jobService.createJob(job);
             return ApiResponse.success("职位发布成功", createdJob);
         } catch (Exception e) {
@@ -47,7 +48,7 @@ public class JobController {
             return ApiResponse.error(e.getMessage());
         }
     }
-    
+
     /**
      * 更新职位信息
      */
@@ -55,13 +56,13 @@ public class JobController {
     public ApiResponse<Job> updateJob(@RequestBody Job job, HttpServletRequest request) {
         try {
             Long companyId = getCompanyIdFromToken(request);
-            
+
             // 验证职位是否属于当前公司
             Job existingJob = jobService.getJobById(job.getJobId());
             if (existingJob == null || !existingJob.getCompanyId().equals(companyId)) {
                 return ApiResponse.error("无权限操作此职位");
             }
-            
+
             job.setCompanyId(companyId);
             Job updatedJob = jobService.updateJob(job);
             return ApiResponse.success("职位更新成功", updatedJob);
@@ -70,7 +71,7 @@ public class JobController {
             return ApiResponse.error(e.getMessage());
         }
     }
-    
+
     /**
      * 获取职位详情
      */
@@ -87,22 +88,22 @@ public class JobController {
             return ApiResponse.error(e.getMessage());
         }
     }
-    
+
     /**
      * 获取公司的所有职位
      */
     @GetMapping("/company")
-    public ApiResponse<List<Job>> getCompanyJobs(HttpServletRequest request) {
+    public ApiResponse<List<JobDetailDTO>> getCompanyJobs(HttpServletRequest request) {
         try {
             Long companyId = getCompanyIdFromToken(request);
-            List<Job> jobs = jobService.getJobsByCompanyId(companyId);
+            List<JobDetailDTO> jobs = jobService.getJobsByCompanyIdWithCompany(companyId);
             return ApiResponse.success("获取成功", jobs);
         } catch (Exception e) {
             log.error("获取公司职位列表失败: {}", e.getMessage());
             return ApiResponse.error(e.getMessage());
         }
     }
-    
+
     /**
      * 分页获取公司的职位
      */
@@ -114,38 +115,62 @@ public class JobController {
         try {
             Long companyId = getCompanyIdFromToken(request);
             Page<Job> page = jobService.getJobsByCompanyIdWithPage(companyId, current, size);
-            
+
             Map<String, Object> result = new HashMap<>();
             result.put("jobs", page.getRecords());
             result.put("total", page.getTotal());
             result.put("current", page.getCurrent());
             result.put("size", page.getSize());
             result.put("pages", page.getPages());
-            
+
             return ApiResponse.success("获取成功", result);
         } catch (Exception e) {
             log.error("分页获取公司职位列表失败: {}", e.getMessage());
             return ApiResponse.error(e.getMessage());
         }
     }
-    
+
     /**
-     * 搜索职位
+     * 搜索职位（高级搜索）
      */
     @GetMapping("/search")
-    public ApiResponse<List<Job>> searchJobs(
+    public ApiResponse<List<JobDetailDTO>> searchJobs(
             @RequestParam(required = false) String keyword,
             @RequestParam(required = false) String jobType,
-            @RequestParam(required = false) String location) {
+            @RequestParam(required = false) String location,
+            @RequestParam(required = false) String city,
+            @RequestParam(required = false) Integer minSalary,
+            @RequestParam(required = false) Integer maxSalary,
+            @RequestParam(required = false) String industry,
+            @RequestParam(required = false) String experience,
+            @RequestParam(required = false) String education,
+            @RequestParam(required = false) String companyScale) {
         try {
-            List<Job> jobs = jobService.searchJobs(keyword, jobType, location);
+            List<JobDetailDTO> jobs = jobService.advancedSearchJobs(
+                keyword, jobType, location, city, minSalary, maxSalary,
+                industry, experience, education, companyScale
+            );
             return ApiResponse.success("搜索成功", jobs);
         } catch (Exception e) {
             log.error("搜索职位失败: {}", e.getMessage());
             return ApiResponse.error(e.getMessage());
         }
     }
-    
+
+    /**
+     * 获取所有职位列表（带公司信息）
+     */
+    @GetMapping("/list")
+    public ApiResponse<List<JobDetailDTO>> getAllJobsList() {
+        try {
+            List<JobDetailDTO> jobs = jobService.getActiveJobsWithCompany();
+            return ApiResponse.success("获取成功", jobs);
+        } catch (Exception e) {
+            log.error("获取职位列表失败: {}", e.getMessage());
+            return ApiResponse.error(e.getMessage());
+        }
+    }
+
     /**
      * 切换职位状态
      */
@@ -154,7 +179,7 @@ public class JobController {
         try {
             Long companyId = getCompanyIdFromToken(request);
             boolean success = jobService.toggleJobStatus(jobId, companyId);
-            
+
             if (success) {
                 return ApiResponse.success("操作成功", "职位状态已更新");
             } else {
@@ -165,7 +190,7 @@ public class JobController {
             return ApiResponse.error(e.getMessage());
         }
     }
-    
+
     /**
      * 删除职位
      */
@@ -174,7 +199,7 @@ public class JobController {
         try {
             Long companyId = getCompanyIdFromToken(request);
             boolean success = jobService.deleteJob(jobId, companyId);
-            
+
             if (success) {
                 return ApiResponse.success("删除成功", "职位已删除");
             } else {
@@ -185,21 +210,21 @@ public class JobController {
             return ApiResponse.error(e.getMessage());
         }
     }
-    
+
     /**
      * 获取所有活跃职位（供求职者查看）
      */
     @GetMapping("/active")
-    public ApiResponse<List<Job>> getActiveJobs() {
+    public ApiResponse<List<JobDetailDTO>> getActiveJobs() {
         try {
-            List<Job> jobs = jobService.getActiveJobs();
+            List<JobDetailDTO> jobs = jobService.getActiveJobsWithCompany();
             return ApiResponse.success("获取成功", jobs);
         } catch (Exception e) {
             log.error("获取活跃职位失败: {}", e.getMessage());
             return ApiResponse.error(e.getMessage());
         }
     }
-    
+
     /**
      * 根据类型获取职位
      */
@@ -213,7 +238,7 @@ public class JobController {
             return ApiResponse.error(e.getMessage());
         }
     }
-    
+
     /**
      * 获取即将过期的职位
      */
@@ -230,7 +255,7 @@ public class JobController {
             return ApiResponse.error(e.getMessage());
         }
     }
-    
+
     /**
      * 从Token中获取公司ID
      */

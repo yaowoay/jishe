@@ -12,7 +12,7 @@ import java.util.List;
  * 薪资预测Controller
  */
 @RestController
-@RequestMapping("/api/salary-prediction")
+@RequestMapping("/salary-prediction")
 @CrossOrigin(origins = "*", maxAge = 3600)
 public class SalaryPredictionController {
 

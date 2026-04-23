@@ -228,9 +228,8 @@
         FROM applications a
         INNER JOIN jobs j ON a.job_id = j.job_id
         INNER JOIN companies c ON j.company_id = c.company_id
-        INNER JOIN applicants ap ON a.applicant_id = ap.applicant_id
         LEFT JOIN resumes r ON a.resume_id = r.resume_id
-        WHERE ap.user_id = #{userId}
+        WHERE a.user_id = #{userId}
         ORDER BY a.apply_time DESC
     </select>
 

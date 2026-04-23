@@ -12,7 +12,7 @@ import java.util.List;
  * 技能关联规则Controller
  */
 @RestController
-@RequestMapping("/api/skill-association-rules")
+@RequestMapping("/skill-association-rules")
 @CrossOrigin(origins = "*", maxAge = 3600)
 public class SkillAssociationRulesController {
 
