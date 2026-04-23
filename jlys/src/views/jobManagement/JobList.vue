@@ -62,7 +62,7 @@
           <el-table-column prop="jobId" label="ID" width="80" />
           <el-table-column label="职位名称" min-width="150" show-overflow-tooltip>
             <template #default="scope">
-              {{ scope.row.positionName || '暂无' }}
+              {{ scope.row.title || scope.row.positionName || '暂无' }}
             </template>
           </el-table-column>
           <el-table-column label="公司名称" min-width="120" show-overflow-tooltip>
@@ -72,7 +72,7 @@
           </el-table-column>
           <el-table-column label="城市" width="100">
             <template #default="scope">
-              {{ scope.row.city || scope.row.cityName || '暂无' }}
+              {{ scope.row.location || scope.row.city || scope.row.cityName || '暂无' }}
             </template>
           </el-table-column>
           <el-table-column label="薪资" width="140">
@@ -80,14 +80,9 @@
               <SalaryDisplay :job="scope.row" display-mode="simple" />
             </template>
           </el-table-column>
-          <el-table-column label="公司类型" width="120" show-overflow-tooltip>
+          <el-table-column label="行业" width="120" show-overflow-tooltip>
             <template #default="scope">
-              {{ scope.row.companyType || scope.row.industryName || '暂无' }}
-            </template>
-          </el-table-column>
-          <el-table-column label="所属行业" width="120">
-            <template #default="scope">
-              {{ scope.row.companyTags || '暂无' }}
+              {{ scope.row.industry || scope.row.companyType || scope.row.industryName || '暂无' }}
             </template>
           </el-table-column>
           <el-table-column label="公司规模" width="120" show-overflow-tooltip>
@@ -97,12 +92,12 @@
           </el-table-column>
           <el-table-column label="经验要求" width="120" show-overflow-tooltip>
             <template #default="scope">
-              {{ scope.row.experienceReq || scope.row.experienceRequirement || '暂无' }}
+              {{ scope.row.experience || scope.row.experienceReq || scope.row.experienceRequirement || '暂无' }}
             </template>
           </el-table-column>
           <el-table-column label="学历要求" width="120" show-overflow-tooltip>
             <template #default="scope">
-              {{ scope.row.educationReq || scope.row.educationRequirement || '暂无' }}
+              {{ scope.row.education || scope.row.educationReq || scope.row.educationRequirement || '暂无' }}
             </template>
           </el-table-column>
           <el-table-column label="职位描述" min-width="200" show-overflow-tooltip>
@@ -247,12 +242,14 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, onMounted, onActivated } from 'vue'
 import JobCard from './JobCard.vue'
 import JobFilters from './JobFilters.vue'
 import SalaryDisplay from '@/components/SalaryDisplay.vue'
 import { ElMessage } from 'element-plus'
 import { Grid, List, Star, StarFilled, View } from '@element-plus/icons-vue'
+import { searchJobs } from '@/api/jobs'
+import { jobAPI } from '@/api/visualization'
 
 // 从本地存储获取 userId
 const currentUserId = ref(null)
@@ -264,7 +261,15 @@ const collectedJobIds = ref(new Set())
 // 当前筛选条件
 const currentFilters = ref({
   keyword: '',
-  city: ''
+  city: '',
+  cities: [],
+  minSalary: null,
+  maxSalary: null,
+  industry: '',
+  experience: '',
+  education: '',
+  companyScale: '',
+  jobType: ''
 })
 
 // 排序方式
@@ -296,48 +301,51 @@ const fetchJobs = async (resetPage = false) => {
 
   loading.value = true
   try {
-    // 使用模拟数据
-    const mockJobs = [
+    // 调用后端 API（基于 jobs + companies 表）
+    const response = await searchJobs(
       {
-        jobId: 1,
-        positionName: '前端开发工程师',
-        companyName: '某科技公司',
-        city: '北京',
-        minSalary: 15,
-        maxSalary: 25,
-        experienceReq: '3-5年',
-        educationReq: '本科',
-        industryName: '互联网'
+        keyword: currentFilters.value.keyword,
+        city: currentFilters.value.city,
+        cities: currentFilters.value.cities,
+        minSalary: currentFilters.value.minSalary,
+        maxSalary: currentFilters.value.maxSalary,
+        industry: currentFilters.value.industry,
+        experience: currentFilters.value.experience,
+        education: currentFilters.value.education,
+        companyScale: currentFilters.value.companyScale,
+        jobType: currentFilters.value.jobType
       },
-      {
-        jobId: 2,
-        positionName: 'Vue开发工程师',
-        companyName: '另一家公司',
-        city: '上海',
-        minSalary: 18,
-        maxSalary: 28,
-        experienceReq: '2-4年',
-        educationReq: '本科',
-        industryName: '互联网'
-      },
-      {
-        jobId: 3,
-        positionName: 'React开发工程师',
-        companyName: '第三家公司',
-        city: '深圳',
-        minSalary: 20,
-        maxSalary: 30,
-        experienceReq: '3-5年',
-        educationReq: '本科',
-        industryName: '互联网'
-      }
-    ]
+      pagination.currentPage,
+      pagination.pageSize
+    )
 
-    jobs.value = mockJobs
-    pagination.total = mockJobs.length
-    pagination.totalPages = Math.ceil(mockJobs.length / pagination.pageSize)
+    console.log('职位列表API响应:', response)
+
+    // 兼容两种返回格式
+    if (response.success && response.data) {
+      // 新格式：ApiResponse { success, message, data }
+      const jobsData = Array.isArray(response.data) ? response.data : (response.data.jobs || [])
+      jobs.value = jobsData
+      pagination.total = response.data.total || jobsData.length
+      pagination.totalPages = response.data.totalPages || Math.ceil(jobsData.length / pagination.pageSize)
+
+      console.log('获取职位列表成功:', jobs.value.length, '条')
+      console.log('职位数据示例:', jobs.value[0])
+    } else if (response.code === 0 && response.data) {
+      // 旧格式：{ code: 0, data: { jobs, total } }
+      jobs.value = response.data.jobs || []
+      pagination.total = response.data.total || 0
+      pagination.totalPages = response.data.totalPages || 0
+
+      console.log('获取职位列表成功:', jobs.value.length, '条')
+    } else {
+      ElMessage.error(response.message || '获取职位列表失败')
+      jobs.value = []
+      pagination.total = 0
+    }
   } catch (error) {
-    ElMessage.error('获取职位列表失败')
+    console.error('获取职位列表失败:', error)
+    ElMessage.error('获取职位列表失败，请稍后重试')
     jobs.value = []
     pagination.total = 0
   } finally {
@@ -351,10 +359,25 @@ const fetchCollectedJobs = async () => {
     return
   }
   try {
-    // 使用模拟数据
-    collectedJobIds.value = new Set()
+    console.log('开始获取收藏列表，用户ID:', currentUserId.value)
+    const response = await jobAPI.getCollectedJobs(currentUserId.value)
+    console.log('收藏列表API原始响应:', response)
+
+    // 兼容两种返回格式
+    const result = response.data || response
+    console.log('收藏列表结果:', result)
+
+    if (result.code === 0 && result.data) {
+      // 将收藏的职位ID存入Set
+      const ids = result.data.map(job => job.jobId || job.id)
+      collectedJobIds.value = new Set(ids)
+      console.log('收藏的职位ID列表:', Array.from(collectedJobIds.value))
+      console.log('收藏数量:', collectedJobIds.value.size)
+    } else {
+      console.error('获取收藏列表失败:', result.message)
+    }
   } catch (error) {
-    console.error('获取收藏列表失败', error)
+    console.error('获取收藏列表异常:', error)
   }
 }
 
@@ -369,15 +392,29 @@ const handleToggleCollection = async (job) => {
     return
   }
   try {
-    if (isJobCollected(jobId)) {
-      collectedJobIds.value.delete(jobId)
-      ElMessage.success('已取消收藏')
+    // 使用统一的收藏接口（支持切换）
+    const response = await jobAPI.collectJob(currentUserId.value, jobId)
+    console.log('收藏操作响应:', response)
+
+    // 注意：axios 返回的数据在 response.data 中
+    const result = response.data || response
+
+    if (result.code === 0) {
+      // 切换收藏状态
+      if (isJobCollected(jobId)) {
+        collectedJobIds.value.delete(jobId)
+        collectedJobIds.value.delete(String(jobId))
+        ElMessage.success(result.data || '取消收藏成功')
+      } else {
+        collectedJobIds.value.add(jobId)
+        ElMessage.success(result.data || '收藏成功')
+      }
     } else {
-      collectedJobIds.value.add(jobId)
-      ElMessage.success('收藏成功')
+      ElMessage.error(result.message || '操作失败')
     }
   } catch (error) {
-    ElMessage.error('操作失败')
+    console.error('收藏操作失败:', error)
+    ElMessage.error('操作失败，请稍后重试')
   }
 }
 
@@ -452,6 +489,14 @@ onMounted(() => {
   fetchJobs()
 
   if (currentUserId.value) {
+    fetchCollectedJobs()
+  }
+})
+
+// 页面激活时重新加载收藏状态（从其他页面返回时）
+onActivated(() => {
+  if (currentUserId.value) {
+    console.log('页面激活，重新加载收藏状态')
     fetchCollectedJobs()
   }
 })

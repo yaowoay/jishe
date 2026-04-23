@@ -3,6 +3,36 @@
 
 <mapper namespace="com.aiinterview.mapper.JobSearchMapper">
 
+    <!-- 新版：基于 jobs + companies 表的结果映射 -->
+    <resultMap id="JobSearchDTOMap" type="com.aiinterview.model.dto.JobSearchDTO">
+        <id column="job_id" property="jobId"/>
+        <result column="title" property="positionName"/>
+        <result column="job_type" property="jobType"/>
+        <result column="job_duty" property="jobDescription"/>
+        <result column="job_requirements" property="jobRequirements"/>
+        <result column="min_salary" property="minSalary"/>
+        <result column="max_salary" property="maxSalary"/>
+        <result column="avg_salary" property="avgSalary"/>
+        <result column="location" property="location"/>
+        <result column="city" property="city"/>
+        <result column="district" property="district"/>
+        <result column="education_requirement" property="educationReq"/>
+        <result column="experience_requirement" property="experienceReq"/>
+        <result column="job_skills" property="jobSkills"/>
+        <result column="post_date" property="postDate"/>
+        <result column="expiration_date" property="expirationDate"/>
+        <result column="company_id" property="companyId"/>
+        <result column="company_name" property="companyName"/>
+        <result column="industry" property="industry"/>
+        <result column="scale" property="companyScale"/>
+        <result column="company_type" property="companyType"/>
+        <result column="company_welfare" property="companyWelfare"/>
+        <result column="company_tags" property="companyTags"/>
+        <result column="logo_url" property="logoUrl"/>
+        <result column="verify_status" property="verifyStatus"/>
+    </resultMap>
+
+    <!-- 旧版：基于 recruitmenttable 的结果映射 -->
     <resultMap id="RecruitmentMap" type="com.aiinterview.model.entity.job.Recruitment">
         <id column="id" property="jobId"/>
         <result column="position_name" property="positionName"/>
@@ -24,6 +54,201 @@
         <result column="status" property="status"/>
     </resultMap>
 
+    <!-- 新版：根据职位ID列表查询（基于 jobs + companies 表）-->
+    <select id="searchJobsByIds" resultMap="JobSearchDTOMap">
+        SELECT
+            j.job_id,
+            j.title,
+            j.job_type,
+            j.job_duty,
+            j.job_requirements,
+            j.min_salary,
+            j.max_salary,
+            j.avg_salary,
+            j.location,
+            j.city,
+            j.district,
+            j.education_requirement,
+            j.experience_requirement,
+            j.job_skills,
+            j.post_date,
+            j.expiration_date,
+            j.verify_status,
+            c.company_id,
+            c.company_name,
+            c.industry,
+            c.scale,
+            c.company_type,
+            c.company_welfare,
+            c.company_tags,
+            c.logo_url
+        FROM jobs j
+        INNER JOIN companies c ON j.company_id = c.company_id
+        WHERE j.job_id IN
+        <foreach collection="jobIds" item="jobId" open="(" separator="," close=")">
+            #{jobId}
+        </foreach>
+        AND j.is_active = 1
+        ORDER BY j.post_date DESC
+    </select>
+
+    <!-- 根据职位ID列表查询职位详情（带公司信息）-->
+    <select id="selectJobDetailsByIds" resultType="com.aiinterview.model.dto.job.JobDetailDTO">
+        SELECT
+            j.job_id AS jobId,
+            j.title,
+            j.job_type AS jobType,
+            j.job_duty AS description,
+            j.job_requirements AS requirements,
+            j.experience_requirement AS experience,
+            j.education_requirement AS education,
+            j.job_skills AS skills,
+            j.min_salary AS minSalary,
+            j.max_salary AS maxSalary,
+            j.location,
+            j.is_active AS isActive,
+            j.verify_status AS verifyStatus,
+            j.verify_remark AS verifyRemark,
+            j.post_date AS postDate,
+            j.expiration_date AS expirationDate,
+            j.created_at AS createdAt,
+            j.updated_at AS updatedAt,
+            c.company_id AS companyId,
+            c.company_name AS companyName,
+            c.industry,
+            c.scale AS companyScale,
+            c.address AS companyAddress,
+            c.website AS companyWebsite,
+            c.description AS companyDescription,
+            c.logo_url AS logoUrl
+        FROM jobs j
+        INNER JOIN companies c ON j.company_id = c.company_id
+        WHERE j.job_id IN
+        <foreach collection="jobIds" item="jobId" open="(" separator="," close=")">
+            #{jobId}
+        </foreach>
+        AND j.is_active = 1
+        ORDER BY j.post_date DESC
+    </select>
+
+    <!-- 新版：基于 jobs + companies 表的查询 -->
+    <select id="searchJobsWithCompany" resultMap="JobSearchDTOMap">
+        SELECT
+            j.job_id,
+            j.title,
+            j.job_type,
+            j.job_duty,
+            j.job_requirements,
+            j.min_salary,
+            j.max_salary,
+            j.avg_salary,
+            j.location,
+            j.city,
+            j.district,
+            j.education_requirement,
+            j.experience_requirement,
+            j.job_skills,
+            j.post_date,
+            j.expiration_date,
+            j.verify_status,
+            c.company_id,
+            c.company_name,
+            c.industry,
+            c.scale,
+            c.company_type,
+            c.company_welfare,
+            c.company_tags,
+            c.logo_url
+        FROM jobs j
+        INNER JOIN companies c ON j.company_id = c.company_id
+        WHERE j.is_active = 1
+        AND j.verify_status = 'approved'
+        <if test="keyword != null and keyword != ''">
+            AND (j.title LIKE CONCAT('%', #{keyword}, '%')
+                 OR c.company_name LIKE CONCAT('%', #{keyword}, '%')
+                 OR j.job_duty LIKE CONCAT('%', #{keyword}, '%')
+                 OR j.job_requirements LIKE CONCAT('%', #{keyword}, '%'))
+        </if>
+        <if test="city != null and city != ''">
+            AND j.city = #{city}
+        </if>
+        <if test="cities != null and cities.length > 0">
+            AND j.city IN
+            <foreach collection="cities" item="c" open="(" separator="," close=")">
+                #{c}
+            </foreach>
+        </if>
+        <if test="minSalary != null">
+            AND j.max_salary >= #{minSalary}
+        </if>
+        <if test="maxSalary != null">
+            AND j.min_salary &lt;= #{maxSalary}
+        </if>
+        <if test="industry != null and industry != ''">
+            AND c.industry LIKE CONCAT('%', #{industry}, '%')
+        </if>
+        <if test="experience != null and experience != ''">
+            AND j.experience_requirement LIKE CONCAT('%', #{experience}, '%')
+        </if>
+        <if test="education != null and education != ''">
+            AND j.education_requirement LIKE CONCAT('%', #{education}, '%')
+        </if>
+        <if test="companyScale != null and companyScale != ''">
+            AND c.scale = #{companyScale}
+        </if>
+        <if test="jobType != null and jobType != ''">
+            AND j.job_type = #{jobType}
+        </if>
+        ORDER BY j.post_date DESC
+        LIMIT #{offset}, #{limit}
+    </select>
+
+    <!-- 新版：统计总数 -->
+    <select id="countJobsWithCompany" resultType="int">
+        SELECT COUNT(*)
+        FROM jobs j
+        INNER JOIN companies c ON j.company_id = c.company_id
+        WHERE j.is_active = 1
+        AND j.verify_status = 'approved'
+        <if test="keyword != null and keyword != ''">
+            AND (j.title LIKE CONCAT('%', #{keyword}, '%')
+                 OR c.company_name LIKE CONCAT('%', #{keyword}, '%')
+                 OR j.job_duty LIKE CONCAT('%', #{keyword}, '%')
+                 OR j.job_requirements LIKE CONCAT('%', #{keyword}, '%'))
+        </if>
+        <if test="city != null and city != ''">
+            AND j.city = #{city}
+        </if>
+        <if test="cities != null and cities.length > 0">
+            AND j.city IN
+            <foreach collection="cities" item="c" open="(" separator="," close=")">
+                #{c}
+            </foreach>
+        </if>
+        <if test="minSalary != null">
+            AND j.max_salary >= #{minSalary}
+        </if>
+        <if test="maxSalary != null">
+            AND j.min_salary &lt;= #{maxSalary}
+        </if>
+        <if test="industry != null and industry != ''">
+            AND c.industry LIKE CONCAT('%', #{industry}, '%')
+        </if>
+        <if test="experience != null and experience != ''">
+            AND j.experience_requirement LIKE CONCAT('%', #{experience}, '%')
+        </if>
+        <if test="education != null and education != ''">
+            AND j.education_requirement LIKE CONCAT('%', #{education}, '%')
+        </if>
+        <if test="companyScale != null and companyScale != ''">
+            AND c.scale = #{companyScale}
+        </if>
+        <if test="jobType != null and jobType != ''">
+            AND j.job_type = #{jobType}
+        </if>
+    </select>
+
+    <!-- 旧版：基于 recruitmenttable 的查询 -->
     <select id="findRecruitmentsByAdvancedFilters" resultMap="RecruitmentMap">
         SELECT * FROM recruitmenttable WHERE 1=1
         <if test="keyword != null and keyword != ''">
@@ -112,6 +337,10 @@
     </select>
 
     <select id="findAll" resultMap="RecruitmentMap">
+        SELECT * FROM recruitmenttable WHERE status = 1
+    </select>
+
+    <select id="findActiveJobs" resultMap="RecruitmentMap">
         SELECT * FROM recruitmenttable WHERE status = 1
     </select>
 

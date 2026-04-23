@@ -30,7 +30,7 @@ public class AiResumeController {
     @Autowired
     private JwtUtils jwtUtils;
     /**
-     * 生成简历
+     * 生成简历  目前传参为空POST "/api/make/generate1", parameters={}
      */
     @PostMapping("/generate1")
     public BaseResponse<ResumeLinksResponse> generateResume(

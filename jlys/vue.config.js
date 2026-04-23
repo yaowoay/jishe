@@ -25,12 +25,25 @@ module.exports = defineConfig({
         target: 'http://localhost:8089',
         changeOrigin: true
       },
+      // 代理所有后端请求
       '/api': {
         target: 'http://localhost:8089',
         changeOrigin: true,
-        pathRewrite: {
-          '^/api': '/api'
-        }
+        ws: true,  // 支持websocket
+        secure: false,
+        // 关键：确保请求头被正确转发
+        onProxyReq: (proxyReq, req, res) => {
+          // 转发Authorization头
+          if (req.headers.authorization) {
+            proxyReq.setHeader('Authorization', req.headers.authorization)
+          }
+          // 转发其他自定义头
+          if (req.headers['x-token']) {
+            proxyReq.setHeader('X-Token', req.headers['x-token'])
+          }
+        },
+        // 配置日志输出（调试用）
+        logLevel: 'debug'
       },
       '/external-api': {
         target: 'http://81.70.20.30',

@@ -13,7 +13,7 @@ import java.util.Map;
  * 用户行为分析Controller
  */
 @RestController
-@RequestMapping("/api/user-behavior-analysis")
+@RequestMapping("/user-behavior-analysis")
 @CrossOrigin(origins = "*", maxAge = 3600)
 public class UserBehaviorAnalysisController {
 

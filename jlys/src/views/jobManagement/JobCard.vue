@@ -2,7 +2,7 @@
   <el-card class="job-card" shadow="hover">
     <!-- 卡片顶部：职位名称和薪资 -->
     <div class="header">
-      <span class="position-name">{{ job.positionName || '暂无' }}</span>
+      <span class="position-name">{{ job.title || job.positionName || '暂无' }}</span>
       <SalaryDisplay :job="job" display-mode="simple" class="salary-info" />
     </div>
 
@@ -10,9 +10,9 @@
     <div class="company-info">
       <div class="company-name">{{ job.companyName || '暂无' }}</div>
       <el-divider direction="vertical" class="divider"></el-divider>
-      <div class="company-size" v-if="job.companySize">{{ job.companySize }}</div>
-      <el-divider direction="vertical" class="divider" v-if="job.companySize"></el-divider>
-      <div class="location">{{ job.city || job.cityName || '暂无' }}</div>
+      <div class="company-size" v-if="job.companyScale || job.companySize">{{ job.companyScale || job.companySize }}</div>
+      <el-divider direction="vertical" class="divider" v-if="job.companyScale || job.companySize"></el-divider>
+      <div class="location">{{ job.location || job.city || job.cityName || '暂无' }}</div>
     </div>
 
     <!-- 标签区域：经验、学历要求和薪资范围 -->
@@ -21,13 +21,13 @@
           size="small"
           class="experience-tag"
       >
-        {{ job.experienceReq || job.experienceRequirement || '暂无' }}
+        {{ job.experience || job.experienceReq || job.experienceRequirement || '暂无' }}
       </el-tag>
       <el-tag
           size="small"
           class="education-tag"
       >
-        {{ job.educationReq || job.educationRequirement || '暂无' }}
+        {{ job.education || job.educationReq || job.educationRequirement || '暂无' }}
       </el-tag>
       <!-- 薪资范围标签 -->
       <el-tag
@@ -41,7 +41,7 @@
 
     <!-- 底部：行业信息和操作按钮 -->
     <div class="footer">
-      <span class="industry">{{ job.companyType || job.industryName || '暂无' }}</span>
+      <span class="industry">{{ job.industry || job.companyType || job.industryName || '暂无' }}</span>
       <div class="action-buttons">
         <button
             class="detail-btn"

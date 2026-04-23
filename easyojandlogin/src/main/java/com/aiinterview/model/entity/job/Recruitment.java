@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 
 /**
  * 招聘职位信息
- * 对应数据库表 recruitment
+ * 对应数据库表 recruitment  //这个表不是已经废弃了吗
  */
 @Data
 @NoArgsConstructor

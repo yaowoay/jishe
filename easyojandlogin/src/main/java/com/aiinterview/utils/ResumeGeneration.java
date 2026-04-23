@@ -1,9 +1,13 @@
 package com.aiinterview.utils;
 
+import com.aiinterview.config.XunfeiAIConfig;
 import com.alibaba.fastjson.JSONObject;
 import com.google.gson.Gson;
 import okhttp3.*;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.IOException;
@@ -15,17 +19,23 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
+
 /**
  * AI简历生成工具类
  * 使用讯飞星火大模型API生成简历内容
  */
+@Component
 public class ResumeGeneration {
 
-    // 讯飞星火API配置
-    public static final String HOST_URL = "https://cn-huadong-1.xf-yun.com/v1/private/s73f4add9";
-    public static final String APP_ID = "02316b6e";
-    public static final String API_SECRET = "OGYzZDQ1NmRiMTA0NzVjMGI4MWQ1YmQ5";
-    public static final String API_KEY = "ca9bebbd7a27438ee57c29a60bb73e41";
+    @Autowired
+    private XunfeiAIConfig xunfeiConfig;
+
+    private static XunfeiAIConfig staticXunfeiConfig;
+
+    @PostConstruct
+    public void init() {
+        staticXunfeiConfig = this.xunfeiConfig;
+    }
 
     // 默认提示词
     public static final String DEFAULT_PROMPT = "请根据以下信息生成一份专业的简历：姓名、工作经验、教育背景、技能特长等";
@@ -46,7 +56,15 @@ public class ResumeGeneration {
             prompt = DEFAULT_PROMPT;
         }
 
-        String authUrl = getAuthUrl(HOST_URL, API_KEY, API_SECRET);
+        if (staticXunfeiConfig == null) {
+            throw new IllegalStateException("讯飞AI配置未初始化，请检查配置文件");
+        }
+
+        String authUrl = getAuthUrl(
+            staticXunfeiConfig.getHostUrl(),
+            staticXunfeiConfig.getApiKey(),
+            staticXunfeiConfig.getApiSecret()
+        );
 
         // 构建请求参数
         JSONObject requestJson = buildRequestJson(prompt);
@@ -63,7 +81,7 @@ public class ResumeGeneration {
 
         // header参数
         JSONObject header = new JSONObject();
-        header.put("app_id", APP_ID);
+        header.put("app_id", staticXunfeiConfig.getAppId());
         header.put("status", 3);
         requestJson.put("header", header);
 

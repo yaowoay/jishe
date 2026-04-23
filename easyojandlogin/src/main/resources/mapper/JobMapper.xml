@@ -1,0 +1,278 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.aiinterview.mapper.JobMapper">
+
+    <!-- 职位详情结果映射（包含公司信息） -->
+    <resultMap id="JobDetailDTOMap" type="com.aiinterview.model.dto.job.JobDetailDTO">
+        <!-- 职位信息 -->
+        <id column="job_id" property="jobId"/>
+        <result column="title" property="title"/>
+        <result column="job_type" property="jobType"/>
+        <result column="job_duty" property="description"/>
+        <result column="job_requirements" property="requirements"/>
+        <result column="experience_requirement" property="experience"/>
+        <result column="education_requirement" property="education"/>
+        <result column="job_skills" property="skills"/>
+        <result column="min_salary" property="minSalary"/>
+        <result column="max_salary" property="maxSalary"/>
+        <result column="location" property="location"/>
+        <result column="is_active" property="isActive"/>
+        <result column="verify_status" property="verifyStatus"/>
+        <result column="verify_remark" property="verifyRemark"/>
+        <result column="post_date" property="postDate"/>
+        <result column="expiration_date" property="expirationDate"/>
+        <result column="created_at" property="createdAt"/>
+        <result column="updated_at" property="updatedAt"/>
+        
+        <!-- 公司信息 -->
+        <result column="company_id" property="companyId"/>
+        <result column="company_name" property="companyName"/>
+        <result column="industry" property="industry"/>
+        <result column="scale" property="companyScale"/>
+        <result column="address" property="companyAddress"/>
+        <result column="website" property="companyWebsite"/>
+        <result column="company_description" property="companyDescription"/>
+        <result column="logo_url" property="logoUrl"/>
+    </resultMap>
+
+    <!-- 查询活跃职位（带公司信息） -->
+    <select id="selectActiveJobsWithCompany" resultMap="JobDetailDTOMap">
+        SELECT
+            j.job_id,
+            j.title,
+            j.job_type,
+            j.job_duty,
+            j.job_requirements,
+            j.experience_requirement,
+            j.education_requirement,
+            j.job_skills,
+            j.min_salary,
+            j.max_salary,
+            j.location,
+            j.is_active,
+            j.verify_status,
+            j.verify_remark,
+            j.post_date,
+            j.expiration_date,
+            j.created_at,
+            j.updated_at,
+            c.company_id,
+            c.company_name,
+            c.industry,
+            c.scale,
+            c.address,
+            c.website,
+            c.description as company_description,
+            c.logo_url
+        FROM jobs j
+        INNER JOIN companies c ON j.company_id = c.company_id
+        WHERE j.is_active = 1
+        AND (j.expiration_date IS NULL OR j.expiration_date >= CURDATE())
+        ORDER BY j.post_date DESC
+    </select>
+
+    <!-- 根据ID查询职位详情（带公司信息） -->
+    <select id="selectJobDetailById" resultMap="JobDetailDTOMap">
+        SELECT
+            j.job_id,
+            j.title,
+            j.job_type,
+            j.job_duty,
+            j.job_requirements,
+            j.experience_requirement,
+            j.education_requirement,
+            j.job_skills,
+            j.min_salary,
+            j.max_salary,
+            j.location,
+            j.is_active,
+            j.verify_status,
+            j.verify_remark,
+            j.post_date,
+            j.expiration_date,
+            j.created_at,
+            j.updated_at,
+            c.company_id,
+            c.company_name,
+            c.industry,
+            c.scale,
+            c.address,
+            c.website,
+            c.description as company_description,
+            c.logo_url
+        FROM jobs j
+        INNER JOIN companies c ON j.company_id = c.company_id
+        WHERE j.job_id = #{jobId}
+    </select>
+
+    <!-- 搜索职位（带公司信息） -->
+    <select id="searchJobsWithCompany" resultMap="JobDetailDTOMap">
+        SELECT
+            j.job_id,
+            j.title,
+            j.job_type,
+            j.job_duty,
+            j.job_requirements,
+            j.experience_requirement,
+            j.education_requirement,
+            j.job_skills,
+            j.min_salary,
+            j.max_salary,
+            j.location,
+            j.is_active,
+            j.verify_status,
+            j.verify_remark,
+            j.post_date,
+            j.expiration_date,
+            j.created_at,
+            j.updated_at,
+            c.company_id,
+            c.company_name,
+            c.industry,
+            c.scale,
+            c.address,
+            c.website,
+            c.description as company_description,
+            c.logo_url
+        FROM jobs j
+        INNER JOIN companies c ON j.company_id = c.company_id
+        WHERE j.is_active = 1
+        <if test="keyword != null and keyword != ''">
+            AND (j.title LIKE CONCAT('%', #{keyword}, '%')
+                 OR j.job_duty LIKE CONCAT('%', #{keyword}, '%')
+                 OR j.job_requirements LIKE CONCAT('%', #{keyword}, '%')
+                 OR c.company_name LIKE CONCAT('%', #{keyword}, '%'))
+        </if>
+        <if test="jobType != null and jobType != ''">
+            AND j.job_type = #{jobType}
+        </if>
+        <if test="location != null and location != ''">
+            AND j.location LIKE CONCAT('%', #{location}, '%')
+        </if>
+        ORDER BY j.post_date DESC
+    </select>
+
+    <!-- 高级搜索职位（带公司信息） -->
+    <select id="advancedSearchJobs" resultMap="JobDetailDTOMap">
+        SELECT
+            j.job_id,
+            j.title,
+            j.job_type,
+            j.job_duty,
+            j.job_requirements,
+            j.experience_requirement,
+            j.education_requirement,
+            j.job_skills,
+            j.min_salary,
+            j.max_salary,
+            j.location,
+            j.is_active,
+            j.verify_status,
+            j.verify_remark,
+            j.post_date,
+            j.expiration_date,
+            j.created_at,
+            j.updated_at,
+            c.company_id,
+            c.company_name,
+            c.industry,
+            c.scale,
+            c.address,
+            c.website,
+            c.description as company_description,
+            c.logo_url
+        FROM jobs j
+        INNER JOIN companies c ON j.company_id = c.company_id
+        WHERE j.is_active = 1
+        <if test="keyword != null and keyword != ''">
+            AND (j.title LIKE CONCAT('%', #{keyword}, '%')
+                 OR j.job_duty LIKE CONCAT('%', #{keyword}, '%')
+                 OR j.job_requirements LIKE CONCAT('%', #{keyword}, '%')
+                 OR c.company_name LIKE CONCAT('%', #{keyword}, '%'))
+        </if>
+        <if test="jobType != null and jobType != ''">
+            AND j.job_type = #{jobType}
+        </if>
+        <if test="location != null and location != ''">
+            AND j.location LIKE CONCAT('%', #{location}, '%')
+        </if>
+        <if test="city != null and city != ''">
+            AND (j.location LIKE CONCAT('%', #{city}, '%') OR j.city LIKE CONCAT('%', #{city}, '%'))
+        </if>
+        <if test="minSalary != null">
+            AND j.max_salary &gt;= #{minSalary}
+        </if>
+        <if test="maxSalary != null">
+            AND j.min_salary &lt;= #{maxSalary}
+        </if>
+        <if test="industry != null and industry != ''">
+            AND c.industry LIKE CONCAT('%', #{industry}, '%')
+        </if>
+        <if test="experience != null and experience != ''">
+            AND (
+                j.experience_requirement LIKE CONCAT('%', #{experience}, '%')
+                OR j.experience_requirement LIKE '%不限%'
+                OR j.experience_requirement LIKE '%应届%'
+                OR (#{experience} LIKE '%应届%' AND j.experience_requirement LIKE '%应届%')
+                OR (#{experience} LIKE '%应届%' AND j.experience_requirement LIKE '%在校%')
+                OR (#{experience} LIKE '%1年%' AND j.experience_requirement LIKE '%应届%')
+                OR (#{experience} LIKE '%1-3年%' AND (j.experience_requirement LIKE '%1年%' OR j.experience_requirement LIKE '%应届%'))
+                OR (#{experience} LIKE '%3-5年%' AND (j.experience_requirement LIKE '%1-3年%' OR j.experience_requirement LIKE '%1年%'))
+            )
+        </if>
+        <if test="education != null and education != ''">
+            AND (
+                j.education_requirement LIKE CONCAT('%', #{education}, '%')
+                OR j.education_requirement LIKE '%不限%'
+                OR (#{education} LIKE '%本科%' AND (j.education_requirement LIKE '%大专%' OR j.education_requirement LIKE '%高中%'))
+                OR (#{education} LIKE '%硕士%' AND (j.education_requirement LIKE '%本科%' OR j.education_requirement LIKE '%大专%'))
+            )
+        </if>
+        <if test="companyScale != null and companyScale != ''">
+            AND (
+                c.scale LIKE CONCAT('%', #{companyScale}, '%')
+                OR (#{companyScale} LIKE '%20-99%' AND c.scale LIKE '%51-100%')
+                OR (#{companyScale} LIKE '%100-499%' AND (c.scale LIKE '%100-500%' OR c.scale LIKE '%51-100%'))
+                OR (#{companyScale} LIKE '%500%' AND c.scale LIKE '%500%')
+                OR (#{companyScale} LIKE '%1000%' AND c.scale LIKE '%1000%')
+            )
+        </if>
+        ORDER BY j.post_date DESC
+    </select>
+
+    <!-- 根据公司ID查询职位（带公司信息） -->
+    <select id="selectJobsByCompanyIdWithCompany" resultMap="JobDetailDTOMap">
+        SELECT
+            j.job_id,
+            j.title,
+            j.job_type,
+            j.job_duty,
+            j.job_requirements,
+            j.experience_requirement,
+            j.education_requirement,
+            j.job_skills,
+            j.min_salary,
+            j.max_salary,
+            j.location,
+            j.is_active,
+            j.verify_status,
+            j.verify_remark,
+            j.post_date,
+            j.expiration_date,
+            j.created_at,
+            j.updated_at,
+            c.company_id,
+            c.company_name,
+            c.industry,
+            c.scale,
+            c.address,
+            c.website,
+            c.description as company_description,
+            c.logo_url
+        FROM jobs j
+        INNER JOIN companies c ON j.company_id = c.company_id
+        WHERE j.company_id = #{companyId}
+        ORDER BY j.created_at DESC
+    </select>
+
+</mapper>

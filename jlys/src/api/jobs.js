@@ -5,7 +5,7 @@ import request from '@/utils/request'
  */
 export function searchJobs(params, page = 1, size = 10) {
   return request({
-    url: '/api/jobs/search',
+    url: '/jobs/search',
     method: 'get',
     params: {
       ...params,
@@ -20,7 +20,7 @@ export function searchJobs(params, page = 1, size = 10) {
  */
 export function getJobDetail(jobId) {
   return request({
-    url: `/api/jobs/${jobId}`,
+    url: `/jobs/${jobId}`,
     method: 'get'
   })
 }
@@ -30,7 +30,7 @@ export function getJobDetail(jobId) {
  */
 export function getAllJobs() {
   return request({
-    url: '/api/jobs/list',
+    url: '/jobs/list',
     method: 'get'
   })
 }
@@ -40,7 +40,7 @@ export function getAllJobs() {
  */
 export function getRecommendationsForUser(userId) {
   return request({
-    url: `/api/recommendations/user/${userId}`,
+    url: `/recommendations/user/${userId}`,
     method: 'get'
   })
 }
@@ -50,7 +50,7 @@ export function getRecommendationsForUser(userId) {
  */
 export function getRecommendationsByPage(userId, pageNum = 1, pageSize = 10) {
   return request({
-    url: `/api/recommendations/user/${userId}/page`,
+    url: `/recommendations/user/${userId}/page`,
     method: 'get',
     params: { pageNum, pageSize }
   })
@@ -61,7 +61,7 @@ export function getRecommendationsByPage(userId, pageNum = 1, pageSize = 10) {
  */
 export function getRecommendationsSorted(userId) {
   return request({
-    url: `/api/recommendations/user/${userId}/sorted`,
+    url: `/recommendations/user/${userId}/sorted`,
     method: 'get'
   })
 }
@@ -71,7 +71,7 @@ export function getRecommendationsSorted(userId) {
  */
 export function addRecommendation(recommendation) {
   return request({
-    url: '/api/recommendations/add',
+    url: '/recommendations/add',
     method: 'post',
     data: recommendation
   })
@@ -82,7 +82,7 @@ export function addRecommendation(recommendation) {
  */
 export function updateRecommendation(recommendation) {
   return request({
-    url: '/api/recommendations/update',
+    url: '/recommendations/update',
     method: 'put',
     data: recommendation
   })
@@ -93,7 +93,7 @@ export function updateRecommendation(recommendation) {
  */
 export function deleteRecommendation(recId) {
   return request({
-    url: `/api/recommendations/${recId}`,
+    url: `/recommendations/${recId}`,
     method: 'delete'
   })
 }
@@ -103,7 +103,7 @@ export function deleteRecommendation(recId) {
  */
 export function getRecommendationCount(userId) {
   return request({
-    url: `/api/recommendations/user/${userId}/count`,
+    url: `/recommendations/user/${userId}/count`,
     method: 'get'
   })
 }
@@ -123,7 +123,7 @@ export function getFlinkRecommendations(userId) {
  */
 export function collectJob(userId, jobId) {
   return request({
-    url: '/api/user-job-collection/collect',
+    url: '/user-job-collection/collect',
     method: 'post',
     data: { userId, jobId }
   })
@@ -134,7 +134,7 @@ export function collectJob(userId, jobId) {
  */
 export function cancelCollectJob(userId, jobId) {
   return request({
-    url: '/api/user-job-collection/cancel-collect',
+    url: '/user-job-collection/cancel-collect',
     method: 'post',
     data: { userId, jobId }
   })
@@ -145,7 +145,7 @@ export function cancelCollectJob(userId, jobId) {
  */
 export function getCollectedJobs(userId) {
   return request({
-    url: `/api/user-job-collection/collections/${userId}`,
+    url: `/user-job-collection/collections/${userId}`,
     method: 'get'
   })
 }

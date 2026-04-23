@@ -35,48 +35,90 @@
 import { ref, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
 import JobCard from '@/components/Job/JobCard.vue'
+import { jobAPI } from '@/api/visualization'
 
 const currentUserId = ref(null)
-const collectedJobs = ref([
-  {
-    jobId: 1,
-    positionName: '前端开发工程师',
-    companyName: '某科技公司',
-    city: '北京',
-    minSalary: 15,
-    maxSalary: 25,
-    experienceReq: '3-5年',
-    educationReq: '本科',
-    industryName: '互联网'
-  },
-  {
-    jobId: 2,
-    positionName: 'Vue开发工程师',
-    companyName: '另一家公司',
-    city: '上海',
-    minSalary: 18,
-    maxSalary: 28,
-    experienceReq: '2-4年',
-    educationReq: '本科',
-    industryName: '互联网'
-  }
-])
+const collectedJobs = ref([])
 const loading = ref(false)
 
-const handleUncollect = (job) => {
+// 加载收藏列表
+const loadCollections = async () => {
+  if (!currentUserId.value) {
+    console.error('用户ID不存在')
+    return
+  }
+
+  loading.value = true
+  try {
+    const response = await jobAPI.getCollectedJobs(currentUserId.value)
+    console.log('收藏列表API响应:', response)
+
+    // 兼容两种返回格式
+    const result = response.data || response
+    console.log('收藏列表结果:', result)
+
+    if (result.code === 0) {
+      collectedJobs.value = result.data || []
+      console.log('收藏的职位列表:', collectedJobs.value)
+      console.log('收藏数量:', collectedJobs.value.length)
+
+      if (collectedJobs.value.length > 0) {
+        console.log('第一个收藏职位示例:', collectedJobs.value[0])
+      }
+    } else {
+      console.error('获取收藏列表失败:', result.message)
+      ElMessage.error(result.message || '获取收藏列表失败')
+    }
+  } catch (error) {
+    console.error('获取收藏列表异常:', error)
+    ElMessage.error('获取收藏列表失败')
+  } finally {
+    loading.value = false
+  }
+}
+
+// 取消收藏
+const handleUncollect = async (job) => {
   const jobId = job.jobId || job.id
-  ElMessage.success('已取消收藏')
-  collectedJobs.value = collectedJobs.value.filter(j => (j.jobId || j.id) !== jobId)
+  if (!currentUserId.value || !jobId) {
+    ElMessage.error('操作失败')
+    return
+  }
+
+  try {
+    const response = await jobAPI.cancelCollectJob(currentUserId.value, jobId)
+    console.log('取消收藏响应:', response)
+
+    const result = response.data || response
+
+    if (result.code === 0) {
+      ElMessage.success('已取消收藏')
+      // 从列表中移除
+      collectedJobs.value = collectedJobs.value.filter(j => (j.jobId || j.id) !== jobId)
+    } else {
+      ElMessage.error(result.message || '取消收藏失败')
+    }
+  } catch (error) {
+    console.error('取消收藏失败:', error)
+    ElMessage.error('操作失败')
+  }
 }
 
 const handleViewDetail = (job) => {
-  ElMessage.info(`查看职位详情: ${job.positionName}`)
+  ElMessage.info(`查看职位详情: ${job.title || job.positionName}`)
 }
 
 onMounted(() => {
   const storedUserId = localStorage.getItem('userId')
+  console.log('从 localStorage 获取的 userId:', storedUserId)
+
   if (storedUserId) {
     currentUserId.value = parseInt(storedUserId, 10)
+    console.log('当前用户ID:', currentUserId.value)
+    // 加载收藏列表
+    loadCollections()
+  } else {
+    console.error('未找到用户ID，请先登录')
   }
 })
 </script>
