@@ -214,10 +214,28 @@ const reportData = reactive({
   evaluationData: null
 })
 
-async function getDate(){
-  const  {data} = await quickEvaluate(40)
 
-  reportData.overallScore = data.weightedScore
+async function getDate(){
+  // 从路由参数获取 applicationId
+  const applicationId = router.currentRoute.value.query.applicationId ||
+      router.currentRoute.value.params.id
+
+  // 或者从 sessionStorage 获取
+  // const applicationId = sessionStorage.getItem('currentApplicationId');
+
+  if (!applicationId) {
+    console.error('缺少 applicationId')
+    ElMessage.error('无法获取面试记录ID')
+    return
+  }
+
+  try {
+    const { data } = await quickEvaluate(applicationId)
+    reportData.overallScore = data.weightedScore
+  } catch (error) {
+    console.error('获取评估失败:', error)
+    ElMessage.error('获取面试评估失败')
+  }
 }
 getDate()
 

@@ -195,17 +195,31 @@ export default {
       }
       this.isLoading = true
       try {
-        const res = await request.post('/email/login', {
+        const res = await request.post('/api/auth/login', {
           email: this.loginForm.email,
           code: this.loginForm.code
         })
-        if (res.code === 200) {
-          ElMessage.success('登录成功')
+
+        // 注意：你的响应格式是 {success: true, data: {token: "...", ...}}
+        if (res.success) {  // 不是 res.code === 200
+          // 保存token到localStorage（关键！）
+          const token = res.data.token
+          localStorage.setItem('token', token)
+
+          // 保存用户信息
+          localStorage.setItem('userInfo', JSON.stringify({
+            userId: res.data.userId,
+            email: res.data.email,
+            role: res.data.role
+          }))
+
+          ElMessage.success(res.message || '登录成功')
           this.$router.push('/layout/aiChat')
         } else {
           ElMessage.error(res.message || '登录失败')
         }
       } catch (e) {
+        console.error('登录错误:', e)
         ElMessage.error('网络错误')
       } finally {
         this.isLoading = false
