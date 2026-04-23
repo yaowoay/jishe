@@ -423,12 +423,34 @@ export default {
 
     const loadResumeList = async () => {
       try {
+        console.log('开始加载简历列表...')
         const response = await getResumeList()
-        if (response.success) {
-          resumeList.value = response.data || []
+        console.log('简历列表API响应:', response)
+
+        // 处理返回数据
+        if (response.code === 0 && response.data) {
+          // 格式1: {code: 0, data: [...]}
+          resumeList.value = response.data
+          console.log('简历列表:', resumeList.value)
+          console.log('简历数量:', resumeList.value.length)
+
+          if (resumeList.value.length > 0) {
+            console.log('第一个简历示例:', resumeList.value[0])
+          } else {
+            console.warn('简历列表为空，请先上传简历')
+          }
+        } else if (response.success && response.data) {
+          // 格式2: {success: true, data: [...]}
+          resumeList.value = response.data
+          console.log('简历列表:', resumeList.value)
+          console.log('简历数量:', resumeList.value.length)
+        } else {
+          console.error('获取简历列表失败:', response.message)
+          ElMessage.error('获取简历列表失败')
         }
       } catch (error) {
         console.error('Load resume list error:', error)
+        ElMessage.error('加载简历列表失败')
       }
     }
 
