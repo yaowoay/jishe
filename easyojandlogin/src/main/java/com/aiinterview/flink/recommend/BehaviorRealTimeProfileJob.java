@@ -48,9 +48,9 @@ public class BehaviorRealTimeProfileJob {
                 // 修复：正确的数据库查询逻辑
                 .map(data -> {
                     String jobId = data.getString("jobId");
-                    String url = "jdbc:mysql://localhost:3306/ai_interview_v2?useSSL=false&serverTimezone=UTC";
+                    String url = "jdbc:mysql://localhost:3306/ai_db?useSSL=false&serverTimezone=UTC";
                     String username = "root";
-                    String password = "jyl123456";
+                    String password = "123456";
                     String sql = "select job_type as type, location as city, min_salary as salaryMin, max_salary as salaryMax from jobs where job_id = ?";
 
                     // 修复1：正确调用querySingle方法（传入jobId参数）
@@ -79,6 +79,7 @@ public class BehaviorRealTimeProfileJob {
         DataStream<JSONObject> realTimeProfileStream = behaviorStream
                 .keyBy(data -> data.getString("userId"))
                 .window(SlidingProcessingTimeWindows.of(Time.days(7), Time.hours(1)))
+                // .window(SlidingProcessingTimeWindows.of(Time.seconds(10), Time.seconds(3)))
                 .aggregate(new RealTimeAggregate());
 
         // 输出到控制台，便于观察最终写入 Redis 的实时画像结果
