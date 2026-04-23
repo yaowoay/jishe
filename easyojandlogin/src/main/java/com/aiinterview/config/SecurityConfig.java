@@ -24,7 +24,6 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-<<<<<<< HEAD
                 .cors().configurationSource(corsConfigurationSource())
                 .and()
                 .csrf().disable()
@@ -37,64 +36,21 @@ public class SecurityConfig {
                 .antMatchers("/public/**", "/uploads/**", "/error", "/actuator/**").permitAll()
                 .antMatchers("/swagger-ui/**", "/v2/api-docs").permitAll()
                 .antMatchers("/simple-test/**", "/profile-test/**").permitAll()
-                // ❌ 删除或注释掉这行！不要允许所有 /api/**
-                // .antMatchers("/api/**").permitAll()
-=======
-            .cors().configurationSource(corsConfigurationSource())
-            .and()
-            .csrf().disable()
-            .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-            .and()
-            .authorizeRequests() //允许访问的接口
-                .antMatchers("/api/**").permitAll()
-                .antMatchers("/**/auth/**").permitAll()
-                // 认证相关路径 - 最重要，放在最前面
-                .antMatchers("/auth/**").permitAll()
-                // 简历相关路径 - 允许上传
-                .antMatchers("/resume/**").permitAll()
-                .antMatchers("/resumes/**").permitAll()
-                // DISC测试相关路径
+                .antMatchers("/resume/**", "/resumes/**").permitAll()
                 .antMatchers("/disc-test/**").permitAll()
-                // 人脸检测相关路径
                 .antMatchers("/face/**").permitAll()
-                // 视频分析相关路径
                 .antMatchers("/video-analysis/**").permitAll()
-                // 视频上传相关路径
                 .antMatchers("/videos/**").permitAll()
-                // 面试记录相关路径
-                .antMatchers("/ai-interviews/**").permitAll()
-                // 其他公开路径
-                .antMatchers("/public/**").permitAll()
-                .antMatchers("/uploads/**").permitAll()
-                .antMatchers("/swagger-ui/**").permitAll()
-                .antMatchers("/v2/api-docs").permitAll()
-                .antMatchers("/error").permitAll()
-                .antMatchers("/actuator/**").permitAll()
-                .antMatchers("/jobs/active").permitAll()
-                .antMatchers("/jobs/search").permitAll()
-                .antMatchers("/jobs/type/**").permitAll()
-                .antMatchers("/simple-test/**").permitAll()
-                .antMatchers("/profile-test/**").permitAll()
-                .antMatchers("/applicant/profile/test").permitAll()
-                .antMatchers("/applicant-simple/**").permitAll()
-                .antMatchers("/company/profile/test").permitAll()
-                .antMatchers("/external-resume/**").permitAll()
-                .antMatchers("/job-description/**").permitAll()
-                .antMatchers("/resume-scoring/**").permitAll()
-                .antMatchers("/test-results/**").permitAll()
-                .antMatchers("/candidate-answer-stats").permitAll()
-                .antMatchers("/applicant-management").permitAll()
-                .antMatchers("/interview-evaluation").permitAll()
-                .antMatchers("/interview-evaluation/**").permitAll()
-                .antMatchers("/recommend/**").permitAll()
-                .antMatchers("/student/**").permitAll()
-//                .antMatchers("/student/profile").permitAll()
->>>>>>> 787dee59a5a3d259a5095d69e8f77fe180672a0d
-
                 // ❌ 删除这行！面试记录需要认证
                 // .antMatchers("/ai-interviews/**").permitAll()
-
-                // 其他需要认证的接口
+                // 其他公开路径
+                .antMatchers("/jobs/active", "/jobs/search", "/jobs/type/**").permitAll()
+                .antMatchers("/external-resume/**", "/job-description/**").permitAll()
+                .antMatchers("/resume-scoring/**", "/test-results/**").permitAll()
+                .antMatchers("/candidate-answer-stats", "/applicant-management").permitAll()
+                .antMatchers("/interview-evaluation/**", "/recommend/**").permitAll()
+                .antMatchers("/student/**").permitAll()
+                // 其他所有请求都需要认证
                 .anyRequest().authenticated()
                 .and()
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
@@ -108,7 +64,8 @@ public class SecurityConfig {
         configuration.setAllowedOriginPatterns(Arrays.asList("*"));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD", "PATCH"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
-        configuration.setAllowCredentials(false);
+        // ✅ 改为 true，允许携带认证信息
+        configuration.setAllowCredentials(true);
         configuration.setExposedHeaders(Arrays.asList("Authorization", "Content-Type"));
         configuration.setMaxAge(3600L);
 

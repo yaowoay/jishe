@@ -120,8 +120,7 @@
             ap.resume_url
         FROM applications a
         INNER JOIN jobs j ON a.job_id = j.job_id
-        INNER JOIN applicants ap ON a.applicant_id = ap.applicant_id
-        INNER JOIN users u ON ap.user_id = u.user_id
+        INNER JOIN applicants ap ON a.user_id = ap.user_id        INNER JOIN users u ON ap.user_id = u.user_id
         LEFT JOIN resumes r ON a.resume_id = r.resume_id
         WHERE j.company_id = #{companyId}
         <if test="status != null and status != ''">

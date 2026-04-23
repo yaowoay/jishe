@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * 公司信息管理控制器
@@ -148,6 +150,46 @@ public class CompanyProfileController {
         } catch (Exception e) {
             log.error("获取用户ID失败: {}", e.getMessage());
             throw new RuntimeException("认证失败: " + e.getMessage());
+        }
+    }
+
+    /**
+     * 获取企业信息（前端调用的 /info 接口）
+     */
+    @GetMapping("/info")
+    public ApiResponse<Map<String, Object>> getCompanyInfo(HttpServletRequest request) {
+        try {
+            Long userId = getUserIdFromToken(request);
+            CompanyProfileDTO profile = companyService.getCompanyByUserId(userId);
+
+            Map<String, Object> result = new HashMap<>();
+            if (profile == null) {
+                result.put("profile", null);
+                return ApiResponse.success("暂无公司信息", result);
+            }
+
+            result.put("profile", profile);
+
+            return ApiResponse.success("获取成功", result);
+        } catch (Exception e) {
+            log.error("获取企业信息失败: {}", e.getMessage());
+            return ApiResponse.error(e.getMessage());
+        }
+    }
+    /**
+     * 更新公司信息（前端调用的 /update 接口）
+     */
+    @PutMapping("/update")
+    public ApiResponse<CompanyProfileDTO> updateCompanyProfile(
+            @Valid @RequestBody CompanyProfileDTO companyProfileDTO,
+            HttpServletRequest request) {
+        try {
+            Long userId = getUserIdFromToken(request);
+            CompanyProfileDTO result = companyService.saveOrUpdateCompany(userId, companyProfileDTO);
+            return ApiResponse.success("更新成功", result);
+        } catch (Exception e) {
+            log.error("更新公司信息失败: {}", e.getMessage());
+            return ApiResponse.error(e.getMessage());
         }
     }
 }

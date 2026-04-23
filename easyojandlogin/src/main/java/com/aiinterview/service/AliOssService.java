@@ -1,4 +1,4 @@
-package com.aiinterview.service.oss;
+package com.aiinterview.service;
 
 import com.aiinterview.config.AliOssConfig;
 import com.aliyun.oss.OSS;

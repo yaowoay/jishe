@@ -171,19 +171,41 @@ public class TeacherServiceImpl implements TeacherService {
     @Override
     @Transactional
     public Company auditCompany(Long userId, Long companyId, String verifyStatus, String remark) {
-        Company company = companyMapper.selectById(companyId);
-        if (company == null) {
-            throw new RuntimeException("企业不存在");
-        }
-        company.setVerifyStatus(verifyStatus);
-        company.setVerifyRemark(remark);
-        if ("approved".equals(verifyStatus) && company.getCreditScore() == null) {
-            company.setCreditScore(80);
-        }
-        companyMapper.updateById(company);
-        return companyMapper.selectById(companyId);
-    }
+        try {
+            Company company = companyMapper.selectById(companyId);
+            if (company == null) {
+                throw new RuntimeException("企业不存在");
+            }
 
+            // 更新审核状态
+            company.setVerifyStatus(verifyStatus);
+
+            // 注意：companies 表中没有 verify_remark 字段，所以不保存备注
+            // 备注信息只记录在日志中
+            log.info("企业审核 - 企业ID: {}, 审核结果: {}, 备注: {}", companyId, verifyStatus, remark);
+
+            // 审核通过时，设置信用评分（如果为空）
+            if ("approved".equals(verifyStatus) && company.getCreditScore() == null) {
+                company.setCreditScore(80);
+            }
+
+            // 更新更新时间
+            company.setUpdatedAt(LocalDateTime.now());
+
+            int result = companyMapper.updateById(company);
+            if (result > 0) {
+                log.info("企业审核成功，企业ID: {}, 状态: {}", companyId, verifyStatus);
+            } else {
+                log.warn("企业审核失败，企业ID: {}", companyId);
+            }
+
+            return companyMapper.selectById(companyId);
+
+        } catch (Exception e) {
+            log.error("企业审核失败: companyId={}, error={}", companyId, e.getMessage());
+            throw new RuntimeException("企业审核失败: " + e.getMessage());
+        }
+    }
     @Override
     @Transactional
     public Job auditJob(Long userId, Long jobId, String verifyStatus, String remark) {

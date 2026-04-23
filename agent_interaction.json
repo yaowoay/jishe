@@ -1,0 +1,84 @@
+{
+  "id": "ai_interview_system_20260419",
+  "title": "AI面试系统开发协作记录",
+  "participants": {
+    "user": "钱钱钱（开发者）",
+    "assistant": "DeepSeek（AI智能体）"
+  },
+  "project": "AI智能面试系统",
+  "messages": [
+    {
+      "role": "user",
+      "content": "我需要设计一个AI面试系统，后端用Spring Boot，前端用Vue，包含简历管理、AI面试、报告生成等功能。请给我架构设计建议。",
+      "stage": "需求理解"
+    },
+    {
+      "role": "assistant",
+      "content": "建议采用前后端分离架构：\n- 后端：Spring Boot 2.7.2 + MyBatis-Plus + MySQL + Redis + JWT认证\n- 前端：Vue 3 + Element Plus + Axios\n- 核心模块：用户认证、简历管理、AI面试交互、面试报告、数据分析\n- 部署：后端端口8089，前端端口3001，通过代理解决跨域",
+      "stage": "方法建议"
+    },
+    {
+      "role": "user",
+      "content": "后端接口需要统一以/api开头，我应该在application.yml中配置server.servlet.context-path还是修改Controller的@RequestMapping？",
+      "stage": "方法建议"
+    },
+    {
+      "role": "assistant",
+      "content": "推荐在application.yml中配置server.servlet.context-path: /api，这样所有Controller自动加上/api前缀，不需要逐个修改@RequestMapping。配置后实际访问路径变为/api/xxx。",
+      "stage": "代码生成"
+    },
+    {
+      "role": "user",
+      "content": "CORS跨域问题：前端运行在http://10.217.151.205:3001，后端在localhost:8089，请求时出现跨域错误。请给出完整的CORS配置代码。",
+      "stage": "问题解决"
+    },
+    {
+      "role": "assistant",
+      "content": "在SecurityConfig中配置CORS，关键点是使用allowedOriginPatterns而不是allowedOrigins：\n```java\n@Bean\npublic CorsConfigurationSource corsConfigurationSource() {\n    CorsConfiguration config = new CorsConfiguration();\n    config.setAllowedOriginPatterns(Arrays.asList(\"*\"));\n    config.setAllowedMethods(Arrays.asList(\"GET\",\"POST\",\"PUT\",\"DELETE\",\"OPTIONS\"));\n    config.setAllowCredentials(true);\n    UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();\n    source.registerCorsConfiguration(\"/**\", config);\n    return source;\n}\n```\n注意：allowCredentials=true时不能用allowedOrigins(\"*\")，必须用allowedOriginPatterns。",
+      "stage": "结果解释"
+    },
+    {
+      "role": "user",
+      "content": "出现错误：When allowCredentials is true, allowedOrigins cannot contain the special value \"*\". 这是什么原因？",
+      "stage": "问题解决"
+    },
+    {
+      "role": "assistant",
+      "content": "这是Spring Security的安全限制。当设置allowCredentials(true)允许携带Cookie时，不能使用通配符\"*\"表示所有来源，必须明确指定来源或使用allowedOriginPatterns。你的SecurityConfig中已经用了setAllowedOriginPatterns，但可能还有其他地方的CorsConfig冲突了。检查是否有单独的CorsConfig.java或@CrossOrigin注解，只保留一处CORS配置即可。",
+      "stage": "结果解释"
+    },
+    {
+      "role": "user",
+      "content": "前端请求显示500错误，但后端日志显示JWT认证成功：'JWT认证成功: 用户=112@qq.com, 角色=student, ID=42'。是什么问题？",
+      "stage": "问题解决"
+    },
+    {
+      "role": "assistant",
+      "content": "从日志看认证是成功的，但后续CORS配置冲突导致异常。你项目中同时存在SecurityConfig中的CORS配置和单独的CorsConfig.java，两者冲突了。解决方案：注释或删除单独的CorsConfig.java，只保留SecurityConfig中的CORS配置。CORS配置重复会导致过滤器链执行两次，产生IllegalArgumentException。",
+      "stage": "结果解释"
+    },
+    {
+      "role": "user",
+      "content": "MySQL数据库连接池配置有什么建议？我的application.yml中用了Druid。",
+      "stage": "方法建议"
+    },
+    {
+      "role": "assistant",
+      "content": "Druid推荐配置：\n```yaml\ndruid:\n  initial-size: 5\n  min-idle: 5\n  max-active: 20\n  max-wait: 60000\n  test-while-idle: true\n  validation-query: SELECT 1\n```\n根据你的并发量调整max-active，20对于中小型项目足够。同时配置test-while-idle确保连接有效性。",
+      "stage": "代码生成"
+    },
+    {
+      "role": "user",
+      "content": "前端vue.config.js的代理配置如何写？需要代理/api开头的请求到后端8089端口。",
+      "stage": "代码生成"
+    },
+    {
+      "role": "assistant",
+      "content": "```javascript\ndevServer: {\n  port: 3001,\n  proxy: {\n    '/api': {\n      target: 'http://localhost:8089',\n      changeOrigin: true,\n      logLevel: 'debug'\n    }\n  }\n}\n```\n这样前端请求/api/xxx会被代理到http://localhost:8089/api/xxx。",
+      "stage": "代码生成"
+    }
+  ],
+  "summary": "AI智能体在项目开发中提供了以下关键帮助：\n1. 需求理解：帮助确定前后端分离架构和功能模块划分\n2. 方法建议：提供技术选型（Spring Boot/Vue）、数据库设计建议\n3. 代码生成：生成JWT配置、CORS配置、代理配置等核心代码\n4. 问题解决：协助解决CORS跨域冲突、配置重复导致500错误等问题\n5. 结果解释：解释Spring Security CORS安全限制原理\n\n智能体在需求分析、架构设计、代码实现、问题调试等环节均提供了实质性帮助，显著提升了开发效率。",
+  "created_at": "2026-04-19",
+  "version": "1.0"
+}
