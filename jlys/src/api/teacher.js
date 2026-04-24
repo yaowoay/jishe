@@ -104,11 +104,14 @@ export function getCompanies(params) {
   })
 }
 
-export function auditCompany(companyId, data) {
+export function auditCompany(companyId, verifyStatus, remark) {
   return request({
     url: `/teacher/companies/${companyId}/audit`,
     method: 'post',
-    data
+    params: {
+      verifyStatus,
+      remark
+    }
   })
 }
 

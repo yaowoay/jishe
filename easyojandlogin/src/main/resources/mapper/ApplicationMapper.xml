@@ -102,25 +102,27 @@
             
             u.user_id,
             u.email,
-            ap.full_name,
-            ap.phone,
-            
+            COALESCE(rs.full_name, sp.real_name) as full_name,
+            rs.phone as phone,
+
             r.resume_id,
             r.filename as resume_filename,
             r.file_url as resume_file_url,
             r.upload_date as resume_upload_date,
-            
-            ap.applicant_id,
-            ap.gender,
-            ap.birthdate,
-            ap.education_level,
-            ap.work_years,
-            ap.expected_position,
-            ap.expected_salary as applicant_expected_salary,
-            ap.resume_url
+
+            NULL as applicant_id,
+            sp.gender,
+            sp.birth_date as birthdate,
+            sp.education_level,
+            rs.work_years,
+            rs.position as expected_position,
+            COALESCE(rs.expected_salary_max, rs.expected_salary_min) as applicant_expected_salary,
+            r.file_url as resume_url
         FROM applications a
         INNER JOIN jobs j ON a.job_id = j.job_id
-        INNER JOIN applicants ap ON a.user_id = ap.user_id        INNER JOIN users u ON ap.user_id = u.user_id
+        INNER JOIN users u ON a.user_id = u.user_id
+        LEFT JOIN student_profile sp ON a.user_id = sp.user_id
+        LEFT JOIN resume rs ON a.user_id = rs.user_id AND rs.is_default = TRUE AND rs.is_deleted = 0
         LEFT JOIN resumes r ON a.resume_id = r.resume_id
         WHERE j.company_id = #{companyId}
         <if test="status != null and status != ''">
@@ -128,7 +130,7 @@
         </if>
         <if test="keyword != null and keyword != ''">
             AND (
-                ap.full_name LIKE CONCAT('%', #{keyword}, '%') OR
+                COALESCE(rs.full_name, sp.real_name) LIKE CONCAT('%', #{keyword}, '%') OR
                 u.email LIKE CONCAT('%', #{keyword}, '%') OR
                 j.title LIKE CONCAT('%', #{keyword}, '%')
             )
@@ -161,27 +163,28 @@
             
             u.user_id,
             u.email,
-            ap.full_name,
-            ap.phone,
-            
+            COALESCE(rs.full_name, sp.real_name) as full_name,
+            rs.phone as phone,
+
             r.resume_id,
             r.filename as resume_filename,
             r.file_url as resume_file_url,
             r.upload_date as resume_upload_date,
             r.parsed_data,
-            
-            ap.applicant_id,
-            ap.gender,
-            ap.birthdate,
-            ap.education_level,
-            ap.work_years,
-            ap.expected_position,
-            ap.expected_salary as applicant_expected_salary,
-            ap.resume_url
+
+            NULL as applicant_id,
+            sp.gender,
+            sp.birth_date as birthdate,
+            sp.education_level,
+            rs.work_years,
+            rs.position as expected_position,
+            COALESCE(rs.expected_salary_max, rs.expected_salary_min) as applicant_expected_salary,
+            r.file_url as resume_url
         FROM applications a
         INNER JOIN jobs j ON a.job_id = j.job_id
-        INNER JOIN applicants ap ON a.applicant_id = ap.applicant_id
-        INNER JOIN users u ON ap.user_id = u.user_id
+        INNER JOIN users u ON a.user_id = u.user_id
+        LEFT JOIN student_profile sp ON a.user_id = sp.user_id
+        LEFT JOIN resume rs ON a.user_id = rs.user_id AND rs.is_default = TRUE AND rs.is_deleted = 0
         LEFT JOIN resumes r ON a.resume_id = r.resume_id
         WHERE a.application_id = #{applicationId}
         AND j.company_id = #{companyId}

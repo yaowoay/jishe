@@ -324,10 +324,11 @@ const quickAudit = async (company, status) => {
       }
     )
 
-    const response = await auditCompanyApi(company.companyId, {
-      verifyStatus: status,
-      remark: `快速${action}`
-    })
+    const response = await auditCompanyApi(
+      company.companyId, 
+      status, 
+      `快速${action}`
+    )
 
     if (response.success) {
       ElMessage.success(`${action}成功`)
@@ -472,83 +473,4 @@ onMounted(() => {
   }
 }
 </style>
-  const typeMap = {
-    'approved': 'success',
-    'pending': 'warning',
-    'rejected': 'danger'
-  }
-  return typeMap[status] || 'info'
-}
 
-const handleSearch = async () => {
-  loading.value = true
-  try {
-    const response = await getCompanies(searchForm.value.verifyStatus)
-    if (response.success) {
-      let data = response.data || []
-      
-      if (searchForm.value.keyword) {
-        data = data.filter(item => 
-          item.companyName.includes(searchForm.value.keyword)
-        )
-      }
-      
-      companiesList.value = data
-      pagination.value.total = data.length
-    }
-  } catch (error) {
-    ElMessage.error('查询企业列表失败')
-  } finally {
-    loading.value = false
-  }
-}
-
-const auditCompany = (row, status) => {
-  ElMessageBox.confirm(
-    `确定要${status === 'approved' ? '通过' : '拒绝'}该企业吗？`,
-    '提示',
-    {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
-      type: 'warning'
-    }
-  ).then(async () => {
-    try {
-      const response = await auditCompanyApi(
-        row.companyId,
-        status,
-        status === 'approved' ? '审核通过' : '审核拒绝'
-      )
-      if (response.success) {
-        ElMessage.success('审核成功')
-        handleSearch()
-      }
-    } catch (error) {
-      ElMessage.error('审核失败')
-    }
-  }).catch(() => {})
-}
-
-const viewCompany = (row) => {
-  ElMessage.info(`查看企业: ${row.companyName}`)
-}
-
-onMounted(() => {
-  handleSearch()
-})
-
-
-<style scoped lang="scss">
-.teacher-companies {
-  .search-card {
-    margin-bottom: 20px;
-    border: none;
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
-  }
-
-  .table-card {
-    border: none;
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
-  }
-}
-</style>
