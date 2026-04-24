@@ -60,8 +60,8 @@
             </el-descriptions-item>
             <el-descriptions-item label="档案完整度" span="2">
               <el-progress
-                :percentage="profileData.profileCompletion || 0"
-                :color="getProgressColor(profileData.profileCompletion)"
+                  :percentage="profileCompletion"
+                  :color="getProgressColor(profileCompletion)"
               />
             </el-descriptions-item>
             <el-descriptions-item label="公司简介" span="2">

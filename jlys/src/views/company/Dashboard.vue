@@ -242,36 +242,102 @@ export default {
       try {
         const response = await getCompanyProfile()
 
-        if (response && response.success && response.data && response.data.profile) {
-          const profile = response.data.profile
+        console.log('获取到的企业信息:', response)
 
-          // 计算档案完整度
+        if (response && response.success && response.data) {
+          // ✅ 直接使用 response.data，不需要 .profile
+          const profile = response.data
+
+          // ✅ 前端自己计算完整度，不依赖后端
           let score = 0
-          if (profile.companyName && profile.companyName.trim()) score += 20
-          if (profile.industry && profile.industry.trim()) score += 20
-          if (profile.scale && profile.scale.trim()) score += 20
-          if (profile.contactPhone && profile.contactPhone.trim()) score += 20
-          if (profile.address && profile.address.trim()) score += 7
-          if (profile.website && profile.website.trim()) score += 7
-          if (profile.description && profile.description.trim()) score += 6
+
+          // 基础信息（每个20分，共4个=80分）
+          if (profile.companyName && profile.companyName.trim() && profile.companyName !== '待完善') {
+            score += 20
+            console.log('公司名称已填写，+20')
+          }
+          if (profile.industry && profile.industry.trim() && profile.industry !== '未填写') {
+            score += 20
+            console.log('行业已填写，+20')
+          }
+          if (profile.scale && profile.scale.trim() && profile.scale !== '未填写') {
+            score += 20
+            console.log('规模已填写，+20')
+          }
+          if (profile.contactPhone && profile.contactPhone.trim()) {
+            score += 20
+            console.log('联系电话已填写，+20')
+          }
+
+          // 详细信息（加分项）
+          if (profile.address && profile.address.trim() && profile.address !== '未填写') {
+            score += 7
+            console.log('地址已填写，+7')
+          }
+          if (profile.website && profile.website.trim()) {
+            score += 7
+            console.log('网站已填写，+7')
+          }
+          if (profile.description && profile.description.trim() && profile.description !== '未填写') {
+            score += 6
+            console.log('简介已填写，+6')
+          }
+
+          // 额外加分项
+          if (profile.companyWelfare && profile.companyWelfare.trim()) {
+            score += 3
+            console.log('福利已填写，+3')
+          }
+          if (profile.companyTags && profile.companyTags.trim()) {
+            score += 2
+            console.log('标签已填写，+2')
+          }
+          if (profile.logoUrl && profile.logoUrl.trim()) {
+            score += 2
+            console.log('Logo已上传，+2')
+          }
 
           this.profileCompletion = Math.min(100, Math.round(score))
 
-          // 完整度低于60才显示弹窗
+          console.log('计算得到的完整度:', this.profileCompletion)
+          console.log('当前得分明细:', {
+            公司名称: profile.companyName,
+            行业: profile.industry,
+            规模: profile.scale,
+            电话: profile.contactPhone,
+            网站: profile.website,
+            得分: score,
+            最终完整度: this.profileCompletion
+          })
+
+          // 完整度低于60显示弹窗
           if (this.profileCompletion < 60) {
-            setTimeout(() => {
-              this.showProfileGuide = true
-            }, 1000)
+            // 检查用户是否在24小时内点击过"稍后再说"
+            const dismissed = localStorage.getItem('profileGuideDismissed')
+            const dismissedTime = parseInt(dismissed)
+            const hoursPassed = dismissed ? (Date.now() - dismissedTime) / (1000 * 60 * 60) : 0
+
+            if (!dismissed || hoursPassed >= 24) {
+              console.log('完整度不足60%，显示弹窗')
+              setTimeout(() => {
+                this.showProfileGuide = true
+              }, 1000)
+            } else {
+              console.log('用户在24小时内选择了稍后再说，不显示弹窗')
+              this.showProfileGuide = false
+            }
+          } else {
+            console.log('完整度充足，不显示弹窗')
+            this.showProfileGuide = false
           }
         } else {
-          // 没有企业信息，显示弹窗
+          console.log('没有获取到企业信息')
           setTimeout(() => {
             this.showProfileGuide = true
           }, 1000)
         }
       } catch (error) {
         console.error('获取企业信息失败:', error)
-        // 获取失败也显示弹窗
         setTimeout(() => {
           this.showProfileGuide = true
         }, 1000)
