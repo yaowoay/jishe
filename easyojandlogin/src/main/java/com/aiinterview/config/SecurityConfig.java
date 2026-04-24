@@ -6,6 +6,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
@@ -14,12 +16,20 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.Arrays;
 
+/**
+ * Spring Security配置 (SpringBoot 2.7.2) - 使用新的配置方式
+ */
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -30,27 +40,36 @@ public class SecurityConfig {
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .authorizeRequests()
-                // 公开的认证接口（不需要认证）
-                .antMatchers("/api/auth/**", "/api/email/**", "/auth/**").permitAll()
-                // 公开的其他路径
-                .antMatchers("/public/**", "/uploads/**", "/error", "/actuator/**").permitAll()
-                .antMatchers("/swagger-ui/**", "/v2/api-docs").permitAll()
-                .antMatchers("/simple-test/**", "/profile-test/**").permitAll()
+                // 允许所有 OPTIONS 请求（CORS 预检）
+                .antMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
+                // 认证相关路径
+                .antMatchers("/auth/**", "/**/auth/**").permitAll()
+                // 简历相关路径 - 允许上传
                 .antMatchers("/resume/**", "/resumes/**").permitAll()
+                // DISC测试相关路径
                 .antMatchers("/disc-test/**").permitAll()
+                // 人脸检测相关路径
                 .antMatchers("/face/**").permitAll()
-                .antMatchers("/video-analysis/**").permitAll()
-                .antMatchers("/videos/**").permitAll()
-                // ❌ 删除这行！面试记录需要认证
-                // .antMatchers("/ai-interviews/**").permitAll()
+                // 视频分析相关路径
+                .antMatchers("/video-analysis/**", "/video/**").permitAll()
+                // 面试记录相关路径
+                .antMatchers("/ai-interviews/**").permitAll()
+                // 职位相关路径
+                .antMatchers("/jobs/**", "/api/jobs/**").permitAll()
                 // 其他公开路径
-                .antMatchers("/jobs/active", "/jobs/search", "/jobs/type/**").permitAll()
+                .antMatchers("/public/**", "/uploads/**").permitAll()
+                .antMatchers("/swagger-ui/**", "/v2/api-docs").permitAll()
+                .antMatchers("/error", "/actuator/**").permitAll()
+                .antMatchers("/simple-test/**", "/profile-test/**").permitAll()
+                .antMatchers("/applicant/profile/test", "/applicant-simple/**").permitAll()
+                .antMatchers("/company/profile/test").permitAll()
                 .antMatchers("/external-resume/**", "/job-description/**").permitAll()
                 .antMatchers("/resume-scoring/**", "/test-results/**").permitAll()
                 .antMatchers("/candidate-answer-stats", "/applicant-management").permitAll()
-                .antMatchers("/interview-evaluation/**", "/recommend/**").permitAll()
-                .antMatchers("/student/**").permitAll()
-                // 其他所有请求都需要认证
+                .antMatchers("/interview-evaluation", "/interview-evaluation/**").permitAll()
+                .antMatchers("/recommend/**").permitAll()
+                .antMatchers("/api/**").permitAll()
+
                 .anyRequest().authenticated()
                 .and()
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
@@ -64,7 +83,6 @@ public class SecurityConfig {
         configuration.setAllowedOriginPatterns(Arrays.asList("*"));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD", "PATCH"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
-        // ✅ 改为 true，允许携带认证信息
         configuration.setAllowCredentials(true);
         configuration.setExposedHeaders(Arrays.asList("Authorization", "Content-Type"));
         configuration.setMaxAge(3600L);

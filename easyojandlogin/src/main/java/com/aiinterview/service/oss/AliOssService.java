@@ -64,12 +64,12 @@ public class AliOssService {
                         inputStream
                 );
                 ossClient.putObject(putObjectRequest);
-                log.info("✅ 视频上传OSS成功: {}, 面试ID: {}, 文件大小: {} MB",
+                log.info("视频上传OSS成功: {}, 面试ID: {}, 文件大小: {} MB",
                         objectName, interviewId, file.getSize() / 1024.0 / 1024.0);
                 return objectName;
             }
         } catch (Exception e) {
-            log.error("❌ 视频上传OSS失败, 面试ID: {}", interviewId, e);
+            log.error("视频上传OSS失败, 面试ID: {}", interviewId, e);
             throw new RuntimeException("视频上传到OSS失败: " + e.getMessage());
         } finally {
             if (ossClient != null) {
@@ -113,11 +113,11 @@ public class AliOssService {
                     tempFile.toFile()
             );
 
-            log.info("📥 从OSS下载视频成功: {} -> {}", ossFileKey, tempFile.toString());
+            log.info("从OSS下载视频成功: {} -> {}", ossFileKey, tempFile.toString());
             return tempFile.toString();
 
         } catch (Exception e) {
-            log.error("❌ 从OSS下载视频失败: {}", ossFileKey, e);
+            log.error("从OSS下载视频失败: {}", ossFileKey, e);
             throw new RuntimeException("从OSS下载视频失败: " + e.getMessage());
         } finally {
             if (ossClient != null) {
@@ -168,11 +168,11 @@ public class AliOssService {
             request.setExpiration(expiration);
             URL url = ossClient.generatePresignedUrl(request);
 
-            log.debug("🔗 生成临时访问链接: {}, 有效期: {}小时", objectName, expireHours);
+            log.debug("生成临时访问链接: {}, 有效期: {}小时", objectName, expireHours);
             return url.toString();
 
         } catch (Exception e) {
-            log.error("❌ 生成临时链接失败: {}", objectName, e);
+            log.error("生成临时链接失败: {}", objectName, e);
             throw new RuntimeException("生成视频链接失败: " + e.getMessage());
         } finally {
             if (ossClient != null) {
@@ -197,11 +197,11 @@ public class AliOssService {
             );
 
             ossClient.deleteObject(aliOssConfig.getBucketName(), objectName);
-            log.info("🗑️ 删除OSS视频成功: {}", objectName);
+            log.info("删除OSS视频成功: {}", objectName);
             return true;
 
         } catch (Exception e) {
-            log.error("❌ 删除OSS视频失败: {}", objectName, e);
+            log.error("删除OSS视频失败: {}", objectName, e);
             return false;
         } finally {
             if (ossClient != null) {
@@ -228,7 +228,7 @@ public class AliOssService {
             return ossClient.doesObjectExist(aliOssConfig.getBucketName(), objectName);
 
         } catch (Exception e) {
-            log.error("❌ 检查OSS文件是否存在失败: {}", objectName, e);
+            log.error("检查OSS文件是否存在失败: {}", objectName, e);
             return false;
         } finally {
             if (ossClient != null) {
