@@ -265,6 +265,7 @@ public class CooperationServiceImpl implements CooperationService {
             OrderClass orderClass = new OrderClass();
             BeanUtils.copyProperties(classDTO, orderClass);
             orderClass.setProjectId(projectId);
+            orderClass.setCompanyId(project.getCompanyId());
             orderClass.setClassStatus("recruiting");
             orderClass.setEnrolledCount(0);
 

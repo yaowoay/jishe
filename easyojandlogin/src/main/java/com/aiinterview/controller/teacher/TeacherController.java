@@ -19,15 +19,25 @@ import com.aiinterview.model.entity.student.StudentProfile;
 import com.aiinterview.service.teacher.AssistanceService;
 import com.aiinterview.service.teacher.TeacherService;
 import com.aiinterview.utils.JwtUtils;
+import com.aiinterview.config.FileUploadConfig;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * 教师院校端控制器
@@ -43,6 +53,8 @@ public class TeacherController {
     private final TeacherService teacherService;
     private final AssistanceService assistanceService;
     private final JwtUtils jwtUtils;
+    private final FileUploadConfig fileUploadConfig;
+
 
     @GetMapping("/profile")
     public ApiResponse<TeacherProfileDTO> getProfile(HttpServletRequest request) {
@@ -267,6 +279,66 @@ public class TeacherController {
         }
     }
 
+    @PostMapping("/activities/upload-poster")
+    public ApiResponse<Map<String, String>> uploadActivityPoster(
+            @RequestParam("file") MultipartFile file,
+            HttpServletRequest request) {
+        try {
+            Long userId = getTeacherUserId(request);
+            if (file == null || file.isEmpty()) {
+                return ApiResponse.error("上传文件不能为空", 400);
+            }
+
+            String originalFilename = file.getOriginalFilename();
+            String extension = "";
+            if (originalFilename != null && originalFilename.contains(".")) {
+                extension = originalFilename.substring(originalFilename.lastIndexOf('.') + 1).toLowerCase();
+            }
+
+            if (!("jpg".equals(extension) || "jpeg".equals(extension) || "png".equals(extension) || "gif".equals(extension) || "webp".equals(extension))) {
+                return ApiResponse.error("仅支持 jpg/jpeg/png/gif/webp 图片格式", 400);
+            }
+
+            if (file.getSize() > 2 * 1024 * 1024) {
+                return ApiResponse.error("图片大小不能超过2MB", 400);
+            }
+
+            File uploadRoot = new File(fileUploadConfig.getPath());
+            if (!uploadRoot.exists() && !uploadRoot.mkdirs()) {
+                return ApiResponse.error("创建上传目录失败", 500);
+            }
+
+            String relativeDir = "activity-posters/teacher-" + userId;
+            File targetDir = new File(uploadRoot, relativeDir);
+            if (!targetDir.exists() && !targetDir.mkdirs()) {
+                return ApiResponse.error("创建海报目录失败", 500);
+            }
+
+            String savedFilename = UUID.randomUUID().toString().replace("-", "") + "." + extension;
+            Path targetPath = Paths.get(targetDir.getAbsolutePath(), savedFilename);
+            Files.copy(file.getInputStream(), targetPath, StandardCopyOption.REPLACE_EXISTING);
+
+            String fileUrl = "/uploads/" + relativeDir + "/" + savedFilename;
+            String fullPosterUrl = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort()
+                    + request.getContextPath() + fileUrl;
+
+            Map<String, String> result = new HashMap<>();
+            result.put("fileUrl", fileUrl);
+            result.put("posterUrl", fullPosterUrl);
+            result.put("filename", savedFilename);
+            result.put("originalFilename", originalFilename == null ? "" : originalFilename);
+
+            log.info("活动海报上传成功: userId={}, posterUrl={}", userId, fullPosterUrl);
+            return ApiResponse.success("上传成功", result);
+        } catch (IOException e) {
+            log.error("活动海报上传失败(IO): {}", e.getMessage(), e);
+            return ApiResponse.error("海报上传失败", 500);
+        } catch (Exception e) {
+            log.error("活动海报上传失败: {}", e.getMessage(), e);
+            return ApiResponse.error(e.getMessage());
+        }
+    }
+
     @GetMapping("/employment-stats")
     public ApiResponse<com.aiinterview.model.dto.teacher.EmploymentStatsDTO> getEmploymentStats(
             @RequestParam(required = false) Long collegeId,
@@ -291,6 +363,17 @@ public class TeacherController {
             return ApiResponse.success("获取成功", teacherService.getEarlyWarnings(userId, warningLevel, handleStatus));
         } catch (Exception e) {
             log.error("获取预警列表失败: {}", e.getMessage());
+            return ApiResponse.error(e.getMessage());
+        }
+    }
+
+    @GetMapping("/early-warnings/stats")
+    public ApiResponse<Map<String, Object>> getEarlyWarningStats(HttpServletRequest request) {
+        try {
+            Long userId = getTeacherUserId(request);
+            return ApiResponse.success("获取成功", teacherService.getEarlyWarningStats(userId));
+        } catch (Exception e) {
+            log.error("获取预警统计失败: {}", e.getMessage());
             return ApiResponse.error(e.getMessage());
         }
     }
@@ -412,11 +495,13 @@ public class TeacherController {
             @RequestParam String content,
             @RequestParam String progressStatus,
             @RequestParam(required = false) String nextAction,
+            @RequestParam(required = false) Integer beforeScore,
+            @RequestParam(required = false) Integer afterScore,
             HttpServletRequest request) {
         try {
             Long userId = getTeacherUserId(request);
             return ApiResponse.success("添加成功",
-                assistanceService.addTracking(recordId, content, progressStatus, nextAction, userId));
+                assistanceService.addTracking(recordId, content, progressStatus, nextAction, beforeScore, afterScore, userId));
         } catch (Exception e) {
             log.error("添加跟踪记录失败: {}", e.getMessage());
             return ApiResponse.error(e.getMessage());

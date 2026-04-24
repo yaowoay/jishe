@@ -425,34 +425,17 @@ public class TeacherServiceImpl implements TeacherService {
             warning.setDetectionTime(LocalDateTime.now());
             warning.setHandleStatus("pending");
             warning.setAssignedTo(userId);
-            warning.setIsNotified(false);
+            warning.setIsNotified(true);
+            warning.setNotifyTime(LocalDateTime.now());
             warning.setStudentViewed(false);
 
             earlyWarningResultMapper.insert(warning);
-
-            // 自动推送通知
-            pushWarningNotification(warning);
 
             // 返回创建的数据
             return convertToEarlyWarningDTO(warning);
         } catch (Exception e) {
             log.error("创建预警记录失败: userId={}, error={}", userId, e.getMessage());
             throw new RuntimeException("创建预警记录失败: " + e.getMessage());
-        }
-    }
-
-    /**
-     * 推送预警通知
-     */
-    private void pushWarningNotification(com.aiinterview.model.entity.teacher.EarlyWarningResult warning) {
-        try {
-            warning.setIsNotified(true);
-            warning.setNotifyTime(LocalDateTime.now());
-            earlyWarningResultMapper.updateById(warning);
-            log.info("预警通知推送成功: warningId={}, studentId={}, teacherId={}",
-                    warning.getId(), warning.getStudentId(), warning.getAssignedTo());
-        } catch (Exception e) {
-            log.error("预警通知推送失败: warningId={}, error={}", warning.getId(), e.getMessage());
         }
     }
 

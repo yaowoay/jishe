@@ -73,9 +73,9 @@
         <el-form-item label="活动海报" prop="posterUrl">
           <el-upload
               class="poster-uploader"
-              action="/api/upload"
               :show-file-list="false"
-              :on-success="handlePosterSuccess"
+              accept="image/*"
+              :http-request="handlePosterUpload"
               :before-upload="beforePosterUpload"
           >
             <img v-if="formData.posterUrl" :src="formData.posterUrl" class="poster" />
@@ -108,6 +108,7 @@ import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { Plus } from '@element-plus/icons-vue'
 import { createActivity } from '@/api/teacher'
+import request from '@/api/index'
 
 const router = useRouter()
 const formRef = ref(null)
@@ -135,8 +136,29 @@ const rules = {
   maxParticipants: [{ required: true, message: '请输入最大参与人数', trigger: 'blur' }]
 }
 
-const handlePosterSuccess = (response, file) => {
-  formData.value.posterUrl = URL.createObjectURL(file.raw)
+const handlePosterUpload = async (options) => {
+  const { file, onSuccess, onError } = options
+  const uploadForm = new FormData()
+  uploadForm.append('file', file)
+
+  try {
+    const res = await request({
+      url: '/teacher/activities/upload-poster',
+      method: 'post',
+      data: uploadForm,
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    })
+
+    const posterUrl = res?.data?.posterUrl || res?.data?.fileUrl || ''
+    formData.value.posterUrl = posterUrl || URL.createObjectURL(file)
+    ElMessage.success('海报上传成功')
+    onSuccess && onSuccess(res)
+  } catch (error) {
+    ElMessage.error(error?.response?.data?.message || '海报上传失败')
+    onError && onError(error)
+  }
 }
 
 const beforePosterUpload = (file) => {

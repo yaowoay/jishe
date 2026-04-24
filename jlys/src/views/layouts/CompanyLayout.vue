@@ -62,6 +62,10 @@
               <el-icon size="18"><ChatDotRound /></el-icon>
               <span class="menu-text">面试管理</span>
             </el-menu-item>
+            <el-menu-item index="/company/cooperation">
+              <el-icon size="18"><OfficeBuilding /></el-icon>
+              <span class="menu-text">校企合作</span>
+            </el-menu-item>
             <el-menu-item index="/company/profile">
               <el-icon size="18"><OfficeBuilding /></el-icon>
               <span class="menu-text">企业中心</span>

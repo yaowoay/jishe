@@ -4,6 +4,7 @@ import com.aiinterview.common.BaseResponse;
 import com.aiinterview.common.ResultUtils;
 import com.aiinterview.model.dto.cooperation.*;
 import com.aiinterview.service.cooperation.CooperationService;
+import com.aiinterview.utils.JwtUtils;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -19,11 +20,12 @@ import java.util.Map;
  */
 @Api(tags = "校企合作管理")
 @RestController
-@RequestMapping("/api/cooperation")
+@RequestMapping("/cooperation")
 @RequiredArgsConstructor
 public class CooperationController {
 
     private final CooperationService cooperationService;
+    private final JwtUtils jwtUtils;
 
     // ==================== 合作项目管理 ====================
 
@@ -32,7 +34,14 @@ public class CooperationController {
     public BaseResponse<CooperationProjectDTO> createProject(
             @RequestBody CooperationProjectDTO projectDTO,
             HttpServletRequest request) {
-        Long companyId = (Long) request.getAttribute("userId");
+        Long companyId = getCurrentUserId(request);
+        String role = getCurrentRole(request);
+        if (companyId == null) {
+            return ResultUtils.error(401, "未登录或登录已过期");
+        }
+        if (!"company".equals(role)) {
+            return ResultUtils.error(403, "仅企业用户可创建合作项目");
+        }
         CooperationProjectDTO result = cooperationService.createProject(companyId, projectDTO);
         return ResultUtils.success(result);
     }
@@ -43,7 +52,10 @@ public class CooperationController {
             @PathVariable Long projectId,
             @RequestBody CooperationProjectDTO projectDTO,
             HttpServletRequest request) {
-        Long companyId = (Long) request.getAttribute("userId");
+        Long companyId = getCurrentUserId(request);
+        if (companyId == null) {
+            return ResultUtils.error(401, "未登录或登录已过期");
+        }
         CooperationProjectDTO result = cooperationService.updateProject(companyId, projectId, projectDTO);
         return ResultUtils.success(result);
     }
@@ -53,7 +65,10 @@ public class CooperationController {
     public BaseResponse<CooperationProjectDTO> submitProject(
             @PathVariable Long projectId,
             HttpServletRequest request) {
-        Long companyId = (Long) request.getAttribute("userId");
+        Long companyId = getCurrentUserId(request);
+        if (companyId == null) {
+            return ResultUtils.error(401, "未登录或登录已过期");
+        }
         CooperationProjectDTO result = cooperationService.submitProject(companyId, projectId);
         return ResultUtils.success(result);
     }
@@ -72,8 +87,15 @@ public class CooperationController {
             @RequestParam(required = false) String status,
             @RequestParam(required = false) String projectType,
             @RequestParam(defaultValue = "1") Integer page,
-            @RequestParam(defaultValue = "10") Integer size) {
-        IPage<CooperationProjectDTO> result = cooperationService.getProjectList(companyId, status, projectType, page, size);
+            @RequestParam(defaultValue = "10") Integer size,
+            HttpServletRequest request) {
+        Long currentUserId = getCurrentUserId(request);
+        String role = getCurrentRole(request);
+        Long finalCompanyId = companyId;
+        if ("company".equals(role)) {
+            finalCompanyId = currentUserId;
+        }
+        IPage<CooperationProjectDTO> result = cooperationService.getProjectList(finalCompanyId, status, projectType, page, size);
         return ResultUtils.success(result);
     }
 
@@ -84,7 +106,14 @@ public class CooperationController {
             @RequestParam String status,
             @RequestParam(required = false) String comment,
             HttpServletRequest request) {
-        Long teacherId = (Long) request.getAttribute("userId");
+        Long teacherId = getCurrentUserId(request);
+        String role = getCurrentRole(request);
+        if (teacherId == null) {
+            return ResultUtils.error(401, "未登录或登录已过期");
+        }
+        if (!"teacher".equals(role)) {
+            return ResultUtils.error(403, "仅教师可审核项目");
+        }
         CooperationProjectDTO result = cooperationService.reviewProject(teacherId, projectId, status, comment);
         return ResultUtils.success(result);
     }
@@ -94,7 +123,10 @@ public class CooperationController {
     public BaseResponse<Void> deleteProject(
             @PathVariable Long projectId,
             HttpServletRequest request) {
-        Long companyId = (Long) request.getAttribute("userId");
+        Long companyId = getCurrentUserId(request);
+        if (companyId == null) {
+            return ResultUtils.error(401, "未登录或登录已过期");
+        }
         cooperationService.deleteProject(companyId, projectId);
         return ResultUtils.success(null);
     }
@@ -235,6 +267,31 @@ public class CooperationController {
         cooperationService.deleteCase(caseId);
         return ResultUtils.success(null);
     }
+
+    private Long getCurrentUserId(HttpServletRequest request) {
+        String token = request.getHeader("Authorization");
+        if (token == null || !token.startsWith("Bearer ")) {
+            return null;
+        }
+        try {
+            return jwtUtils.getUserIdFromToken(token.substring(7));
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    private String getCurrentRole(HttpServletRequest request) {
+        String token = request.getHeader("Authorization");
+        if (token == null || !token.startsWith("Bearer ")) {
+            return null;
+        }
+        try {
+            return jwtUtils.getRoleFromToken(token.substring(7));
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
 
     // ==================== 统计分析 ====================
 

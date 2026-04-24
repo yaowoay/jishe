@@ -105,11 +105,93 @@
       </el-card>
     </div>
 
-    <!-- 职位列表 -->
-    <div class="job-list-section">
+    <!-- 结果统计和视图切换 -->
+    <div class="result-summary" v-if="!loading">
+      <span class="result-count">
+        共找到 <strong>{{ filteredJobs.length }}</strong> 个职位
+      </span>
+      <div class="controls-section">
+        <!-- 视图切换 -->
+        <div class="view-toggle">
+          <el-radio-group v-model="viewMode" size="small">
+            <el-radio-button label="card">
+              <el-icon><Grid /></el-icon>
+              卡片视图
+            </el-radio-button>
+            <el-radio-button label="list">
+              <el-icon><List /></el-icon>
+              列表视图
+            </el-radio-button>
+          </el-radio-group>
+        </div>
+      </div>
+    </div>
+
+    <!-- 职位卡片视图 -->
+    <div v-if="viewMode === 'card'" class="job-cards-container">
+      <el-row :gutter="20">
+        <el-col :span="8" v-for="job in paginatedJobs" :key="job.jobId">
+          <el-card class="job-card" shadow="hover">
+            <div class="job-card-header">
+              <div class="job-card-title" @click="viewJobDetail(job)">
+                {{ job.title }}
+              </div>
+              <el-button
+                :icon="isJobCollected(job.jobId) ? StarFilled : Star"
+                :type="isJobCollected(job.jobId) ? 'warning' : 'default'"
+                circle
+                size="small"
+                @click="handleToggleCollection(job)"
+              />
+            </div>
+            <div class="job-card-company">{{ job.companyName }}</div>
+            <div class="job-card-tags">
+              <el-tag :type="getJobTypeTagType(job.jobType)" size="small">
+                {{ job.jobType }}
+              </el-tag>
+              <el-tag type="info" size="small" v-if="job.experience">
+                {{ job.experience }}
+              </el-tag>
+              <el-tag type="warning" size="small" v-if="job.education">
+                {{ job.education }}
+              </el-tag>
+            </div>
+            <div class="job-card-salary">
+              ¥{{ formatSalary(job.minSalary) }} - ¥{{ formatSalary(job.maxSalary) }}
+            </div>
+            <div class="job-card-info">
+              <span><el-icon><Location /></el-icon> {{ job.location }}</span>
+              <span v-if="job.industry"><el-icon><OfficeBuilding /></el-icon> {{ job.industry }}</span>
+            </div>
+            <div class="job-card-footer">
+              <el-button
+                type="primary"
+                size="small"
+                @click="viewJobDetail(job)"
+              >
+                查看详情
+              </el-button>
+              <el-button
+                v-if="!isJobApplied(job.jobId)"
+                type="success"
+                size="small"
+                @click="applyJob(job)"
+                :disabled="!job.isActive"
+              >
+                投递简历
+              </el-button>
+              <el-tag v-else type="success" size="small">已投递</el-tag>
+            </div>
+          </el-card>
+        </el-col>
+      </el-row>
+    </div>
+
+    <!-- 职位列表视图 -->
+    <div v-if="viewMode === 'list'" class="job-list-section">
       <el-card>
         <el-table
-          :data="filteredJobs"
+          :data="paginatedJobs"
           v-loading="loading"
           stripe
           style="width: 100%"
@@ -196,23 +278,34 @@
             </template>
           </el-table-column>
 
-          <el-table-column label="操作" width="180" fixed="right">
+          <el-table-column label="操作" width="220" fixed="right">
             <template #default="{ row }">
               <div class="action-buttons">
                 <el-button
-                  type="primary"
+                  type="text"
                   size="small"
                   @click="viewJobDetail(row)"
-                  :icon="ViewIcon"
                 >
+                  <el-icon><View /></el-icon>
                   查看
+                </el-button>
+                <el-button
+                  type="text"
+                  size="small"
+                  :class="{ 'collected': isJobCollected(row.jobId) }"
+                  @click="handleToggleCollection(row)"
+                >
+                  <el-icon>
+                    <StarFilled v-if="isJobCollected(row.jobId)" />
+                    <Star v-else />
+                  </el-icon>
+                  {{ isJobCollected(row.jobId) ? '已收藏' : '收藏' }}
                 </el-button>
                 <el-button
                   v-if="!isJobApplied(row.jobId)"
                   type="success"
                   size="small"
                   @click="applyJob(row)"
-                  :icon="Promotion"
                   :disabled="!row.isActive"
                 >
                   投递
@@ -223,6 +316,19 @@
           </el-table-column>
         </el-table>
       </el-card>
+    </div>
+
+    <!-- 分页组件 -->
+    <div class="pagination-container" v-if="filteredJobs.length > 0">
+      <el-pagination
+        v-model:current-page="pagination.currentPage"
+        v-model:page-size="pagination.pageSize"
+        :page-sizes="[12, 24, 36, 48]"
+        :total="filteredJobs.length"
+        layout="total, sizes, prev, pager, next, jumper"
+        @size-change="handleSizeChange"
+        @current-change="handleCurrentChange"
+      />
     </div>
 
     <!-- 职位详情对话框 -->
@@ -377,10 +483,18 @@ import { ElMessage } from 'element-plus'
 import {
   Search,
   View as ViewIcon,
-  Promotion
+  Promotion,
+  Grid,
+  List,
+  Star,
+  StarFilled,
+  Location,
+  OfficeBuilding
 } from '@element-plus/icons-vue'
 import { getActiveJobs } from '@/api/job'
 import { getResumeList, submitJobApplication, analyzeJobApplication, getSubmittedJobs, getSubmittedJobIds } from '@/api/resume'
+import { jobAPI } from '@/api/visualization'
+import { logJobView, logJobCollect, logJobApply } from '@/api/userBehavior'
 
 export default {
   name: 'ResumeSubmit',
@@ -399,8 +513,11 @@ export default {
     const jobs = ref([])
     const resumeList = ref([])
     const submittedJobIds = ref([])
+    const collectedJobIds = ref(new Set())
     const selectedJob = ref(null)
     const applyingJob = ref(null)
+    const viewMode = ref('card')
+    const currentUserId = ref(null)
 
     const searchForm = reactive({
       keyword: '',
@@ -422,6 +539,13 @@ export default {
         { required: true, message: '请选择要投递的简历', trigger: 'change' }
       ]
     }
+
+    // 分页相关状态
+    const pagination = reactive({
+      currentPage: 1,
+      pageSize: 12,
+      total: 0
+    })
 
     // 计算属性
     const filteredJobs = computed(() => {
@@ -483,6 +607,13 @@ export default {
       }
 
       return result
+    })
+
+    // 分页后的职位列表
+    const paginatedJobs = computed(() => {
+      const start = (pagination.currentPage - 1) * pagination.pageSize
+      const end = start + pagination.pageSize
+      return filteredJobs.value.slice(start, end)
     })
 
     // 方法
@@ -567,6 +698,20 @@ export default {
     const viewJobDetail = (job) => {
       selectedJob.value = job
       jobDetailVisible.value = true
+
+      // 记录职位浏览行为
+      console.log('记录浏览行为:', currentUserId.value, job.jobId)
+      if (currentUserId.value && job.jobId) {
+        logJobView(currentUserId.value, job.jobId)
+          .then(res => {
+            console.log('浏览行为记录成功:', res)
+          })
+          .catch(err => {
+            console.error('记录浏览行为失败:', err)
+          })
+      } else {
+        console.warn('无法记录浏览行为 - userId:', currentUserId.value, 'jobId:', job.jobId)
+      }
     }
 
     const closeJobDetail = () => {
@@ -619,6 +764,13 @@ export default {
           closeApplyDialog()
           closeJobDetail()
 
+          // 记录投递行为
+          if (currentUserId.value && applyingJob.value.jobId) {
+            logJobApply(currentUserId.value, applyingJob.value.jobId).catch(err => {
+              console.error('记录投递行为失败:', err)
+            })
+          }
+
           // 第二步：后台异步进行筛选打分
           console.log('开始后台筛选打分...')
           analyzeApplicationInBackground(applicationData)
@@ -657,6 +809,96 @@ export default {
 
     const isJobApplied = (jobId) => {
       return submittedJobIds.value.includes(jobId)
+    }
+
+    const isJobCollected = (jobId) => {
+      return collectedJobIds.value.has(jobId) || collectedJobIds.value.has(String(jobId))
+    }
+
+    const handleToggleCollection = async (job) => {
+      const jobId = job.jobId || job.id
+      if (!currentUserId.value) {
+        ElMessage.error('用户信息获取失败，操作无法完成')
+        return
+      }
+      if (!jobId) {
+        ElMessage.error('职位ID获取失败')
+        return
+      }
+      try {
+        // 先判断当前收藏状态
+        const wasCollected = isJobCollected(jobId)
+
+        // 使用统一的收藏接口（支持切换）
+        const response = await jobAPI.collectJob(currentUserId.value, jobId)
+        console.log('收藏操作响应:', response)
+
+        // 注意：axios 返回的数据在 response.data 中
+        const result = response.data || response
+
+        if (result.code === 0) {
+          // 切换收藏状态
+          if (wasCollected) {
+            // 之前已收藏，现在取消收藏
+            collectedJobIds.value.delete(jobId)
+            collectedJobIds.value.delete(String(jobId))
+            ElMessage.success(result.data || '取消收藏成功')
+          } else {
+            // 之前未收藏，现在收藏
+            collectedJobIds.value.add(jobId)
+            ElMessage.success(result.data || '收藏成功')
+
+            // 记录收藏行为
+            console.log('记录收藏行为:', currentUserId.value, jobId)
+            logJobCollect(currentUserId.value, jobId).catch(err => {
+              console.error('记录收藏行为失败:', err)
+            })
+          }
+        } else {
+          ElMessage.error(result.message || '操作失败')
+        }
+      } catch (error) {
+        console.error('收藏操作失败:', error)
+        ElMessage.error('操作失败，请稍后重试')
+      }
+    }
+
+    const fetchCollectedJobs = async () => {
+      if (!currentUserId.value) {
+        console.error('User ID not found in local storage')
+        return
+      }
+      try {
+        console.log('开始获取收藏列表，用户ID:', currentUserId.value)
+        const response = await jobAPI.getCollectedJobs(currentUserId.value)
+        console.log('收藏列表API原始响应:', response)
+
+        // 兼容两种返回格式
+        const result = response.data || response
+        console.log('收藏列表结果:', result)
+
+        if (result.code === 0 && result.data) {
+          // 将收藏的职位ID存入Set
+          const ids = result.data.map(job => job.jobId || job.id)
+          collectedJobIds.value = new Set(ids)
+          console.log('收藏的职位ID列表:', Array.from(collectedJobIds.value))
+          console.log('收藏数量:', collectedJobIds.value.size)
+        } else {
+          console.error('获取收藏列表失败:', result.message)
+        }
+      } catch (error) {
+        console.error('获取收藏列表异常:', error)
+      }
+    }
+
+    // 分页事件处理
+    const handleSizeChange = (newSize) => {
+      pagination.pageSize = newSize
+      pagination.currentPage = 1 // 重置到第一页
+    }
+
+    const handleCurrentChange = (newPage) => {
+      pagination.currentPage = newPage
     }
 
     const handleSearch = () => {
@@ -708,9 +950,21 @@ export default {
     }
 
     onMounted(() => {
+      // 从本地存储获取 userId
+      const userIdFromStorage = localStorage.getItem('userId')
+      if (userIdFromStorage) {
+        currentUserId.value = parseInt(userIdFromStorage)
+      } else {
+        console.error('User ID not found in local storage')
+      }
+
       loadJobs()
       loadResumeList()
       loadSubmittedJobs()
+
+      if (currentUserId.value) {
+        fetchCollectedJobs()
+      }
     })
 
     return {
@@ -722,15 +976,20 @@ export default {
       jobs,
       resumeList,
       submittedJobIds,
+      collectedJobIds,
       selectedJob,
       applyingJob,
       searchForm,
       applyForm,
       applyRules,
       filteredJobs,
+      paginatedJobs,
+      viewMode,
+      pagination,
       loadJobs,
       loadResumeList,
       loadSubmittedJobs,
+      fetchCollectedJobs,
       viewJobDetail,
       closeJobDetail,
       applyJob,
@@ -738,8 +997,12 @@ export default {
       submitApplication,
       analyzeApplicationInBackground,
       isJobApplied,
+      isJobCollected,
+      handleToggleCollection,
       handleSearch,
       handleSort,
+      handleSizeChange,
+      handleCurrentChange,
       formatSalary,
       formatDate,
       getSkillsList,
@@ -747,7 +1010,13 @@ export default {
       // 图标
       Search,
       ViewIcon,
-      Promotion
+      Promotion,
+      Grid,
+      List,
+      Star,
+      StarFilled,
+      Location,
+      OfficeBuilding
     }
   }
 }
@@ -1151,6 +1420,162 @@ export default {
   font-size: 12px;
 }
 
+/* 结果统计和视图切换 */
+.result-summary {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding: 16px 20px;
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.result-count {
+  color: #606266;
+  font-size: 14px;
+}
+
+.result-count strong {
+  color: #409eff;
+  font-weight: 600;
+  font-size: 16px;
+}
+
+.controls-section {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.view-toggle {
+  display: flex;
+  align-items: center;
+}
+
+.view-toggle .el-icon {
+  margin-right: 4px;
+}
+
+/* 职位卡片视图 */
+.job-cards-container {
+  margin-bottom: 24px;
+}
+
+.job-card {
+  margin-bottom: 20px;
+  border-radius: 10px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.job-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(74, 144, 226, 0.15);
+}
+
+.job-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 12px;
+}
+
+.job-card-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #2c6fbb;
+  cursor: pointer;
+  flex: 1;
+  margin-right: 10px;
+  line-height: 1.4;
+}
+
+.job-card-title:hover {
+  color: #1a56a6;
+  text-decoration: underline;
+}
+
+.job-card-company {
+  color: #606266;
+  font-size: 14px;
+  margin-bottom: 12px;
+  font-weight: 500;
+}
+
+.job-card-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.job-card-salary {
+  color: #e6a23c;
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+
+.job-card-info {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  color: #909399;
+  font-size: 13px;
+  margin-bottom: 16px;
+  padding-top: 12px;
+  border-top: 1px solid #f0f0f0;
+}
+
+.job-card-info span {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.job-card-footer {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.job-card-footer .el-button {
+  flex: 1;
+}
+
+/* 列表视图操作按钮 */
+.action-buttons {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.action-buttons .el-button--text {
+  padding: 4px 8px;
+}
+
+.action-buttons .collected {
+  color: #f56c6c;
+}
+
+.action-buttons .collected .el-icon {
+  color: #f56c6c;
+}
+
+/* 分页容器 */
+.pagination-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 30px;
+  padding: 20px 0;
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
 /* 响应式调整 */
 @media (max-width: 768px) {
   .resume-submit-container {
@@ -1215,6 +1640,18 @@ export default {
   .action-buttons .el-button {
     font-size: 11px;
     padding: 4px 8px;
+  }
+
+  .job-cards-container .el-col {
+    margin-bottom: 16px;
+  }
+
+  .job-card {
+    margin-bottom: 0;
+  }
+
+  .pagination-container {
+    padding: 16px 0;
   }
 }
 </style>

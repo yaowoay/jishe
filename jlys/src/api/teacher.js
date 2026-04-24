@@ -126,7 +126,10 @@ export function auditCooperationApplication(applicationId, data) {
   return request({
     url: `/teacher/cooperation-applications/${applicationId}/audit`,
     method: 'post',
-    data
+    params: {
+      status: data?.status,
+      comment: data?.comment
+    }
   })
 }
 
@@ -173,7 +176,10 @@ export function auditJob(jobId, data) {
   return request({
     url: `/teacher/jobs/${jobId}/audit`,
     method: 'post',
-    data
+    params: {
+      verifyStatus: data?.verifyStatus,
+      remark: data?.remark
+    }
   })
 }
 
@@ -193,11 +199,18 @@ export function getEarlyWarnings(params) {
   })
 }
 
+export function getEarlyWarningStats() {
+  return request({
+    url: '/teacher/early-warnings/stats',
+    method: 'get'
+  })
+}
+
 export function handleEarlyWarning(warningId, data) {
   return request({
     url: `/teacher/early-warnings/${warningId}/handle`,
     method: 'post',
-    data
+    params: data
   })
 }
 

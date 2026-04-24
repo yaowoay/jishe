@@ -44,9 +44,10 @@ public interface AssistanceService {
     boolean deleteAssistanceRecord(Long recordId);
 
     /**
-     * 添加帮扶跟踪记录
+     * 添加帮扶跟踪记录（支持干预前后评分与效果评估）
      */
-    AssistanceTracking addTracking(Long recordId, String content, String progressStatus, String nextAction, Long createdBy);
+    AssistanceTracking addTracking(Long recordId, String content, String progressStatus, String nextAction,
+                                   Integer beforeScore, Integer afterScore, Long createdBy);
 
     /**
      * 获取帮扶跟踪记录

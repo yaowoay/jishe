@@ -322,7 +322,7 @@
           <div>时间：{{ formatDateTime(currentActivity?.startTime) }}</div>
           <div>地点：{{ currentActivity?.location }}</div>
         </div>
-        <div ref="qrcodeRef" class="qrcode-canvas"></div>
+        <canvas ref="qrcodeRef" class="qrcode-canvas"></canvas>
         <div class="qrcode-tip">请学生扫码签到</div>
       </div>
       <template #footer>

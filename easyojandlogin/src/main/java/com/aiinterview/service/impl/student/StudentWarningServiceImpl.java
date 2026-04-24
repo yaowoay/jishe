@@ -148,8 +148,8 @@ public class StudentWarningServiceImpl implements StudentWarningService {
     @Override
     public long getUnviewedWarningCount(Long studentId) {
         QueryWrapper<EarlyWarningResult> wrapper = new QueryWrapper<>();
-        wrapper.eq("student_id", studentId)
-               .eq("student_viewed", false);
+        wrapper.eq("student_id", studentId);
+        wrapper.and(w -> w.eq("student_viewed", false).or().isNull("student_viewed"));
         return warningMapper.selectCount(wrapper);
     }
 

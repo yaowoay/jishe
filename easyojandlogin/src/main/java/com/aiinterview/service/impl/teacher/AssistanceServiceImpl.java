@@ -19,6 +19,8 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -89,14 +91,18 @@ public class AssistanceServiceImpl implements AssistanceService {
 
     @Override
     @Transactional
-    public AssistanceTracking addTracking(Long recordId, String content, String progressStatus, 
-                                         String nextAction, Long createdBy) {
+    public AssistanceTracking addTracking(Long recordId, String content, String progressStatus,
+                                          String nextAction, Integer beforeScore, Integer afterScore, Long createdBy) {
         AssistanceTracking tracking = new AssistanceTracking();
         tracking.setRecordId(recordId);
         tracking.setTrackingDate(LocalDate.now());
         tracking.setTrackingContent(content);
         tracking.setProgressStatus(progressStatus);
         tracking.setNextAction(nextAction);
+        tracking.setBeforeScore(beforeScore);
+        tracking.setAfterScore(afterScore);
+        tracking.setImprovementRate(calculateImprovementRate(beforeScore, afterScore));
+        tracking.setEffectiveness(evaluateEffectiveness(tracking.getImprovementRate()));
         tracking.setCreatedBy(createdBy);
         assistanceTrackingMapper.insert(tracking);
         return tracking;
@@ -311,5 +317,30 @@ public class AssistanceServiceImpl implements AssistanceService {
         stats.put("completed", completed);
 
         return stats;
+    }
+
+    private BigDecimal calculateImprovementRate(Integer beforeScore, Integer afterScore) {
+        if (beforeScore == null || afterScore == null || beforeScore <= 0) {
+            return null;
+        }
+        return BigDecimal.valueOf(afterScore - beforeScore)
+                .multiply(BigDecimal.valueOf(100))
+                .divide(BigDecimal.valueOf(beforeScore), 2, RoundingMode.HALF_UP);
+    }
+
+    private String evaluateEffectiveness(BigDecimal improvementRate) {
+        if (improvementRate == null) {
+            return null;
+        }
+        if (improvementRate.compareTo(BigDecimal.valueOf(20)) >= 0) {
+            return "excellent";
+        }
+        if (improvementRate.compareTo(BigDecimal.valueOf(10)) >= 0) {
+            return "good";
+        }
+        if (improvementRate.compareTo(BigDecimal.ZERO) >= 0) {
+            return "fair";
+        }
+        return "poor";
     }
 }

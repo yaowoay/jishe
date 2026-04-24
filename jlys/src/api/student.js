@@ -41,3 +41,41 @@ export function getCurrentYearGraduateCount() {
     method: 'get'
   })
 }
+
+// 学生预警相关
+export function getStudentWarnings(params) {
+  return request({
+    url: '/student/warnings/list',
+    method: 'get',
+    params
+  })
+}
+
+export function viewStudentWarning(warningId) {
+  return request({
+    url: `/student/warnings/${warningId}/view`,
+    method: 'post'
+  })
+}
+
+export function respondStudentWarning(warningId, response) {
+  return request({
+    url: `/student/warnings/${warningId}/respond`,
+    method: 'post',
+    params: { response }
+  })
+}
+
+export function getStudentWarningStats() {
+  return request({
+    url: '/student/warnings/stats',
+    method: 'get'
+  })
+}
+
+export function getStudentUnviewedWarningCount() {
+  return request({
+    url: '/student/warnings/unviewed-count',
+    method: 'get'
+  })
+}
