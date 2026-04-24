@@ -56,6 +56,12 @@
           </el-radio-group>
         </el-col>
         <el-col :xs="24" :sm="12" :md="3">
+          <el-statistic title="待处理" :value="stats.pending" />
+        </el-col>
+        <el-col :xs="24" :sm="12" :md="3">
+          <el-statistic title="处理中" :value="stats.processing" />
+        </el-col>
+        <el-col :xs="24" :sm="12" :md="3">
           <el-statistic title="预警总数" :value="totalWarnings" />
         </el-col>
       </el-row>
@@ -263,13 +269,19 @@ import {
   Search, Grid, List, Warning, Clock, Edit, View,
   Clock as ClockIcon, Document, CircleCheck, CircleClose
 } from '@element-plus/icons-vue'
-import { getEarlyWarnings, handleEarlyWarning } from '@/api/teacher'
+import { getEarlyWarnings, getEarlyWarningStats, handleEarlyWarning } from '@/api/teacher'
 import { VueDraggableNext as draggable } from 'vue-draggable-next'
 
 const loading = ref(false)
 const viewMode = ref('kanban')
 const warningList = ref([])
 const totalWarnings = ref(0)
+const stats = ref({
+  pending: 0,
+  processing: 0,
+  resolved: 0,
+  ignored: 0
+})
 const searchForm = ref({
   keyword: '',
   warningLevel: null,
@@ -334,13 +346,25 @@ const getColumnCount = (status) => {
 const handleSearch = async () => {
   loading.value = true
   try {
-    const response = await getEarlyWarnings({
+    const params = {
       warningLevel: searchForm.value.warningLevel,
-      warningType: searchForm.value.warningType
-    })
+      handleStatus: 'pending,processing'
+    }
+    const response = await getEarlyWarnings(params)
 
     if (response.success) {
-      warningList.value = response.data || []
+      let data = response.data || []
+      if (searchForm.value.warningType) {
+        data = data.filter(item => item.warningType === searchForm.value.warningType)
+      }
+      if (searchForm.value.keyword) {
+        const keyword = searchForm.value.keyword.trim().toLowerCase()
+        data = data.filter(item =>
+          (item.studentName && item.studentName.toLowerCase().includes(keyword)) ||
+          (item.studentNo && item.studentNo.toLowerCase().includes(keyword))
+        )
+      }
+      warningList.value = data
       totalWarnings.value = warningList.value.length
 
       // 分配到看板列
@@ -369,6 +393,7 @@ const handleDragChange = async (evt, newStatus) => {
       })
       ElMessage.success('状态更新成功')
       handleSearch()
+      loadStats()
     } catch (error) {
       ElMessage.error('状态更新失败')
       handleSearch() // 刷新恢复原状态
@@ -471,8 +496,24 @@ const formatTime = (time) => {
   })
 }
 
+const loadStats = async () => {
+  try {
+    const response = await getEarlyWarningStats()
+    if (response.success && response.data) {
+      const handleStatusStats = response.data.handleStatusStats || {}
+      stats.value.pending = Number(handleStatusStats.pending || 0)
+      stats.value.processing = Number(handleStatusStats.processing || 0)
+      stats.value.resolved = Number(handleStatusStats.resolved || 0)
+      stats.value.ignored = Number(handleStatusStats.ignored || 0)
+    }
+  } catch (error) {
+    // 静默失败，不阻塞主流程
+  }
+}
+
 onMounted(() => {
   handleSearch()
+  loadStats()
 })
 </script>
 
