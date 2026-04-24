@@ -25,10 +25,10 @@ public class CompanyProfileDTO {
     @NotBlank(message = "公司规模不能为空")
     @Pattern(regexp = "^(1-50人|51-100人|101-500人|500人以上)$", message = "公司规模值不正确")
     private String scale;
-    
-    @Size(max = 100, message = "网站长度不能超过100个字符")
-    @Pattern(regexp = "^(https?://)?([\\da-z.-]+)\\.([a-z.]{2,6})([/\\w .-]*)*/?$",
-             message = "网站格式不正确")
+
+    // 修改为（允许空字符串或null）
+    @Pattern(regexp = "^(https?://)?([\\da-z.-]+)\\.([a-z.]{2,6})([/\\w .-]*)*/?$|^$",
+            message = "网站格式不正确")
     private String website;
     
     @NotBlank(message = "联系电话不能为空")
