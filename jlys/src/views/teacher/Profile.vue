@@ -229,7 +229,7 @@ export default {
         const response = await getTeacherProfile()
 
         if (response && response.success) {
-          this.profileData = response.data.profile
+          this.profileData = response.data
         } else {
           this.profileData = null
         }

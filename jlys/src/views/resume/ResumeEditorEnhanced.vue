@@ -441,15 +441,15 @@ import {
 } from '@element-plus/icons-vue'
 
 // 导入模块组件
-import ResumeBasicInfoEnhanced from '@/components/resume/ResumeBasicInfoEnhanced.vue'
+import ResumeBasicInfoEnhanced from '@/components/resumes/ResumeBasicInfoEnhanced.vue'
 import ResumeGenerator from '@/views/applicant/resume/ResumeGenerator.vue'
-import ResumeWorkExperience from '@/components/resume/ResumeWorkExperience.vue'
-import ResumeEducation from '@/components/resume/ResumeEducation.vue'
-import ResumeProjects from '@/components/resume/ResumeProjects.vue'
-import ResumeSkills from '@/components/resume/ResumeSkills.vue'
-import ResumeOthers from '@/components/resume/ResumeOthers.vue'
-import ResumePreview from '@/components/resume/ResumePreview.vue'
-import TemplateSelectionDialog from '@/components/resume/TemplateSelectionDialog.vue'
+import ResumeWorkExperience from '@/components/resumes/ResumeWorkExperience.vue'
+import ResumeEducation from '@/components/resumes/ResumeEducation.vue'
+import ResumeProjects from '@/components/resumes/ResumeProjects.vue'
+import ResumeSkills from '@/components/resumes/ResumeSkills.vue'
+import ResumeOthers from '@/components/resumes/ResumeOthers.vue'
+import ResumePreview from '@/components/resumes/ResumePreview.vue'
+import TemplateSelectionDialog from '@/components/resumes/TemplateSelectionDialog.vue'
 
 // 只保留必要的接口导入
 import { getResume, createResume, updateResume, optimizeResumeWithAI, generateResumeWithAI, getResumeTemplates } from '@/api/resume'

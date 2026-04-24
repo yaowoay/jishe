@@ -55,6 +55,9 @@ public class AssistanceRecord {
     @TableField("follow_up_date")
     private LocalDate followUpDate;
 
+    @TableField("status")
+    private String status;
+
     @TableField(value = "created_at", fill = FieldFill.INSERT)
     private LocalDateTime createdAt;
 

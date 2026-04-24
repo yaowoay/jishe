@@ -233,7 +233,7 @@ const routes = [
       {
         path: 'job-list',
         name: 'JobListPage',
-        component: () => import('@/views/jobManagement/JobList.vue'),
+        redirect: '/applicant/resume/submit',
         meta: { title: '职位列表', icon: 'el-icon-search' }
       },
       {
@@ -336,6 +336,16 @@ const routes = [
         component: () => import('@/views/teacher/AssistanceCreate.vue')
       },
       {
+        path: 'resume-guidance',
+        name: 'TeacherResumeGuidance',
+        component: () => import('@/views/teacher/ResumeGuidance.vue')
+      },
+      {
+        path: 'mock-interview',
+        name: 'TeacherMockInterview',
+        component: () => import('@/views/teacher/MockInterview.vue')
+      },
+      {
         path: 'cooperation',
         name: 'TeacherCooperation',
         component: () => import('@/views/teacher/Cooperation.vue')
@@ -399,6 +409,11 @@ const routes = [
         path: 'simulatExam',
         name: 'SimulatExam',
         component: () => import('@/components/interview/SimulatExam.vue')
+      },
+      {
+        path: 'cooperation',
+        name: 'CompanyCooperation',
+        component: () => import('@/views/company/Cooperation.vue')
       }
     ]
   },

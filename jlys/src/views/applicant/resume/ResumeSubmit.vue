@@ -46,6 +46,43 @@
             <el-option label="实习" value="实习" />
           </el-select>
           <el-select
+            v-model="searchForm.industry"
+            placeholder="所属行业"
+            @change="handleSearch"
+            clearable
+          >
+            <el-option label="互联网" value="互联网" />
+            <el-option label="金融" value="金融" />
+            <el-option label="教育" value="教育" />
+            <el-option label="医疗" value="医疗" />
+            <el-option label="制造业" value="制造业" />
+            <el-option label="其他" value="其他" />
+          </el-select>
+          <el-select
+            v-model="searchForm.experience"
+            placeholder="经验要求"
+            @change="handleSearch"
+            clearable
+          >
+            <el-option label="不限" value="不限" />
+            <el-option label="应届生" value="应届生" />
+            <el-option label="1-3年" value="1-3年" />
+            <el-option label="3-5年" value="3-5年" />
+            <el-option label="5年以上" value="5年以上" />
+          </el-select>
+          <el-select
+            v-model="searchForm.education"
+            placeholder="学历要求"
+            @change="handleSearch"
+            clearable
+          >
+            <el-option label="不限" value="不限" />
+            <el-option label="大专" value="大专" />
+            <el-option label="本科" value="本科" />
+            <el-option label="硕士" value="硕士" />
+            <el-option label="博士" value="博士" />
+          </el-select>
+          <el-select
             v-model="searchForm.applicationStatus"
             placeholder="投递状态"
             @change="handleSearch"
@@ -84,7 +121,7 @@
             </template>
           </el-table-column>
 
-          <el-table-column prop="companyName" label="公司" width="120" />
+          <el-table-column prop="companyName" label="公司" width="120" show-overflow-tooltip />
 
           <el-table-column prop="jobType" label="类型" width="80">
             <template #default="{ row }">
@@ -103,6 +140,30 @@
           </el-table-column>
 
           <el-table-column prop="location" label="工作地点" width="120" />
+
+          <el-table-column label="行业" width="120" show-overflow-tooltip>
+            <template #default="{ row }">
+              {{ row.industry || '暂无' }}
+            </template>
+          </el-table-column>
+
+          <el-table-column label="公司规模" width="120" show-overflow-tooltip>
+            <template #default="{ row }">
+              {{ row.companyScale || '暂无' }}
+            </template>
+          </el-table-column>
+
+          <el-table-column label="经验要求" width="100" show-overflow-tooltip>
+            <template #default="{ row }">
+              {{ row.experience || '不限' }}
+            </template>
+          </el-table-column>
+
+          <el-table-column label="学历要求" width="100" show-overflow-tooltip>
+            <template #default="{ row }">
+              {{ row.education || '不限' }}
+            </template>
+          </el-table-column>
 
           <el-table-column prop="postDate" label="发布日期" width="120">
             <template #default="{ row }">
@@ -200,6 +261,14 @@
             <div class="info-item">
               <strong>学历要求：</strong>
               <el-tag type="warning" size="small">{{ selectedJob.education || '不限' }}</el-tag>
+            </div>
+          </div>
+          <div class="info-row">
+            <div class="info-item">
+              <strong>所属行业：</strong>{{ selectedJob.industry || '暂无' }}
+            </div>
+            <div class="info-item">
+              <strong>公司规模：</strong>{{ selectedJob.companyScale || '暂无' }}
             </div>
           </div>
           <div class="info-row">
@@ -336,6 +405,9 @@ export default {
     const searchForm = reactive({
       keyword: '',
       jobType: '',
+      industry: '',
+      experience: '',
+      education: '',
       applicationStatus: '',
       sortBy: 'postDate'
     })
@@ -361,13 +433,29 @@ export default {
         result = result.filter(job =>
           job.title.toLowerCase().includes(keyword) ||
           job.companyName.toLowerCase().includes(keyword) ||
-          job.location.toLowerCase().includes(keyword)
+          job.location.toLowerCase().includes(keyword) ||
+          (job.industry && job.industry.toLowerCase().includes(keyword))
         )
       }
 
       // 职位类型筛选
       if (searchForm.jobType) {
         result = result.filter(job => job.jobType === searchForm.jobType)
+      }
+
+      // 行业筛选
+      if (searchForm.industry) {
+        result = result.filter(job => job.industry === searchForm.industry)
+      }
+
+      // 经验要求筛选
+      if (searchForm.experience) {
+        result = result.filter(job => job.experience === searchForm.experience)
+      }
+
+      // 学历要求筛选
+      if (searchForm.education) {
+        result = result.filter(job => job.education === searchForm.education)
       }
 
       // 投递状态筛选

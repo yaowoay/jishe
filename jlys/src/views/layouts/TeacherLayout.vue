@@ -102,15 +102,19 @@
             <el-sub-menu index="assistance">
               <template #title>
                 <el-icon size="18"><Help /></el-icon>
-                <span class="menu-text">帮扶管理</span>
+                <span class="menu-text">精准帮扶</span>
               </template>
               <el-menu-item index="/teacher/assistance">
-                <el-icon size="18"><FolderOpened /></el-icon>
+                <el-icon size="18"><Document /></el-icon>
                 <span class="submenu-text">帮扶记录</span>
               </el-menu-item>
-              <el-menu-item index="/teacher/assistance/create">
-                <el-icon size="18"><Plus /></el-icon>
-                <span class="submenu-text">新增帮扶</span>
+              <el-menu-item index="/teacher/resume-guidance">
+                <el-icon size="18"><Edit /></el-icon>
+                <span class="submenu-text">简历指导</span>
+              </el-menu-item>
+              <el-menu-item index="/teacher/mock-interview">
+                <el-icon size="18"><Briefcase /></el-icon>
+                <span class="submenu-text">模拟面试</span>
               </el-menu-item>
             </el-sub-menu>
 

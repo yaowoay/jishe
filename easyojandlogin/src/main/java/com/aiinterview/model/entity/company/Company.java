@@ -2,38 +2,69 @@ package com.aiinterview.model.entity.company;
 
 import com.baomidou.mybatisplus.annotation.*;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+
 import java.time.LocalDateTime;
 
+/**
+ * 公司实体类
+ */
 @Data
+@EqualsAndHashCode(callSuper = false)
 @TableName("companies")
 public class Company {
 
     @TableId(value = "company_id", type = IdType.AUTO)
     private Long companyId;
 
+    @TableField("user_id")
     private Long userId;
+
+    @TableField("company_name")
     private String companyName;
+
+    @TableField("industry")
     private String industry;
+
+    @TableField("address")
     private String address;
-    private String scale;  // '1-50人','51-100人','101-500人','500人以上'
+
+    @TableField("scale")
+    private String scale; // '1-50人', '51-100人', '101-500人', '500人以上'
+
+    @TableField("website")
     private String website;
+
+    @TableField("contact_phone")
     private String contactPhone;
+
+    @TableField("logo_url")
     private String logoUrl;
+
+    @TableField("description")
     private String description;
 
-    // ✅ 存在的字段
-    private String verifyStatus;  // pending, verified, rejected
-    private Integer creditScore;  // 信用评分，默认60
+    @TableField("verify_status")
+    private String verifyStatus;
 
-    // ✅ 额外字段
-    private Integer profileCompletion;  // 资料完成度 0-100
-    private String companyType;  // 企业类型
-    private String companyWelfare;  // 福利标签
-    private String companyTags;  // 公司标签
+    @TableField("credit_score")
+    private Integer creditScore;
 
-    @TableField(fill = FieldFill.INSERT)
+    @TableField("profile_completion")
+    private Integer profileCompletion;
+
+    @TableField("company_type")
+    private String companyType;
+
+    @TableField("company_welfare")
+    private String companyWelfare;
+
+    @TableField("company_tags")
+    private String companyTags;
+
+    @TableField(value = "created_at", fill = FieldFill.INSERT)
     private LocalDateTime createdAt;
 
-    @TableField(fill = FieldFill.INSERT_UPDATE)
+    @TableField(value = "updated_at", fill = FieldFill.INSERT_UPDATE)
     private LocalDateTime updatedAt;
 }

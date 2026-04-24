@@ -18,8 +18,10 @@
     "element-plus": "^2.9.9",
     "html2pdf.js": "^0.10.3",
     "normalize.css": "^8.0.1",
+    "qrcode": "^1.5.4",
     "swiper": "^11.2.10",
     "vue": "^3.2.13",
+    "vue-draggable-next": "^2.3.0",
     "vue-echarts": "^7.0.3",
     "vue-router": "^4.5.1",
     "vuex": "^4.1.0"

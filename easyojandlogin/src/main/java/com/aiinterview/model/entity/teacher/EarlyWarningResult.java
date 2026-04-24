@@ -51,6 +51,21 @@ public class EarlyWarningResult {
     @TableField("handle_remark")
     private String handleRemark;
 
+    @TableField("is_notified")
+    private Boolean isNotified;
+
+    @TableField("notify_time")
+    private LocalDateTime notifyTime;
+
+    @TableField("student_viewed")
+    private Boolean studentViewed;
+
+    @TableField("student_view_time")
+    private LocalDateTime studentViewTime;
+
+    @TableField("student_response")
+    private String studentResponse;
+
     @TableField(value = "created_at", fill = FieldFill.INSERT)
     private LocalDateTime createdAt;
 

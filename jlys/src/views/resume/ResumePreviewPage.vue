@@ -13,7 +13,7 @@
 import { ref, onMounted, nextTick } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { getResume } from '@/api/resume'
-import ResumePreview from '@/components/resume/ResumePreview.vue'
+import ResumePreview from '@/components/resumes/ResumePreview.vue'
 // 需要先安装 html2pdf.js: npm install html2pdf.js
 import html2pdf from 'html2pdf.js'
 

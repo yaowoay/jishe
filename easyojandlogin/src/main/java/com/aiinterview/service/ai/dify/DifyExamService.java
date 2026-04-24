@@ -1,13 +1,17 @@
 package com.aiinterview.service.ai.dify;
 
 import cn.hutool.json.JSONUtil;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.netty.channel.ChannelOption;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.MediaType;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
+import org.springframework.http.codec.ServerSentEvent;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.netty.http.client.HttpClient;
 
@@ -83,41 +87,70 @@ public class DifyExamService {
 
 
         requestBody.put("inputs", inputs);
-        requestBody.put("response_mode", "streaming"); //非阻塞式异步响应
+        requestBody.put("response_mode", "streaming"); // 使用流式模式避免超时
         requestBody.put("user", "user-" + System.currentTimeMillis());
 
         log.info("Dify API 请求体: {}", JSONUtil.toJsonStr(requestBody));
 
-        // 调用 Dify API
+        // 调用 Dify API - 使用 SSE 流式处理
         return webClient.post()
                 .uri(difyApiUrl + "/workflows/run")
                 .header("Authorization", "Bearer " + difyApiKey)
                 .header("Content-Type", "application/json")
+                .accept(MediaType.TEXT_EVENT_STREAM)
                 .bodyValue(requestBody)
                 .retrieve()
-                .bodyToMono(new ParameterizedTypeReference<Map<String, Object>>() {})
-                .doOnNext(response -> {
-                    log.info("Dify API 响应: {}", JSONUtil.toJsonStr(response));
+                .bodyToFlux(String.class)
+                .filter(line -> line.startsWith("data: "))
+                .map(line -> line.substring(6)) // 移除 "data: " 前缀
+                .filter(data -> !data.trim().isEmpty() && !data.equals("[DONE]"))
+                .reduce(new StringBuilder(), (acc, data) -> {
+                    try {
+                        ObjectMapper mapper = new ObjectMapper();
+                        Map<String, Object> event = mapper.readValue(data, Map.class);
+                        String eventType = (String) event.get("event");
+
+                        if ("workflow_finished".equals(eventType)) {
+                            Map<String, Object> eventData = (Map<String, Object>) event.get("data");
+                            if (eventData != null) {
+                                acc.append(mapper.writeValueAsString(eventData));
+                            }
+                        }
+                    } catch (Exception e) {
+                        log.warn("解析 SSE 事件失败: {}", data, e);
+                    }
+                    return acc;
                 })
-                .map(response -> {
-                    // 从 Dify 响应中提取 data 节点
-                    Map<String, Object> difyData = (Map<String, Object>) response.get("data");
+                .flatMap(resultJson -> {
+                    try {
+                        if (resultJson.length() == 0) {
+                            return Mono.error(new RuntimeException("未收到有效的工作流完成事件"));
+                        }
 
-                    // 构建返回结果，保持与 Controller 期望的结构一致
-                    Map<String, Object> result = new HashMap<>();
-                    result.put("task_id", taskId);
-                    result.put("data", difyData);  // 直接使用 Dify 返回的 data 节点
+                        ObjectMapper mapper = new ObjectMapper();
+                        Map<String, Object> difyData = mapper.readValue(resultJson.toString(), Map.class);
 
-                    // 缓存结果
-                    Map<String, Object> cacheData = new HashMap<>();
-                    cacheData.put("task_id", taskId);
-                    cacheData.put("data", difyData);
-                    cacheData.put("timestamp", System.currentTimeMillis());
-                    questionCache.put(taskId, cacheData);
+                        log.info("Dify API 响应: {}", JSONUtil.toJsonStr(difyData));
 
-                    log.info("题目已缓存，taskId: {}, data结构: {}", taskId, difyData != null ? difyData.keySet() : "null");
+                        // 构建返回结果
+                        Map<String, Object> result = new HashMap<>();
+                        result.put("task_id", taskId);
+                        result.put("data", difyData);
 
-                    return result;
+                        // 缓存结果
+                        Map<String, Object> cacheData = new HashMap<>();
+                        cacheData.put("task_id", taskId);
+                        cacheData.put("data", difyData);
+                        cacheData.put("timestamp", System.currentTimeMillis());
+                        questionCache.put(taskId, cacheData);
+
+                        log.info("题目已缓存，taskId: {}, data结构: {}", taskId, difyData.keySet());
+
+                        return Mono.just(result);
+                    } catch (Exception e) {
+                        log.error("处理 Dify 响应失败", e);
+                        return Mono.error(new RuntimeException("处理响应失败: " + e.getMessage()));
+                    }
                 })
                 .doOnError(error -> {
                     log.error("调用 Dify API 失败", error);

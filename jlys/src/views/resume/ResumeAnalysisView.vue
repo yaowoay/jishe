@@ -5,7 +5,7 @@
 </template>
 
 <script>
-import ResumeAnalysis from '@/components/resume/ResumeAnalysis.vue'
+import ResumeAnalysis from '@/components/resumes/ResumeAnalysis.vue'
 
 export default {
   name: 'ResumeAnalysisView',

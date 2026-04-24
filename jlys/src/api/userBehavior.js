@@ -1,7 +1,69 @@
 import request from '@/utils/request'
 
 /**
- * 记录用户行为
+ * 记录用户行为（新增：用于日志采集）
+ * @param {Object} behaviorData 行为数据
+ * @param {String} behaviorData.actionType 行为类型：VIEW/APPLY/COLLECT
+ * @param {Number} behaviorData.jobId 职位ID
+ * @param {Number} behaviorData.userId 用户ID
+ * @param {Number} behaviorData.score 行为分数（可选）
+ */
+export function logUserBehavior(behaviorData) {
+  const scoreMap = {
+    'VIEW': 1,
+    'APPLY': 2,
+    'COLLECT': 3
+  }
+
+  const data = {
+    ...behaviorData,
+    score: behaviorData.score || scoreMap[behaviorData.actionType] || 1,
+    eventTime: new Date().toISOString().replace('T', ' ').substring(0, 19),
+    dt: new Date().toISOString().substring(0, 10).replace(/-/g, '')
+  }
+
+  return request({
+    url: '/behavior/log',
+    method: 'post',
+    data
+  })
+}
+
+/**
+ * 记录职位浏览行为
+ */
+export function logJobView(userId, jobId) {
+  return logUserBehavior({
+    userId,
+    jobId,
+    actionType: 'VIEW'
+  })
+}
+
+/**
+ * 记录职位收藏行为
+ */
+export function logJobCollect(userId, jobId) {
+  return logUserBehavior({
+    userId,
+    jobId,
+    actionType: 'COLLECT'
+  })
+}
+
+/**
+ * 记录简历投递行为
+ */
+export function logJobApply(userId, jobId) {
+  return logUserBehavior({
+    userId,
+    jobId,
+    actionType: 'APPLY'
+  })
+}
+
+/**
+ * 记录用户行为（旧接口，保留兼容性）
  */
 export function recordUserAction(action) {
   return request({

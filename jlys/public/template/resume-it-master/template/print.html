@@ -33,7 +33,7 @@
             <li class="someRight">
                 <dt><i class="fa fa-bookmark"></i>Contact. 联系方式</dt>
                 {% for item in contact %}
-                    <dd><i class="fa {{ item.icon }}"></i>{{ item.name }}: <a {% if item.name == 'Email' %}href="mailto:{{ item.value }}"{% endif %} target="_blank">{{ item.value }}</a></dd>
+                    <dd><i class="fa {{ item.icon }}"></i>{{ item.name }}: <a {% if item.name =='Email' %}href="mailto:{{ item.value }}"{% endif %} target="_blank">{{ item.value }}</a></dd>
                 {% endfor %}
             </li>
             <li class="someRight">
@@ -58,7 +58,7 @@
                 <dd>
                     <div class="skill-name">{{ item.name }}</div>
                     <div class="skill-bar-wrap">
-                        <div class="skill-bar" style="width: {{ item.percentage }}"></div>
+                        <div class="skill-bar" style="width:{ item.percentage }"></div>
                     </div>
                 </dd>
                 {% endfor %}

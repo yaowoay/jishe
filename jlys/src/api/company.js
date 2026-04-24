@@ -3,7 +3,7 @@ import request from './index'
 // 完善企业档案
 export function completeCompanyProfile(data) {
   return request({
-    url: '/company/profile/complete',
+    url: '/company/profile',
     method: 'post',
     data
   })
@@ -12,8 +12,8 @@ export function completeCompanyProfile(data) {
 // 更新企业档案
 export function updateCompanyProfile(data) {
   return request({
-    url: '/company/profile/update',
-    method: 'put',
+    url: '/company/profile',
+    method: 'post',
     data
   })
 }
@@ -21,7 +21,7 @@ export function updateCompanyProfile(data) {
 // 获取企业档案信息
 export function getCompanyProfile() {
   return request({
-    url: '/company/profile/info',
+    url: '/company/profile',
     method: 'get'
   })
 }

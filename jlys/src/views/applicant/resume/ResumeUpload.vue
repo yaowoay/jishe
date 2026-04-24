@@ -1,177 +1,177 @@
 <template>
   <div class="resume-upload-container">
     <div class="content-wrapper">
-    <div class="page-header">
-      <h1 class="page-title">简历上传</h1>
-      <p class="page-subtitle">支持上传Word、PDF、图片格式的简历文件</p>
-    </div>
+      <div class="page-header">
+        <h1 class="page-title">简历上传</h1>
+        <p class="page-subtitle">支持上传Word、PDF、图片格式的简历文件</p>
+      </div>
 
-    <div class="upload-section">
-      <el-card class="upload-card">
-        <template #header>
-          <div class="card-header">
-            <span>上传简历文件</span>
-          </div>
-        </template>
-
-        <el-upload
-          ref="uploadRef"
-          class="upload-dragger"
-          drag
-          :auto-upload="false"
-          :on-change="handleFileChange"
-          :on-remove="handleFileRemove"
-          :file-list="pendingFiles"
-          :limit="5"
-          :on-exceed="handleExceed"
-          accept=".doc,.docx,.pdf,.jpg,.jpeg,.png,.gif"
-          multiple
-        >
-          <el-icon class="el-icon--upload"><UploadFilled /></el-icon>
-          <div class="el-upload__text">
-            将文件拖到此处，或<em>点击选择文件</em>
-          </div>
-          <template #tip>
-            <div class="el-upload__tip">
-              支持 Word(.doc/.docx)、PDF(.pdf)、图片(.jpg/.png/.gif) 格式，单个文件不超过10MB
+      <div class="upload-section">
+        <el-card class="upload-card">
+          <template #header>
+            <div class="card-header">
+              <span>上传简历文件</span>
             </div>
           </template>
-        </el-upload>
 
-        <!-- 待上传文件列表 -->
-        <div v-if="pendingFiles.length > 0" class="pending-files-section">
-          <h3>待上传文件</h3>
-          <div v-for="(file, index) in pendingFiles" :key="index" class="pending-file-item">
-            <div class="file-info">
-              <el-icon class="file-icon">
-                <Document v-if="isDocFile(file.name)" />
-                <PictureIcon v-else-if="isImageFile(file.name)" />
-                <Document v-else />
-              </el-icon>
-              <span class="original-name">{{ file.name }}</span>
+          <el-upload
+              ref="uploadRef"
+              class="upload-dragger"
+              drag
+              :auto-upload="false"
+              :on-change="handleFileChange"
+              :on-remove="handleFileRemove"
+              :file-list="pendingFiles"
+              :limit="5"
+              :on-exceed="handleExceed"
+              accept=".doc,.docx,.pdf,.jpg,.jpeg,.png,.gif"
+              multiple
+          >
+            <el-icon class="el-icon--upload"><UploadFilled /></el-icon>
+            <div class="el-upload__text">
+              将文件拖到此处，或<em>点击选择文件</em>
             </div>
+            <template #tip>
+              <div class="el-upload__tip">
+                支持 Word(.doc/.docx)、PDF(.pdf)、图片(.jpg/.png/.gif) 格式，单个文件不超过10MB
+              </div>
+            </template>
+          </el-upload>
 
-            <div class="filename-edit">
-              <el-input
-                v-model="file.customName"
-                placeholder="输入自定义文件名（不含扩展名）"
-                style="width: 300px;"
-              >
-                <template #prepend>📄</template>
-                <template #append>{{ getFileExtension(file.name) }}</template>
-              </el-input>
-            </div>
-
-            <div class="file-actions">
-              <el-button
-                type="danger"
-                size="small"
-                @click="removePendingFile(index)"
-                :icon="Delete"
-              >
-                移除
-              </el-button>
-            </div>
-          </div>
-
-          <div class="upload-actions">
-            <el-button
-              type="primary"
-              @click="uploadAllFiles"
-              :loading="uploading"
-              :disabled="pendingFiles.length === 0"
-            >
-              {{ uploading ? '上传中...' : '保存所有文件' }}
-            </el-button>
-            <el-button @click="clearAllPendingFiles">清空列表</el-button>
-          </div>
-        </div>
-
-        <div class="upload-progress" v-if="uploading">
-          <el-progress :percentage="uploadProgress" :status="progressStatus" />
-          <p class="progress-text">{{ progressText }}</p>
-        </div>
-      </el-card>
-    </div>
-
-    <!-- 已上传简历列表 -->
-    <div class="resume-list-section">
-      <el-card>
-        <template #header>
-          <div class="card-header">
-            <span>我的简历</span>
-            <el-button type="primary" @click="loadResumeList" :icon="Refresh">
-              刷新
-            </el-button>
-          </div>
-        </template>
-
-        <el-table
-          :data="resumeList"
-          v-loading="loading"
-          stripe
-          style="width: 100%"
-          empty-text="暂无简历文件"
-        >
-          <el-table-column prop="filename" label="文件名" min-width="200">
-            <template #default="{ row }">
+          <!-- 待上传文件列表 -->
+          <div v-if="pendingFiles.length > 0" class="pending-files-section">
+            <h3>待上传文件</h3>
+            <div v-for="(file, index) in pendingFiles" :key="index" class="pending-file-item">
               <div class="file-info">
                 <el-icon class="file-icon">
-                  <Document v-if="isDocFile(row.filename)" />
-                  <PictureIcon v-else-if="isImageFile(row.filename)" />
+                  <Document v-if="isDocFile(file.name)" />
+                  <PictureIcon v-else-if="isImageFile(file.name)" />
                   <Document v-else />
                 </el-icon>
-                <span>{{ row.filename }}</span>
+                <span class="original-name">{{ file.name }}</span>
               </div>
-            </template>
-          </el-table-column>
 
-          <el-table-column label="文件大小" width="120">
-            <template #default>
-              <span>-</span>
-            </template>
-          </el-table-column>
+              <div class="filename-edit">
+                <el-input
+                    v-model="file.customName"
+                    placeholder="输入自定义文件名（不含扩展名）"
+                    style="width: 300px;"
+                >
+                  <template #prepend>📄</template>
+                  <template #append>{{ getFileExtension(file.name) }}</template>
+                </el-input>
+              </div>
 
-          <el-table-column prop="uploadDate" label="上传时间" width="180">
-            <template #default="{ row }">
-              {{ formatDate(row.uploadDate) }}
-            </template>
-          </el-table-column>
-
-          <el-table-column label="操作" width="200" fixed="right">
-            <template #default="{ row }">
-              <div class="action-buttons">
+              <div class="file-actions">
                 <el-button
+                    type="danger"
+                    size="small"
+                    @click="removePendingFile(index)"
+                    :icon="Delete"
+                >
+                  移除
+                </el-button>
+              </div>
+            </div>
+
+            <div class="upload-actions">
+              <el-button
                   type="primary"
-                  size="small"
-                  @click="previewResume(row)"
-                  :icon="ViewIcon"
-                >
-                  预览
-                </el-button>
-                <el-button
-                  type="success"
-                  size="small"
-                  @click="downloadResume(row)"
-                  :icon="Download"
-                >
-                  下载
-                </el-button>
-                <el-button
-                  type="danger"
-                  size="small"
-                  @click="deleteResume(row)"
-                  :icon="Delete"
-                >
-                  删除
-                </el-button>
-              </div>
-            </template>
-          </el-table-column>
-        </el-table>
-      </el-card>
+                  @click="uploadAllFiles"
+                  :loading="uploading"
+                  :disabled="pendingFiles.length === 0"
+              >
+                {{ uploading ? '上传中...' : '保存所有文件' }}
+              </el-button>
+              <el-button @click="clearAllPendingFiles">清空列表</el-button>
+            </div>
+          </div>
+
+          <div class="upload-progress" v-if="uploading">
+            <el-progress :percentage="uploadProgress" :status="progressStatus" />
+            <p class="progress-text">{{ progressText }}</p>
+          </div>
+        </el-card>
+      </div>
+
+      <!-- 已上传简历列表 -->
+      <div class="resume-list-section">
+        <el-card>
+          <template #header>
+            <div class="card-header">
+              <span>我的简历</span>
+              <el-button type="primary" @click="loadResumeList" :icon="Refresh">
+                刷新
+              </el-button>
+            </div>
+          </template>
+
+          <el-table
+              :data="resumeList"
+              v-loading="loading"
+              stripe
+              style="width: 100%"
+              empty-text="暂无简历文件"
+          >
+            <el-table-column prop="filename" label="文件名" min-width="200">
+              <template #default="{ row }">
+                <div class="file-info">
+                  <el-icon class="file-icon">
+                    <Document v-if="isDocFile(row.filename)" />
+                    <PictureIcon v-else-if="isImageFile(row.filename)" />
+                    <Document v-else />
+                  </el-icon>
+                  <span>{{ row.filename }}</span>
+                </div>
+              </template>
+            </el-table-column>
+
+            <el-table-column label="文件大小" width="120">
+              <template #default>
+                <span>-</span>
+              </template>
+            </el-table-column>
+
+            <el-table-column prop="uploadDate" label="上传时间" width="180">
+              <template #default="{ row }">
+                {{ formatDate(row.uploadDate) }}
+              </template>
+            </el-table-column>
+
+            <el-table-column label="操作" width="200" fixed="right">
+              <template #default="{ row }">
+                <div class="action-buttons">
+                  <el-button
+                      type="primary"
+                      size="small"
+                      @click="previewResume(row)"
+                      :icon="ViewIcon"
+                  >
+                    预览
+                  </el-button>
+                  <el-button
+                      type="success"
+                      size="small"
+                      @click="downloadResume(row)"
+                      :icon="Download"
+                  >
+                    下载
+                  </el-button>
+                  <el-button
+                      type="danger"
+                      size="small"
+                      @click="deleteResume(row)"
+                      :icon="Delete"
+                  >
+                    删除
+                  </el-button>
+                </div>
+              </template>
+            </el-table-column>
+          </el-table>
+        </el-card>
+      </div>
     </div>
-  </div>
   </div>
 </template>
 

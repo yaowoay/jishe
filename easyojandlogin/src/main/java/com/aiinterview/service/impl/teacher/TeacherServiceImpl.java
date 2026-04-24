@@ -90,14 +90,14 @@ public class TeacherServiceImpl implements TeacherService {
     @Override
     public TeacherDashboardDTO getDashboard(Long userId) {
         TeacherDashboardDTO dto = new TeacherDashboardDTO();
-        dto.setTotalStudents(studentProfileMapper.selectCount(new QueryWrapper<>()));
-        dto.setEmployedStudents(employmentLedgerMapper.selectCount(new QueryWrapper<EmploymentLedger>().eq("employment_status", "已就业")));
-        dto.setPendingStudents(employmentLedgerMapper.selectCount(new QueryWrapper<EmploymentLedger>().in("employment_status", "待就业", "求职中", "未落实")));
-        dto.setWarningStudents(earlyWarningResultMapper.selectCount(new QueryWrapper<com.aiinterview.model.entity.teacher.EarlyWarningResult>().in("handle_status", "pending", "processing")));
-        dto.setTotalCompanies(companyMapper.selectCount(new QueryWrapper<>()));
-        dto.setPendingCompanyVerifications(companyMapper.selectCount(new QueryWrapper<Company>().eq("verify_status", "pending")));
-        dto.setTotalActivities(0L);
-        dto.setCooperationApplications(0L);
+        dto.setTotalStudents((long) studentProfileMapper.selectCount(new QueryWrapper<>()));
+        dto.setEmployedStudents((long) employmentLedgerMapper.selectCount(new QueryWrapper<EmploymentLedger>().eq("employment_status", "已就业")));
+        dto.setPendingStudents((long) employmentLedgerMapper.selectCount(new QueryWrapper<EmploymentLedger>().in("employment_status", "待就业", "求职中", "未落实")));
+        dto.setWarningStudents((long) earlyWarningResultMapper.selectCount(new QueryWrapper<com.aiinterview.model.entity.teacher.EarlyWarningResult>().in("handle_status", "pending", "processing")));
+        dto.setTotalCompanies((long) companyMapper.selectCount(new QueryWrapper<>()));
+        dto.setPendingCompanyVerifications((long) companyMapper.selectCount(new QueryWrapper<Company>().eq("verify_status", "pending")));
+        dto.setTotalActivities((long) activityMapper.selectCount(new QueryWrapper<>()));
+        dto.setCooperationApplications((long) cooperationApplicationMapper.selectCount(new QueryWrapper<>()));
         return dto;
     }
 
@@ -206,6 +206,7 @@ public class TeacherServiceImpl implements TeacherService {
             throw new RuntimeException("企业审核失败: " + e.getMessage());
         }
     }
+
     @Override
     @Transactional
     public Job auditJob(Long userId, Long jobId, String verifyStatus, String remark) {
@@ -246,23 +247,40 @@ public class TeacherServiceImpl implements TeacherService {
 
     @Override
     @Transactional
-    public com.aiinterview.model.entity.teacher.Activity createActivity(Long userId, com.aiinterview.model.entity.teacher.Activity activity) {
-        activity.setTeacherId(userId);
+    public com.aiinterview.model.entity.teacher.Activity createActivity(Long userId, com.aiinterview.model.dto.teacher.ActivityDTO activityDTO) {
+        Teacher teacher = getTeacherEntityByUserId(userId);
+        if (teacher == null) {
+            throw new RuntimeException("教师信息不存在");
+        }
+
+        com.aiinterview.model.entity.teacher.Activity activity = new com.aiinterview.model.entity.teacher.Activity();
+        BeanUtils.copyProperties(activityDTO, activity);
+        activity.setTeacherId(teacher.getTeacherId());
+        activity.setCollegeId(teacher.getCollegeId());
+        activity.setCurrentParticipants(0);
         if (activity.getStatus() == null) {
             activity.setStatus("draft");
         }
-        if (activity.getCurrentParticipants() == null) {
-            activity.setCurrentParticipants(0);
-        }
+
         activityMapper.insert(activity);
         return activity;
     }
 
     @Override
-    public List<com.aiinterview.model.entity.teacher.Activity> getActivities(Long userId) {
-        return activityMapper.selectList(new QueryWrapper<com.aiinterview.model.entity.teacher.Activity>()
-                .eq("teacher_id", userId)
-                .orderByDesc("created_at"));
+    public List<com.aiinterview.model.entity.teacher.Activity> getActivities(Long userId, String status) {
+        Teacher teacher = getTeacherEntityByUserId(userId);
+        if (teacher == null) {
+            throw new RuntimeException("教师信息不存在");
+        }
+
+        QueryWrapper<com.aiinterview.model.entity.teacher.Activity> wrapper = new QueryWrapper<>();
+        wrapper.eq("teacher_id", teacher.getTeacherId());
+        if (status != null && !status.isEmpty()) {
+            wrapper.eq("status", status);
+        }
+        wrapper.orderByDesc("created_at");
+
+        return activityMapper.selectList(wrapper);
     }
 
     @Override
@@ -271,8 +289,326 @@ public class TeacherServiceImpl implements TeacherService {
     }
 
     @Override
-    public com.aiinterview.model.dto.teacher.TeacherDashboardDTO getEmploymentStats(Long userId) {
-        return getDashboard(userId);
+    @Transactional
+    public com.aiinterview.model.entity.teacher.Activity updateActivity(Long userId, Long activityId, com.aiinterview.model.dto.teacher.ActivityDTO activityDTO) {
+        Teacher teacher = getTeacherEntityByUserId(userId);
+        if (teacher == null) {
+            throw new RuntimeException("教师信息不存在");
+        }
+
+        com.aiinterview.model.entity.teacher.Activity activity = activityMapper.selectById(activityId);
+        if (activity == null) {
+            throw new RuntimeException("活动不存在");
+        }
+
+        if (!activity.getTeacherId().equals(teacher.getTeacherId())) {
+            throw new RuntimeException("无权限修改此活动");
+        }
+
+        BeanUtils.copyProperties(activityDTO, activity, "activityId", "teacherId", "collegeId", "currentParticipants", "createdAt");
+        activityMapper.updateById(activity);
+        return activity;
+    }
+
+    @Override
+    @Transactional
+    public void deleteActivity(Long userId, Long activityId) {
+        Teacher teacher = getTeacherEntityByUserId(userId);
+        if (teacher == null) {
+            throw new RuntimeException("教师信息不存在");
+        }
+
+        com.aiinterview.model.entity.teacher.Activity activity = activityMapper.selectById(activityId);
+        if (activity == null) {
+            throw new RuntimeException("活动不存在");
+        }
+
+        if (!activity.getTeacherId().equals(teacher.getTeacherId())) {
+            throw new RuntimeException("无权限删除此活动");
+        }
+
+        activityMapper.deleteById(activityId);
+    }
+
+    @Override
+    public List<com.aiinterview.model.dto.teacher.ActivityRegistrationDTO> getActivityRegistrations(Long activityId) {
+        // TODO: 实现活动报名列表查询
+        return new java.util.ArrayList<>();
+    }
+
+    @Override
+    public com.aiinterview.model.dto.teacher.EmploymentStatsDTO getEmploymentStats(Long userId, Long collegeId, Long majorId) {
+        // TODO: 实现详细的就业统计
+        com.aiinterview.model.dto.teacher.EmploymentStatsDTO stats = new com.aiinterview.model.dto.teacher.EmploymentStatsDTO();
+
+        // 基础统计 - selectCount 返回 Long，需要转换为 Integer
+        Long totalStudentsLong = studentProfileMapper.selectCount(new QueryWrapper<>());
+        Long employedCountLong = employmentLedgerMapper.selectCount(
+            new QueryWrapper<EmploymentLedger>().eq("employment_status", "已就业"));
+        Long furtherStudyCountLong = employmentLedgerMapper.selectCount(
+            new QueryWrapper<EmploymentLedger>().eq("employment_status", "升学"));
+        Long unemployedCountLong = employmentLedgerMapper.selectCount(
+            new QueryWrapper<EmploymentLedger>().in("employment_status", "待就业", "求职中"));
+
+        Integer totalStudents = totalStudentsLong != null ? totalStudentsLong.intValue() : 0;
+        Integer employedCount = employedCountLong != null ? employedCountLong.intValue() : 0;
+        Integer furtherStudyCount = furtherStudyCountLong != null ? furtherStudyCountLong.intValue() : 0;
+        Integer unemployedCount = unemployedCountLong != null ? unemployedCountLong.intValue() : 0;
+
+        stats.setTotalStudents(totalStudents);
+        stats.setEmployedCount(employedCount);
+        stats.setFurtherStudyCount(furtherStudyCount);
+        stats.setUnemployedCount(unemployedCount);
+
+        if (totalStudents > 0) {
+            stats.setEmploymentRate((double) employedCount / totalStudents * 100);
+        }
+
+        return stats;
+    }
+
+    @Override
+    public List<com.aiinterview.model.dto.teacher.EarlyWarningDTO> getEarlyWarnings(Long userId, String warningLevel, String handleStatus) {
+        QueryWrapper<com.aiinterview.model.entity.teacher.EarlyWarningResult> queryWrapper = new QueryWrapper<>();
+
+        // 添加筛选条件
+        if (warningLevel != null && !warningLevel.isEmpty()) {
+            queryWrapper.eq("warning_level", warningLevel);
+        }
+        if (handleStatus != null && !handleStatus.isEmpty()) {
+            queryWrapper.eq("handle_status", handleStatus);
+        }
+
+        // 按检测时间倒序排列
+        queryWrapper.orderByDesc("detection_time");
+
+        List<com.aiinterview.model.entity.teacher.EarlyWarningResult> results = earlyWarningResultMapper.selectList(queryWrapper);
+
+        // 转换为 DTO
+        return convertToEarlyWarningDTOList(results);
+    }
+
+    @Override
+    @Transactional
+    public com.aiinterview.model.dto.teacher.EarlyWarningDTO handleEarlyWarning(Long userId, Long warningId, String handleStatus, String handleRemark) {
+        // 查询预警记录
+        com.aiinterview.model.entity.teacher.EarlyWarningResult warning = earlyWarningResultMapper.selectById(warningId);
+        if (warning == null) {
+            throw new RuntimeException("预警记录不存在");
+        }
+
+        // 更新处理状态
+        warning.setHandleStatus(handleStatus);
+        warning.setHandleRemark(handleRemark);
+        warning.setHandleTime(LocalDateTime.now());
+        warning.setAssignedTo(userId);
+
+        earlyWarningResultMapper.updateById(warning);
+
+        // 返回更新后的数据
+        return convertToEarlyWarningDTO(warning);
+    }
+
+    @Override
+    @Transactional
+    public com.aiinterview.model.dto.teacher.EarlyWarningDTO createEarlyWarning(Long userId, com.aiinterview.model.dto.teacher.EarlyWarningDTO warningDTO) {
+        try {
+            // 验证学生是否存在
+            StudentProfile student = studentProfileMapper.selectById(warningDTO.getStudentId());
+            if (student == null) {
+                throw new RuntimeException("学生不存在");
+            }
+
+            // 创建预警记录
+            com.aiinterview.model.entity.teacher.EarlyWarningResult warning = new com.aiinterview.model.entity.teacher.EarlyWarningResult();
+            BeanUtils.copyProperties(warningDTO, warning);
+            warning.setDetectionTime(LocalDateTime.now());
+            warning.setHandleStatus("pending");
+            warning.setAssignedTo(userId);
+            warning.setIsNotified(false);
+            warning.setStudentViewed(false);
+
+            earlyWarningResultMapper.insert(warning);
+
+            // 自动推送通知
+            pushWarningNotification(warning);
+
+            // 返回创建的数据
+            return convertToEarlyWarningDTO(warning);
+        } catch (Exception e) {
+            log.error("创建预警记录失败: userId={}, error={}", userId, e.getMessage());
+            throw new RuntimeException("创建预警记录失败: " + e.getMessage());
+        }
+    }
+
+    /**
+     * 推送预警通知
+     */
+    private void pushWarningNotification(com.aiinterview.model.entity.teacher.EarlyWarningResult warning) {
+        try {
+            warning.setIsNotified(true);
+            warning.setNotifyTime(LocalDateTime.now());
+            earlyWarningResultMapper.updateById(warning);
+            log.info("预警通知推送成功: warningId={}, studentId={}, teacherId={}",
+                    warning.getId(), warning.getStudentId(), warning.getAssignedTo());
+        } catch (Exception e) {
+            log.error("预警通知推送失败: warningId={}, error={}", warning.getId(), e.getMessage());
+        }
+    }
+
+    @Override
+    public com.aiinterview.model.dto.teacher.EarlyWarningDTO getEarlyWarningDetail(Long warningId) {
+        com.aiinterview.model.entity.teacher.EarlyWarningResult warning = earlyWarningResultMapper.selectById(warningId);
+        if (warning == null) {
+            throw new RuntimeException("预警记录不存在");
+        }
+        return convertToEarlyWarningDTO(warning);
+    }
+
+    @Override
+    public List<com.aiinterview.model.dto.teacher.EarlyWarningDTO> getStudentWarningHistory(Long studentId) {
+        QueryWrapper<com.aiinterview.model.entity.teacher.EarlyWarningResult> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("student_id", studentId).orderByDesc("detection_time");
+
+        List<com.aiinterview.model.entity.teacher.EarlyWarningResult> results = earlyWarningResultMapper.selectList(queryWrapper);
+        return convertToEarlyWarningDTOList(results);
+    }
+
+    @Override
+    @Transactional
+    public int batchHandleEarlyWarnings(Long userId, List<Long> warningIds, String handleStatus, String handleRemark) {
+        if (warningIds == null || warningIds.isEmpty()) {
+            return 0;
+        }
+
+        int count = 0;
+        for (Long warningId : warningIds) {
+            try {
+                com.aiinterview.model.entity.teacher.EarlyWarningResult warning = earlyWarningResultMapper.selectById(warningId);
+                if (warning != null) {
+                    warning.setHandleStatus(handleStatus);
+                    warning.setHandleRemark(handleRemark);
+                    warning.setHandleTime(LocalDateTime.now());
+                    warning.setAssignedTo(userId);
+                    earlyWarningResultMapper.updateById(warning);
+                    count++;
+                }
+            } catch (Exception e) {
+                log.error("批量处理预警失败: warningId={}, error={}", warningId, e.getMessage());
+            }
+        }
+        return count;
+    }
+
+    @Override
+    public java.util.Map<String, Object> getEarlyWarningStats(Long userId) {
+        java.util.Map<String, Object> stats = new java.util.HashMap<>();
+
+        // 总预警数
+        long totalWarnings = earlyWarningResultMapper.selectCount(new QueryWrapper<>());
+        stats.put("totalWarnings", totalWarnings);
+
+        // 待处理预警数
+        long pendingWarnings = earlyWarningResultMapper.selectCount(
+            new QueryWrapper<com.aiinterview.model.entity.teacher.EarlyWarningResult>()
+                .eq("handle_status", "pending")
+        );
+        stats.put("pendingWarnings", pendingWarnings);
+
+        // 处理中预警数
+        long processingWarnings = earlyWarningResultMapper.selectCount(
+            new QueryWrapper<com.aiinterview.model.entity.teacher.EarlyWarningResult>()
+                .eq("handle_status", "processing")
+        );
+        stats.put("processingWarnings", processingWarnings);
+
+        // 已解决预警数
+        long resolvedWarnings = earlyWarningResultMapper.selectCount(
+            new QueryWrapper<com.aiinterview.model.entity.teacher.EarlyWarningResult>()
+                .eq("handle_status", "resolved")
+        );
+        stats.put("resolvedWarnings", resolvedWarnings);
+
+        // 按预警等级统计
+        java.util.Map<String, Long> levelStats = new java.util.HashMap<>();
+        levelStats.put("low", earlyWarningResultMapper.selectCount(
+            new QueryWrapper<com.aiinterview.model.entity.teacher.EarlyWarningResult>()
+                .eq("warning_level", "low")
+        ));
+        levelStats.put("medium", earlyWarningResultMapper.selectCount(
+            new QueryWrapper<com.aiinterview.model.entity.teacher.EarlyWarningResult>()
+                .eq("warning_level", "medium")
+        ));
+        levelStats.put("high", earlyWarningResultMapper.selectCount(
+            new QueryWrapper<com.aiinterview.model.entity.teacher.EarlyWarningResult>()
+                .eq("warning_level", "high")
+        ));
+        levelStats.put("urgent", earlyWarningResultMapper.selectCount(
+            new QueryWrapper<com.aiinterview.model.entity.teacher.EarlyWarningResult>()
+                .eq("warning_level", "urgent")
+        ));
+        stats.put("levelStats", levelStats);
+
+        // 按预警类型统计
+        java.util.Map<String, Long> typeStats = new java.util.HashMap<>();
+        typeStats.put("employment", earlyWarningResultMapper.selectCount(
+            new QueryWrapper<com.aiinterview.model.entity.teacher.EarlyWarningResult>()
+                .eq("warning_type", "employment")
+        ));
+        typeStats.put("skill", earlyWarningResultMapper.selectCount(
+            new QueryWrapper<com.aiinterview.model.entity.teacher.EarlyWarningResult>()
+                .eq("warning_type", "skill")
+        ));
+        typeStats.put("interview", earlyWarningResultMapper.selectCount(
+            new QueryWrapper<com.aiinterview.model.entity.teacher.EarlyWarningResult>()
+                .eq("warning_type", "interview")
+        ));
+        typeStats.put("resume", earlyWarningResultMapper.selectCount(
+            new QueryWrapper<com.aiinterview.model.entity.teacher.EarlyWarningResult>()
+                .eq("warning_type", "resume")
+        ));
+        stats.put("typeStats", typeStats);
+
+        return stats;
+    }
+
+    /**
+     * 转换预警实体为DTO
+     */
+    private com.aiinterview.model.dto.teacher.EarlyWarningDTO convertToEarlyWarningDTO(com.aiinterview.model.entity.teacher.EarlyWarningResult warning) {
+        com.aiinterview.model.dto.teacher.EarlyWarningDTO dto = new com.aiinterview.model.dto.teacher.EarlyWarningDTO();
+        BeanUtils.copyProperties(warning, dto);
+
+        // 查询学生信息
+        StudentProfile student = studentProfileMapper.selectById(warning.getStudentId());
+        if (student != null) {
+            dto.setStudentName(student.getRealName());
+            dto.setStudentNo(student.getStudentNo());
+            dto.setMajor(student.getMajor());
+        }
+
+        // 查询负责教师信息
+        if (warning.getAssignedTo() != null) {
+            Teacher teacher = teacherMapper.selectOne(
+                new QueryWrapper<Teacher>().eq("user_id", warning.getAssignedTo())
+            );
+            if (teacher != null) {
+                dto.setAssignedTeacherName(teacher.getRealName());
+            }
+        }
+
+        return dto;
+    }
+
+    /**
+     * 批量转换预警实体为DTO列表
+     */
+    private List<com.aiinterview.model.dto.teacher.EarlyWarningDTO> convertToEarlyWarningDTOList(List<com.aiinterview.model.entity.teacher.EarlyWarningResult> results) {
+        List<com.aiinterview.model.dto.teacher.EarlyWarningDTO> dtoList = new java.util.ArrayList<>();
+        for (com.aiinterview.model.entity.teacher.EarlyWarningResult result : results) {
+            dtoList.add(convertToEarlyWarningDTO(result));
+        }
+        return dtoList;
     }
 
     @Override

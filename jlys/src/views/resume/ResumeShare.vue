@@ -26,7 +26,7 @@ import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { getResumeByShareUrl } from '@/api/resume'
-import ResumePreview from '@/components/resume/ResumePreview.vue'
+import ResumePreview from '@/components/resumes/ResumePreview.vue'
 
 export default {
   name: 'ResumeShare',

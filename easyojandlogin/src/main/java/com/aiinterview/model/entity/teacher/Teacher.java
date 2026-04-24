@@ -43,8 +43,8 @@ public class Teacher {
     
     @TableField("managed_majors")
     private String managedMajors; // JSON格式存储管理的专业ID列表
-    
-    @TableField("status")
+
+    @TableField(value = "status", exist = false)
     private String status; // 'active', 'inactive'
     
     @TableField(value = "created_at", fill = FieldFill.INSERT)

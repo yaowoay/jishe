@@ -57,8 +57,10 @@ export default {
           position: '期望职位',
           phone: '',
           email: '',
+          avatarUrl: '',
           location: '',
           profile: '',
+          templateId: 1,
           workExperiences: [],
           educations: [],
           projectExperiences: [],
@@ -75,15 +77,29 @@ export default {
           fullName: data.fullName || '',
           phone: data.phone || '',
           email: data.email || '',
+          avatarUrl: data.avatarUrl || data.avatar || data.photoUrl || data.imgUrl || '',
           position: data.position || '',
           workYears: data.workYears || 0,
           location: data.location || '',
           profile: data.profile || '',
           template: data.template || 'template1',
-          workExperiences: data.workExperiences || [],
+          templateId: data.templateId || 1,
+          workExperiences: (data.workExperiences || []).map(work => ({
+            ...work,
+            responsibility: work.responsibility || work.responsibilities || '',
+            achievement: work.achievement || work.achievements || ''
+          })),
           educations: data.educations || [],
-          projectExperiences: data.projectExperiences || [],
-          skills: data.skills || [],
+          projectExperiences: (data.projectExperiences || []).map(project => ({
+            ...project,
+            projectName: project.projectName || project.name || ''
+          })),
+          skills: (data.skills || []).map(skill => ({
+            ...skill,
+            skillName: skill.skillName || skill.name || '',
+            level: skill.level || skill.proficiency || 1,
+            proficiency: skill.proficiency || skill.level || 1
+          })),
           additionalInfos: data.additionalInfos || []
         }
       }
@@ -95,11 +111,13 @@ export default {
         fullName: data.basicInfo?.name || '',
         phone: data.basicInfo?.phone || '',
         email: data.basicInfo?.email || '',
+        avatarUrl: data.basicInfo?.avatar || data.avatarUrl || data.avatar || '',
         position: data.basicInfo?.position || '',
         workYears: data.basicInfo?.workYears || 0,
         location: data.basicInfo?.address || '',
         profile: data.basicInfo?.summary || '',
         template: data.template || 'template1',
+        templateId: data.templateId || 1,
         // 工作经历
         workExperiences: (data.workExperience || []).map(work => ({
           id: work.id,
@@ -107,8 +125,8 @@ export default {
           position: work.position || '',
           startDate: work.startDate || '',
           endDate: work.endDate || '',
-          responsibility: work.responsibilities || '',
-          achievement: work.achievements || ''
+          responsibility: work.responsibility || work.responsibilities || '',
+          achievement: work.achievement || work.achievements || ''
         })),
         // 教育经历
         educations: (data.education || []).map(edu => ({
@@ -123,7 +141,7 @@ export default {
         // 项目经历
         projectExperiences: (data.projects || []).map(project => ({
           id: project.id,
-          projectName: project.name || '',
+          projectName: project.projectName || project.name || '',
           role: project.role || '',
           startDate: project.startDate || '',
           endDate: project.endDate || '',
@@ -132,8 +150,9 @@ export default {
         // 技能
         skills: (data.skills || []).map(skill => ({
           id: skill.id,
-          skillName: skill.name || '',
+          skillName: skill.skillName || skill.name || '',
           level: skill.level || skill.proficiency || 1,
+          proficiency: skill.proficiency || skill.level || 1,
           description: skill.description || ''
         })),
         // 其他信息

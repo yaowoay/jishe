@@ -81,7 +81,7 @@ public class ResumeUploadController {
             return BaseResponse.error(500, "获取已上传简历列表失败: " + e.getMessage());
         }
     }
-
+    //@CrossOrigin(origins = "*", allowCredentials = "true")
     @PostMapping("/upload")
     public BaseResponse<Object> uploadResume(
             HttpServletRequest request,

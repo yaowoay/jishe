@@ -1,56 +1,197 @@
 <template>
   <div class="teacher-assistance">
+    <!-- 顶部操作栏 -->
     <el-card class="action-card">
-      <el-button type="primary" @click="showCreateDialog = true">
-        <el-icon><Plus /></el-icon>
-        <span>新增帮扶记录</span>
-      </el-button>
+      <el-row :gutter="20" align="middle">
+        <el-col :xs="24" :sm="12" :md="6">
+          <el-input
+              v-model="searchForm.keyword"
+              placeholder="搜索学生姓名/学号"
+              clearable
+          >
+            <template #prefix>
+              <el-icon><Search /></el-icon>
+            </template>
+          </el-input>
+        </el-col>
+        <el-col :xs="24" :sm="12" :md="5">
+          <el-select
+              v-model="searchForm.difficultyType"
+              placeholder="困难类型"
+              clearable
+              style="width: 100%"
+          >
+            <el-option label="全部" :value="null" />
+            <el-option label="就业困难" value="就业困难" />
+            <el-option label="学业困难" value="学业困难" />
+            <el-option label="心理困难" value="心理困难" />
+            <el-option label="经济困难" value="经济困难" />
+          </el-select>
+        </el-col>
+        <el-col :xs="24" :sm="12" :md="4">
+          <el-button type="primary" @click="loadData" :loading="loading" style="width: 100%">
+            查询
+          </el-button>
+        </el-col>
+        <el-col :xs="24" :sm="12" :md="5">
+          <el-radio-group v-model="viewMode" size="small" style="width: 100%">
+            <el-radio-button label="timeline" style="width: 50%">
+              <el-icon><Clock /></el-icon>
+            </el-radio-button>
+            <el-radio-button label="student" style="width: 50%">
+              <el-icon><User /></el-icon>
+            </el-radio-button>
+          </el-radio-group>
+        </el-col>
+        <el-col :xs="24" :sm="12" :md="4">
+          <el-button type="success" @click="showCreateDialog = true" style="width: 100%">
+            <el-icon><Plus /></el-icon>
+            新增记录
+          </el-button>
+        </el-col>
+      </el-row>
     </el-card>
 
-    <el-card class="table-card">
-      <el-table
-          :data="assistanceList"
-          stripe
-          style="width: 100%"
-          :loading="loading"
-          v-loading="loading"
-      >
-        <el-table-column prop="studentId" label="学生ID" width="100" />
-        <el-table-column prop="difficultyType" label="困难类型" width="120" />
-        <el-table-column prop="difficultyLevel" label="困难等级" width="100">
-          <template #default="{ row }">
-            <el-tag :type="getLevelType(row.difficultyLevel)">
-              {{ row.difficultyLevel }}
-            </el-tag>
-          </template>
-        </el-table-column>
-        <el-table-column prop="description" label="描述" show-overflow-tooltip />
-        <el-table-column prop="assistancePlan" label="帮扶计划" show-overflow-tooltip />
-        <el-table-column prop="result" label="结果" width="100" />
-        <el-table-column prop="followUpDate" label="跟进日期" width="120" />
-        <el-table-column label="操作" width="150" fixed="right">
-          <template #default="{ row }">
-            <el-button type="primary" size="small" @click="viewDetail(row)">
-              查看
-            </el-button>
-            <el-button type="success" size="small" @click="followUp(row)">
-              跟进
-            </el-button>
-          </template>
-        </el-table-column>
-      </el-table>
+    <!-- 时间轴视图 -->
+    <div v-if="viewMode === 'timeline'" class="timeline-view" v-loading="loading">
+      <el-timeline>
+        <el-timeline-item
+            v-for="record in assistanceList"
+            :key="record.recordId"
+            :timestamp="formatDate(record.createdAt)"
+            placement="top"
+            :type="getTimelineType(record.difficultyLevel)"
+        >
+          <el-card class="record-card" shadow="hover">
+            <div class="card-header">
+              <div class="header-left">
+                <el-avatar :size="40" :src="record.studentAvatar">
+                  {{ record.studentName?.charAt(0) }}
+                </el-avatar>
+                <div class="student-info">
+                  <div class="student-name">{{ record.studentName }}</div>
+                  <div class="student-no">{{ record.studentNo }}</div>
+                </div>
+              </div>
+              <div class="header-right">
+                <el-tag :type="getLevelTagType(record.difficultyLevel)" effect="dark" size="small">
+                  {{ getLevelText(record.difficultyLevel) }}
+                </el-tag>
+                <el-tag type="info" size="small" style="margin-left: 8px">
+                  {{ record.difficultyType }}
+                </el-tag>
+              </div>
+            </div>
 
-      <el-pagination
-          v-model:current-page="pagination.current"
-          v-model:page-size="pagination.size"
-          :page-sizes="[10, 20, 50]"
-          :total="pagination.total"
-          layout="total, sizes, prev, pager, next, jumper"
-          @current-change="loadData"
-          @size-change="loadData"
-          style="margin-top: 20px; text-align: right"
-      />
-    </el-card>
+            <div class="card-body">
+              <div class="section">
+                <div class="section-title">
+                  <el-icon><Document /></el-icon>
+                  困难描述
+                </div>
+                <div class="section-content">{{ record.description }}</div>
+              </div>
+
+              <div class="section">
+                <div class="section-title">
+                  <el-icon><Notebook /></el-icon>
+                  帮扶计划
+                </div>
+                <div class="section-content">{{ record.assistancePlan }}</div>
+              </div>
+
+              <div v-if="record.result" class="section">
+                <div class="section-title">
+                  <el-icon><CircleCheck /></el-icon>
+                  帮扶结果
+                </div>
+                <div class="section-content result">{{ record.result }}</div>
+              </div>
+
+              <div class="record-footer">
+                <div class="footer-info">
+                  <el-icon><Calendar /></el-icon>
+                  <span>跟进日期：{{ formatDate(record.followUpDate) }}</span>
+                </div>
+                <div class="footer-actions">
+                  <el-button size="small" type="primary" @click="viewDetail(record)">
+                    <el-icon><View /></el-icon>
+                    详情
+                  </el-button>
+                  <el-button size="small" type="success" @click="followUp(record)">
+                    <el-icon><Edit /></el-icon>
+                    跟进
+                  </el-button>
+                </div>
+              </div>
+            </div>
+          </el-card>
+        </el-timeline-item>
+      </el-timeline>
+
+      <el-empty v-if="!loading && assistanceList.length === 0" description="暂无帮扶记录" />
+    </div>
+
+    <!-- 学生维度视图 -->
+    <div v-else class="student-view" v-loading="loading">
+      <el-collapse v-model="activeStudents" accordion>
+        <el-collapse-item
+            v-for="(records, studentId) in groupedByStudent"
+            :key="studentId"
+            :name="studentId"
+        >
+          <template #title>
+            <div class="collapse-title">
+              <el-avatar :size="40" :src="records[0].studentAvatar">
+                {{ records[0].studentName?.charAt(0) }}
+              </el-avatar>
+              <div class="title-info">
+                <div class="name">{{ records[0].studentName }}</div>
+                <div class="meta">
+                  <span>{{ records[0].studentNo }}</span>
+                  <el-tag size="small" type="info" style="margin-left: 8px">
+                    {{ records.length }} 条记录
+                  </el-tag>
+                </div>
+              </div>
+            </div>
+          </template>
+
+          <el-timeline>
+            <el-timeline-item
+                v-for="record in records"
+                :key="record.recordId"
+                :timestamp="formatDateTime(record.createdAt)"
+                :type="getTimelineType(record.difficultyLevel)"
+            >
+              <div class="timeline-content">
+                <div class="content-header">
+                  <el-tag :type="getLevelTagType(record.difficultyLevel)" size="small">
+                    {{ getLevelText(record.difficultyLevel) }}
+                  </el-tag>
+                  <el-tag type="info" size="small">{{ record.difficultyType }}</el-tag>
+                </div>
+                <div class="content-body">
+                  <p><strong>困难：</strong>{{ record.description }}</p>
+                  <p><strong>计划：</strong>{{ record.assistancePlan }}</p>
+                  <p v-if="record.result"><strong>结果：</strong>{{ record.result }}</p>
+                </div>
+                <div class="content-footer">
+                  <el-button size="small" type="primary" link @click="viewDetail(record)">
+                    查看详情
+                  </el-button>
+                  <el-button size="small" type="success" link @click="followUp(record)">
+                    继续跟进
+                  </el-button>
+                </div>
+              </div>
+            </el-timeline-item>
+          </el-timeline>
+        </el-collapse-item>
+      </el-collapse>
+
+      <el-empty v-if="!loading && Object.keys(groupedByStudent).length === 0" description="暂无帮扶记录" />
+    </div>
 
     <!-- 新增帮扶对话框 -->
     <el-dialog
@@ -138,16 +279,26 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
-import { Plus } from '@element-plus/icons-vue'
+import {
+  Plus, Search, Clock, User, Document, Notebook, CircleCheck,
+  Calendar, View, Edit
+} from '@element-plus/icons-vue'
 import { getAssistanceRecords, saveAssistanceRecord } from '@/api/teacher'
 
 const loading = ref(false)
 const submitLoading = ref(false)
+const viewMode = ref('timeline')
 const assistanceList = ref([])
+const activeStudents = ref([])
 const showCreateDialog = ref(false)
 const formRef = ref(null)
+
+const searchForm = ref({
+  keyword: '',
+  difficultyType: null
+})
 
 const formData = ref({
   studentId: null,
@@ -161,7 +312,7 @@ const formData = ref({
 
 const pagination = ref({
   current: 1,
-  size: 10,
+  size: 20,
   total: 0
 })
 
@@ -173,7 +324,33 @@ const rules = {
   assistancePlan: [{ required: true, message: '请输入帮扶计划', trigger: 'blur' }]
 }
 
-const getLevelType = (level) => {
+// 按学生分组
+const groupedByStudent = computed(() => {
+  const grouped = {}
+  assistanceList.value.forEach(record => {
+    const studentId = record.studentId
+    if (!grouped[studentId]) {
+      grouped[studentId] = []
+    }
+    grouped[studentId].push(record)
+  })
+  // 按时间倒序排序
+  Object.keys(grouped).forEach(key => {
+    grouped[key].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+  })
+  return grouped
+})
+
+const getTimelineType = (level) => {
+  const typeMap = {
+    'low': 'success',
+    'medium': 'warning',
+    'high': 'danger'
+  }
+  return typeMap[level] || 'primary'
+}
+
+const getLevelTagType = (level) => {
   const typeMap = {
     'low': 'success',
     'medium': 'warning',
@@ -182,13 +359,51 @@ const getLevelType = (level) => {
   return typeMap[level] || 'info'
 }
 
+const getLevelText = (level) => {
+  const textMap = {
+    'low': '低',
+    'medium': '中',
+    'high': '高'
+  }
+  return textMap[level] || level
+}
+
+const formatDate = (date) => {
+  if (!date) return '-'
+  return new Date(date).toLocaleDateString('zh-CN')
+}
+
+const formatDateTime = (date) => {
+  if (!date) return '-'
+  return new Date(date).toLocaleString('zh-CN', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit'
+  })
+}
+
 const loadData = async () => {
   loading.value = true
   try {
     const response = await getAssistanceRecords()
     if (response.success) {
-      assistanceList.value = response.data || []
-      pagination.value.total = assistanceList.value.length
+      let data = response.data || []
+
+      // 前端筛选
+      if (searchForm.value.keyword) {
+        data = data.filter(r =>
+          r.studentName?.includes(searchForm.value.keyword) ||
+          r.studentNo?.includes(searchForm.value.keyword)
+        )
+      }
+      if (searchForm.value.difficultyType) {
+        data = data.filter(r => r.difficultyType === searchForm.value.difficultyType)
+      }
+
+      assistanceList.value = data
+      pagination.value.total = data.length
     }
   } catch (error) {
     ElMessage.error('加载帮扶记录失败')
@@ -198,6 +413,8 @@ const loadData = async () => {
 }
 
 const handleCreate = async () => {
+  if (!formRef.value) return
+
   await formRef.value.validate(async (valid) => {
     if (valid) {
       submitLoading.value = true
@@ -206,15 +423,7 @@ const handleCreate = async () => {
         if (response.success) {
           ElMessage.success('新增成功')
           showCreateDialog.value = false
-          formData.value = {
-            studentId: null,
-            difficultyType: '',
-            difficultyLevel: '',
-            description: '',
-            assistancePlan: '',
-            assistanceActions: '',
-            result: ''
-          }
+          formRef.value.resetFields()
           loadData()
         }
       } catch (error) {
@@ -226,12 +435,12 @@ const handleCreate = async () => {
   })
 }
 
-const viewDetail = (row) => {
-  ElMessage.info(`查看帮扶记录: ${row.recordId}`)
+const viewDetail = (record) => {
+  ElMessage.info(`查看帮扶记录详情: ${record.studentName}`)
 }
 
-const followUp = (row) => {
-  ElMessage.info(`跟进帮扶记录: ${row.recordId}`)
+const followUp = (record) => {
+  ElMessage.info(`跟进帮扶记录: ${record.studentName}`)
 }
 
 onMounted(() => {
@@ -239,6 +448,174 @@ onMounted(() => {
 })
 </script>
 
+<style scoped lang="scss">
+.teacher-assistance {
+  .action-card {
+    margin-bottom: 20px;
+    border: none;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  }
+
+  // 时间轴视图
+  .timeline-view {
+    padding: 20px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+
+    .record-card {
+      margin-bottom: 16px;
+
+      .card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 16px;
+
+        .header-left {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+
+          .student-info {
+            .student-name {
+              font-size: 16px;
+              font-weight: 600;
+              color: #303133;
+            }
+
+            .student-no {
+              font-size: 13px;
+              color: #909399;
+              margin-top: 2px;
+            }
+          }
+        }
+
+        .header-right {
+          display: flex;
+          gap: 8px;
+        }
+      }
+
+      .card-body {
+        .section {
+          margin-bottom: 16px;
+
+          .section-title {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #606266;
+            margin-bottom: 8px;
+          }
+
+          .section-content {
+            font-size: 14px;
+            color: #606266;
+            line-height: 1.6;
+            padding-left: 22px;
+
+            &.result {
+              color: #67C23A;
+              font-weight: 500;
+            }
+          }
+        }
+
+        .record-footer {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding-top: 12px;
+          border-top: 1px solid #f0f0f0;
+          margin-top: 12px;
+
+          .footer-info {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+            color: #909399;
+          }
+
+          .footer-actions {
+            display: flex;
+            gap: 8px;
+          }
+        }
+      }
+    }
+  }
+
+  // 学生维度视图
+  .student-view {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    padding: 20px;
+
+    .collapse-title {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      width: 100%;
+
+      .title-info {
+        flex: 1;
+
+        .name {
+          font-size: 16px;
+          font-weight: 600;
+          color: #303133;
+        }
+
+        .meta {
+          font-size: 13px;
+          color: #909399;
+          margin-top: 4px;
+        }
+      }
+    }
+
+    .timeline-content {
+      background: #f5f7fa;
+      padding: 12px;
+      border-radius: 6px;
+
+      .content-header {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 12px;
+      }
+
+      .content-body {
+        font-size: 14px;
+        color: #606266;
+        line-height: 1.6;
+
+        p {
+          margin: 8px 0;
+
+          strong {
+            color: #303133;
+          }
+        }
+      }
+
+      .content-footer {
+        display: flex;
+        gap: 12px;
+        margin-top: 12px;
+        padding-top: 12px;
+        border-top: 1px solid #e4e7ed;
+      }
+    }
+  }
+}
+</style>
 <style scoped lang="scss">
 .teacher-assistance {
   .action-card {

@@ -65,17 +65,17 @@
       <el-tab-pane label="创建的简历" name="created">
         <div class="resume-grid">
           <div
-            v-for="(resume, idx) in resumes"
-            :key="resume.id"
-            class="resume-card"
-            @click="previewResume(resume.id)"
+              v-for="(resume, idx) in resumes"
+              :key="resume.id"
+              class="resume-card"
+              @click="previewResume(resume.id)"
           >
             <!-- 模板预览图 -->
             <div class="template-preview">
               <img
-                :src="getTemplatePreview(resume)"
-                :alt="resume.title"
-                @error="handleImageError"
+                  :src="getTemplatePreview(resume)"
+                  :alt="resume.title"
+                  @error="handleImageError"
               />
               <div class="template-badge" v-if="!resume.templateId">
                 自定义
@@ -116,11 +116,11 @@
               </p>
               <div v-if="resume.skills && resume.skills.length" class="skills">
                 <el-tag
-                  v-for="(skill, sidx) in resume.skills.slice(0, 3)"
-                  :key="sidx"
-                  size="small"
-                  effect="plain"
-                  style="margin-right: 4px; margin-bottom: 2px;"
+                    v-for="(skill, sidx) in resume.skills.slice(0, 3)"
+                    :key="sidx"
+                    size="small"
+                    effect="plain"
+                    style="margin-right: 4px; margin-bottom: 2px;"
                 >{{ skill.skillName || skill.name }}</el-tag>
                 <el-tag v-if="resume.skills.length > 3" size="small" type="info" effect="plain">
                   +{{ resume.skills.length - 3 }}
@@ -157,13 +157,13 @@
                 <span>已上传的简历文件</span>
                 <div class="header-actions">
                   <el-input
-                    v-model="searchKeyword"
-                    placeholder="搜索简历文件名..."
-                    :prefix-icon="Search"
-                    class="search-input"
-                    @input="handleSearch"
-                    clearable
-                    style="width: 250px; margin-right: 12px;"
+                      v-model="searchKeyword"
+                      placeholder="搜索简历文件名..."
+                      :prefix-icon="Search"
+                      class="search-input"
+                      @input="handleSearch"
+                      clearable
+                      style="width: 250px; margin-right: 12px;"
                   />
                   <el-button @click="loadUploadedResumeList" :icon="Refresh">
                     刷新
@@ -173,11 +173,11 @@
             </template>
 
             <el-table
-              :data="filteredUploadedResumeList"
-              v-loading="uploadedLoading"
-              stripe
-              style="width: 100%"
-              empty-text="暂无上传的简历文件"
+                :data="filteredUploadedResumeList"
+                v-loading="uploadedLoading"
+                stripe
+                style="width: 100%"
+                empty-text="暂无上传的简历文件"
             >
               <el-table-column prop="filename" label="文件名" min-width="200">
                 <template #default="{ row }">
@@ -220,34 +220,34 @@
                 <template #default="{ row }">
                   <div class="action-buttons">
                     <el-button
-                      type="primary"
-                      size="small"
-                      @click="previewUploadedResume(row)"
-                      :icon="ViewIcon"
+                        type="primary"
+                        size="small"
+                        @click="previewUploadedResume(row)"
+                        :icon="ViewIcon"
                     >
                       预览
                     </el-button>
                     <el-button
-                      type="success"
-                      size="small"
-                      @click="downloadUploadedResume(row)"
-                      :icon="Download"
+                        type="success"
+                        size="small"
+                        @click="downloadUploadedResume(row)"
+                        :icon="Download"
                     >
                       下载
                     </el-button>
                     <el-button
-                      type="warning"
-                      size="small"
-                      @click="analyzeUploadedResume(row)"
-                      :icon="DataAnalysis"
+                        type="warning"
+                        size="small"
+                        @click="analyzeUploadedResume(row)"
+                        :icon="DataAnalysis"
                     >
                       分析
                     </el-button>
                     <el-button
-                      type="danger"
-                      size="small"
-                      @click="deleteUploadedResume(row)"
-                      :icon="Delete"
+                        type="danger"
+                        size="small"
+                        @click="deleteUploadedResume(row)"
+                        :icon="Delete"
                     >
                       删除
                     </el-button>
@@ -262,10 +262,10 @@
 
     <!-- 简历预览对话框 -->
     <el-dialog
-      v-model="previewVisible"
-      title="简历预览"
-      width="80%"
-      :before-close="closePreview"
+        v-model="previewVisible"
+        title="简历预览"
+        width="80%"
+        :before-close="closePreview"
     >
       <div v-if="previewResumeData" class="preview-content">
         <div v-if="isImageFile(previewResumeData.filename)" class="image-preview">
@@ -286,10 +286,10 @@
 
     <!-- 简历分析对话框 -->
     <el-dialog
-      v-model="analysisVisible"
-      title="简历分析"
-      width="800px"
-      :before-close="closeAnalysis"
+        v-model="analysisVisible"
+        title="简历分析"
+        width="800px"
+        :before-close="closeAnalysis"
     >
       <div v-if="analyzingResume" class="analysis-content">
         <div class="analysis-header">
@@ -333,23 +333,23 @@
 
     <!-- 上传简历对话框 -->
     <el-dialog
-      v-model="uploadDialogVisible"
-      title="上传简历文件"
-      width="700px"
-      :before-close="closeUploadDialog"
+        v-model="uploadDialogVisible"
+        title="上传简历文件"
+        width="700px"
+        :before-close="closeUploadDialog"
     >
       <el-upload
-        ref="uploadRef"
-        class="upload-dragger"
-        drag
-        :auto-upload="false"
-        :on-change="handleFileChange"
-        :on-remove="handleFileRemove"
-        :file-list="pendingFiles"
-        :limit="5"
-        :on-exceed="handleExceed"
-        accept=".doc,.docx,.pdf,.jpg,.jpeg,.png,.gif"
-        multiple
+          ref="uploadRef"
+          class="upload-dragger"
+          drag
+          :auto-upload="false"
+          :on-change="handleFileChange"
+          :on-remove="handleFileRemove"
+          :file-list="pendingFiles"
+          :limit="5"
+          :on-exceed="handleExceed"
+          accept=".doc,.docx,.pdf,.jpg,.jpeg,.png,.gif"
+          multiple
       >
         <el-icon class="el-icon--upload"><UploadFilled /></el-icon>
         <div class="el-upload__text">
@@ -377,9 +377,9 @@
 
           <div class="filename-edit">
             <el-input
-              v-model="file.customName"
-              placeholder="输入自定义文件名（不含扩展名）"
-              style="width: 250px;"
+                v-model="file.customName"
+                placeholder="输入自定义文件名（不含扩展名）"
+                style="width: 250px;"
             >
               <template #prepend>📄</template>
               <template #append>{{ getFileExtension(file.name) }}</template>
@@ -388,10 +388,10 @@
 
           <div class="file-actions">
             <el-button
-              type="danger"
-              size="small"
-              @click="removePendingFile(index)"
-              :icon="Delete"
+                type="danger"
+                size="small"
+                @click="removePendingFile(index)"
+                :icon="Delete"
             >
               移除
             </el-button>
@@ -409,10 +409,10 @@
           <el-button @click="closeUploadDialog">取消</el-button>
           <el-button @click="clearAllPendingFiles" v-if="pendingFiles.length > 0">清空列表</el-button>
           <el-button
-            type="primary"
-            @click="uploadAllFiles"
-            :loading="uploading"
-            :disabled="pendingFiles.length === 0"
+              type="primary"
+              @click="uploadAllFiles"
+              :loading="uploading"
+              :disabled="pendingFiles.length === 0"
           >
             {{ uploading ? '上传中...' : '开始上传' }}
           </el-button>
@@ -498,7 +498,7 @@ export default {
 
     const uploadUrl = process.env.NODE_ENV === 'production'
       ? '/api/resume/upload'
-      : 'http://localhost:8089/resume/upload'
+      : 'http://localhost:8089/api/resumes/upload'
 
     const uploadHeaders = {
       Authorization: `Bearer ${localStorage.getItem('token')}`
@@ -564,12 +564,10 @@ export default {
       uploadedLoading.value = true
       try {
         const response = await getResumeList()
-        console.log('获取列表返回:', response)  // 👈 看返回什么
         // 兼容两种返回格式
         const isSuccess = response.success === true || response.code === 0
         if (isSuccess) {
           uploadedResumeList.value = response.data || []
-          console.log('更新后的列表:', uploadedResumeList.value)  // 👈 看数据
         } else {
           ElMessage.error(response.message || '获取简历列表失败')
         }
@@ -626,7 +624,7 @@ export default {
           try {
             await deleteResume(resume.id)
             ElMessage.success('删除成功')
-            loadUploadedResumeList()
+            loadResumes()
           } catch (e) {
             ElMessage.error('删除失败')
           }
@@ -635,7 +633,7 @@ export default {
         try {
           await copyResume(resume.id)
           ElMessage.success('复制成功')
-          loadUploadedResumeList()
+          loadResumes()
         } catch (e) {
           ElMessage.error('复制失败')
         }
@@ -650,17 +648,6 @@ export default {
           }
         } catch (e) {
           ElMessage.error('生成分享链接失败')
-        }
-        try {
-          const result = await deleteResume(resume.id)  // 接收返回值
-          console.log('删除返回结果:', result)  // 👈 看返回什么
-          console.log('删除的ID:', resume.id)
-          ElMessage.success('删除成功')
-          await loadUploadedResumeList()  // 等待刷新完成
-          console.log('刷新后的列表:', uploadedResumeList.value)  // 👈 看列表是否更新
-        } catch (e) {
-          console.error('删除失败:', e)
-          ElMessage.error('删除失败')
         }
       }
     }

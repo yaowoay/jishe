@@ -83,7 +83,7 @@
               <h2 class="exp-title">{{ exp.section }}</h2>
 
               <!-- 个人项目 -->
-              <template v-if="exp.section === '个人项目'">
+              <template v-if="exp.projects && exp.projects.length">
                 <ul class="exp">
                   <li v-for="(project, pIdx) in exp.projects" :key="pIdx">
                     <div class="circle"></div>
@@ -181,6 +181,10 @@ export default {
     initData() {
       // 从 resume 中提取数据
       const basic = this.resume.basicInfo || {}
+      const phone = this.resume.phone || basic.phone || ''
+      const email = this.resume.email || basic.email || ''
+      let projects = []
+      let works = []
 
       // 基本信息
       this.age = basic.workYears ? basic.workYears + '岁' : ''
@@ -189,10 +193,9 @@ export default {
 
       // 联系方式
       this.contactList = [
-        { icon: 'fa-phone', name: '电话', value: basic.phone || '', link: `tel:${basic.phone}` },
-        { icon: 'fa-envelope', name: 'Email', value: basic.email || '', link: `mailto:${basic.email}` }
+        { icon: 'fa-phone', name: '电话', value: phone, link: `tel:${phone}` },
+        { icon: 'fa-envelope', name: 'Email', value: email, link: `mailto:${email}` }
       ]
-
       // 技能点
       this.techList = (this.resume.skills || []).map(skill => ({
         name: skill.skillName,
@@ -205,20 +208,33 @@ export default {
       }))
 
       // 项目经验
-      const projects = (this.resume.projectExperiences || []).map(proj => ({
+      projects = (this.resume.projectExperiences || []).map(proj => ({
         name: proj.projectName,
         date: proj.startDate ? `${proj.startDate} - ${proj.endDate || '至今'}` : '',
         des: proj.description,
         website: '',
         sourceCode: ''
       }))
+      works = (this.resume.workExperiences || []).map(work => ({
+        company: work.company,
+        date: work.startDate ? `${work.startDate} - ${work.endDate || '至今'}` : '',
+        desc: [work.position, work.responsibility, work.achievement].filter(Boolean).join('<br/>'),
+        projects: []
+      }))
 
       this.experienceList = [
+        {
+          section: '工作经历',
+          experiences: works
+        },
         {
           section: '项目经验',
           projects: projects
         }
       ]
+      this.experienceList = this.experienceList.filter(item =>
+        (item.projects && item.projects.length) || (item.experiences && item.experiences.length)
+      )
     }
   }
 }

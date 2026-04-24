@@ -14,7 +14,8 @@
     <div class="macos-sidebar">
       <div class="sidebar-header">
         <div class="profile-avatar">
-          <div class="avatar-initial">{{ (resume.fullName || '姓')[0] }}</div>
+          <img v-if="resume.avatarUrl || resume.avatar" :src="resume.avatarUrl || resume.avatar" class="avatar-image" alt="avatar" />
+          <div v-if="!(resume.avatarUrl || resume.avatar)" class="avatar-initial">{{ (resume.fullName || '姓')[0] }}</div>
         </div>
         <div class="profile-info">
           <h2 class="profile-name">{{ resume.fullName || '姓名' }}</h2>
@@ -323,6 +324,15 @@ export default {
 
 .profile-avatar {
   margin-bottom: 16px;
+}
+
+.avatar-image {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  object-fit: cover;
+  display: block;
+  margin: 0 auto;
 }
 
 .avatar-initial {

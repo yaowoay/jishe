@@ -20,7 +20,7 @@
 <script>
 import { ref } from 'vue'
 import { ElMessage } from 'element-plus'
-import ResumeAnalysis from '@/components/resume/ResumeAnalysis.vue'
+import ResumeAnalysis from '@/components/resumes/ResumeAnalysis.vue'
 import request from '@/utils/request'
 
 export default {

@@ -31,14 +31,24 @@
             <el-descriptions-item label="公司规模">
               {{ profileData.scale || '未填写' }}
             </el-descriptions-item>
+            <el-descriptions-item label="融资情况">
+              {{ profileData.companyType || '未填写' }}
+            </el-descriptions-item>
             <el-descriptions-item label="联系电话">
               {{ profileData.contactPhone || '未填写' }}
             </el-descriptions-item>
-            <el-descriptions-item label="公司地址">
+            <el-descriptions-item label="公司网站">
+              <a v-if="profileData.website" :href="profileData.website" target="_blank">
+                {{ profileData.website }}
+              </a>
+              <span v-else>未填写</span>
+            </el-descriptions-item>
+            <el-descriptions-item label="公司地址" span="2">
               {{ profileData.address || '未填写' }}
             </el-descriptions-item>
-            <el-descriptions-item label="公司网站">
-              {{ profileData.website || '未填写' }}
+            <el-descriptions-item label="公司Logo" span="2">
+              <img v-if="profileData.logoUrl" :src="profileData.logoUrl" alt="公司Logo" style="max-width: 200px; max-height: 100px; border: 1px solid #ddd; border-radius: 4px; padding: 5px;" />
+              <span v-else>未上传</span>
             </el-descriptions-item>
             <el-descriptions-item label="认证状态">
               <el-tag :type="getVerifyStatusType(profileData.verifyStatus)">
@@ -50,12 +60,33 @@
             </el-descriptions-item>
             <el-descriptions-item label="档案完整度" span="2">
               <el-progress
-                  :percentage="profileCompletion"
-                  :color="getProgressColor(profileCompletion)"
+                :percentage="profileData.profileCompletion || 0"
+                :color="getProgressColor(profileData.profileCompletion)"
               />
             </el-descriptions-item>
             <el-descriptions-item label="公司简介" span="2">
               {{ profileData.description || '未填写' }}
+            </el-descriptions-item>
+            <el-descriptions-item label="福利待遇" span="2">
+              <el-tag
+                v-for="(welfare, index) in getWelfareList(profileData.companyWelfare)"
+                :key="index"
+                style="margin-right: 8px; margin-bottom: 8px"
+              >
+                {{ welfare }}
+              </el-tag>
+              <span v-if="!profileData.companyWelfare">未填写</span>
+            </el-descriptions-item>
+            <el-descriptions-item label="公司标签" span="2">
+              <el-tag
+                v-for="(tag, index) in getTagList(profileData.companyTags)"
+                :key="index"
+                type="info"
+                style="margin-right: 8px; margin-bottom: 8px"
+              >
+                {{ tag }}
+              </el-tag>
+              <span v-if="!profileData.companyTags">未填写</span>
             </el-descriptions-item>
           </el-descriptions>
         </div>
@@ -84,6 +115,8 @@
         label-width="120px"
         label-position="left"
       >
+        <el-divider content-position="left">基本信息</el-divider>
+
         <el-row :gutter="20">
           <el-col :span="12">
             <el-form-item label="公司名称" prop="companyName">
@@ -100,7 +133,7 @@
             <el-form-item label="所属行业" prop="industry">
               <el-input
                 v-model="editFormData.industry"
-                placeholder="请输入所属行业"
+                placeholder="如：互联网、金融、教育"
                 maxlength="50"
                 show-word-limit
               />
@@ -121,24 +154,44 @@
           </el-col>
 
           <el-col :span="12">
-            <el-form-item label="联系电话" prop="contactPhone">
-              <el-input
-                v-model="editFormData.contactPhone"
-                placeholder="请输入联系电话"
-                maxlength="20"
-              />
+            <el-form-item label="融资情况" prop="companyType">
+              <el-select v-model="editFormData.companyType" placeholder="请选择融资情况" style="width: 100%">
+                <el-option label="未融资" value="未融资" />
+                <el-option label="天使轮" value="天使轮" />
+                <el-option label="A轮" value="A轮" />
+                <el-option label="B轮" value="B轮" />
+                <el-option label="C轮" value="C轮" />
+                <el-option label="D轮及以上" value="D轮及以上" />
+                <el-option label="已上市" value="已上市" />
+                <el-option label="不需要融资" value="不需要融资" />
+              </el-select>
             </el-form-item>
           </el-col>
         </el-row>
 
         <el-row :gutter="20">
-          <el-col :span="12">
-            <el-form-item label="公司地址" prop="address">
+          <el-col :span="24">
+            <el-form-item label="公司Logo" prop="logoUrl">
               <el-input
-                v-model="editFormData.address"
-                placeholder="请输入公司地址"
-                maxlength="255"
-                show-word-limit
+                v-model="editFormData.logoUrl"
+                placeholder="请输入公司Logo图片URL"
+              />
+              <div v-if="editFormData.logoUrl" style="margin-top: 10px;">
+                <img :src="editFormData.logoUrl" alt="Logo预览" style="max-width: 200px; max-height: 100px; border: 1px solid #ddd; border-radius: 4px; padding: 5px;" />
+              </div>
+            </el-form-item>
+          </el-col>
+        </el-row>
+
+        <el-divider content-position="left">联系方式</el-divider>
+
+        <el-row :gutter="20">
+          <el-col :span="12">
+            <el-form-item label="联系电话" prop="contactPhone">
+              <el-input
+                v-model="editFormData.contactPhone"
+                placeholder="请输入联系电话"
+                maxlength="20"
               />
             </el-form-item>
           </el-col>
@@ -155,13 +208,42 @@
           </el-col>
         </el-row>
 
+        <el-form-item label="公司地址" prop="address">
+          <el-input
+            v-model="editFormData.address"
+            placeholder="请输入详细地址"
+            maxlength="255"
+            show-word-limit
+          />
+        </el-form-item>
+
+        <el-divider content-position="left">公司详情</el-divider>
+
         <el-form-item label="公司简介" prop="description">
           <el-input
             v-model="editFormData.description"
             type="textarea"
             :rows="4"
-            placeholder="请输入公司简介"
-            maxlength="500"
+            placeholder="请简要介绍公司的业务范围、发展历程、企业文化等"
+            maxlength="1000"
+            show-word-limit
+          />
+        </el-form-item>
+
+        <el-form-item label="福利待遇" prop="companyWelfare">
+          <el-input
+            v-model="editFormData.companyWelfare"
+            placeholder="如：五险一金、带薪年假、弹性工作、股票期权等，多个用逗号分隔"
+            maxlength="255"
+            show-word-limit
+          />
+        </el-form-item>
+
+        <el-form-item label="公司标签" prop="companyTags">
+          <el-input
+            v-model="editFormData.companyTags"
+            placeholder="如：技术驱动、扁平化管理、年轻团队等，多个用逗号分隔"
+            maxlength="255"
             show-word-limit
           />
         </el-form-item>
@@ -202,7 +284,11 @@ export default {
         scale: '',
         website: '',
         contactPhone: '',
-        description: ''
+        description: '',
+        companyType: '',
+        companyWelfare: '',
+        companyTags: '',
+        logoUrl: ''
       },
       formRules: {
         companyName: [
@@ -217,7 +303,29 @@ export default {
           { required: true, message: '请选择公司规模', trigger: 'change' }
         ],
         contactPhone: [
-          { required: true, message: '请输入联系电话', trigger: 'blur' }
+          { required: true, message: '请输入联系电话', trigger: 'blur' },
+          { pattern: /^1[3-9]\d{9}$|^0\d{2,3}-?\d{7,8}$/, message: '请输入正确的联系电话', trigger: 'blur' }
+        ],
+        address: [
+          { max: 255, message: '地址长度不能超过255个字符', trigger: 'blur' }
+        ],
+        website: [
+          { max: 100, message: '网站长度不能超过100个字符', trigger: 'blur' }
+        ],
+        description: [
+          { max: 1000, message: '公司简介长度不能超过1000个字符', trigger: 'blur' }
+        ],
+        companyType: [
+          { max: 50, message: '企业类型长度不能超过50个字符', trigger: 'blur' }
+        ],
+        companyWelfare: [
+          { max: 255, message: '福利待遇长度不能超过255个字符', trigger: 'blur' }
+        ],
+        companyTags: [
+          { max: 255, message: '公司标签长度不能超过255个字符', trigger: 'blur' }
+        ],
+        logoUrl: [
+          { max: 500, message: 'Logo URL长度不能超过500个字符', trigger: 'blur' }
         ]
       }
     }
@@ -253,7 +361,7 @@ export default {
         const response = await getCompanyProfile()
 
         if (response && response.success) {
-          this.profileData = response.data.profile
+          this.profileData = response.data
         } else {
           this.profileData = null
         }
@@ -280,7 +388,11 @@ export default {
           scale: this.profileData.scale || '',
           website: this.profileData.website || '',
           contactPhone: this.profileData.contactPhone || '',
-          description: this.profileData.description || ''
+          description: this.profileData.description || '',
+          companyType: this.profileData.companyType || '',
+          companyWelfare: this.profileData.companyWelfare || '',
+          companyTags: this.profileData.companyTags || '',
+          logoUrl: this.profileData.logoUrl || ''
         }
       } else {
         this.resetForm()
@@ -295,7 +407,11 @@ export default {
         scale: '',
         website: this.editFormData.website || null,
         contactPhone: '',
-        description: ''
+        description: '',
+        companyType: '',
+        companyWelfare: '',
+        companyTags: '',
+        logoUrl: ''
       }
       this.$nextTick(() => {
         if (this.$refs.editFormRef) {
@@ -324,7 +440,8 @@ export default {
           // 更新store中的档案完成状态
           this.$store.dispatch('updateProfileStatus', true)
           
-
+          // 重新加载企业档案
+          await this.loadProfile()
         } else {
           this.$message.error(response?.message || '保存失败')
         }
@@ -358,6 +475,16 @@ export default {
       if (percentage >= 80) return '#67c23a'
       if (percentage >= 60) return '#e6a23c'
       return '#f56c6c'
+    },
+
+    getWelfareList(welfare) {
+      if (!welfare) return []
+      return welfare.split(',').map(item => item.trim()).filter(item => item)
+    },
+
+    getTagList(tags) {
+      if (!tags) return []
+      return tags.split(',').map(item => item.trim()).filter(item => item)
     }
   }
 }

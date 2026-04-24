@@ -1,10 +1,6 @@
 package com.aiinterview.service.teacher;
 
-import com.aiinterview.model.dto.teacher.AssistanceRecordDTO;
-import com.aiinterview.model.dto.teacher.EmploymentAuditDTO;
-import com.aiinterview.model.dto.teacher.StudentQueryDTO;
-import com.aiinterview.model.dto.teacher.TeacherDashboardDTO;
-import com.aiinterview.model.dto.teacher.TeacherProfileDTO;
+import com.aiinterview.model.dto.teacher.*;
 import com.aiinterview.model.entity.company.Company;
 import com.aiinterview.model.entity.job.Job;
 import com.aiinterview.model.entity.teacher.AssistanceRecord;
@@ -46,14 +42,35 @@ public interface TeacherService {
     Teacher getTeacherEntityByUserId(Long userId);
 
     // 活动管理
-    com.aiinterview.model.entity.teacher.Activity createActivity(Long userId, com.aiinterview.model.entity.teacher.Activity activity);
+    com.aiinterview.model.entity.teacher.Activity createActivity(Long userId, ActivityDTO activityDTO);
 
-    List<com.aiinterview.model.entity.teacher.Activity> getActivities(Long userId);
+    List<com.aiinterview.model.entity.teacher.Activity> getActivities(Long userId, String status);
 
     com.aiinterview.model.entity.teacher.Activity getActivityById(Long activityId);
 
-    // 数据大屏
-    com.aiinterview.model.dto.teacher.TeacherDashboardDTO getEmploymentStats(Long userId);
+    com.aiinterview.model.entity.teacher.Activity updateActivity(Long userId, Long activityId, ActivityDTO activityDTO);
+
+    void deleteActivity(Long userId, Long activityId);
+
+    List<ActivityRegistrationDTO> getActivityRegistrations(Long activityId);
+
+    // 就业统计
+    EmploymentStatsDTO getEmploymentStats(Long userId, Long collegeId, Long majorId);
+
+    // 预警管理
+    List<EarlyWarningDTO> getEarlyWarnings(Long userId, String warningLevel, String handleStatus);
+
+    EarlyWarningDTO handleEarlyWarning(Long userId, Long warningId, String handleStatus, String handleRemark);
+
+    EarlyWarningDTO createEarlyWarning(Long userId, EarlyWarningDTO warningDTO);
+
+    EarlyWarningDTO getEarlyWarningDetail(Long warningId);
+
+    List<EarlyWarningDTO> getStudentWarningHistory(Long studentId);
+
+    int batchHandleEarlyWarnings(Long userId, List<Long> warningIds, String handleStatus, String handleRemark);
+
+    java.util.Map<String, Object> getEarlyWarningStats(Long userId);
 
     // 校企合作
     List<com.aiinterview.model.entity.teacher.CooperationApplication> getCooperationApplications(Long userId);

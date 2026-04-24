@@ -139,7 +139,7 @@ export default {
     },
     initData() {
       // 照片
-      this.photoUrl = '/template/resume_with_photo-main/photo.jpg'
+      this.photoUrl = this.resume.avatarUrl || this.resume.avatar || '/template/resume_with_photo-main/photo.jpg'
 
       // 年龄
       this.age = this.resume.workYears ? this.resume.workYears + '岁' : ''
@@ -174,7 +174,7 @@ export default {
       works.forEach(work => {
         this.projectList.push({
           name: work.company,
-          achievements: [work.responsibility].filter(Boolean)
+          achievements: [work.responsibility, work.achievement].filter(Boolean)
         })
       })
 
