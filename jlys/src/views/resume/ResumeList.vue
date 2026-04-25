@@ -151,7 +151,7 @@
       <el-tab-pane label="上传的简历" name="uploaded">
         <!-- 已上传简历列表 -->
         <div class="uploaded-resume-list">
-          <el-card>
+          <el-card class="uploaded-resume-card" shadow="never">
             <template #header>
               <div class="card-header-simple">
                 <span>已上传的简历文件</span>
@@ -172,14 +172,15 @@
               </div>
             </template>
 
-            <el-table
-                :data="filteredUploadedResumeList"
-                v-loading="uploadedLoading"
-                stripe
-                style="width: 100%"
-                empty-text="暂无上传的简历文件"
-            >
-              <el-table-column prop="filename" label="文件名" min-width="200">
+            <div class="uploaded-table-wrap">
+              <el-table
+                  :data="filteredUploadedResumeList"
+                  v-loading="uploadedLoading"
+                  stripe
+                  class="uploaded-table"
+                  empty-text="暂无上传的简历文件"
+              >
+              <el-table-column prop="filename" label="文件名" min-width="340" show-overflow-tooltip>
                 <template #default="{ row }">
                   <div class="file-info">
                     <el-icon class="file-icon">
@@ -192,13 +193,7 @@
                 </template>
               </el-table-column>
 
-              <el-table-column label="文件大小" width="120">
-                <template #default>
-                  <span>-</span>
-                </template>
-              </el-table-column>
-
-              <el-table-column prop="uploadDate" label="上传时间" width="180">
+              <el-table-column prop="uploadDate" label="上传时间" width="200">
                 <template #default="{ row }">
                   {{ formatDate(row.uploadDate) }}
                 </template>
@@ -216,7 +211,7 @@
                 </template>
               </el-table-column>
 
-              <el-table-column label="操作" width="280" fixed="right">
+              <el-table-column label="操作" width="340" fixed="right">
                 <template #default="{ row }">
                   <div class="action-buttons">
                     <el-button
@@ -254,7 +249,8 @@
                   </div>
                 </template>
               </el-table-column>
-            </el-table>
+              </el-table>
+            </div>
           </el-card>
         </div>
       </el-tab-pane>
@@ -377,9 +373,10 @@
 
           <div class="filename-edit">
             <el-input
-                v-model="file.customName"
+                v-model="customFileNames[file.uid || file.name]"
                 placeholder="输入自定义文件名（不含扩展名）"
                 style="width: 250px;"
+                clearable
             >
               <template #prepend>📄</template>
               <template #append>{{ getFileExtension(file.name) }}</template>
@@ -484,6 +481,7 @@ export default {
     const progressStatus = ref('')
     const progressText = ref('')
     const pendingFiles = ref([])
+    const customFileNames = ref({}) // 存储自定义文件名的映射
     const uploadDialogVisible = ref(false)
 
     // 已上传简历相关
@@ -498,7 +496,7 @@ export default {
 
     const uploadUrl = process.env.NODE_ENV === 'production'
       ? '/api/resume/upload'
-      : 'http://localhost:8089/api/resumes/upload'
+      : 'http://localhost:8089/api/resume/upload'
 
     const uploadHeaders = {
       Authorization: `Bearer ${localStorage.getItem('token')}`
@@ -622,19 +620,31 @@ export default {
           type: 'warning'
         }).then(async () => {
           try {
-            await deleteResume(resume.id)
-            ElMessage.success('删除成功')
-            loadResumes()
+            const res = await deleteResume(resume.id)
+            // 检查 code === 0（后端成功标识）或 success === true（兼容性）
+            if (res.code === 0 || res.success === true) {
+              ElMessage.success('删除成功')
+              loadResumes()
+            } else {
+              ElMessage.error(res.message || '删除失败')
+            }
           } catch (e) {
+            console.error('Delete resume error:', e)
             ElMessage.error('删除失败')
           }
         }).catch(() => {})
       } else if (command === 'copy') {
         try {
-          await copyResume(resume.id)
-          ElMessage.success('复制成功')
-          loadResumes()
+          const res = await copyResume(resume.id)
+          // 检查 code === 0（后端成功标识）或 success === true（兼容性）
+          if (res.code === 0 || res.success === true) {
+            ElMessage.success('复制成功')
+            loadResumes()
+          } else {
+            ElMessage.error(res.message || '复制失败')
+          }
         } catch (e) {
+          console.error('Copy resume error:', e)
           ElMessage.error('复制失败')
         }
       } else if (command === 'share') {
@@ -685,7 +695,11 @@ export default {
         return false
       }
 
-      file.customName = getFileNameWithoutExtension(file.name)
+      // 使用文件对象的 uid 作为 key 来存储自定义文件名
+      const fileKey = file.uid || file.name
+      if (!customFileNames.value[fileKey]) {
+        customFileNames.value[fileKey] = getFileNameWithoutExtension(file.name)
+      }
       pendingFiles.value = fileList
     }
 
@@ -699,6 +713,7 @@ export default {
 
     const clearAllPendingFiles = () => {
       pendingFiles.value = []
+      customFileNames.value = {} // 清空文件名映射
       uploadRef.value.clearFiles()
     }
 
@@ -741,8 +756,11 @@ export default {
         const formData = new FormData()
         formData.append('file', file.raw)
 
-        const finalFilename = file.customName
-          ? file.customName + getFileExtension(file.name)
+        // 从映射中获取自定义文件名
+        const fileKey = file.uid || file.name
+        const customName = customFileNames.value[fileKey]
+        const finalFilename = customName && customName.trim()
+          ? customName + getFileExtension(file.name)
           : file.name
         formData.append('filename', finalFilename)
 
@@ -751,15 +769,22 @@ export default {
           headers: uploadHeaders,
           body: formData
         })
-          .then(response => response.json())
+          .then(response => {
+            if (!response.ok) {
+              throw new Error(`HTTP ${response.status}`)
+            }
+            return response.json()
+          })
           .then(data => {
-            if (data.success) {
+            // 检查 code === 0（后端成功标识）或 success === true（兼容性）
+            if (data.code === 0 || data.success === true) {
               resolve(data)
             } else {
               reject(new Error(data.message || '上传失败'))
             }
           })
           .catch(error => {
+            console.error('上传文件错误:', error)
             reject(error)
           })
       })
@@ -854,7 +879,8 @@ export default {
         )
 
         const response = await deleteResumeById(resume.resumeId)
-        if (response.success) {
+        // 检查 code === 0（后端成功标识）或 success === true（兼容性）
+        if (response.code === 0 || response.success === true) {
           ElMessage.success('删除成功')
           loadUploadedResumeList()
         } else {
@@ -1001,6 +1027,7 @@ export default {
       analysisVisible,
       previewResumeData,
       analyzingResume,
+      customFileNames,
       filteredUploadedResumeList,
       applicationCount,
       createNewResume,
@@ -1063,7 +1090,7 @@ export default {
   width: 100%;
   box-sizing: border-box;
   padding: 24px;
-  max-width: 1400px;
+  max-width: 100%;
   margin: 0 auto;
   background: #f5f7fa;
   min-height: 100vh;
@@ -1290,6 +1317,7 @@ export default {
   font-size: 14px;
   line-height: 1.5;
   display: -webkit-box;
+  line-clamp: 2;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
@@ -1481,22 +1509,58 @@ export default {
 
 /* 已上传简历列表 */
 .uploaded-resume-list {
-  margin-top: 24px;
+  margin-top: 18px;
+}
+
+.uploaded-resume-card {
+  width: 100%;
+  border: 1px solid #d9e2ff;
+  border-radius: 16px;
+  box-shadow: 0 10px 28px rgba(19, 55, 125, 0.08);
+  background: linear-gradient(180deg, #fbfdff 0%, #ffffff 68%);
+}
+
+.uploaded-table-wrap {
+  width: 100%;
+  overflow-x: auto;
+  border-radius: 12px;
+}
+
+.uploaded-table {
+  width: 100%;
+  min-width: 980px;
+}
+
+.uploaded-table :deep(.el-table__inner-wrapper) {
+  border-radius: 12px;
+}
+
+.uploaded-table :deep(.el-table__header-wrapper th) {
+  background: #eef4ff;
+  color: #274f9f;
+  font-weight: 600;
+}
+
+.uploaded-table :deep(.el-table__body-wrapper) {
+  max-height: calc(100vh - 360px);
 }
 
 .action-buttons {
   display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
+  gap: 6px;
+  flex-wrap: nowrap;
 }
 
 .filename {
   font-weight: 500;
   color: #303133;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .search-input {
-  width: 250px;
+  width: min(300px, 38vw);
 }
 
 /* 预览对话框 */
@@ -1595,6 +1659,26 @@ export default {
 
   .stats-grid {
     grid-template-columns: 1fr;
+  }
+
+  .card-header-simple {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .header-actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .search-input {
+    width: 100%;
+  }
+
+  .uploaded-table {
+    min-width: 860px;
   }
 }
 </style>
