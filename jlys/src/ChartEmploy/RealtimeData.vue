@@ -37,7 +37,7 @@
       </div>
       <div class="stat-content">
         <div class="stat-label">毕业去向落实率</div>
-        <div class="stat-value">73%</div>
+        <div class="stat-value">{{ schoolEmploymentRateText }}</div>
         <div class="stat-desc"></div>
       </div>
     </div>
@@ -51,7 +51,7 @@
       </div>
       <div class="stat-content">
         <div class="stat-label">协议签约率</div>
-        <div class="stat-value">36%</div>
+        <div class="stat-value">{{ signedRateText }}</div>
 <!--        <div class="stat-desc">36%</div>-->
       </div>
     </div>
@@ -61,8 +61,10 @@
 <script setup>
 import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { getCurrentYearGraduateCount } from '@/api/student'
+import { getEmploymentScreenBigData } from '@/api/doris'
 
 const graduateCount = ref(null)
+const employmentScreenData = ref(null)
 let refreshTimer = null
 
 const graduateCountText = computed(() => {
@@ -72,18 +74,63 @@ const graduateCountText = computed(() => {
   return Number(graduateCount.value).toLocaleString('zh-CN')
 })
 
+const formatPercent = (value) => {
+  if (value === null || value === undefined || Number.isNaN(Number(value))) {
+    return '--'
+  }
+  const numericValue = Number(value)
+  const percentValue = numericValue <= 1 ? numericValue * 100 : numericValue
+  return `${Math.round(percentValue)}%`
+}
+
+const schoolEmploymentRateText = computed(() => {
+  return formatPercent(employmentScreenData.value?.schoolEmploymentRate)
+})
+
+const signedRateText = computed(() => {
+  return formatPercent(employmentScreenData.value?.signedRate)
+})
+
+// const fetchGraduateCount = async () => {
+//   try {
+//     const response = await getCurrentYearGraduateCount()
+//     graduateCount.value = response?.data?.graduateCount ?? 0
+//   } catch (error) {
+//     console.error('获取毕业生总人数失败:', error)
+//   }
+// }
 const fetchGraduateCount = async () => {
   try {
     const response = await getCurrentYearGraduateCount()
-    graduateCount.value = response?.data?.graduateCount ?? 0
+    
+    // ✅ 修复：正确解析后端返回结构
+    console.log('接口完整返回：', response) // 调试用，可保留
+    graduateCount.value = response.data?.graduateCount ?? 0
+    
   } catch (error) {
     console.error('获取毕业生总人数失败:', error)
   }
 }
 
+const fetchEmploymentScreenData = async () => {
+  try {
+    const response = await getEmploymentScreenBigData()
+    employmentScreenData.value = response?.data || null
+  } catch (error) {
+    console.error('获取就业大屏数据失败:', error)
+  }
+}
+
+const refreshData = async () => {
+  await Promise.all([
+    fetchGraduateCount(),
+    fetchEmploymentScreenData()
+  ])
+}
+
 onMounted(() => {
-  fetchGraduateCount()
-  refreshTimer = setInterval(fetchGraduateCount, 60000)
+  refreshData()
+  refreshTimer = setInterval(refreshData, 60000)
 })
 
 onUnmounted(() => {

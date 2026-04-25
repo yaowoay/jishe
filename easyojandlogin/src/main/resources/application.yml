@@ -11,15 +11,14 @@ server:
 spring:
   application:
     name: ai-interview-backend
-  mvc:
-    async:
-      request-timeout: 300000  # 5分钟
+
   # 数据源配置
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://localhost:3306/ai_interview_v2?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
     username: root
-    password: 12345    # Druid连接池配置
+    password: jyl123456
+    # Druid连接池配置
     type: com.alibaba.druid.pool.DruidDataSource
     druid:
       initial-size: 5
@@ -34,6 +33,29 @@ spring:
       test-on-return: false
       pool-prepared-statements: true
       max-pool-prepared-statement-per-connection-size: 20
+
+  # Doris 只读数据源配置
+  # 默认使用 MySQL 驱动直连 Doris FE 的 MySQL 协议端口，通常是 9030
+
+app:
+  datasource:
+    doris:
+      driver-class-name: com.mysql.cj.jdbc.Driver
+      url: jdbc:mysql://master:9030/realtime?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+      username: root
+      password: ""
+      type: com.alibaba.druid.pool.DruidDataSource
+      druid:
+        initial-size: 2
+        min-idle: 1
+        max-active: 10
+        max-wait: 30000
+        time-between-eviction-runs-millis: 60000
+        min-evictable-idle-time-millis: 300000
+        validation-query: SELECT 1
+        test-while-idle: true
+        test-on-borrow: false
+        test-on-return: false
 
   # Redis配置
   redis:

@@ -28,16 +28,27 @@ api.interceptors.response.use(
   response => {
     const res = response.data
 
-    // 如果返回的状态码不是200，说明接口有问题
-    if (res.code && res.code !== 200) {
+    // // 兼容后端通用返回：code=0 或 code=200 都视为成功
+    // if (res.code !== undefined && res.code !== 0 && res.code !== 200) {
+    //   ElMessage.error(res.message || '请求失败')
+
+    //   // 401表示token过期或无效
+    //   if (res.code === 401) {
+    //     store.dispatch('logout')
+    //     router.push('/login')
+    //   }
+
+    //   return Promise.reject(new Error(res.message || '请求失败'))
+    // }
+    // 用 success 判断成功（你的后端标准）
+    if (res.success === false) {
       ElMessage.error(res.message || '请求失败')
 
-      // 401表示token过期或无效
+      // 401表示token过期
       if (res.code === 401) {
         store.dispatch('logout')
         router.push('/login')
       }
-
       return Promise.reject(new Error(res.message || '请求失败'))
     }
 

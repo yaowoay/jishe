@@ -20,7 +20,7 @@ const generateMockData = () => {
   ]
 
   // 生成模拟人数（正态分布，毕业生主流薪资集中在7k-13k）
-  const baseCount = 150
+  const baseCount = 1500
   const peakIndex = 3 // 峰值在9k-11k，最符合毕业生真实情况
   const counts = salaryRanges.map((_, index) => {
     const distance = Math.abs(index - peakIndex)

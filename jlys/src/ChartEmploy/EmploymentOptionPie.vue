@@ -5,20 +5,17 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue'
+import { computed, onMounted, onUnmounted, ref } from 'vue'
 import * as echarts from 'echarts'
+import { getEmploymentStatusCount } from '@/api/doris'
 
 const chartRef = ref(null)
 let chartInstance = null
+const statusData = ref([])
 
-// 全校毕业生就业分布数据（真实人数）
-const s1_data = [
-  { value: 2860, name: '已就业' },
-  { value: 320, name: '待就业' },
-  { value: 750, name: '考研' },
-  { value: 210, name: '考公' },
-  { value: 180, name: '其他' }
-]
+const totalCount = computed(() => {
+  return statusData.value.reduce((sum, item) => sum + Number(item.value || 0), 0)
+})
 
 // 颜色配置（完全沿用你原有配色，和谐统一）
 const colorList = ['#17f99e', '#2adfd4', '#09a7ff', '#FFFFFF', '#03ffff', '#46FFE9', '#A3F9FE', '#0084FF', '#0578B9']
@@ -26,30 +23,36 @@ const colorList1 = ['#17f99e', '', '#2adfd4', '', '#09a7ff', '', '#FFFFFF', '', 
 const colorList2 = ['rgba(255, 208, 118, 0.4)', '', 'rgba(69, 244, 245, 0.4)', '', 'rgba(7, 166, 255, 0.4)', '', 'rgba(255, 255, 255, 0.4)', '',
   'rgba(0, 194, 255, 0.4)', '', 'rgba(163, 249, 254, 0.4)', '', 'rgba(0, 132, 255, 0.4)', '', 'rgba(5, 120, 185, 0.4)', '']
 
-// 处理数据
-let sum = 0
-let optionData = []
-s1_data.forEach(item => {
-  sum += Number(item.value)
-})
-s1_data.forEach(item => {
-  optionData.push({ value: item.value, name: item.name })
-  optionData.push({ name: '', value: sum / 100, itemStyle: { color: 'transparent' } })
-})
+const mergeInternToEmployed = (list) => {
+  const mergedMap = new Map()
 
-// 生成图例数据
-const l_data = s1_data.map(item => item.name)
+  list.forEach((item) => {
+    const originalStatus = item.employmentStatus || '其他'
+    const targetStatus = originalStatus === '实习中' ? '已就业' : originalStatus
+    const count = Number(item.studentCount || 0)
+    const prev = mergedMap.get(targetStatus) || 0
+    mergedMap.set(targetStatus, prev + count)
+  })
 
-onMounted(() => {
-  chartInstance = echarts.init(chartRef.value)
+  return Array.from(mergedMap.entries()).map(([name, value]) => ({ name, value }))
+}
 
-  const option = {
+const buildChartOption = (data) => {
+  const safeData = Array.isArray(data) ? data : []
+  const sum = safeData.reduce((total, item) => total + Number(item.value || 0), 0)
+  const optionData = []
+
+  safeData.forEach(item => {
+    optionData.push({ value: item.value, name: item.name })
+    optionData.push({ name: '', value: sum / 100 || 1, itemStyle: { color: 'transparent' } })
+  })
+
+  return {
     tooltip: {
       trigger: 'item'
     },
     title: [
       {
-        // text: `{name|${sum}}{unit|人}`,
         text: '就业分布',
         left: '25%',
         top: 'center',
@@ -65,10 +68,9 @@ onMounted(() => {
         },
         textAlign: 'center'
       },
-      // 标题改为：全校毕业生就业分布
       {
         text: '全校毕业生就业分布',
-        left: 'center',
+        left: 'left',
         top: '0%',
         textStyle: {
           color: '#66ccff',
@@ -85,14 +87,10 @@ onMounted(() => {
       itemWidth: 4,
       itemHeight: 4,
       formatter: (name) => {
-        let obj = s1_data.find(item => item.name === name)
-        if (!obj) return ''
+        const obj = safeData.find(item => item.name === name)
+        if (!obj || !sum) return ''
         const percent = ((obj.value / sum) * 100).toFixed(2)
-        const arr = [
-          // `{iconName|}{offsetBlock|}{name|${name}}{value|${obj.value}}{unit|人}{percent|${percent}}{unit|%}`
-          `{iconName|}{offsetBlock|}{name|${name}}{percent|${percent}}{unit|%}`
-        ]
-        return arr.join('')
+        return `{iconName|}{offsetBlock|}{name|${name}}{percent|${percent}}{unit|%}`
       },
       align: 'right',
       textStyle: {
@@ -106,16 +104,16 @@ onMounted(() => {
           unit: { color: 'rgba(255,255,255, 0.7)', fontSize: 14 }
         }
       },
-      data: s1_data.map((dItem, dIndex) => {
+      data: safeData.map((dItem, dIndex) => {
         let maxLen = 0
-        s1_data.forEach((item) => { if (maxLen < item.name.length) maxLen = item.name.length })
+        safeData.forEach((item) => { if (maxLen < item.name.length) maxLen = item.name.length })
         return {
           ...dItem,
           textStyle: {
             rich: {
-              iconName: { width: 8, height: 8, borderRadius: 2, backgroundColor: colorList[dIndex] },
-              percent: { color: colorList[dIndex] },
-              value: { color: colorList[dIndex] },
+              iconName: { width: 8, height: 8, borderRadius: 2, backgroundColor: colorList[dIndex % colorList.length] },
+              percent: { color: colorList[dIndex % colorList.length] },
+              value: { color: colorList[dIndex % colorList.length] },
               offsetBlock: { width: 8, padding: [0, -((maxLen - dItem.name.length) * 1), 0, 0], height: 8 },
               name: { width: maxLen * 20, padding: [0, 0 + ((maxLen - dItem.name.length) * 1), 0, 0] }
             }
@@ -131,7 +129,7 @@ onMounted(() => {
         radius: ['55%', '60%'],
         center: ['25%', '50%'],
         itemStyle: {
-          color: function (params) { return colorList1[params.dataIndex] }
+          color: function (params) { return colorList1[params.dataIndex % colorList1.length] }
         },
         label: { show: false },
         data: optionData
@@ -158,8 +156,25 @@ onMounted(() => {
       }
     ]
   }
+}
 
-  chartInstance.setOption(option)
+onMounted(() => {
+  chartInstance = echarts.init(chartRef.value)
+
+  const renderChart = async () => {
+    try {
+      const response = await getEmploymentStatusCount()
+      const list = Array.isArray(response?.data) ? response.data : []
+      statusData.value = mergeInternToEmployed(list)
+      chartInstance.setOption(buildChartOption(statusData.value), true)
+    } catch (error) {
+      console.error('获取就业去向总体分布失败:', error)
+      statusData.value = []
+      chartInstance.setOption(buildChartOption([]), true)
+    }
+  }
+
+  renderChart()
 
   const handleResize = () => {
     chartInstance?.resize()

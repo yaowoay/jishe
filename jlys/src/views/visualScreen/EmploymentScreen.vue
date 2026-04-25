@@ -326,10 +326,10 @@ onMounted(() => {
   这样上下两个组件的高度就被“缩小”了
 */
 .left-column .chart-container:nth-child(1) {
-  height: calc((100% - 30px) * 0.3);
+  height: calc((100% - 30px) * 0.29);
 }
 .left-column .chart-container:nth-child(2) {
-  height: calc((100% - 30px) * 0.33);
+  height: calc((100% - 30px) * 0.3);
 }
 .left-column .chart-container:nth-child(3) {
   height: calc((100% - 30px) * 0.3);
@@ -358,11 +358,11 @@ onMounted(() => {
   height: calc((100% - 15px) * 0.28); /* 调大 */
 }
 .right-column .chart-container:nth-child(2) {
-  height: calc((100% - 15px) * 0.3); /* 调小 */
+  height: calc((100% - 15px) * 0.28); /* 调小 */
 }
 
 .right-column .chart-container:nth-child(3) {
-  height: calc((100% - 15px) * 0.33); /* 调小 */
+  height: calc((100% - 15px) * 0.3); /* 调小 */
 }
 
 /* 让图表组件本身(如 <RadioComp/>) 自动充满其父容器 */
