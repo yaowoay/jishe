@@ -42,6 +42,11 @@ let myChart = null
 let timer = null
 
 const mapEcharts = (geoJSON) => {
+  // 校验 geoJSON 数据
+  if (!geoJSON || !geoJSON.features) {
+    console.error('GeoJSON 数据无效:', geoJSON)
+    return
+  }
   myChart = echarts.init(document.querySelector('#mapDom'))
   echarts.registerMap('china', geoJSON)
 

@@ -48,8 +48,8 @@
             </el-descriptions-item>
             <el-descriptions-item label="档案完整度" span="2">
               <el-progress 
-                :percentage="profileData.profileCompletion || 0" 
-                :color="getProgressColor(profileData.profileCompletion)"
+                :percentage="computedCompletion"
+                :color="getProgressColor(computedCompletion)"
               />
             </el-descriptions-item>
           </el-descriptions>
@@ -217,6 +217,27 @@ export default {
           { required: true, message: '请选择教师角色', trigger: 'change' }
         ]
       }
+    }
+  },
+  computed: {
+    // 前端实时计算档案完整度
+    computedCompletion() {
+      if (!this.profileData) return 0
+
+      let score = 0
+      // 每项15分：工号、真实姓名、教师角色、所属学院（4项，共60分）
+      if (this.profileData.teacherNo && this.profileData.teacherNo.trim()) score += 15
+      if (this.profileData.realName && this.profileData.realName.trim()) score += 15
+      if (this.profileData.roleType && this.profileData.roleType.trim()) score += 15
+      if (this.profileData.collegeId) score += 15
+
+      // 每项10分：手机号、邮箱、管理学院、管理专业（4项，共40分）
+      if (this.profileData.phone && this.profileData.phone.trim()) score += 10
+      if (this.profileData.email && this.profileData.email.trim()) score += 10
+      if (this.profileData.managedColleges && this.profileData.managedColleges.trim()) score += 10
+      if (this.profileData.managedMajors && this.profileData.managedMajors.trim()) score += 10
+
+      return Math.min(100, score)
     }
   },
   async mounted() {

@@ -56,6 +56,10 @@ public class TeacherController {
     private final FileUploadConfig fileUploadConfig;
 
 
+    @GetMapping("/test")
+    public ApiResponse<String> test() {
+        return ApiResponse.success("test ok", "hello");
+    }
     @GetMapping("/profile")
     public ApiResponse<TeacherProfileDTO> getProfile(HttpServletRequest request) {
         try {

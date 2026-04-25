@@ -3,7 +3,7 @@ import request from './index'
 // 完善教师档案
 export function completeTeacherProfile(data) {
   return request({
-    url: '/teacher/profile/complete',
+    url: '/teacher/profile',
     method: 'post',
     data
   })

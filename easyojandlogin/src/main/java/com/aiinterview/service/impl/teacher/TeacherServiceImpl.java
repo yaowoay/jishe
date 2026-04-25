@@ -425,8 +425,8 @@ public class TeacherServiceImpl implements TeacherService {
             warning.setDetectionTime(LocalDateTime.now());
             warning.setHandleStatus("pending");
             warning.setAssignedTo(userId);
-            warning.setIsNotified(true);
-            warning.setNotifyTime(LocalDateTime.now());
+        /*    warning.setIsNotified(true);
+            warning.setNotifyTime(LocalDateTime.now());*/
             warning.setStudentViewed(false);
 
             earlyWarningResultMapper.insert(warning);

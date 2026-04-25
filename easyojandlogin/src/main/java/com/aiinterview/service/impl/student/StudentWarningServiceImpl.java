@@ -102,7 +102,7 @@ public class StudentWarningServiceImpl implements StudentWarningService {
             throw new RuntimeException("无权限操作此预警");
         }
         
-        warning.setStudentResponse(response);
+//        warning.setStudentResponse(response);
         warning.setStudentViewed(true);
         if (warning.getStudentViewTime() == null) {
             warning.setStudentViewTime(LocalDateTime.now());

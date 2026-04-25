@@ -383,7 +383,7 @@ export default {
 .ai-dashboard-container {
   padding: 0;
   background: #f5f9ff;
-  min-height: calc(100vh - 64px);
+  min-height:auto
 }
 
 /* 顶部标题区域 */

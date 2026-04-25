@@ -1,3 +1,4 @@
+/*
 package com.aiinterview.config;
 
 import com.alibaba.druid.pool.DruidDataSource;
@@ -9,10 +10,12 @@ import org.springframework.jdbc.core.JdbcTemplate;
 
 import javax.sql.DataSource;
 
+*/
 /**
  * Doris 只读数据源配置。
  * 采用 MySQL 协议连接 Doris FE，适合统计、报表、分析类查询。
- */
+ *//*
+
 @Configuration
 public class DorisDataSourceConfig {
 
@@ -26,4 +29,4 @@ public class DorisDataSourceConfig {
     public JdbcTemplate dorisJdbcTemplate(@Qualifier("dorisDataSource") DataSource dorisDataSource) {
         return new JdbcTemplate(dorisDataSource);
     }
-}
+}*/

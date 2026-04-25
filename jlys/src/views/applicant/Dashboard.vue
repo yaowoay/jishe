@@ -105,7 +105,7 @@
     <div class="function-cards">
       <el-row :gutter="24">
         <el-col :xs="24" :md="8">
-          <el-card class="func-card" shadow="hover" @click="$router.push('/applicant/resume/manage')">
+          <el-card class="func-card" shadow="hover" @click="$router.push('/applicant/resume/analysis')">
             <div class="card-content">
               <el-icon class="func-icon"><Document /></el-icon>
               <div class="func-title">大数据简历工坊</div>

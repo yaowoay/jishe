@@ -11,14 +11,15 @@ server:
 spring:
   application:
     name: ai-interview-backend
-
+  mvc:
+    async:
+      request-timeout: 300000  # 5分钟
   # 数据源配置
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://localhost:3306/ai_interview_v2?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
     username: root
-    password: jyl123456
-    # Druid连接池配置
+    password: 12345   # Druid连接池配置
     type: com.alibaba.druid.pool.DruidDataSource
     druid:
       initial-size: 5
@@ -33,29 +34,6 @@ spring:
       test-on-return: false
       pool-prepared-statements: true
       max-pool-prepared-statement-per-connection-size: 20
-
-  # Doris 只读数据源配置
-  # 默认使用 MySQL 驱动直连 Doris FE 的 MySQL 协议端口，通常是 9030
-
-app:
-  datasource:
-    doris:
-      driver-class-name: com.mysql.cj.jdbc.Driver
-      url: jdbc:mysql://master:9030/realtime?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
-      username: root
-      password: ""
-      type: com.alibaba.druid.pool.DruidDataSource
-      druid:
-        initial-size: 2
-        min-idle: 1
-        max-active: 10
-        max-wait: 30000
-        time-between-eviction-runs-millis: 60000
-        min-evictable-idle-time-millis: 300000
-        validation-query: SELECT 1
-        test-while-idle: true
-        test-on-borrow: false
-        test-on-return: false
 
   # Redis配置
   redis:
@@ -90,6 +68,7 @@ app:
     date-format: yyyy-MM-dd HH:mm:ss
     time-zone: GMT+8
     default-property-inclusion: non_null
+
 
 
   sql:
@@ -201,9 +180,9 @@ xunfei:
     # 简历生成服务URL
     host-url: "https://cn-huadong-1.xf-yun.com/v1/private/s73f4add9"
     # 临时测试配置 - 请替换为您的实际配置
-    app-id: "36b030a4"
-    api-key: "4403264f32c816a1f35804ed27c5b811"
-    api-secret: "NTI5YWJkMjRkZjVkZWU2YzcyMTU4MmZl"
+    app-id: "578d2d9e"
+    api-key: "54b9d92325aa12db69398091421285d9"
+    api-secret: "ZDBiMGI0MzY4YTI4YTlkYTQ1NzgyYTcy"
     # 连接超时时间(秒)
     connect-timeout: 30
     # 读取超时时间(秒)
@@ -226,7 +205,7 @@ video:
 
     # 视频上传配置
     upload:
-      path: E:\MyFiles\VideoUploads
+      path: E:\Projects\hautproject\2026\li\easyojandlogin\src\main\resources\videos
       url-prefix: http://localhost:8080/api/videos
       max-size: 100MB
       allowed-formats: mp4,avi,mov,mkv
