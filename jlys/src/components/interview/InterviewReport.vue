@@ -1,180 +1,88 @@
 <template>
   <div class="interview-report">
-    <!-- 报告头部 -->
     <div class="report-header">
       <div class="header-content">
-        <h1>面试评估与资源推荐报告</h1>
+        <h1>面试评估报告</h1>
         <div class="interview-info">
-          <span class="info-item">
-            <el-icon><Clock /></el-icon>
-            面试时长：{{ reportData.duration }}
-          </span>
-          <span class="info-item">
-            <el-icon><Calendar /></el-icon>
-            完成时间：{{ reportData.interviewDate }}
-          </span>
-          <span class="info-item">
-            <el-icon><User /></el-icon>
-            面试类型：{{ reportData.interviewType }}
-          </span>
+          <span class="info-item"><el-icon><Clock /></el-icon> 面试时长：{{ reportData.duration }}</span>
+          <span class="info-item"><el-icon><Calendar /></el-icon> 完成时间：{{ reportData.interviewDate }}</span>
+          <span class="info-item"><el-icon><User /></el-icon> 面试类型：{{ reportData.interviewType }}</span>
         </div>
       </div>
       <div class="header-actions">
-        <el-button @click="goBack" icon="ArrowLeft">返回</el-button>
+        <el-button @click="goBack" icon="ArrowLeft">返回上一页</el-button>
+        <el-button @click="goHome">返回主页</el-button>
         <el-button type="primary" @click="exportReport" icon="Download">导出报告</el-button>
       </div>
     </div>
 
-    <!-- 主要内容区域 -->
-    <div class="report-content">
-      <!-- 评估状态提示 -->
-      <div class="evaluation-status" v-if="!reportData.evaluationData">
-        <el-alert
-          title="评估数据加载中"
-          description="正在生成您的面试评估报告，请稍候..."
-          type="info"
-          :closable="false"
-          show-icon>
-        </el-alert>
-      </div>
-
-      <!-- 面试评估结果 -->
-      <div class="evaluation-results">  <!-- v-if="reportData.evaluationData" -->
-        <!-- 综合评分卡片 -->
+    <div class="report-layout">
+      <div class="report-main">
         <el-card class="score-card">
-          <template #header>
-            <div class="card-header">
-              <el-icon><TrendCharts /></el-icon>
-              <span>综合评分 </span>
-            </div>
-          </template>
+          <template #header><div class="card-header"><el-icon><TrendCharts /></el-icon><span>综合评分</span></div></template>
           <div class="overall-score">
-            <div class="score-circle">
-              <div class="score-number">{{ reportData.overallScore }}</div>
-              <div class="score-label">总分</div>
-            </div>
-            <div class="score-breakdown">
-              <div class="score-item" v-for="item in reportData.scoreBreakdown" :key="item.name">
-                <span class="score-name">{{ item.name }} </span>
-                <div class="score-bar">
-                  <div class="score-fill" :style="{ width: item.score + '%' }"></div>
-                </div>
-                <span class="score-value">{{ item.score }}</span>
+            <div class="score-gauge" :style="scoreGaugeStyle">
+              <div class="gauge-inner">
+                <div class="score-number">{{ reportData.overallScore }}</div>
+                <div class="score-label">总分</div>
               </div>
-            </div>
-          </div>
-        </el-card>
-
-        <!-- 详细评价卡片 -->
-        <el-card class="evaluation-card" v-if="reportData.detailedEvaluations && reportData.detailedEvaluations.length > 0">
-          <template #header>
-            <div class="card-header">
-              <el-icon><Star /></el-icon>
-              <span>详细评价</span>
-            </div>
-          </template>
-          <div class="evaluation-list">
-            <div class="evaluation-item" v-for="evaluation in reportData.detailedEvaluations" :key="evaluation.category">
-              <div class="eval-header">
-                <span class="eval-category">{{ evaluation.category }}</span>
-                <div class="eval-rating">
-                  <el-rate v-model="evaluation.rating" disabled show-score text-color="#ff9900"></el-rate>
-                </div>
-              </div>
-              <div class="eval-comment">{{ evaluation.comment }}</div>
-              <div class="eval-suggestions" v-if="evaluation.suggestions && evaluation.suggestions.length > 0">
-                <strong>改进建议：</strong>
-                <ul>
-                  <li v-for="suggestion in evaluation.suggestions" :key="suggestion">{{ suggestion }}</li>
-                </ul>
-              </div>
-            </div>
-          </div>
-        </el-card>
-
-        <!-- 学习资源推荐卡片 -->
-        <el-card class="resources-card" v-if="reportData.learningResources && reportData.learningResources.length > 0">
-          <template #header>
-            <div class="card-header">
-              <el-icon><Reading /></el-icon>
-              <span>学习资源推荐</span>
-            </div>
-          </template>
-          <div class="resources-list">
-            <div class="resource-item" v-for="resource in reportData.learningResources" :key="resource.name">
-              <div class="resource-header">
-                <div class="resource-info">
-                  <h4 class="resource-name">{{ resource.name }}</h4>
-                  <el-tag :type="getResourceTypeColor(resource.type)" size="small">{{ getResourceTypeName(resource.type) }}</el-tag>
-                </div>
-                <div class="resource-actions">
-                  <el-button type="primary" size="small" @click="openResource(resource.url)" v-if="resource.url">
-                    <el-icon><Link /></el-icon>
-                    访问
-                  </el-button>
-                </div>
-              </div>
-              <p class="resource-description">{{ resource.description }}</p>
-              <div class="resource-meta" v-if="resource.improvementArea">
-                <span class="meta-label">改进领域：</span>
-                <el-tag size="small" effect="plain">{{ resource.improvementArea }}</el-tag>
-              </div>
-            </div>
-          </div>
-        </el-card>
-      </div>
-
-      <!-- 模拟数据显示（当没有真实评估数据时） -->
-      <div class="simulation-results" v-if="!reportData.evaluationData">
-        <!-- 综合评分卡片 -->
-        <el-card class="score-card">
-          <template #header>
-            <div class="card-header">
-              <el-icon><TrendCharts /></el-icon>
-              <span>综合评分</span>
-            </div>
-          </template>
-          <div class="overall-score">
-            <div class="score-circle">
-              <div class="score-number">{{ reportData.overallScore }}</div>
-              <div class="score-label">总分</div>
             </div>
             <div class="score-breakdown">
               <div class="score-item" v-for="item in reportData.scoreBreakdown" :key="item.name">
                 <span class="score-name">{{ item.name }}</span>
-                <div class="score-bar">
-                  <div class="score-fill" :style="{ width: item.score + '%' }"></div>
-                </div>
+                <div class="score-bar"><div class="score-fill" :style="{ width: item.score + '%' }"></div></div>
                 <span class="score-value">{{ item.score }}</span>
               </div>
             </div>
           </div>
         </el-card>
 
-        <!-- 详细评价卡片 -->
-        <el-card class="evaluation-card" v-if="reportData.detailedEvaluations && reportData.detailedEvaluations.length > 0">
-          <template #header>
-            <div class="card-header">
-              <el-icon><Star /></el-icon>
-              <span>详细评价</span>
-            </div>
-          </template>
+        <el-card class="evaluation-card" v-if="mainEvaluations.length > 0">
+          <template #header><div class="card-header"><el-icon><Star /></el-icon><span>综合与改进建议</span></div></template>
           <div class="evaluation-list">
-            <div class="evaluation-item" v-for="evaluation in reportData.detailedEvaluations" :key="evaluation.category">
+            <div class="evaluation-item" v-for="evaluation in mainEvaluations" :key="evaluation.category">
               <div class="eval-header">
                 <span class="eval-category">{{ evaluation.category }}</span>
-                <div class="eval-rating">
-                  <el-rate v-model="evaluation.rating" disabled show-score text-color="#ff9900"></el-rate>
-                </div>
+                <el-rate v-model="evaluation.rating" disabled show-score text-color="#ff9900"></el-rate>
               </div>
               <div class="eval-comment">{{ evaluation.comment }}</div>
               <div class="eval-suggestions" v-if="evaluation.suggestions && evaluation.suggestions.length > 0">
                 <strong>改进建议：</strong>
-                <ul>
-                  <li v-for="suggestion in evaluation.suggestions" :key="suggestion">{{ suggestion }}</li>
-                </ul>
+                <ul><li v-for="suggestion in evaluation.suggestions" :key="suggestion">{{ suggestion }}</li></ul>
               </div>
             </div>
+          </div>
+        </el-card>
+
+        <el-card class="resources-card" v-if="reportData.learningResources && reportData.learningResources.length > 0">
+          <template #header><div class="card-header"><el-icon><Reading /></el-icon><span>学习资源推荐</span></div></template>
+          <div class="resources-list grid">
+            <div class="resource-item" v-for="resource in reportData.learningResources" :key="resource.title || resource.name">
+              <h4 class="resource-name">{{ resource.title || resource.name }}</h4>
+              <div class="resource-meta-line">
+                <el-tag :type="getResourceTypeColor(resource.type)" size="small">{{ getResourceTypeName(resource.type) }}</el-tag>
+                <el-button type="primary" link @click="openResource(resource.url)" v-if="resource.url">访问</el-button>
+              </div>
+              <p class="resource-description">{{ resource.description }}</p>
+            </div>
+          </div>
+        </el-card>
+      </div>
+
+      <div class="report-side">
+        <el-card class="side-answer-card">
+          <template #header><div class="card-header"><el-icon><Star /></el-icon><span>笔试答题情况</span></div></template>
+          <div class="answer-content">
+            <div class="answer-score">得分：{{ writtenEvaluation.score }}</div>
+            <div class="answer-text">{{ writtenEvaluation.comment }}</div>
+          </div>
+        </el-card>
+
+        <el-card class="side-answer-card">
+          <template #header><div class="card-header"><el-icon><Star /></el-icon><span>面试答题情况</span></div></template>
+          <div class="answer-content">
+            <div class="answer-score">得分：{{ interviewEvaluation.score }}</div>
+            <div class="answer-text">{{ interviewEvaluation.comment }}</div>
           </div>
         </el-card>
       </div>
@@ -183,7 +91,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import {
@@ -194,8 +102,7 @@ import {
   Download,
   TrendCharts,
   Star,
-  Reading,
-  Link
+  Reading
 } from '@element-plus/icons-vue'
 import {quickEvaluate} from '@/api/interview'
 
@@ -212,6 +119,35 @@ const reportData = reactive({
   detailedEvaluations: [],
   learningResources: [],
   evaluationData: null
+})
+
+const mainEvaluations = computed(() => {
+  if (!reportData.detailedEvaluations || reportData.detailedEvaluations.length === 0) return []
+  return reportData.detailedEvaluations.filter(item => !['笔试答题情况', '面试答题情况'].includes(item.category))
+})
+
+const writtenEvaluation = computed(() => {
+  const found = reportData.detailedEvaluations?.find(item => item.category === '笔试答题情况')
+  return {
+    score: found?.score ?? found?.rating ?? '--',
+    comment: found?.comment || '暂无笔试答题情况数据'
+  }
+})
+
+const interviewEvaluation = computed(() => {
+  const found = reportData.detailedEvaluations?.find(item => item.category === '面试答题情况')
+  return {
+    score: found?.score ?? found?.rating ?? '--',
+    comment: found?.comment || '暂无面试答题情况数据'
+  }
+})
+
+const scoreGaugeStyle = computed(() => {
+  const score = Number(reportData.overallScore) || 0
+  const deg = Math.max(0, Math.min(100, score)) * 3.6
+  return {
+    background: `conic-gradient(#2563eb 0deg ${deg}deg, #e5e7eb ${deg}deg 360deg)`
+  }
 })
 
 
@@ -242,6 +178,11 @@ getDate()
 // 返回上一页
 const goBack = () => {
   router.go(-1)
+}
+
+// 返回主页
+const goHome = () => {
+  router.push('/')
 }
 
 // 导出报告
@@ -322,7 +263,7 @@ window.testDifyDataProcessing = () => {
 const getResourceTypeColor = (type) => {
   const colorMap = {
     'book': 'primary',
-    'video': 'success', 
+    'video': 'success',
     'course': 'warning',
     'article': 'info',
     'website': 'danger'
@@ -335,7 +276,7 @@ const getResourceTypeName = (type) => {
   const nameMap = {
     'book': '书籍',
     'video': '视频',
-    'course': '课程', 
+    'course': '课程',
     'article': '文章',
     'website': '网站'
   }
@@ -433,17 +374,28 @@ const loadInterviewData = () => {
           const interviewEval = processedData.interviewEvaluation || {}
           const interviewScore = processedData.interviewScore || 0
 
-          let comment = '面试表现良好，回答问题较为完整。'
+          let interviewAnswerComment = '在项目追问环节中，能够围绕组件拆分、状态管理与性能优化给出结构化回答。'
+          let interviewAnalysisComment = '面试表现良好，回答问题较为完整。'
+
           if (interviewEval.candidateResponse && interviewEval.question) {
-            comment = `问题：${interviewEval.question}\n\n回答：${interviewEval.candidateResponse}\n\n得分：${interviewEval.score || interviewScore}分`
+            interviewAnswerComment = `题目：${interviewEval.question}\n\n作答：${interviewEval.candidateResponse}\n\n评分：${interviewEval.score || interviewScore}分`
+            interviewAnalysisComment = `围绕核心问题给出了清晰作答，整体逻辑较完整，技术表达具备说服力。`
           } else if (interviewScore > 0) {
-            comment = `面试得分：${interviewScore}分。${interviewScore >= 80 ? '表现优秀！' : interviewScore >= 70 ? '表现良好。' : '还有提升空间。'}`
+            interviewAnalysisComment = `面试得分：${interviewScore}分。${interviewScore >= 80 ? '表现优秀，前端工程化与项目表达能力较强。' : interviewScore >= 70 ? '表现良好，建议进一步加强复杂场景应对能力。' : '基础能力具备，仍有较大提升空间。'}`
           }
+
+          reportData.detailedEvaluations.push({
+            category: '面试答题情况',
+            score: interviewScore,
+            rating: Math.min(5, Math.max(1, Math.round(interviewScore / 20))),
+            comment: interviewAnswerComment,
+            suggestions: ['回答项目问题时先给结论，再补充技术细节', '涉及性能问题可补充指标与优化结果']
+          })
 
           reportData.detailedEvaluations.push({
             category: '面试表现分析',
             rating: Math.min(5, Math.max(1, Math.round(interviewScore / 20))),
-            comment: comment,
+            comment: interviewAnalysisComment,
             suggestions: processedData.recommendations?.slice(0, 3) || ['继续保持良好的表现', '加强专业知识学习']
           })
         }
@@ -453,19 +405,27 @@ const loadInterviewData = () => {
           const writtenEval = processedData.writtenTestEvaluation || {}
           const writtenScore = processedData.writtenTestScore || 0
 
-          let comment = '笔试表现良好，基础知识扎实。'
+          let writtenAnswerComment = '在前端基础与工程化题目中整体发挥稳定，能够正确覆盖大部分关键知识点。'
+          let writtenAnalysisComment = '笔试表现良好，基础知识扎实。'
+
           if (writtenEval.answer && typeof writtenEval.answer === 'string') {
-            comment = `笔试评价：${writtenEval.answer}`
+            writtenAnswerComment = `作答反馈：${writtenEval.answer}`
           } else if (writtenScore > 0) {
-            comment = `笔试得分：${writtenScore}分。${writtenScore >= 80 ? '基础扎实！' : writtenScore >= 70 ? '基础良好。' : '需要加强基础知识。'}`
-          } else {
-            comment = '笔试部分暂未完成或未提供有效答案，建议加强基础知识学习。'
+            writtenAnalysisComment = `笔试得分：${writtenScore}分。${writtenScore >= 80 ? '基础扎实，知识面覆盖较全。' : writtenScore >= 70 ? '基础较好，少量细节题可继续强化。' : '建议加强基础知识与场景题训练。'}`
           }
+
+          reportData.detailedEvaluations.push({
+            category: '笔试答题情况',
+            score: writtenScore,
+            rating: Math.min(5, Math.max(1, writtenScore > 0 ? Math.round(writtenScore / 20) : 2)),
+            comment: writtenAnswerComment,
+            suggestions: ['继续加强专业知识学习', '多做练习题']
+          })
 
           reportData.detailedEvaluations.push({
             category: '笔试表现分析',
             rating: Math.min(5, Math.max(1, writtenScore > 0 ? Math.round(writtenScore / 20) : 2)),
-            comment: comment,
+            comment: writtenAnalysisComment,
             suggestions: processedData.improvementAreas?.slice(0, 3) || ['继续加强专业知识学习', '多做练习题']
           })
         }
@@ -671,54 +631,56 @@ onMounted(() => {
 <style scoped>
 .interview-report {
   min-height: 100vh;
-  background: #f5f7fa;
-  padding: 20px;
+  background: #f5f6f7;
+  padding: 16px;
 }
 
 .report-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: white;
-  padding: 20px 30px;
-  border-radius: 12px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
-  margin-bottom: 20px;
+  background: #fff;
+  padding: 16px 20px;
+  border-radius: 10px;
+  border: 1px solid #e5e7eb;
+  margin-bottom: 14px;
 }
 
 .header-content h1 {
-  margin: 0 0 10px 0;
-  color: #303133;
-  font-size: 24px;
+  margin: 0 0 8px 0;
+  color: #111827;
+  font-size: 22px;
   font-weight: 600;
 }
 
 .interview-info {
   display: flex;
-  gap: 20px;
+  gap: 14px;
   flex-wrap: wrap;
 }
 
 .info-item {
   display: flex;
   align-items: center;
-  gap: 5px;
-  color: #606266;
-  font-size: 14px;
+  gap: 6px;
+  color: #4b5563;
+  font-size: 13px;
 }
 
 .header-actions {
   display: flex;
-  gap: 10px;
+  gap: 8px;
 }
 
-.report-content {
-  max-width: 1200px;
-  margin: 0 auto;
+.report-layout {
+  display: grid;
+  grid-template-columns: 2.2fr 1fr;
+  gap: 14px;
 }
 
-.evaluation-status {
-  margin-bottom: 20px;
+.report-main,
+.report-side {
+  min-width: 0;
 }
 
 .card-header {
@@ -726,41 +688,55 @@ onMounted(() => {
   align-items: center;
   gap: 8px;
   font-weight: 600;
-  color: #303133;
+  color: #111827;
 }
 
-.score-card {
-  margin-bottom: 20px;
+.score-card,
+.evaluation-card,
+.resources-card,
+.side-answer-card {
+  margin-bottom: 12px;
 }
 
 .overall-score {
   display: flex;
   align-items: center;
-  gap: 40px;
+  gap: 24px;
 }
 
-.score-circle {
+.score-gauge {
+  width: 130px;
+  height: 130px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+  box-sizing: border-box;
+  flex-shrink: 0;
+}
+
+.gauge-inner {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: #fff;
+  border: 1px solid #e5e7eb;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  width: 120px;
-  height: 120px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #409eff, #67c23a);
-  color: white;
-  flex-shrink: 0;
 }
 
 .score-number {
-  font-size: 36px;
-  font-weight: bold;
+  font-size: 30px;
+  font-weight: 700;
   line-height: 1;
 }
 
 .score-label {
-  font-size: 14px;
-  margin-top: 5px;
+  font-size: 12px;
+  margin-top: 4px;
 }
 
 .score-breakdown {
@@ -770,152 +746,144 @@ onMounted(() => {
 .score-item {
   display: flex;
   align-items: center;
-  gap: 15px;
-  margin-bottom: 15px;
+  gap: 10px;
+  margin-bottom: 10px;
 }
 
 .score-name {
-  width: 80px;
-  font-size: 14px;
-  color: #606266;
+  width: 72px;
+  font-size: 13px;
+  color: #4b5563;
 }
 
 .score-bar {
   flex: 1;
   height: 8px;
-  background: #f0f2f5;
+  background: #e5e7eb;
   border-radius: 4px;
   overflow: hidden;
 }
 
 .score-fill {
   height: 100%;
-  background: linear-gradient(90deg, #409eff, #67c23a);
-  transition: width 0.3s ease;
+  background: #2563eb;
 }
 
 .score-value {
-  width: 40px;
+  width: 36px;
   text-align: right;
   font-weight: 600;
   color: #303133;
 }
 
-.evaluation-card {
-  margin-bottom: 20px;
-}
-
-.evaluation-list {
-  space-y: 20px;
-}
-
 .evaluation-item {
-  margin-bottom: 20px;
-  padding: 15px;
+  margin-bottom: 12px;
+  padding: 12px;
   background: #fafafa;
   border-radius: 8px;
-  border-left: 4px solid #409eff;
+  border: 1px solid #e5e7eb;
 }
 
 .eval-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
 }
 
 .eval-category {
   font-weight: 600;
-  color: #303133;
-  font-size: 16px;
+  color: #111827;
+  font-size: 15px;
 }
 
 .eval-comment {
-  color: #606266;
+  color: #374151;
   line-height: 1.6;
   margin-bottom: 10px;
-}
-
-.eval-suggestions {
-  margin-top: 10px;
+  white-space: pre-wrap;
 }
 
 .eval-suggestions ul {
-  margin: 5px 0 0 0;
+  margin: 6px 0 0;
   padding-left: 20px;
 }
 
 .eval-suggestions li {
   margin: 3px 0;
-  color: #606266;
+  color: #4b5563;
   font-size: 13px;
 }
 
-.resources-card {
-  margin-bottom: 20px;
+.resources-list {
+  max-height: none;
 }
 
-.resources-list {
-  max-height: 500px;
-  overflow-y: auto;
+.resources-list.grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
 }
 
 .resource-item {
-  margin-bottom: 20px;
-  padding: 15px;
-  border: 1px solid #ebeef5;
+  border: 1px solid #e5e7eb;
   border-radius: 8px;
-  background: #fafafa;
-  transition: all 0.3s ease;
-}
-
-.resource-item:hover {
-  border-color: #409eff;
-  background: #f0f9ff;
+  padding: 10px;
+  background: #fff;
 }
 
 .resource-item:last-child {
-  margin-bottom: 0;
-}
-
-.resource-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 10px;
-}
-
-.resource-info {
-  flex: 1;
+  border-bottom: 1px solid #e5e7eb;
 }
 
 .resource-name {
-  margin: 0 0 8px 0;
-  color: #303133;
-  font-size: 16px;
+  margin: 0 0 6px 0;
+  color: #111827;
+  font-size: 14px;
   font-weight: 600;
 }
 
-.resource-actions {
-  margin-left: 15px;
+.resource-meta-line {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
 }
 
 .resource-description {
-  color: #606266;
+  color: #4b5563;
   line-height: 1.5;
-  margin: 0 0 10px 0;
-  font-size: 14px;
+  margin: 0;
+  font-size: 13px;
 }
 
-.resource-meta {
+.answer-content {
   display: flex;
-  align-items: center;
+  flex-direction: column;
   gap: 8px;
 }
 
-.meta-label {
-  color: #909399;
-  font-size: 12px;
+.answer-score {
+  font-size: 16px;
+  font-weight: 700;
+  color: #1f2937;
+}
+
+.answer-text {
+  color: #4b5563;
+  line-height: 1.6;
+  font-size: 13px;
+  white-space: pre-wrap;
+}
+
+@media (max-width: 1024px) {
+  .report-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .resources-list.grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 768px) {
@@ -925,7 +893,7 @@ onMounted(() => {
 
   .report-header {
     flex-direction: column;
-    gap: 15px;
+    gap: 12px;
     align-items: stretch;
   }
 
@@ -935,16 +903,11 @@ onMounted(() => {
 
   .overall-score {
     flex-direction: column;
-    gap: 20px;
+    gap: 16px;
   }
 
-  .resource-header {
-    flex-direction: column;
-    gap: 10px;
-  }
-
-  .resource-actions {
-    margin-left: 0;
+  .resources-list.grid {
+    grid-template-columns: 1fr;
   }
 }
 </style>

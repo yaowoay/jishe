@@ -6,12 +6,12 @@
     @mouseleave="$emit('mouseleave')"
   >
     <div class="step-badge"><span>②</span></div>
-    <template v-if="hovered || active">
+    <div v-show="hovered || active">
       <div class="step-header"><el-icon class="step-icon"><i class="el-icon-edit"></i></el-icon> 第二步：笔试设置</div>
-      <el-form 
-        :model="localSettings" 
-        :rules="examRules" 
-        ref="examFormRef" 
+      <el-form
+        :model="localSettings"
+        :rules="examRules"
+        ref="examFormRef"
         label-width="120px"
         class="exam-form"
       >
@@ -54,15 +54,16 @@
           <el-input v-model="localSettings.focusArea" placeholder="请输入重点考察领域" clearable @change="emitUpdate" />
         </el-form-item>
       </el-form>
-    </template>
-    <template v-else>
+    </div>
+
+    <div v-show="!(hovered || active)">
       <div class="step-header mini"><el-icon class="step-icon"><i class="el-icon-edit"></i></el-icon> 笔试设置</div>
       <div v-if="isComplete" class="mini-brief set">
         <el-icon class="mini-done"><i class="el-icon-check"></i></el-icon>
         <span>{{ localSettings.jobPosition }} / {{ localSettings.questionCount }}题</span>
       </div>
       <div v-else class="mini-brief">配置职位、技能等</div>
-    </template>
+    </div>
   </div>
 </template>
 

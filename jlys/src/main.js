@@ -11,43 +11,45 @@ import * as ElementPlusIconsVue from '@element-plus/icons-vue'
 // 全局样式
 import '@/styles/global.css'
 
-// 解决 ResizeObserver 错误
-const debounce = (fn, delay) => {
-  let timeoutId
-  return (...args) => {
-    clearTimeout(timeoutId)
-    timeoutId = setTimeout(() => fn.apply(null, args), delay)
-  }
+// 注意：不要重写 window.ResizeObserver。
+// 之前对 ResizeObserver 回调做 debounce，会导致组件卸载后回调延迟触发，
+// Element Plus 内部可能拿到 null 引用并调用 getBoundingClientRect，从而报错。
+// 这里只保留错误过滤，避免破坏第三方组件时序。
+
+// 捕获并忽略 ResizeObserver 错误（避免被 webpack-dev-server overlay 红屏）
+const isResizeObserverNoise = (msg = '') => {
+  return msg.includes('ResizeObserver loop completed with undelivered notifications')
+    || msg.includes('ResizeObserver loop limit exceeded')
 }
 
-const _ResizeObserver = window.ResizeObserver
-window.ResizeObserver = class ResizeObserver extends _ResizeObserver {
-  constructor(callback) {
-    callback = debounce(callback, 20)
-    super(callback)
-  }
-}
-
-// 捕获并忽略 ResizeObserver 错误
 const resizeObserverErrorHandler = (e) => {
-  if (e.message === 'ResizeObserver loop completed with undelivered notifications.') {
-    return
-  }
-  // ✅ 新增：忽略 Element Plus 的 getBoundingClientRect 错误
-  if (e.message && e.message.includes('getBoundingClientRect')) {
-    console.warn('已忽略Element Plus渲染错误')
-    return
-  }
-  console.error(e)
-}
-window.addEventListener('error', resizeObserverErrorHandler)
+  const msg = e?.message || ''
 
-// ✅ 新增：捕获未处理的 Promise 拒绝
+  if (isResizeObserverNoise(msg)) {
+    e.stopImmediatePropagation?.()
+    e.preventDefault?.()
+    return false
+  }
+
+  // 忽略 Element Plus 偶发的布局计算报错噪声
+  if (msg.includes('getBoundingClientRect')) {
+    e.stopImmediatePropagation?.()
+    e.preventDefault?.()
+    return false
+  }
+
+  console.error(e)
+  return true
+}
+
+// 使用捕获阶段，优先于 overlay 处理
+window.addEventListener('error', resizeObserverErrorHandler, true)
+
+// 捕获未处理的 Promise 拒绝
 window.addEventListener('unhandledrejection', (e) => {
-  if (e.reason && e.reason.message && e.reason.message.includes('getBoundingClientRect')) {
+  const msg = e?.reason?.message || ''
+  if (isResizeObserverNoise(msg) || msg.includes('getBoundingClientRect')) {
     e.preventDefault()
-    console.warn('已忽略Element Plus Promise错误')
-    return
   }
 })
 

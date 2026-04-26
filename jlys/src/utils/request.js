@@ -48,13 +48,17 @@ service.interceptors.response.use(
     }
   },
   error => {
-    console.error('响应错误:', error)
-    
+    const status = error?.response?.status
+    const silent404 = error?.config?.silent404
+    if (!(silent404 && status === 404)) {
+      console.error('响应错误:', error)
+    }
+
     let message = '请求失败'
-    
+
     if (error.response) {
       const { status, data } = error.response
-      
+
       switch (status) {
       case 400:
         message = data.message || '请求参数错误'
@@ -84,7 +88,9 @@ service.interceptors.response.use(
       message = error.message || '请求配置错误'
     }
     
-    ElMessage.error(message)
+    if (!(silent404 && status === 404)) {
+      ElMessage.error(message)
+    }
     return Promise.reject(error)
   }
 )

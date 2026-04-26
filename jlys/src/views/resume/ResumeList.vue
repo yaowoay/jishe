@@ -27,8 +27,8 @@
               <el-icon><Document /></el-icon>
             </div>
             <div class="stat-info">
-              <div class="stat-number">{{ resumes.length }}</div>
-              <div class="stat-label">创建的简历</div>
+              <div class="stat-number">{{ draftResumes.length }}</div>
+              <div class="stat-label">草稿箱</div>
             </div>
           </div>
         </el-card>
@@ -39,8 +39,8 @@
               <el-icon><UploadFilled /></el-icon>
             </div>
             <div class="stat-info">
-              <div class="stat-number">{{ uploadedResumeList.length }}</div>
-              <div class="stat-label">上传的简历</div>
+              <div class="stat-number">{{ resumeListCount }}</div>
+              <div class="stat-label">简历列表</div>
             </div>
           </div>
         </el-card>
@@ -61,11 +61,11 @@
 
     <!-- Tab切换 -->
     <el-tabs v-model="activeTab" class="resume-tabs">
-      <!-- 创建的简历 -->
-      <el-tab-pane label="创建的简历" name="created">
+      <!-- 简历列表（上传 + 已保存） -->
+      <el-tab-pane label="简历列表" name="resumeList">
         <div class="resume-grid">
           <div
-              v-for="(resume, idx) in resumes"
+              v-for="(resume, idx) in resumeListResumes"
               :key="resume.id"
               class="resume-card"
               @click="previewResume(resume.id)"
@@ -139,18 +139,15 @@
           </div>
 
           <!-- 空状态 -->
-          <div v-if="resumes.length === 0" class="empty-state">
+          <div v-if="resumeListResumes.length === 0" class="empty-state">
             <el-empty description="还没有简历，快来创建第一份简历吧！">
               <el-button type="primary" @click="createNewResume">创建简历</el-button>
             </el-empty>
           </div>
         </div>
-      </el-tab-pane>
 
-      <!-- 上传的简历 -->
-      <el-tab-pane label="上传的简历" name="uploaded">
         <!-- 已上传简历列表 -->
-        <div class="uploaded-resume-list">
+        <div class="uploaded-resume-list" style="margin-top: 24px;">
           <el-card class="uploaded-resume-card" shadow="never">
             <template #header>
               <div class="card-header-simple">
@@ -180,78 +177,139 @@
                   class="uploaded-table"
                   empty-text="暂无上传的简历文件"
               >
-              <el-table-column prop="filename" label="文件名" min-width="340" show-overflow-tooltip>
-                <template #default="{ row }">
-                  <div class="file-info">
-                    <el-icon class="file-icon">
-                      <Document v-if="isDocFile(row.filename)" />
-                      <PictureIcon v-else-if="isImageFile(row.filename)" />
-                      <Document v-else />
-                    </el-icon>
-                    <span class="filename">{{ row.filename }}</span>
-                  </div>
-                </template>
-              </el-table-column>
+                <el-table-column prop="filename" label="文件名" min-width="340" show-overflow-tooltip>
+                  <template #default="{ row }">
+                    <div class="file-info">
+                      <el-icon class="file-icon">
+                        <Document v-if="isDocFile(row.filename)" />
+                        <PictureIcon v-else-if="isImageFile(row.filename)" />
+                        <Document v-else />
+                      </el-icon>
+                      <span class="filename">{{ row.filename }}</span>
+                    </div>
+                  </template>
+                </el-table-column>
 
-              <el-table-column prop="uploadDate" label="上传时间" width="200">
-                <template #default="{ row }">
-                  {{ formatDate(row.uploadDate) }}
-                </template>
-              </el-table-column>
+                <el-table-column prop="uploadDate" label="上传时间" width="200">
+                  <template #default="{ row }">
+                    {{ formatDate(row.uploadDate) }}
+                  </template>
+                </el-table-column>
 
-              <el-table-column label="投递次数" width="100">
-                <template #default="{ row }">
-                  <el-tag type="info">{{ getApplicationCount(row.resumeId) }}</el-tag>
-                </template>
-              </el-table-column>
+                <el-table-column label="投递次数" width="100">
+                  <template #default="{ row }">
+                    <el-tag type="info">{{ getApplicationCount(row.resumeId) }}</el-tag>
+                  </template>
+                </el-table-column>
 
-              <el-table-column label="状态" width="100">
-                <template #default>
-                  <el-tag type="success">可用</el-tag>
-                </template>
-              </el-table-column>
+                <el-table-column label="状态" width="100">
+                  <template #default>
+                    <el-tag type="success">可用</el-tag>
+                  </template>
+                </el-table-column>
 
-              <el-table-column label="操作" width="340" fixed="right">
-                <template #default="{ row }">
-                  <div class="action-buttons">
-                    <el-button
-                        type="primary"
-                        size="small"
-                        @click="previewUploadedResume(row)"
-                        :icon="ViewIcon"
-                    >
-                      预览
-                    </el-button>
-                    <el-button
-                        type="success"
-                        size="small"
-                        @click="downloadUploadedResume(row)"
-                        :icon="Download"
-                    >
-                      下载
-                    </el-button>
-                    <el-button
-                        type="warning"
-                        size="small"
-                        @click="analyzeUploadedResume(row)"
-                        :icon="DataAnalysis"
-                    >
-                      分析
-                    </el-button>
-                    <el-button
-                        type="danger"
-                        size="small"
-                        @click="deleteUploadedResume(row)"
-                        :icon="Delete"
-                    >
-                      删除
-                    </el-button>
-                  </div>
-                </template>
-              </el-table-column>
+                <el-table-column label="操作" width="340" fixed="right">
+                  <template #default="{ row }">
+                    <div class="action-buttons">
+                      <el-button
+                          type="primary"
+                          size="small"
+                          @click="previewUploadedResume(row)"
+                          :icon="ViewIcon"
+                      >
+                        预览
+                      </el-button>
+                      <el-button
+                          type="success"
+                          size="small"
+                          @click="downloadUploadedResume(row)"
+                          :icon="Download"
+                      >
+                        下载
+                      </el-button>
+                      <el-button
+                          type="warning"
+                          size="small"
+                          @click="analyzeUploadedResume(row)"
+                          :icon="DataAnalysis"
+                      >
+                        分析
+                      </el-button>
+                      <el-button
+                          type="danger"
+                          size="small"
+                          @click="deleteUploadedResume(row)"
+                          :icon="Delete"
+                      >
+                        删除
+                      </el-button>
+                    </div>
+                  </template>
+                </el-table-column>
               </el-table>
             </div>
           </el-card>
+        </div>
+      </el-tab-pane>
+
+      <!-- 草稿箱 -->
+      <el-tab-pane label="草稿箱" name="draft">
+        <div class="resume-grid">
+          <div
+              v-for="(resume, idx) in draftResumes"
+              :key="resume.id"
+              class="resume-card"
+              @click="previewResume(resume.id)"
+          >
+            <div class="template-preview">
+              <img
+                  :src="getTemplatePreview(resume)"
+                  :alt="resume.title"
+                  @error="handleImageError"
+              />
+              <div class="template-badge" v-if="!resume.templateId">
+                自定义
+              </div>
+            </div>
+
+            <div class="card-header">
+              <h3>{{ resume.title || resume.name || `草稿简历${idx + 1}` }}</h3>
+              <div class="actions">
+                <el-tag type="info" size="small" effect="plain">草稿</el-tag>
+                <el-button type="default" size="small" @click.stop="editResume(resume.id)">编辑</el-button>
+                <el-dropdown @command="(cmd) => handleMore(cmd, resume)" trigger="click">
+                  <el-button type="link" @click.stop>
+                    <el-icon><More /></el-icon>
+                  </el-button>
+                  <template #dropdown>
+                    <el-dropdown-menu>
+                      <el-dropdown-item command="delete" divided>删除简历</el-dropdown-item>
+                    </el-dropdown-menu>
+                  </template>
+                </el-dropdown>
+              </div>
+            </div>
+
+            <div class="card-content">
+              <p class="template-info">
+                <el-icon><Grid /></el-icon>
+                {{ getTemplateName(resume) }}
+              </p>
+              <p class="description">
+                {{ resume.profile || resume.summary || `草稿简历${idx + 1}` }}
+              </p>
+            </div>
+
+            <div class="card-footer">
+              <span class="update-time">{{ formatTime(resume.updatedAt || resume.updated_at) }}</span>
+            </div>
+          </div>
+
+          <div v-if="draftResumes.length === 0" class="empty-state">
+            <el-empty description="草稿箱暂无简历">
+              <el-button type="primary" @click="createNewResume">去创建</el-button>
+            </el-empty>
+          </div>
         </div>
       </el-tab-pane>
     </el-tabs>
@@ -474,7 +532,7 @@ export default {
     const templates = ref([])
 
     // 上传相关
-    const activeTab = ref('created')
+    const activeTab = ref('resumeList')
     const uploadRef = ref(null)
     const uploading = ref(false)
     const uploadProgress = ref(0)
@@ -516,6 +574,18 @@ export default {
 
     const applicationCount = computed(() => {
       return applicationHistory.value.length
+    })
+
+    const draftResumes = computed(() => {
+      return resumes.value.filter(item => (item.status || '').toUpperCase() === 'DRAFT')
+    })
+
+    const resumeListResumes = computed(() => {
+      return resumes.value.filter(item => (item.status || '').toUpperCase() !== 'DRAFT')
+    })
+
+    const resumeListCount = computed(() => {
+      return resumeListResumes.value.length + uploadedResumeList.value.length
     })
 
     // 加载模板列表
@@ -1010,6 +1080,9 @@ export default {
     return {
       activeTab,
       resumes,
+      draftResumes,
+      resumeListResumes,
+      resumeListCount,
       loading,
       templates,
       uploadRef,

@@ -31,7 +31,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 教师端服务实现类
@@ -399,7 +401,17 @@ public class TeacherServiceImpl implements TeacherService {
             queryWrapper.eq("warning_level", warningLevel);
         }
         if (handleStatus != null && !handleStatus.isEmpty()) {
-            queryWrapper.eq("handle_status", handleStatus);
+            if (handleStatus.contains(",")) {
+                List<String> statuses = Arrays.stream(handleStatus.split(","))
+                        .map(String::trim)
+                        .filter(s -> !s.isEmpty())
+                        .collect(Collectors.toList());
+                if (!statuses.isEmpty()) {
+                    queryWrapper.in("handle_status", statuses);
+                }
+            } else {
+                queryWrapper.eq("handle_status", handleStatus);
+            }
         }
 
         // 按检测时间倒序排列

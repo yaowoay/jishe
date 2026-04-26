@@ -1,8 +1,8 @@
 <template>
-  <div class="resume-generator">
+  <div class="resume-generator" :class="{ 'float-mode': isFloatMode }">
     <div class="generator-container">
       <!-- 标题区域包含返回按钮 -->
-      <div class="header-section">
+      <div class="header-section" v-if="!isFloatMode">
         <button @click="goBack" class="back-button">
           <span class="back-icon">←</span>
           返回
@@ -12,7 +12,7 @@
           <p class="description">填写您的信息，AI将为您生成专业的简历</p>
         </div>
       </div>
-      
+
       <!-- 步骤指示器 -->
       <div class="steps">
         <div class="step" :class="{ active: currentStep >= 1, completed: currentStep > 1 }">
@@ -21,7 +21,7 @@
         </div>
         <div class="step" :class="{ active: currentStep >= 2, completed: currentStep > 2 }">
           <div class="step-number">2</div>
-          <div class="step-title">详细信息</div>
+          <div class="step-title">详细信息<span v-if="isFloatMode">（{{ visibleDetailModuleLabels.length }}项）</span></div>
         </div>
         <div class="step" :class="{ active: currentStep >= 3, completed: currentStep > 3 }">
           <div class="step-number">3</div>
@@ -32,7 +32,7 @@
           <div class="step-title">生成简历</div>
         </div>
       </div>
-      
+
       <!-- 步骤1: 基本信息 -->
       <div v-if="currentStep === 1" class="step-content">
         <h3>基本信息</h3>
@@ -65,29 +65,41 @@
             <label>居住地址</label>
             <input v-model="formData.personalInfo.address" type="text" placeholder="请输入居住地址">
           </div>
+          <div class="form-group">
+            <label>头像链接</label>
+            <input v-model="formData.personalInfo.avatarUrl" type="text" placeholder="请输入头像URL（可选）">
+          </div>
+          <div class="form-group">
+            <label>上传头像</label>
+            <input type="file" accept="image/*" @change="handleAvatarUpload">
+          </div>
         </div>
-        
+
         <div class="form-group full-width">
           <label>期望职位 *</label>
           <input v-model="formData.targetPosition" type="text" placeholder="请输入期望职位" required>
         </div>
-        
+
         <div class="form-group full-width">
           <label>个人简介</label>
           <textarea v-model="formData.personalInfo.summary" placeholder="请简要介绍您的背景和优势" rows="4"></textarea>
         </div>
-        
+
         <div class="step-actions">
           <button @click="nextStep" :disabled="!canProceedStep1" class="next-btn">下一步</button>
         </div>
       </div>
-      
+
       <!-- 步骤2: 详细信息 -->
       <div v-if="currentStep === 2" class="step-content">
         <h3>详细信息</h3>
-        
+
+
+        <div v-if="isFloatMode" class="module-visibility-tip">
+          当前将参与生成的详细模块：{{ visibleDetailModuleLabels.join('、') || '无（仅使用基本信息）' }}
+        </div>
         <!-- 教育背景 -->
-        <div class="section">
+        <div class="section" v-if="isModuleVisible('education')">
           <h4>教育背景</h4>
           <div v-for="(edu, index) in formData.education" :key="index" class="education-item">
             <div class="form-grid">
@@ -119,9 +131,9 @@
           </div>
           <button @click="addEducation" class="add-btn">+ 添加教育经历</button>
         </div>
-        
+
         <!-- 工作经验 -->
-        <div class="section">
+        <div class="section" v-if="isModuleVisible('workExperience')">
           <h4>工作经验</h4>
           <div v-for="(work, index) in formData.workExperience" :key="index" class="work-item">
             <div class="form-grid">
@@ -150,13 +162,34 @@
           </div>
           <button @click="addWork" class="add-btn">+ 添加工作经历</button>
         </div>
-        
+
+        <div class="section" v-if="isModuleVisible('projects')">
+          <h4>项目经验</h4>
+          <div class="form-group full-width">
+            <textarea v-model="formData.projects" placeholder="请填写项目经验（项目名称、职责、技术栈、成果）" rows="4"></textarea>
+          </div>
+        </div>
+
+        <div class="section" v-if="isModuleVisible('skills')">
+          <h4>技能专长</h4>
+          <div class="form-group full-width">
+            <textarea v-model="formData.skills" placeholder="请填写技能专长（如 Java、Vue、Python、机器学习 等）" rows="3"></textarea>
+          </div>
+        </div>
+
+        <div class="section" v-if="isModuleVisible('others')">
+          <h4>其他信息</h4>
+          <div class="form-group full-width">
+            <textarea v-model="formData.additionalInfo" placeholder="可填写证书、奖项、语言能力、兴趣爱好等" rows="3"></textarea>
+          </div>
+        </div>
+
         <div class="step-actions">
           <button @click="prevStep" class="prev-btn">上一步</button>
           <button @click="nextStep" class="next-btn">下一步</button>
         </div>
       </div>
-      
+
       <!-- 步骤3: 生成设置 -->
       <!-- 步骤3: 生成设置 -->
       <div v-if="currentStep === 3" class="step-content">
@@ -189,7 +222,7 @@
       <!-- 步骤4: 生成简历 -->
       <div v-if="currentStep === 4" class="step-content">
         <h3>生成简历</h3>
-        
+
         <div v-if="!generating && !generated" class="generation-start">
           <div class="summary">
             <h4>信息确认</h4>
@@ -211,13 +244,13 @@
             <button @click="showTemplateDialog" class="generate-btn template">按模板生成</button>
           </div>
         </div>
-        
+
         <div v-if="generating" class="generation-progress">
           <div class="loading-spinner"></div>
           <p>AI正在为您生成简历，请稍候...</p>
           <div class="progress-text">{{ progressText }}</div>
         </div>
-        
+
         <div v-if="generated" class="generation-result">
           <div class="success-message">
             <div class="success-icon">✓</div>
@@ -253,14 +286,14 @@
             <button @click="regenerateResume" class="regenerate-btn">重新生成</button>
           </div>
         </div>
-        
+
         <div class="step-actions">
           <button @click="prevStep" :disabled="generating" class="prev-btn">上一步</button>
           <button @click="startOver" class="start-over-btn">重新开始</button>
         </div>
       </div>
     </div>
-    
+
     <!-- 简历预览模态框 -->
     <div v-if="showPreview" class="modal-overlay" @click="closePreview">
       <div class="modal-content preview-modal" @click.stop>
@@ -366,9 +399,10 @@
 </template>
 
 <script>
-import { 
+import {
   generateResume,
-  validateGenerationConfig 
+  validateGenerationConfig,
+  uploadResumeAvatar
 } from '@/api/resume'
 
 export default {
@@ -395,6 +429,16 @@ export default {
       // 数据持久化标识
       storageKey: 'resume_generator_state',
 
+      // 模块显示控制（与简历编辑页模块开关同步）
+      moduleVisibility: {
+        basicInfo: true,
+        education: true,
+        workExperience: true,
+        projects: true,
+        skills: true,
+        others: true
+      },
+
       // 表单数据
       formData: {
         personalInfo: {
@@ -404,6 +448,7 @@ export default {
           phone: '',
           email: '',
           address: '',
+          avatarUrl: '',
           summary: ''
         },
         targetPosition: '',
@@ -421,7 +466,8 @@ export default {
           description: ''
         }],
         skills: '',
-        projects: ''
+        projects: '',
+        additionalInfo: ''
       },
 
       // 生成设置
@@ -525,6 +571,16 @@ export default {
              this.formData.targetPosition
     },
 
+    visibleDetailModuleLabels() {
+      const labels = []
+      if (this.isModuleVisible('education')) labels.push('教育背景')
+      if (this.isModuleVisible('workExperience')) labels.push('工作经验')
+      if (this.isModuleVisible('projects')) labels.push('项目经验')
+      if (this.isModuleVisible('skills')) labels.push('技能专长')
+      if (this.isModuleVisible('others')) labels.push('其他信息')
+      return labels
+    },
+
     formattedResumeContent() {
       if (!this.generatedContent) return ''
 
@@ -555,15 +611,27 @@ export default {
       if (this.initialData && Object.keys(this.initialData).length > 0) {
         console.log('使用 props 数据:', this.initialData)
 
+        // 同步模块显示配置
+        if (this.initialData.moduleVisibility && typeof this.initialData.moduleVisibility === 'object') {
+          this.moduleVisibility = {
+            ...this.moduleVisibility,
+            ...this.initialData.moduleVisibility
+          }
+        }
+
         // 填充基本信息
         if (this.initialData.personalInfo) {
           this.formData.personalInfo.name = this.initialData.personalInfo.name || ''
           this.formData.personalInfo.phone = this.initialData.personalInfo.phone || ''
           this.formData.personalInfo.email = this.initialData.personalInfo.email || ''
           this.formData.personalInfo.address = this.initialData.personalInfo.address || ''
+          this.formData.personalInfo.avatarUrl = this.initialData.personalInfo.avatarUrl || ''
           this.formData.personalInfo.summary = this.initialData.personalInfo.summary || ''
         }
         this.formData.targetPosition = this.initialData.targetPosition || ''
+        this.formData.skills = this.initialData.skills || ''
+        this.formData.projects = this.initialData.projects || ''
+        this.formData.additionalInfo = this.initialData.additionalInfo || ''
 
         // 教育和工作经历
         if (this.initialData.educations && this.initialData.educations.length) {
@@ -591,9 +659,13 @@ export default {
             this.formData.personalInfo.phone = formData.personalInfo.phone || ''
             this.formData.personalInfo.email = formData.personalInfo.email || ''
             this.formData.personalInfo.address = formData.personalInfo.address || ''
+            this.formData.personalInfo.avatarUrl = formData.personalInfo.avatarUrl || ''
             this.formData.personalInfo.summary = formData.personalInfo.summary || ''
           }
           this.formData.targetPosition = formData.targetPosition || ''
+          this.formData.skills = formData.skills || ''
+          this.formData.projects = formData.projects || ''
+          this.formData.additionalInfo = formData.additionalInfo || ''
 
           if (formData.educations && formData.educations.length) {
             this.formData.education = formData.educations
@@ -625,6 +697,10 @@ export default {
     this.saveState()
   },
   methods: {
+    isModuleVisible(moduleKey) {
+      return this.moduleVisibility[moduleKey] !== false
+    },
+
     // 返回上一个组件
     goBack() {
       // 清除保存的状态
@@ -651,19 +727,23 @@ export default {
 
       // 基本信息
       if (data.basicInfo || data.fullName || data.name) {
-        text += '========== 基本信息 ==========\n'
+        text += '========== 基本信息 ==========' + '\n'
         text += '姓名：' + (data.fullName || data.name || data.basicInfo?.name || '') + '\n'
         text += '电话：' + (data.phone || data.basicInfo?.phone || '') + '\n'
         text += '邮箱：' + (data.email || data.basicInfo?.email || '') + '\n'
         text += '求职意向：' + (data.position || data.basicInfo?.position || '') + '\n'
-        if (data.basicInfo?.summary) text += '个人简介：' + data.basicInfo.summary + '\n'
+        const avatarUrl = data.avatarUrl || data.basicInfo?.avatarUrl || ''
+        if (avatarUrl) text += '头像：' + avatarUrl + '\n'
+        if (data.profile || data.basicInfo?.summary) {
+          text += '个人简介：' + (data.profile || data.basicInfo?.summary || '') + '\n'
+        }
         text += '\n'
       }
 
       // 工作经历
       const works = data.workExperiences || data.workExperience || []
       if (works.length > 0) {
-        text += '========== 工作经历 ==========\n'
+        text += '========== 工作经历 ==========' + '\n'
         works.forEach((work, i) => {
           text += '\n' + (i + 1) + '. ' + (work.company || '') + '\n'
           text += '   职位：' + (work.position || '') + '\n'
@@ -680,28 +760,55 @@ export default {
       // 教育经历
       const edus = data.educations || data.education || []
       if (edus.length > 0) {
-        text += '========== 教育经历 ==========\n'
+        text += '========== 教育经历 ==========' + '\n'
         edus.forEach((edu, i) => {
           text += '\n' + (i + 1) + '. ' + (edu.school || '') + '\n'
           text += '   专业：' + (edu.major || '') + '\n'
           text += '   学历：' + (edu.degree || '') + '\n'
-          if (edu.startDate || edu.endDate) {
-            text += '   时间：' + (edu.startDate || '') + ' - ' + (edu.endDate || '') + '\n'
+          if (edu.startDate || edu.endDate || edu.graduationDate) {
+            text += '   时间：' + (edu.startDate || '') + ' - ' + (edu.endDate || edu.graduationDate || '') + '\n'
           }
         })
         text += '\n'
       }
 
+      // 项目经验
+      const projects = data.projectExperiences || data.projects || []
+      if (Array.isArray(projects) && projects.length > 0) {
+        text += '========== 项目经验 ==========' + '\n'
+        projects.forEach((project, i) => {
+          const projectName = project.projectName || project.name || ''
+          text += '\n' + (i + 1) + '. ' + projectName + '\n'
+          if (project.role) text += '   角色：' + project.role + '\n'
+          if (project.description) text += '   描述：' + project.description + '\n'
+        })
+        text += '\n'
+      } else if (typeof projects === 'string' && projects.trim()) {
+        text += '========== 项目经验 ==========' + '\n' + projects + '\n\n'
+      }
+
       // 技能
       const skills = data.skills || []
-      if (skills.length > 0) {
-        text += '========== 技能专长 ==========\n'
+      if (Array.isArray(skills) && skills.length > 0) {
+        text += '========== 技能专长 ==========' + '\n'
         skills.forEach(skill => {
           const skillName = skill.skillName || skill.name || ''
           const level = skill.level || skill.proficiency || ''
           text += '• ' + skillName + (level ? ' (' + level + '/5)' : '') + '\n'
         })
         text += '\n'
+      } else if (typeof skills === 'string' && skills.trim()) {
+        text += '========== 技能专长 ==========' + '\n' + skills + '\n\n'
+      }
+
+      const additionalInfos = data.additionalInfos || data.additionalInfo || []
+      if (Array.isArray(additionalInfos) && additionalInfos.length > 0) {
+        text += '========== 其他信息 ==========' + '\n'
+        additionalInfos.forEach(item => {
+          text += '• ' + (item.name || item.type || '') + (item.description ? ('：' + item.description) : '') + '\n'
+        })
+      } else if (typeof additionalInfos === 'string' && additionalInfos.trim()) {
+        text += '========== 其他信息 ==========' + '\n' + additionalInfos + '\n'
       }
 
       return text || JSON.stringify(data, null, 2)
@@ -731,6 +838,31 @@ export default {
       this.showTemplateSelection = false
       this.selectedTemplate = ''
       this.selectedStyle = ''
+    },
+
+    async handleAvatarUpload(event) {
+      const file = event.target.files && event.target.files[0]
+      if (!file) return
+
+      try {
+        const formData = new FormData()
+        formData.append('file', file)
+        const res = await uploadResumeAvatar(formData)
+
+        const success = (res && res.code === 0) || (res && res.success)
+        const url = res?.data
+        if (success && url) {
+          this.formData.personalInfo.avatarUrl = url
+          this.$message.success('头像上传成功')
+        } else {
+          this.$message.error(res?.message || '头像上传失败')
+        }
+      } catch (error) {
+        console.error('头像上传失败:', error)
+        this.$message.error('头像上传失败')
+      } finally {
+        event.target.value = ''
+      }
     },
 
     // 选择模板
@@ -821,6 +953,7 @@ export default {
           phone: '',
           email: '',
           address: '',
+          avatarUrl: '',
           summary: ''
         },
         targetPosition: '',
@@ -838,7 +971,8 @@ export default {
           description: ''
         }],
         skills: '',
-        projects: ''
+        projects: '',
+        additionalInfo: ''
       }
 
       // 清除保存的状态
@@ -927,6 +1061,9 @@ export default {
         if (isSuccess && resultData) {
           console.log('处理结果数据:', resultData)
 
+          // 统一把前端头像URL兜底补到结果里，避免后端未回传导致预览/模板不显示头像
+          const fallbackAvatarUrl = this.formData?.personalInfo?.avatarUrl || ''
+
           // 检查是否是 links 格式
           if (resultData.links && resultData.links.length) {
             this.resumeLinks = {
@@ -934,13 +1071,26 @@ export default {
               imgUrl: resultData.links[0]?.img_url,
               wordUrl: resultData.links[0]?.word_url
             }
-            this.generatedContent = '简历生成成功，请点击预览或下载'
+            // 新后端会同时返回 resumeData，优先用于页面展示
+            if (resultData.resumeData) {
+              if (fallbackAvatarUrl) {
+                resultData.resumeData.avatarUrl = resultData.resumeData.avatarUrl || fallbackAvatarUrl
+                resultData.resumeData.basicInfo = resultData.resumeData.basicInfo || {}
+                resultData.resumeData.basicInfo.avatarUrl = resultData.resumeData.basicInfo.avatarUrl || fallbackAvatarUrl
+              }
+              this.generatedContent = JSON.stringify(resultData.resumeData)
+            } else {
+              this.generatedContent = '简历生成成功，请点击预览或下载'
+            }
           }
           // 检查是否直接包含简历数据
           else if (resultData.fullName || resultData.name || resultData.workExperiences || resultData.educations) {
-            // 直接格式化简历对象
-            const formattedText = this.formatResumeObject(resultData)
-            this.generatedContent = formattedText
+            if (fallbackAvatarUrl) {
+              resultData.avatarUrl = resultData.avatarUrl || fallbackAvatarUrl
+              resultData.basicInfo = resultData.basicInfo || {}
+              resultData.basicInfo.avatarUrl = resultData.basicInfo.avatarUrl || fallbackAvatarUrl
+            }
+            this.generatedContent = JSON.stringify(resultData)
             this.resumeLinks.format = 'text'
           }
           else if (resultData.resumeContent) {
@@ -949,8 +1099,10 @@ export default {
           }
           else {
             // 尝试将整个对象格式化
-            const formattedText = this.formatResumeObject(resultData)
-            this.generatedContent = formattedText
+            if (fallbackAvatarUrl && resultData && typeof resultData === 'object') {
+              resultData.avatarUrl = resultData.avatarUrl || fallbackAvatarUrl
+            }
+            this.generatedContent = JSON.stringify(resultData)
             this.resumeLinks.format = 'text'
           }
 
@@ -1006,19 +1158,51 @@ export default {
     // 构建请求数据
     buildRequestData() {
       const info = this.formData.personalInfo
+      const educationText = this.isModuleVisible('education') ? this.formatEducation() : ''
+      const workText = this.isModuleVisible('workExperience') ? this.formatWorkExperience() : ''
+      const projectsText = this.isModuleVisible('projects') ? this.formData.projects : ''
+      const skillsText = this.isModuleVisible('skills') ? this.formData.skills : ''
+      const additionalInfoText = this.isModuleVisible('others') ? this.formData.additionalInfo : ''
 
-      // 构建 userInfo 字符串
+      // 构建 userInfo 字符串（兼容旧接口）
       const userInfoStr = [
         info.name ? `姓名：${info.name}` : '',
         this.formData.targetPosition ? `目标岗位：${this.formData.targetPosition}` : '',
         info.phone ? `电话：${info.phone}` : '',
         info.email ? `邮箱：${info.email}` : '',
-        info.summary ? `个人简介：${info.summary}` : ''
+        info.address ? `地址：${info.address}` : '',
+        info.avatarUrl ? `头像：${info.avatarUrl}` : '',
+        info.summary ? `个人简介：${info.summary}` : '',
+        educationText ? `教育背景：\n${educationText}` : '',
+        workText ? `工作经历：\n${workText}` : '',
+        projectsText ? `项目经验：${projectsText}` : '',
+        skillsText ? `技能专长：${skillsText}` : '',
+        additionalInfoText ? `其他信息：${additionalInfoText}` : ''
       ].filter(Boolean).join('\n')
 
       return {
         prompt: this.generationSettings.prompt || `请生成一份${this.styles[this.generationSettings.style]}的简历`,
-        userInfo: userInfoStr  // 必须是字符串，不能是对象
+        jobTitle: this.formData.targetPosition,
+        templateType: this.generationSettings.templateType,
+        style: this.generationSettings.style,
+        targetPosition: this.formData.targetPosition,
+        skills: skillsText,
+        projects: projectsText,
+        additionalInfo: additionalInfoText,
+        avatarUrl: info.avatarUrl,
+        personalInfo: {
+          name: info.name,
+          gender: info.gender,
+          age: info.age,
+          phone: info.phone,
+          email: info.email,
+          address: info.address,
+          summary: info.summary,
+          avatarUrl: info.avatarUrl
+        },
+        education: this.isModuleVisible('education') ? this.formData.education : [],
+        workExperience: this.isModuleVisible('workExperience') ? this.formData.workExperience : [],
+        userInfo: userInfoStr
       }
     },
     // 处理生成的内容
@@ -1300,6 +1484,13 @@ export default {
         const email = data.email || data.basicInfo?.email || ''
         const position = data.position || data.basicInfo?.position || ''
         const summary = data.profile || data.basicInfo?.summary || ''
+        const avatarUrl = data.avatarUrl || data.basicInfo?.avatarUrl || ''
+
+        if (avatarUrl) {
+          html += '<div style="display:flex; justify-content:flex-end; margin-bottom: 12px;">'
+          html += '<img src="' + avatarUrl + '" alt="头像" style="width:96px; height:96px; border-radius:50%; object-fit:cover; border:1px solid #e5e7eb;" />'
+          html += '</div>'
+        }
 
         if (name) {
           html += '<h1 style="font-size: 24px; margin-bottom: 8px;">' + name + '</h1>'
@@ -1320,8 +1511,11 @@ export default {
           html += '</div>'
         }
 
-        // 工作经历
-        const works = data.workExperiences || data.workExperience || []
+        // 工作经历（过滤掉字符串或空对象，避免展示 [object Object] / JSON 字符串）
+        const worksRaw = data.workExperiences || data.workExperience || []
+        const works = Array.isArray(worksRaw)
+          ? worksRaw.filter(work => work && typeof work === 'object' && (work.company || work.position || work.startDate || work.endDate || work.responsibility || work.description))
+          : []
         if (works.length > 0) {
           html += '<h3 style="font-size: 18px; border-bottom: 2px solid #3b82f6; padding-bottom: 6px; margin: 20px 0 16px;">工作经历</h3>'
           works.forEach(work => {
@@ -1345,16 +1539,37 @@ export default {
             html += '<div style="margin-bottom: 12px;">'
             html += '<div style="font-weight: 600;">' + (edu.school || '') + '</div>'
             html += '<div style="font-size: 14px; color: #4b5563;">' + (edu.major || '') + ' ' + (edu.degree || '') + '</div>'
-            if (edu.startDate || edu.endDate) {
-              html += '<div style="font-size: 13px; color: #6b7280;">' + (edu.startDate || '') + ' - ' + (edu.endDate || '') + '</div>'
+            const eduTime = (edu.startDate || '') + ((edu.startDate || edu.endDate || edu.graduationDate) ? ' - ' : '') + (edu.endDate || edu.graduationDate || '')
+            if (eduTime.trim()) {
+              html += '<div style="font-size: 13px; color: #6b7280;">' + eduTime + '</div>'
             }
             html += '</div>'
           })
         }
 
+        // 项目经验
+        const projects = data.projectExperiences || data.projects || []
+        if (Array.isArray(projects) && projects.length > 0) {
+          html += '<h3 style="font-size: 18px; border-bottom: 2px solid #3b82f6; padding-bottom: 6px; margin: 20px 0 16px;">项目经验</h3>'
+          projects.forEach(project => {
+            html += '<div style="margin-bottom: 12px;">'
+            html += '<div style="font-weight: 600;">' + (project.projectName || project.name || '') + '</div>'
+            if (project.role) {
+              html += '<div style="font-size: 14px; color: #4b5563;">角色：' + project.role + '</div>'
+            }
+            if (project.description) {
+              html += '<p style="margin: 4px 0 0 0; color: #4b5563;">' + project.description + '</p>'
+            }
+            html += '</div>'
+          })
+        } else if (typeof projects === 'string' && projects.trim()) {
+          html += '<h3 style="font-size: 18px; border-bottom: 2px solid #3b82f6; padding-bottom: 6px; margin: 20px 0 16px;">项目经验</h3>'
+          html += '<p style="margin: 0; white-space: pre-wrap;">' + projects + '</p>'
+        }
+
         // 技能
         const skills = data.skills || []
-        if (skills.length > 0) {
+        if (Array.isArray(skills) && skills.length > 0) {
           html += '<h3 style="font-size: 18px; border-bottom: 2px solid #3b82f6; padding-bottom: 6px; margin: 20px 0 16px;">技能专长</h3>'
           html += '<div style="display: flex; flex-wrap: wrap; gap: 8px;">'
           skills.forEach(skill => {
@@ -1362,6 +1577,21 @@ export default {
             html += '<span style="background: #e5e7eb; padding: 4px 12px; border-radius: 20px; font-size: 14px;">' + skillName + '</span>'
           })
           html += '</div>'
+        } else if (typeof skills === 'string' && skills.trim()) {
+          html += '<h3 style="font-size: 18px; border-bottom: 2px solid #3b82f6; padding-bottom: 6px; margin: 20px 0 16px;">技能专长</h3>'
+          html += '<p style="margin: 0; white-space: pre-wrap;">' + skills + '</p>'
+        }
+
+        // 其他信息
+        const additionalInfos = data.additionalInfos || data.additionalInfo || []
+        if (Array.isArray(additionalInfos) && additionalInfos.length > 0) {
+          html += '<h3 style="font-size: 18px; border-bottom: 2px solid #3b82f6; padding-bottom: 6px; margin: 20px 0 16px;">其他信息</h3>'
+          additionalInfos.forEach(item => {
+            html += '<p style="margin: 4px 0;">• ' + (item.name || item.type || '') + (item.description ? ('：' + item.description) : '') + '</p>'
+          })
+        } else if (typeof additionalInfos === 'string' && additionalInfos.trim()) {
+          html += '<h3 style="font-size: 18px; border-bottom: 2px solid #3b82f6; padding-bottom: 6px; margin: 20px 0 16px;">其他信息</h3>'
+          html += '<p style="margin: 0; white-space: pre-wrap;">' + additionalInfos + '</p>'
         }
 
         html += '</div>'
@@ -1378,7 +1608,62 @@ export default {
 
 
 <style scoped>
-/* 基础容器样式 */
+/* 悬浮框模式：去掉外层大卡片，避免视觉重复 */
+.resume-generator.float-mode {
+  background-color: transparent;
+  min-height: auto;
+  padding: 0;
+}
+.resume-generator.float-mode .generator-container {
+  max-width: 100%;
+  margin: 0;
+  background-color: transparent;
+  border-radius: 0;
+  box-shadow: none;
+  padding: 0;
+  max-height: none;
+  overflow-y: visible;
+}
+.resume-generator.float-mode .steps {
+  flex-wrap: nowrap;
+  gap: 8px;
+}
+.resume-generator.float-mode .step {
+  width: 25%;
+  min-width: 0;
+}
+.resume-generator.float-mode .step-title {
+  font-size: 12px;
+  white-space: nowrap;
+}
+.resume-generator.float-mode .steps::before {
+  left: 24px;
+  right: 24px;
+}
+.resume-generator.float-mode .step-number {
+  width: 40px;
+  height: 40px;
+  font-size: 16px;
+}
+
+.resume-generator.float-mode .step-content {
+  min-height: 0;
+  max-height: none;
+}
+.resume-generator.float-mode .generation-result {
+  max-height: none;
+  overflow: visible;
+  margin-bottom: 12px;
+}
+.resume-generator.float-mode .result-actions {
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.resume-generator.float-mode .step-actions {
+  margin-top: 12px;
+}
+
+
 .resume-generator {
   background-color: #f5f7fa;
   min-height: 100vh;
@@ -1392,7 +1677,7 @@ export default {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
   padding: 32px;
   /* 添加这些 */
-  max-height: 70vh;
+  max-height: 90vh;
   overflow-y: auto;
 }
 
@@ -1677,6 +1962,17 @@ export default {
   color: #1d2129;
   font-weight: 500;
 }
+
+.module-visibility-tip {
+  margin-bottom: 14px;
+  padding: 10px 12px;
+  background: #f0f9ff;
+  border: 1px solid #bae6fd;
+  color: #0369a1;
+  border-radius: 8px;
+  font-size: 13px;
+}
+
 .generate-buttons {
   display: flex;
   gap: 16px;

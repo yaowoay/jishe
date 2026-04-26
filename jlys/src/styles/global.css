@@ -899,6 +899,38 @@ textarea::placeholder {
     max-height: 600px;
 }
 
+
+/* ========== 全局表格铺满优化 ========== */
+/* 目标：让系统内“表格类页面”尽量横向铺满可用区域，避免内容缩成一坨 */
+.table-card,
+.table-container,
+.list-container,
+.list-view,
+.job-list-view,
+.uploaded-table,
+.el-table,
+.el-table__inner-wrapper,
+.el-table__header-wrapper,
+.el-table__body-wrapper {
+  width: 100% !important;
+  max-width: none !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+/* 常见表格卡片容器不限制最大宽度 */
+.el-card.table-card,
+.table-card {
+  width: 100% !important;
+  max-width: none !important;
+}
+
+/* 表格外层滚动容器保持横向可滚动，避免列多时挤压 */
+.table-container,
+.el-table__body-wrapper {
+  overflow-x: auto !important;
+}
+
 /* 弹窗内容滚动 */
 .el-dialog__body {
     max-height: 60vh;

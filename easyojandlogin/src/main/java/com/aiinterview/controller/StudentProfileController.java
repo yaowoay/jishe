@@ -1,6 +1,7 @@
 package com.aiinterview.controller;
 
 import com.aiinterview.model.dto.student.StudentProfileRequest;
+import com.aiinterview.model.dto.student.ExperienceRequest;
 import com.aiinterview.model.dto.api.ApiResponse;
 import com.aiinterview.model.entity.student.StudentProfile;
 import com.aiinterview.service.student.StudentProfileService;
@@ -48,6 +49,31 @@ public class StudentProfileController {
             return ApiResponse.success("档案完善成功", result);
         } catch (Exception e) {
             log.error("档案完善失败: {}", e.getMessage());
+            return ApiResponse.error(e.getMessage());
+        }
+    }
+
+    /**
+     * 更新学生档案
+     */
+    @PutMapping("/update")
+    public ApiResponse<Map<String, Object>> updateProfile(
+            @RequestHeader("Authorization") String token,
+            @Valid @RequestBody StudentProfileRequest request) {
+        try {
+            // 从token中获取用户ID
+            String actualToken = token.replace("Bearer ", "");
+            Long userId = jwtUtils.getUserIdFromToken(actualToken);
+
+            StudentProfile profile = studentProfileService.completeProfile(userId, request);
+
+            Map<String, Object> result = new HashMap<>();
+            result.put("profile", profile);
+            result.put("profileCompleted", true);
+
+            return ApiResponse.success("档案更新成功", result);
+        } catch (Exception e) {
+            log.error("档案更新失败: {}", e.getMessage());
             return ApiResponse.error(e.getMessage());
         }
     }
@@ -114,6 +140,72 @@ public class StudentProfileController {
             return ApiResponse.success("获取毕业生数量成功", result);
         } catch (Exception e) {
             log.error("统计毕业生数量失败: {}", e.getMessage());
+            return ApiResponse.error(e.getMessage());
+        }
+    }
+
+    /**
+     * 更新学生经历信息
+     */
+    @PostMapping("/experience")
+    public ApiResponse<Map<String, Object>> updateExperience(
+            @RequestHeader("Authorization") String token,
+            @Valid @RequestBody ExperienceRequest request) {
+        try {
+            String actualToken = token.replace("Bearer ", "");
+            Long userId = jwtUtils.getUserIdFromToken(actualToken);
+
+            StudentProfile profile = studentProfileService.updateExperience(userId, request);
+
+            Map<String, Object> result = new HashMap<>();
+            result.put("profile", profile);
+            result.put("message", "经历信息更新成功");
+
+            return ApiResponse.success("经历信息更新成功", result);
+        } catch (Exception e) {
+            log.error("更新经历信息失败: {}", e.getMessage());
+            return ApiResponse.error(e.getMessage());
+        }
+    }
+
+    /**
+     * 获取学生经历信息
+     */
+    @GetMapping("/experience")
+    public ApiResponse<Map<String, Object>> getExperience(@RequestHeader("Authorization") String token) {
+        try {
+            String actualToken = token.replace("Bearer ", "");
+            Long userId = jwtUtils.getUserIdFromToken(actualToken);
+
+            Map<String, Object> experiences = studentProfileService.getExperience(userId);
+
+            return ApiResponse.success("获取经历信息成功", experiences);
+        } catch (Exception e) {
+            log.error("获取经历信息失败: {}", e.getMessage());
+            return ApiResponse.error(e.getMessage());
+        }
+    }
+
+    /**
+     * 更新简历完善状态
+     */
+    @PostMapping("/resume-status")
+    public ApiResponse<Map<String, Object>> updateResumeStatus(
+            @RequestHeader("Authorization") String token,
+            @RequestParam Integer status) {
+        try {
+            String actualToken = token.replace("Bearer ", "");
+            Long userId = jwtUtils.getUserIdFromToken(actualToken);
+
+            studentProfileService.updateResumeCompletionStatus(userId, status);
+
+            Map<String, Object> result = new HashMap<>();
+            result.put("status", status);
+            result.put("message", "简历状态更新成功");
+
+            return ApiResponse.success("简历状态更新成功", result);
+        } catch (Exception e) {
+            log.error("更新简历状态失败: {}", e.getMessage());
             return ApiResponse.error(e.getMessage());
         }
     }

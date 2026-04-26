@@ -70,7 +70,8 @@ export function downloadResume(resumeId) {
   return request({
     url: `/resumes/${resumeId}/download`,
     method: 'get',
-    responseType: 'blob'
+    responseType: 'blob',
+    silent404: true
   })
 }
 
@@ -218,6 +219,19 @@ export function generateResume(data) {
     url: '/make/generate1',  // 改成这个
     method: 'post',
     data
+  })
+}
+
+
+// 上传AI简历头像
+export function uploadResumeAvatar(formData) {
+  return request({
+    url: '/make/upload-avatar',
+    method: 'post',
+    data: formData,
+    headers: {
+      'Content-Type': 'multipart/form-data'
+    }
   })
 }
 

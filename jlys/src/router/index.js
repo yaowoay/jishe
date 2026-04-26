@@ -212,6 +212,11 @@ const routes = [
         meta: { title: '岗位维度分析', icon: 'el-icon-position' }
       },
       {
+        path: 'warnings',
+        name: 'StudentWarningCenter',
+        component: () => import('@/views/student/WarningCenter.vue')
+      },
+      {
         path: 'company-analysis',
         name: 'CompanyAnalysis',
         component: () => import('@/views/dataAnalysis/CompanyAnalysis.vue'),

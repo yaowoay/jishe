@@ -144,6 +144,12 @@
               </el-menu-item>
             </el-sub-menu>
 
+            <!-- 预警中心 -->
+            <el-menu-item index="/applicant/warnings">
+              <el-icon size="18"><Warning /></el-icon>
+              <span class="menu-text">预警中心</span>
+            </el-menu-item>
+
             <!-- 工具箱 -->
             <el-sub-menu index="tools">
               <template #title>
@@ -257,7 +263,8 @@ import {
   Position,
   OfficeBuilding,
   Link,
-  MagicStick
+  MagicStick,
+  Warning
 } from '@element-plus/icons-vue'
 import { ElMessageBox } from 'element-plus'
 export default {
@@ -287,7 +294,8 @@ export default {
     Position,
     OfficeBuilding,
     Link,
-    MagicStick
+    MagicStick,
+    Warning
   },
   data() {
     return {
@@ -321,6 +329,7 @@ export default {
         '/applicant/salary-predict': '薪资预测',
         '/applicant/my-collections': '我的收藏',
         '/applicant/behavior-analysis': '行为分析',
+        '/applicant/warnings': '预警中心',
         '/applicant/visual-screen': '可视化大屏'
       }
 

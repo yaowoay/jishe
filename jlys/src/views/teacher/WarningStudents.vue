@@ -423,6 +423,7 @@ const submitHandle = async () => {
     ElMessage.success('处理成功')
     showHandleDialog.value = false
     handleSearch()
+    loadStats()
   } catch (error) {
     ElMessage.error('处理失败')
   } finally {

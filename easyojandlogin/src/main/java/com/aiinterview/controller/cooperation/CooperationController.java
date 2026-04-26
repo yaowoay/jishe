@@ -2,9 +2,12 @@ package com.aiinterview.controller.cooperation;
 
 import com.aiinterview.common.BaseResponse;
 import com.aiinterview.common.ResultUtils;
+import com.aiinterview.mapper.CompanyMapper;
 import com.aiinterview.model.dto.cooperation.*;
+import com.aiinterview.model.entity.company.Company;
 import com.aiinterview.service.cooperation.CooperationService;
 import com.aiinterview.utils.JwtUtils;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -26,6 +29,7 @@ public class CooperationController {
 
     private final CooperationService cooperationService;
     private final JwtUtils jwtUtils;
+    private final CompanyMapper companyMapper;
 
     // ==================== 合作项目管理 ====================
 
@@ -34,14 +38,15 @@ public class CooperationController {
     public BaseResponse<CooperationProjectDTO> createProject(
             @RequestBody CooperationProjectDTO projectDTO,
             HttpServletRequest request) {
-        Long companyId = getCurrentUserId(request);
+        Long userId = getCurrentUserId(request);
         String role = getCurrentRole(request);
-        if (companyId == null) {
+        if (userId == null) {
             return ResultUtils.error(401, "未登录或登录已过期");
         }
         if (!"company".equals(role)) {
             return ResultUtils.error(403, "仅企业用户可创建合作项目");
         }
+        Long companyId = getCompanyIdByUserId(userId);
         CooperationProjectDTO result = cooperationService.createProject(companyId, projectDTO);
         return ResultUtils.success(result);
     }
@@ -52,10 +57,11 @@ public class CooperationController {
             @PathVariable Long projectId,
             @RequestBody CooperationProjectDTO projectDTO,
             HttpServletRequest request) {
-        Long companyId = getCurrentUserId(request);
-        if (companyId == null) {
+        Long userId = getCurrentUserId(request);
+        if (userId == null) {
             return ResultUtils.error(401, "未登录或登录已过期");
         }
+        Long companyId = getCompanyIdByUserId(userId);
         CooperationProjectDTO result = cooperationService.updateProject(companyId, projectId, projectDTO);
         return ResultUtils.success(result);
     }
@@ -65,10 +71,11 @@ public class CooperationController {
     public BaseResponse<CooperationProjectDTO> submitProject(
             @PathVariable Long projectId,
             HttpServletRequest request) {
-        Long companyId = getCurrentUserId(request);
-        if (companyId == null) {
+        Long userId = getCurrentUserId(request);
+        if (userId == null) {
             return ResultUtils.error(401, "未登录或登录已过期");
         }
+        Long companyId = getCompanyIdByUserId(userId);
         CooperationProjectDTO result = cooperationService.submitProject(companyId, projectId);
         return ResultUtils.success(result);
     }
@@ -93,7 +100,10 @@ public class CooperationController {
         String role = getCurrentRole(request);
         Long finalCompanyId = companyId;
         if ("company".equals(role)) {
-            finalCompanyId = currentUserId;
+            if (currentUserId == null) {
+                return ResultUtils.error(401, "未登录或登录已过期");
+            }
+            finalCompanyId = getCompanyIdByUserId(currentUserId);
         }
         IPage<CooperationProjectDTO> result = cooperationService.getProjectList(finalCompanyId, status, projectType, page, size);
         return ResultUtils.success(result);
@@ -123,10 +133,11 @@ public class CooperationController {
     public BaseResponse<Void> deleteProject(
             @PathVariable Long projectId,
             HttpServletRequest request) {
-        Long companyId = getCurrentUserId(request);
-        if (companyId == null) {
+        Long userId = getCurrentUserId(request);
+        if (userId == null) {
             return ResultUtils.error(401, "未登录或登录已过期");
         }
+        Long companyId = getCompanyIdByUserId(userId);
         cooperationService.deleteProject(companyId, projectId);
         return ResultUtils.success(null);
     }
@@ -291,6 +302,17 @@ public class CooperationController {
             return null;
         }
     }
+
+    private Long getCompanyIdByUserId(Long userId) {
+        QueryWrapper<Company> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("user_id", userId);
+        Company company = companyMapper.selectOne(queryWrapper);
+        if (company == null) {
+            throw new RuntimeException("未找到企业信息，请先完善企业资料");
+        }
+        return company.getCompanyId();
+    }
+
 
 
     // ==================== 统计分析 ====================

@@ -1,7 +1,10 @@
 package com.aiinterview.service.student;
 
 import com.aiinterview.model.dto.student.StudentProfileRequest;
+import com.aiinterview.model.dto.student.ExperienceRequest;
 import com.aiinterview.model.entity.student.StudentProfile;
+
+import java.util.Map;
 
 /**
  * 学生档案服务接口
@@ -27,4 +30,19 @@ public interface StudentProfileService {
      * 统计指定毕业年份的毕业生数量
      */
     Long countGraduatesByYear(Integer graduationYear);
+
+    /**
+     * 更新学生经历信息
+     */
+    StudentProfile updateExperience(Long userId, ExperienceRequest request);
+
+    /**
+     * 获取学生经历信息
+     */
+    Map<String, Object> getExperience(Long userId);
+
+    /**
+     * 更新简历完善状态
+     */
+    void updateResumeCompletionStatus(Long userId, Integer status);
 }

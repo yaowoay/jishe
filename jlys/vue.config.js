@@ -7,6 +7,18 @@ module.exports = defineConfig({
   devServer: {
     port: 3001,
     open: true,
+    client: {
+      overlay: {
+        warnings: false,
+        errors: true,
+        runtimeErrors: (error) => {
+          const msg = (error && error.message) ? error.message : ''
+          if (msg.includes('ResizeObserver loop completed with undelivered notifications')) return false
+          if (msg.includes('ResizeObserver loop limit exceeded')) return false
+          return true
+        }
+      }
+    },
     proxy: {
       // 代理所有后端请求（不需要 /api 前缀）
       '/resumes': {

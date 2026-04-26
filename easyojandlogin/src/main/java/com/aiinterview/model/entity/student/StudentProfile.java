@@ -59,6 +59,18 @@ public class StudentProfile {
     @TableField("profile_completion")
     private Integer profileCompletion; // 0-100
 
+    @TableField("research_experience")
+    private String researchExperience; // JSON格式存储科研经历
+
+    @TableField("honors_awards")
+    private String honorsAwards; // JSON格式存储荣誉获奖
+
+    @TableField("internship_experience")
+    private String internshipExperience; // JSON格式存储实习经历
+
+    @TableField("resume_completion_status")
+    private Integer resumeCompletionStatus; // 0-未完善 1-已完善
+
     @TableField(value = "created_at", fill = FieldFill.INSERT)
     private LocalDateTime createdAt;
 

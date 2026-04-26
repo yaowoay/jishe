@@ -1,99 +1,98 @@
 <template>
-  <div class="resume-template-photo">
-    <div class="resume-card">
-      <!-- 头部：姓名和照片 -->
-      <div class="resume-header">
-        <div class="header-left">
-          <h1 class="name">{{ resume.fullName || '张三' }}</h1>
-          <p class="position">{{ resume.position || '求职意向' }}</p>
+  <div class="resume-template-clean">
+    <div class="resume-wrapper">
+      <!-- 个人信息头部 -->
+      <div class="resume-head">
+        <div class="head-left">
+          <h1 class="user-name">{{ resume.fullName || '姓名' }}</h1>
+          <p class="user-job">{{ resume.position || '求职岗位' }}</p>
         </div>
-        <div class="header-right">
-          <div class="photo">
-            <img :src="photoUrl" alt="证件照" @error="handleImageError" />
+        <div class="head-right">
+          <div class="avatar-box">
+            <img :src="photoUrl" alt="个人照片" @error="handleImageError" />
           </div>
         </div>
       </div>
 
-      <!-- 联系方式表格 -->
-      <div class="contact-section">
-        <table class="contact-table">
-          <tbody>
-          <tr>
-            <td class="label">电话</td>
-            <td class="value">{{ resume.phone || '138-1234-5678' }}</td>
-            <td class="label">邮箱</td>
-            <td class="value">{{ resume.email || 'zhangsan@email.com' }}</td>
-          </tr>
-          <tr>
-            <td class="label">性别</td>
-            <td class="value">{{ gender || '男' }}</td>
-            <td class="label">年龄</td>
-            <td class="value">{{ age || '28' }}</td>
-          </tr>
-          <tr v-if="resume.location">
-            <td class="label">地址</td>
-            <td class="value" colspan="3">{{ resume.location }}</td>
-          </tr>
-          </tbody>
-        </table>
+      <!-- 基础信息栏 -->
+      <div class="base-info">
+        <div class="info-item">
+          <span class="label">电话</span>
+          <span class="text">{{ resume.phone || '13800000000' }}</span>
+        </div>
+        <div class="info-item">
+          <span class="label">邮箱</span>
+          <span class="text">{{ resume.email || 'example@email.com' }}</span>
+        </div>
+        <div class="info-item">
+          <span class="label">性别</span>
+          <span class="text">{{ gender || '男' }}</span>
+        </div>
+        <div class="info-item">
+          <span class="label">年龄</span>
+          <span class="text">{{ age || '25岁' }}</span>
+        </div>
+        <div class="info-item" v-if="resume.location">
+          <span class="label">现居地</span>
+          <span class="text">{{ resume.location }}</span>
+        </div>
       </div>
 
       <!-- 教育背景 -->
-      <div class="section">
+      <div class="resume-section">
         <h2 class="section-title">教育背景</h2>
-        <div class="section-content">
-          <div v-for="(edu, idx) in educationList" :key="idx" class="edu-item">
-            <div class="edu-header">
-              <span class="edu-degree">{{ edu.degree }}</span>
-              <span class="edu-major">{{ edu.major }}</span>
-              <span class="edu-date">{{ edu.date }}</span>
+        <div class="section-body">
+          <div v-for="(edu, idx) in educationList" :key="idx" class="item-block">
+            <div class="item-head">
+              <span class="school">{{ edu.school }}</span>
+              <span class="date">{{ edu.date }}</span>
             </div>
-            <div class="edu-school">{{ edu.school }}</div>
+            <div class="item-info">
+              {{ edu.degree }} | {{ edu.major }}
+            </div>
           </div>
         </div>
       </div>
 
-      <!-- 实习/项目经历 -->
-      <div class="section">
-        <h2 class="section-title">实习/项目经历</h2>
-        <div class="section-content">
-          <div v-for="(exp, idx) in projectList" :key="idx" class="exp-item">
-            <div class="exp-title">{{ exp.name }}</div>
-            <ul class="exp-list">
+      <!-- 工作/项目经历 -->
+      <div class="resume-section">
+        <h2 class="section-title">工作与项目经历</h2>
+        <div class="section-body">
+          <div v-for="(exp, idx) in projectList" :key="idx" class="item-block">
+            <div class="item-head">
+              <span class="company">{{ exp.name }}</span>
+            </div>
+            <ul class="desc-list" v-if="exp.achievements.length">
               <li v-for="(item, i) in exp.achievements" :key="i">{{ item }}</li>
             </ul>
           </div>
         </div>
       </div>
 
-      <!-- IT技能 -->
-      <div class="section">
-        <h2 class="section-title">IT技能</h2>
-        <div class="section-content">
-          <div class="skills-grid">
-            <div v-for="(skill, idx) in skillList" :key="idx" class="skill-item">
-              <span class="skill-name">{{ skill.name }}</span>
-              <span class="skill-level">{{ skill.level }}</span>
+      <!-- 专业技能 -->
+      <div class="resume-section">
+        <h2 class="section-title">专业技能</h2>
+        <div class="section-body">
+          <div class="skills-wrap">
+            <div v-for="(skill, idx) in skillList" :key="idx" class="skill-tag">
+              {{ skill.name }} <small>{{ skill.level }}</small>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- 其他信息 -->
-      <div class="section">
-        <h2 class="section-title">其他信息</h2>
-        <div class="section-content">
-          <div class="other-item" v-if="github">
-            <span class="other-label">GitHub：</span>
-            <a :href="github" target="_blank">{{ github }}</a>
-          </div>
-          <div class="other-item" v-if="blog">
-            <span class="other-label">技术博客：</span>
-            <a :href="blog" target="_blank">{{ blog }}</a>
-          </div>
-          <div class="other-item" v-if="resume.summary">
-            <span class="other-label">自我介绍：</span>
-            <p>{{ resume.summary }}</p>
+      <!-- 自我评价 & 附加信息 -->
+      <div class="resume-section">
+        <h2 class="section-title">自我评价</h2>
+        <div class="section-body">
+          <p class="self-desc" v-if="resume.summary">{{ resume.summary }}</p>
+          <p class="self-desc" v-else>
+            具备良好的学习能力与责任心，工作认真负责，善于沟通协作，能够快速适应新环境与新任务，对技术有持续学习的热情。
+          </p>
+
+          <div class="extra-links" v-if="github || blog">
+            <a v-if="github" :href="github" target="_blank" class="link-item">GitHub：{{ github }}</a>
+            <a v-if="blog" :href="blog" target="_blank" class="link-item">技术博客：{{ blog }}</a>
           </div>
         </div>
       </div>
@@ -103,7 +102,7 @@
 
 <script>
 export default {
-  name: 'ResumeTemplate3',
+  name: 'ResumeTemplateClean',
   props: {
     resume: {
       type: Object,
@@ -134,47 +133,48 @@ export default {
     }
   },
   methods: {
+    // 图片加载失败默认图
     handleImageError(e) {
-      e.target.src = 'https://via.placeholder.com/120x150?text=Photo'
+      e.target.src = 'https://via.placeholder.com/110x150?text=Photo'
     },
     initData() {
-      // 照片
-      this.photoUrl = '/template/resume_with_photo-main/photo.jpg'
+      // 头像地址（优先使用生成结果里的头像）
+      this.photoUrl = this.resume.avatarUrl || this.resume.avatar || this.resume.photoUrl || this.resume.imgUrl || '/template/resume_with_photo-main/photo.jpg'
 
       // 年龄
-      this.age = this.resume.workYears ? this.resume.workYears + '岁' : ''
+      this.age = this.resume.workYears ? `${this.resume.workYears}岁` : '25岁'
 
-      // 教育背景
+      // 教育经历
       this.educationList = (this.resume.educations || []).map(edu => ({
         school: edu.school,
         major: edu.major,
         degree: edu.degree,
         date: edu.startDate ? `${edu.startDate} - ${edu.endDate || '至今'}` : ''
       }))
-
-      // 如果没有教育经历，显示默认
       if (this.educationList.length === 0) {
         this.educationList = [{
-          school: '示例大学',
+          school: '某某大学',
           major: '计算机科学与技术',
           degree: '本科',
           date: '2016 - 2020'
         }]
       }
 
-      // 项目经验
+      // 项目 + 工作经历
+      this.projectList = []
       const projects = this.resume.projectExperiences || []
-      this.projectList = projects.map(proj => ({
-        name: proj.projectName,
-        achievements: proj.description ? proj.description.split('\n').filter(s => s.trim()) : []
-      }))
+      projects.forEach(proj => {
+        this.projectList.push({
+          name: proj.projectName,
+          achievements: proj.description ? proj.description.split('\n').filter(i => i.trim()) : []
+        })
+      })
 
-      // 工作经历也加入项目列表
       const works = this.resume.workExperiences || []
       works.forEach(work => {
         this.projectList.push({
           name: work.company,
-          achievements: [work.responsibility].filter(Boolean)
+          achievements: work.responsibility ? [work.responsibility] : []
         })
       })
 
@@ -184,251 +184,221 @@ export default {
         level: this.getSkillLevel(skill.level)
       }))
 
-      // GitHub 和博客（从 additionalInfos 中获取）
+      // GitHub / 博客
       const infos = this.resume.additionalInfos || []
       infos.forEach(info => {
-        if (info.name && info.name.toLowerCase().includes('github')) {
-          this.github = info.name
-        }
-        if (info.name && info.name.toLowerCase().includes('blog')) {
-          this.blog = info.name
-        }
+        if (info.name?.toLowerCase().includes('github')) this.github = info.name
+        if (info.name?.toLowerCase().includes('blog')) this.blog = info.name
       })
     },
+    // 技能等级映射
     getSkillLevel(level) {
-      const levelMap = { 1: '了解', 2: '基础', 3: '熟练', 4: '精通', 5: '专家' }
-      return levelMap[level] || '熟练'
+      const map = { 1: '入门', 2: '掌握', 3: '熟练', 4: '精通', 5: '专家' }
+      return map[level] || '熟练'
     }
   }
 }
 </script>
 
 <style scoped>
-.resume-template-photo {
-  font-family: 'Microsoft YaHei', 'Helvetica Neue', Arial, sans-serif;
-  background: #f0f0f0;
-  padding: 30px;
+/* 整体容器：简约正式 */
+.resume-template-clean {
+  width: 100%;
+  background: #f7f7f7;
+  padding: 25px 0;
+  font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+  color: #333;
 }
 
-.resume-card {
-  max-width: 900px;
+.resume-wrapper {
+  width: 100%;
+  max-width: 860px;
   margin: 0 auto;
-  background: white;
-  box-shadow: 0 5px 20px rgba(0,0,0,0.1);
-  padding: 40px;
-  border-radius: 4px;
+  background: #fff;
+  padding: 50px 55px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+  box-sizing: border-box;
 }
 
-/* 头部 */
-.resume-header {
+/* 头部：姓名 + 照片 */
+.resume-head {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-bottom: 2px solid #3498db;
   padding-bottom: 20px;
-  margin-bottom: 20px;
+  border-bottom: 1px solid #eee;
+  margin-bottom: 25px;
 }
 
-.name {
-  font-size: 28px;
-  font-weight: bold;
-  margin: 0 0 8px 0;
-  color: #2c3e50;
+.user-name {
+  font-size: 26px;
+  font-weight: 500;
+  color: #222;
+  margin: 0 0 6px 0;
 }
 
-.position {
-  font-size: 16px;
+.user-job {
+  font-size: 15px;
   color: #666;
   margin: 0;
 }
 
-.photo {
-  width: 100px;
-  height: 120px;
+.avatar-box {
+  width: 110px;
+  height: 150px;
+  border: 1px solid #eee;
   overflow: hidden;
-  border: 2px solid #ddd;
-  border-radius: 4px;
 }
 
-.photo img {
+.avatar-box img {
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
 
-/* 联系方式表格 */
-.contact-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-bottom: 25px;
-  font-size: 13px;
+/* 基础信息行 */
+.base-info {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px 30px;
+  margin-bottom: 35px;
+  font-size: 14px;
 }
 
-.contact-table td {
-  padding: 8px;
+.info-item {
+  display: flex;
+  align-items: center;
 }
 
-.contact-table .label {
-  font-weight: bold;
+.info-item .label {
   color: #666;
-  width: 60px;
-  background: #f5f5f5;
+  margin-right: 8px;
+  font-weight: 500;
 }
 
-.contact-table .value {
+.info-item .text {
   color: #333;
-  width: 150px;
 }
 
-/* 章节样式 */
-.section {
-  margin-bottom: 25px;
+/* 模块通用 */
+.resume-section {
+  margin-bottom: 32px;
 }
 
 .section-title {
-  font-size: 18px;
-  font-weight: bold;
-  color: #3498db;
-  border-left: 4px solid #3498db;
-  padding-left: 12px;
-  margin: 0 0 15px 0;
+  font-size: 17px;
+  font-weight: 500;
+  color: #222;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #eee;
+  margin: 0 0 16px 0;
 }
 
-.section-content {
-  padding-left: 16px;
+.section-body {
+  padding-left: 2px;
 }
 
-/* 教育经历 */
-.edu-item {
-  margin-bottom: 15px;
-}
-
-.edu-header {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 15px;
-  margin-bottom: 5px;
-}
-
-.edu-degree {
-  font-weight: bold;
-  color: #2c3e50;
-}
-
-.edu-major {
-  color: #555;
-}
-
-.edu-date {
-  color: #999;
-  font-size: 12px;
-}
-
-.edu-school {
-  color: #666;
-  font-size: 13px;
-}
-
-/* 项目经历 */
-.exp-item {
+/* 列表项 */
+.item-block {
   margin-bottom: 20px;
 }
 
-.exp-title {
-  font-weight: bold;
-  color: #2c3e50;
-  margin-bottom: 8px;
+.item-head {
+  display: flex;
+  justify-content: space-between;
   font-size: 15px;
+  font-weight: 500;
+  color: #222;
+  margin-bottom: 6px;
 }
 
-.exp-list {
-  margin: 0;
+.item-info {
+  font-size: 14px;
+  color: #555;
+}
+
+.desc-list {
+  margin: 8px 0 0 0;
   padding-left: 20px;
 }
 
-.exp-list li {
-  margin: 5px 0;
-  line-height: 1.5;
-  color: #555;
-  font-size: 13px;
+.desc-list li {
+  font-size: 14px;
+  color: #444;
+  line-height: 1.6;
+  margin-bottom: 4px;
 }
 
-/* 技能 */
-.skills-grid {
+/* 技能标签 */
+.skills-wrap {
   display: flex;
   flex-wrap: wrap;
-  gap: 20px;
+  gap: 10px;
 }
 
-.skill-item {
-  display: flex;
-  justify-content: space-between;
-  width: calc(50% - 20px);
-  padding: 5px 0;
-  border-bottom: 1px dashed #eee;
+.skill-tag {
+  padding: 6px 12px;
+  background: #f5f5f5;
+  border-radius: 3px;
+  font-size: 14px;
+  color: #333;
 }
 
-.skill-name {
-  font-weight: bold;
-  color: #2c3e50;
-}
-
-.skill-level {
-  color: #999;
+.skill-tag small {
+  color: #888;
+  margin-left: 4px;
   font-size: 12px;
 }
 
-/* 其他信息 */
-.other-item {
-  margin-bottom: 10px;
+/* 自我评价 */
+.self-desc {
+  font-size: 14px;
+  color: #444;
+  line-height: 1.7;
+  margin: 0 0 15px 0;
 }
 
-.other-label {
-  font-weight: bold;
-  color: #555;
+.extra-links {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 10px;
 }
 
-.other-item a {
-  color: #3498db;
+.link-item {
+  font-size: 14px;
+  color: #333;
   text-decoration: none;
 }
 
-.other-item a:hover {
-  text-decoration: underline;
+.link-item:hover {
+  color: #000;
 }
 
-.other-item p {
-  margin: 5px 0 0 0;
-  color: #666;
-  line-height: 1.6;
-}
-
+/* 打印适配 */
 @media print {
-  .resume-template-photo {
+  .resume-template-clean {
+    background: #fff;
     padding: 0;
-    background: white;
   }
-  .resume-card {
+  .resume-wrapper {
     box-shadow: none;
     padding: 20px;
   }
 }
 
+/* 移动端适配 */
 @media (max-width: 600px) {
-  .resume-header {
+  .resume-wrapper {
+    padding: 30px 20px;
+  }
+  .resume-head {
     flex-direction: column-reverse;
-    text-align: center;
     gap: 15px;
+    text-align: center;
   }
-  .contact-table td {
-    display: block;
-    width: 100%;
-  }
-  .skills-grid {
-    flex-direction: column;
-  }
-  .skill-item {
-    width: 100%;
+  .base-info {
+    justify-content: center;
   }
 }
 </style>

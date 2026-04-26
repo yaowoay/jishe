@@ -61,6 +61,8 @@ public class ResumeServiceImpl implements ResumeService {
         resume.setUserId(userId);
         resume.setIsDefault(false);
         resume.setViewCount(0);
+        resume.setDownloadCount(0);
+        resume.setStatus(request.getStatus() == null || request.getStatus().trim().isEmpty() ? "DRAFT" : request.getStatus().trim());
         // 保存简历时
         resume.setTemplateId(request.getTemplateId());  // 确保这行存在
         resumerMapper.insert(resume);
@@ -73,8 +75,14 @@ public class ResumeServiceImpl implements ResumeService {
     @Transactional
     public ResumeResponse updateResume(Long resumeId, ResumeUpdateRequest request, Long userId) {
         resumer existingResume = validateResumeOwnership(resumeId, userId);
+        String originalStatus = existingResume.getStatus();
 
         BeanUtils.copyProperties(request, existingResume);
+        if (request.getStatus() != null && !request.getStatus().trim().isEmpty()) {
+            existingResume.setStatus(request.getStatus().trim());
+        } else {
+            existingResume.setStatus(originalStatus);
+        }
         resumerMapper.updateById(existingResume);
 
         deleteResumeDetails(resumeId);

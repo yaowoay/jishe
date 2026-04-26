@@ -4,6 +4,7 @@ import com.aiinterview.mapper.*;
 import com.aiinterview.model.dto.cooperation.*;
 import com.aiinterview.model.entity.company.Company;
 import com.aiinterview.model.entity.cooperation.*;
+import com.aiinterview.model.entity.teacher.CooperationApplication;
 import com.aiinterview.model.entity.teacher.Teacher;
 import com.aiinterview.service.cooperation.CooperationService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -33,6 +34,7 @@ public class CooperationServiceImpl implements CooperationService {
     private final CooperationCaseMapper caseMapper;
     private final CompanyMapper companyMapper;
     private final TeacherMapper teacherMapper;
+    private final CooperationApplicationMapper cooperationApplicationMapper;
 
     @Override
     @Transactional
@@ -95,6 +97,17 @@ public class CooperationServiceImpl implements CooperationService {
         project.setStatus("submitted");
         project.setSubmitTime(LocalDateTime.now());
         projectMapper.updateById(project);
+
+        CooperationApplication application = new CooperationApplication();
+        application.setEnterpriseId(companyId);
+        application.setCooperationType(project.getProjectType());
+        application.setTitle(project.getProjectName());
+        application.setDescription(project.getProjectDesc());
+        application.setProposalUrl(project.getAttachments());
+        application.setExpectedStartDate(project.getStartDate());
+        application.setExpectedStudents(project.getStudentCount());
+        application.setStatus("pending");
+        cooperationApplicationMapper.insert(application);
 
         return convertToProjectDTO(project);
     }

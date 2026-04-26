@@ -3,14 +3,19 @@ package com.aiinterview.service.impl.student;
 import com.aiinterview.mapper.StudentProfileMapper;
 import com.aiinterview.mapper.UserMapper;
 import com.aiinterview.model.dto.student.StudentProfileRequest;
+import com.aiinterview.model.dto.student.ExperienceRequest;
 import com.aiinterview.model.entity.student.StudentProfile;
 import com.aiinterview.model.entity.user.User;
 import com.aiinterview.service.student.StudentProfileService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * 学生档案服务实现类
@@ -21,6 +26,7 @@ public class StudentProfileServiceImpl implements StudentProfileService {
 
     private final StudentProfileMapper studentProfileMapper;
     private final UserMapper userMapper;
+    private final ObjectMapper objectMapper;
 
     @Override
     @Transactional
@@ -96,5 +102,95 @@ public class StudentProfileServiceImpl implements StudentProfileService {
         QueryWrapper<StudentProfile> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("graduation_year", graduationYear);
         return studentProfileMapper.selectCount(queryWrapper);
+    }
+
+    @Override
+    @Transactional
+    public StudentProfile updateExperience(Long userId, ExperienceRequest request) {
+        try {
+            // 查找学生档案
+            QueryWrapper<StudentProfile> queryWrapper = new QueryWrapper<>();
+            queryWrapper.eq("user_id", userId);
+            StudentProfile profile = studentProfileMapper.selectOne(queryWrapper);
+
+            if (profile == null) {
+                throw new RuntimeException("学生档案不存在，请先完善基本信息");
+            }
+
+            // 将经历信息转换为JSON字符串
+            if (request.getResearchExperiences() != null) {
+                String researchJson = objectMapper.writeValueAsString(request.getResearchExperiences());
+                profile.setResearchExperience(researchJson);
+            }
+
+            if (request.getHonorsAwards() != null) {
+                String honorsJson = objectMapper.writeValueAsString(request.getHonorsAwards());
+                profile.setHonorsAwards(honorsJson);
+            }
+
+            if (request.getInternshipExperiences() != null) {
+                String internshipJson = objectMapper.writeValueAsString(request.getInternshipExperiences());
+                profile.setInternshipExperience(internshipJson);
+            }
+
+            // 更新数据库
+            studentProfileMapper.updateById(profile);
+
+            return profile;
+        } catch (Exception e) {
+            throw new RuntimeException("更新经历信息失败: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public Map<String, Object> getExperience(Long userId) {
+        try {
+            QueryWrapper<StudentProfile> queryWrapper = new QueryWrapper<>();
+            queryWrapper.eq("user_id", userId);
+            StudentProfile profile = studentProfileMapper.selectOne(queryWrapper);
+
+            Map<String, Object> result = new HashMap<>();
+
+            if (profile != null) {
+                // 解析科研经历
+                if (profile.getResearchExperience() != null && !profile.getResearchExperience().isEmpty()) {
+                    result.put("researchExperiences", 
+                        objectMapper.readValue(profile.getResearchExperience(), Object.class));
+                }
+
+                // 解析荣誉获奖
+                if (profile.getHonorsAwards() != null && !profile.getHonorsAwards().isEmpty()) {
+                    result.put("honorsAwards", 
+                        objectMapper.readValue(profile.getHonorsAwards(), Object.class));
+                }
+
+                // 解析实习经历
+                if (profile.getInternshipExperience() != null && !profile.getInternshipExperience().isEmpty()) {
+                    result.put("internshipExperiences", 
+                        objectMapper.readValue(profile.getInternshipExperience(), Object.class));
+                }
+
+                result.put("resumeCompletionStatus", profile.getResumeCompletionStatus());
+            }
+
+            return result;
+        } catch (Exception e) {
+            throw new RuntimeException("获取经历信息失败: " + e.getMessage());
+        }
+    }
+
+    @Override
+    @Transactional
+    public void updateResumeCompletionStatus(Long userId, Integer status) {
+        QueryWrapper<StudentProfile> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("user_id", userId);
+        StudentProfile profile = studentProfileMapper.selectOne(queryWrapper);
+
+        if (profile == null) {
+            throw new RuntimeException("学生档案不存在");
+        }
+
+        profile.setResumeCompletionStatus(status);
+        studentProfileMapper.updateById(profile);
     }
 }

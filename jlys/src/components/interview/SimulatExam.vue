@@ -2,114 +2,97 @@
   <div class="simulat-exam-root">
     <div v-if="showWakeupBanner" class="wakeup-banner">请点击页面任意位置唤醒AI多模态面试官</div>
     <div class="main-flex-layout">
-      <!-- 左侧：历史对话区 -->
-      <div class="side-panel history-panel">
-        <div class="history-header">
-          <el-icon class="history-icon"><ChatDotRound /></el-icon>
-          <span class="history-title">对话历史</span>
-        </div>
-        <div class="history-list" ref="historyListRef">
-          <div v-for="(msg, idx) in dialogList" :key="idx" :class="['history-item', msg.role]">
-            <div class="history-role">{{ msg.role === 'ai' ? '面试官' : msg.role === 'user' ? '你' : 'AI' }}</div>
-            <div class="history-text">{{ msg.text.length > 50 ? msg.text.slice(0, 50) + '...' : msg.text }}</div>
-            <div class="history-time">{{ getTimeFromIndex(idx) }}</div>
+      <div class="left-column">
+        <div class="center-panel">
+          <div class="video-header">
+            <span class="timer big-timer">面试计时：{{ timerText }}</span>
+            <div class="header-buttons">
+              <el-button type="success" @click="initCamera" size="small">开启摄像头</el-button>
+              <el-button type="primary" @click="testDigitalHuman" size="small">测试数字人</el-button>
+              <el-button type="danger" @click="endInterview" size="large" class="big-end-btn">结束面试</el-button>
+            </div>
           </div>
-        </div>
-      </div>
-
-      <!-- 中间：视频区+AI回答/参考答案 -->
-      <div class="center-panel">
-        <div class="video-header">
-          <span class="timer big-timer">面试计时：{{ timerText }}</span>
-          <div class="header-buttons">
-            <el-button type="success" @click="initCamera" size="small">开启摄像头</el-button>
-            <el-button type="primary" @click="testDigitalHuman" size="small">测试数字人</el-button>
-            <el-button type="danger" @click="endInterview" size="large" class="big-end-btn">结束面试</el-button>
-          </div>
-        </div>
-        <div class="main-video-area">
-          <div class="main-video-box" @click="isSwapped = !isSwapped">
-            <template v-if="!isSwapped">
-              <DigitalHuman ref="digitalHumanRef" @nlp-content="handleNlpContent" />
-            </template>
-            <template v-else>
-              <video ref="userVideo" autoplay muted playsinline class="user-video"></video>
-            </template>
-            <div class="pip-video-box" @click.stop="isSwapped = !isSwapped">
+          <div class="main-video-area">
+            <div class="main-video-box" @click="isSwapped = !isSwapped">
               <template v-if="!isSwapped">
-                <video ref="userVideo" autoplay muted playsinline class="user-video"></video>
+                <DigitalHuman ref="digitalHumanRef" @nlp-content="handleNlpContent" />
               </template>
               <template v-else>
-                <!-- 小窗口中的数字人不需要监听nlp-content，避免重复处理 -->
-                <DigitalHuman />
+                <video ref="userVideo" autoplay muted playsinline class="user-video"></video>
               </template>
+              <div class="pip-video-box" @click.stop="isSwapped = !isSwapped">
+                <template v-if="!isSwapped">
+                  <video ref="userVideo" autoplay muted playsinline class="user-video"></video>
+                </template>
+                <template v-else>
+                  <DigitalHuman />
+                </template>
+              </div>
             </div>
           </div>
+          <div class="ai-answer-box">{{ currentDigitalHumanText || aiCurrentAnswer }}</div>
         </div>
-        <div class="ai-answer-box">
-          {{ currentDigitalHumanText || aiCurrentAnswer }}
-        </div>
-        <div class="ai-ref-answer-box">
-          <el-icon style="color:#67C23A;margin-right:8px;"><i class="el-icon-lightning"></i></el-icon>
-          <span class="ref-title">AI参考答案：</span>
-          <span class="ref-content">{{ aiRefAnswer }}</span>
+
+        <div class="insight-panel">
+          <div class="insight-left">
+            <div class="emotion-analysis-bar">
+              <el-icon style="color:#F56C6C;margin-right:6px;"><i class="el-icon-view"></i></el-icon>
+              <span>表情分析：</span>
+              <span class="emotion-content" :class="emotionAnalysis.level">{{ emotionAnalysis.text }}</span>
+              <div class="emotion-details">
+                <span class="emotion-score">置信度: {{ emotionAnalysis.confidence }}%</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="insight-right">
+            <div class="face-attribute-bar">
+              <el-icon style="color:#67C23A;margin-right:6px;"><i class="el-icon-user"></i></el-icon>
+              <span>状态检测：</span>
+              <div class="attribute-list">
+                <div class="attribute-item">
+                  <span class="attr-label">注意力：</span>
+                  <span class="attr-value" :class="faceAttributes.attention.level">{{ faceAttributes.attention.text }}</span>
+                </div>
+                <div class="attribute-item">
+                  <span class="attr-label">姿态：</span>
+                  <span class="attr-value" :class="faceAttributes.posture.level">{{ faceAttributes.posture.text }}</span>
+                </div>
+                <div class="attribute-item">
+                  <span class="attr-label">眼神：</span>
+                  <span class="attr-value" :class="faceAttributes.eyeContact.level">{{ faceAttributes.eyeContact.text }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
-      <!-- 右侧：AI提示卡片 -->
-      <div class="side-panel right-panel">
-        <!-- 表情分析提示区域 -->
-        <div class="emotion-analysis-bar">
-          <el-icon style="color:#F56C6C;margin-right:6px;"><i class="el-icon-view"></i></el-icon>
-          <span>表情分析：</span>
-          <span class="emotion-content" :class="emotionAnalysis.level">{{ emotionAnalysis.text }}</span>
-          <div class="emotion-details">
-            <span class="emotion-score">置信度: {{ emotionAnalysis.confidence }}%</span>
+      <div class="right-panel chat-panel">
+        <div class="chat-header">
+          <div class="chat-header-left">
+            <el-icon class="history-icon"><ChatDotRound /></el-icon>
+            <span class="history-title">面试对话</span>
+          </div>
+          <div class="chat-header-hint" :title="aiHint">
+            <el-icon style="color:#E6A23C;margin-right:4px;"><i class="el-icon-smile"></i></el-icon>
+            <span class="chat-hint-label">建议：</span>
+            <span class="chat-hint-text">{{ aiHint }}</span>
+          </div>
+        </div>
+        <div class="chat-list" ref="historyListRef">
+          <div v-for="(msg, idx) in dialogList" :key="idx" :class="['chat-message', msg.role]">
+            <div class="chat-role">{{ msg.role === 'ai' ? '面试官' : '你' }}</div>
+            <div class="chat-text">{{ msg.text }}</div>
+            <div class="chat-time">{{ getTimeFromIndex(idx) }}</div>
           </div>
         </div>
 
-        <!-- 人脸属性检测提示区域 -->
-        <div class="face-attribute-bar">
-          <el-icon style="color:#67C23A;margin-right:6px;"><i class="el-icon-user"></i></el-icon>
-          <span>状态检测：</span>
-          <div class="attribute-list">
-            <div class="attribute-item">
-              <span class="attr-label">注意力：</span>
-              <span class="attr-value" :class="faceAttributes.attention.level">{{ faceAttributes.attention.text }}</span>
-            </div>
-            <div class="attribute-item">
-              <span class="attr-label">姿态：</span>
-              <span class="attr-value" :class="faceAttributes.posture.level">{{ faceAttributes.posture.text }}</span>
-            </div>
-            <div class="attribute-item">
-              <span class="attr-label">眼神：</span>
-              <span class="attr-value" :class="faceAttributes.eyeContact.level">{{ faceAttributes.eyeContact.text }}</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- 表情提示区域 -->
-        <div class="ai-hint-bar">
-          <el-icon style="color:#E6A23C;margin-right:6px;"><i class="el-icon-smile"></i></el-icon>
-          <span>面试建议：</span>
-          <span class="ai-hint-content">{{ aiHint }}</span>
-        </div>
-
-        <!-- AI答案区域 -->
-        <div class="ai-answer-hint-bar">
-          <div class="ai-answer-header">
-            <el-icon style="color:#409EFF;margin-right:6px;"><i class="el-icon-chat-dot-round"></i></el-icon>
-            <span>AI答案：</span>
-            <span v-if="isDigitalHumanSpeaking" class="speaking-indicator">正在讲话...</span>
-          </div>
-          <div class="ai-answer-content">{{ currentDigitalHumanText || aiCurrentAnswer }}</div>
-        </div>
-        <!-- 固定底部输入区 -->
         <div class="fixed-bottom-input">
           <div class="dialog-input-area-row">
             <el-input
               v-model="recognizedText"
-              placeholder="请点击下方语音按钮或手动输入..."
+              placeholder="请输入你的回答，或点击语音按钮..."
               class="voice-input"
               @keydown.enter="sendMsg"
             />
@@ -123,7 +106,7 @@
             </el-radio-group>
           </div>
           <div class="voice-btn-outer">
-            <div class="voice-btn" :class="{recording: isRecording}" @click="toggleVoice">
+            <div class="voice-btn" :class="{ recording: isRecording }" @click="toggleVoice">
               <el-icon v-if="!isRecording" class="mic-icon"><Microphone /></el-icon>
               <div v-else class="sound-waves">
                 <span v-for="n in 8" :key="n" :class="['wave-bar', 'wave-' + n]"></span>
@@ -1611,7 +1594,7 @@ async function sendMsg() {
 .simulat-exam-root {
   width: 100%;
   height: 100vh;
-  background: #f0f5ff;
+  background: #f4f6f8;
   padding: 0;
   margin: 0;
   box-sizing: border-box;
@@ -1620,70 +1603,93 @@ async function sendMsg() {
   flex-direction: column;
 }
 .main-flex-layout {
-  display: flex;
-  flex-direction: row;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   width: 100%;
-  padding: 0 20px;
-  height: 95vh;
-  gap: 16px;
-  justify-content: space-between;
+  padding: 10px;
+  height: 100vh;
+  gap: 10px;
   align-items: stretch;
   overflow: hidden;
   box-sizing: border-box;
 }
-.side-panel {
-  width: 320px;
-  height: 90vh;
-  background: #fff;
-  border-radius: 12px;
-  box-shadow: 0 2px 12px rgba(64, 158, 255, 0.12);
+.left-column,
+.right-panel {
+  height: calc(100vh - 20px);
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+  box-sizing: border-box;
+}
+.left-column {
+  display: grid;
+  grid-template-rows: 75% 25%;
+  gap: 8px;
+  padding: 8px;
+  overflow: hidden;
+}
+.center-panel {
   display: flex;
   flex-direction: column;
-  overflow: hidden;
-  justify-content: flex-start;
+  align-items: stretch;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  max-width: none;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 8px;
   box-sizing: border-box;
-  padding: 16px 0 0 0;
+  overflow: hidden;
+}
+.insight-panel {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 6px;
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+.insight-left,
+.insight-right {
+  min-width: 0;
+}
+.insight-left {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.insight-right {
+  display: flex;
+}
+.insight-right .face-attribute-bar {
+  margin: 0;
+  width: 100%;
 }
 .right-panel {
-  width: 320px;
-  padding: 16px;
+  position: relative;
+  padding: 0;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
-  justify-content: flex-start;
-  height: 90vh;
-  position: relative;
-  box-sizing: border-box;
-  background: #fff;
-  border-radius: 12px;
-  box-shadow: 0 2px 12px rgba(64, 158, 255, 0.12);
 }
 .fixed-bottom-input {
   position: absolute;
   left: 0;
   bottom: 0;
   width: 100%;
-  background: #f7faff;
-  box-shadow: 0 -1px 6px rgba(64, 158, 255, 0.1);
-  padding: 16px;
-  border-bottom-left-radius: 12px;
-  border-bottom-right-radius: 12px;
+  background: #ffffff;
+  border-top: 1px solid #edf0f3;
+  box-shadow: none;
+  padding: 8px 10px;
+  border-bottom-left-radius: 10px;
+  border-bottom-right-radius: 10px;
   z-index: 2;
-}
-.right-panel > .emotion-analysis-bar,
-.right-panel > .face-attribute-bar,
-.right-panel > .ai-hint-bar,
-.right-panel > .ai-answer-hint-bar {
-  margin-bottom: 12px;
-}
-.right-panel > .ai-answer-hint-bar {
-  padding-bottom: 140px;
-}
-.history-header {
-  padding: 16px;
-  border-bottom: 1px solid #e6eeff;
-  display: flex;
-  align-items: center;
-  gap: 8px;
+  box-sizing: border-box;
 }
 .history-icon {
   color: #409eff;
@@ -1694,167 +1700,125 @@ async function sendMsg() {
   font-weight: 600;
   color: #1f2d3d;
 }
-.history-list {
+.chat-header {
+  padding: 8px 10px;
+  border-bottom: 1px solid #edf0f3;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  background: #fafafa;
+}
+.chat-header-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+.chat-header-hint {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  max-width: 52%;
+  padding: 2px 6px;
+  border: 1px solid #fde6bf;
+  border-radius: 12px;
+  background: #fffbf2;
+  font-size: 12px;
+  color: #8a6d3b;
+}
+.chat-hint-label {
+  flex-shrink: 0;
+}
+.chat-hint-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.chat-list {
   flex: 1;
-  padding: 12px 16px;
+  min-height: 0;
+  padding: 8px 10px 126px;
   display: flex;
   flex-direction: column;
   gap: 8px;
   overflow-y: auto;
-  max-height: calc(100% - 60px);
 }
-.history-list::-webkit-scrollbar {
-  width: 4px;
+.chat-message {
+  max-width: 92%;
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: #f8fafc;
+  border: 1px solid #e5e7eb;
 }
-.history-list::-webkit-scrollbar-track {
-  background: #f1f6ff;
-  border-radius: 2px;
+.chat-message.ai {
+  align-self: flex-start;
 }
-.history-list::-webkit-scrollbar-thumb {
-  background: #c0d4f7;
-  border-radius: 2px;
+.chat-message.user {
+  align-self: flex-end;
+  background: #eff8ff;
+  border-color: #d7e8ff;
 }
-.history-list::-webkit-scrollbar-thumb:hover {
-  background: #a0bce8;
-}
-.history-item {
-  padding: 12px;
-  border-radius: 8px;
-  background: #f7faff;
-  border-left: 3px solid #e6eeff;
-  transition: all 0.2s ease;
-}
-.history-item.ai {
-  border-left-color: #409eff;
-  background: #ecf5ff;
-}
-.history-item.user {
-  border-left-color: #67c23a;
-  background: #f0f9eb;
-}
-.history-role {
-  font-size: 12px;
-  color: #606266;
-  margin-bottom: 4px;
-  font-weight: 500;
-}
-.history-text {
-  font-size: 14px;
-  color: #303133;
-  line-height: 1.4;
-  margin-bottom: 4px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.history-time {
+.chat-role {
   font-size: 11px;
-  color: #909399;
+  color: #6b7280;
+  margin-bottom: 2px;
 }
-.center-panel {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  flex: 1;
-  min-width: 520px;
-  max-width: 640px;
-  height: 90vh;
-  justify-content: flex-start;
-  background: transparent;
-  border-radius: 0;
-  box-shadow: none;
-  padding: 0;
-  box-sizing: border-box;
+.chat-text {
+  font-size: 13px;
+  color: #1f2937;
+  line-height: 1.45;
+  word-break: break-word;
+  white-space: pre-wrap;
+}
+.chat-time {
+  font-size: 10px;
+  color: #9ca3af;
+  margin-top: 3px;
+  text-align: right;
 }
 .video-header {
   width: 100%;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 16px;
-  padding: 0 8px;
-}
-.header-buttons {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.timer {
-  font-size: 16px;
-  color: #409eff;
-  font-weight: 600;
+  margin-bottom: 6px;
+  padding: 0 2px;
 }
 .big-timer {
-  font-size: 24px;
+  font-size: 20px;
   font-weight: 700;
 }
 .big-end-btn {
-  font-size: 16px !important;
-  padding: 8px 24px !important;
-  height: 40px !important;
-  border-radius: 8px !important;
+  font-size: 14px !important;
+  padding: 6px 14px !important;
+  height: 34px !important;
+  border-radius: 6px !important;
 }
 .main-video-area {
   position: relative;
   width: 100%;
-  height: 400px;
-  margin: 0 auto 20px auto;
+  flex: 1;
+  min-height: 0;
+  margin: 0 auto 6px auto;
   display: flex;
   align-items: center;
   justify-content: center;
-}
-.main-video-box {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  border-radius: 12px;
-  background: #fff;
-  box-shadow: 0 2px 12px rgba(64, 158, 255, 0.12);
-  overflow: hidden;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.main-video-box > *:first-child {
-  position: absolute;
-  width: 100%;
-  height: 180%;
-  top: -10%;
-  left: 0;
-  object-fit: cover;
-}
-.pip-video-box {
-  position: absolute;
-  right: 12px;
-  bottom: 12px;
-  width: 160px;
-  height: 160px;
-  border-radius: 8px;
-  background: #fff;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-  overflow: hidden;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 2;
-  border: 2px solid #fff;
 }
 .ai-answer-box {
-  width: 90%;
-  height: 100px;
+  width: 100%;
+  height: 52px;
   background: #fff;
   border: 1px solid #e6eeff;
-  border-radius: 8px;
-  margin-top: 16px;
-  font-size: 16px;
+  border-radius: 6px;
+  margin-top: 0;
+  font-size: 13px;
   color: #303133;
-  padding: 16px;
+  padding: 6px 8px;
   box-sizing: border-box;
-  box-shadow: 0 2px 8px rgba(64, 158, 255, 0.08);
+  box-shadow: none;
   overflow-y: auto;
-  line-height: 1.5;
+  line-height: 1.4;
   text-align: left;
   display: flex;
   align-items: flex-start;
@@ -1872,6 +1836,15 @@ async function sendMsg() {
 }
 .ai-answer-box::-webkit-scrollbar-thumb:hover {
   background: #a0bce8;
+}
+@media (max-width: 1200px) {
+  .left-column {
+    grid-template-rows: 68% 32%;
+  }
+  .insight-panel {
+    grid-template-columns: 1fr;
+    overflow-y: auto;
+  }
 }
 .ai-ref-answer-box {
   width: 90%;
@@ -1902,24 +1875,31 @@ async function sendMsg() {
   flex-direction: row;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  margin-top: 12px;
+  gap: 6px;
+  margin-top: 0;
 }
 .voice-input {
-  width: 70%;
-  font-size: 14px;
+  width: 100%;
+  font-size: 13px;
   border-radius: 6px;
 }
 .send-btn {
-  font-size: 14px;
-  padding: 0 16px;
-  height: 32px;
-  margin-left: 8px;
+  font-size: 13px;
+  padding: 0 12px;
+  height: 30px;
+  margin-left: 0;
   border-radius: 6px;
 }
+.input-tip {
+  margin-top: 4px;
+  font-size: 12px;
+  color: #909399;
+}
 .recording-mode-selector {
-  margin: 8px 0;
-  text-align: center;
+  margin: 6px 0 4px;
+  text-align: left;
+  transform: scale(0.95);
+  transform-origin: left center;
 }
 .voice-btn-outer {
   width: 100%;
@@ -1927,36 +1907,36 @@ async function sendMsg() {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  margin-top: 8px;
+  margin-top: 2px;
 }
 .voice-btn {
   background: #fff;
-  border: 2px solid #409eff;
+  border: 1.5px solid #409eff;
   color: #409eff;
   border-radius: 50%;
-  width: 64px;
-  height: 64px;
+  width: 42px;
+  height: 42px;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 2px 8px rgba(64, 158, 255, 0.15);
+  box-shadow: none;
 }
 .voice-btn:hover {
-  transform: scale(1.05);
-  box-shadow: 0 4px 12px rgba(64, 158, 255, 0.2);
+  transform: scale(1.03);
+  box-shadow: none;
 }
 .voice-btn.recording {
   background: #409eff;
   color: #fff;
   border-color: #409eff;
-  box-shadow: 0 2px 8px rgba(64, 158, 255, 0.3);
+  box-shadow: none;
   animation: pulse 2s infinite;
 }
 .mic-icon {
-  font-size: 24px;
-  transition: all 0.3s ease;
+  font-size: 18px;
+  transition: all 0.2s ease;
 }
 .sound-waves {
   display: flex;
@@ -2004,29 +1984,31 @@ async function sendMsg() {
   width: 100%;
   background: #fef0f0;
   border-radius: 8px;
-  padding: 12px;
-  margin: 0 0 12px 0;
-  font-size: 14px;
+  padding: 6px 8px;
+  margin: 0;
+  font-size: 13px;
   color: #f56c6c;
   display: flex;
   flex-direction: column;
   font-weight: 600;
-  box-shadow: 0 1px 6px rgba(245, 108, 108, 0.1);
-  min-height: 72px;
+  box-shadow: 0 1px 4px rgba(245, 108, 108, 0.08);
+  min-height: 92px;
+  height: 100%;
+  box-sizing: border-box;
 }
 .emotion-content {
   color: #303133;
   font-weight: 500;
-  margin-left: 4px;
-  margin-top: 4px;
+  margin-left: 2px;
+  margin-top: 2px;
 }
 .emotion-content.good { color: #67c23a; }
 .emotion-content.warning { color: #e6a23c; }
 .emotion-content.danger { color: #f56c6c; }
 .emotion-content.neutral { color: #909399; }
 .emotion-details {
-  margin-top: 6px;
-  font-size: 12px;
+  margin-top: 4px;
+  font-size: 11px;
 }
 .emotion-score {
   color: #606266;
@@ -2036,35 +2018,37 @@ async function sendMsg() {
   width: 100%;
   background: #ecf5ff;
   border-radius: 8px;
-  padding: 12px;
-  margin: 0 0 12px 0;
-  font-size: 14px;
+  padding: 6px 8px;
+  margin: 0;
+  font-size: 13px;
   color: #409eff;
   display: flex;
   flex-direction: column;
   font-weight: 600;
-  box-shadow: 0 1px 6px rgba(64, 158, 255, 0.1);
-  min-height: 108px;
+  box-shadow: 0 1px 4px rgba(64, 158, 255, 0.08);
+  min-height: 92px;
+  height: 100%;
+  box-sizing: border-box;
 }
 .attribute-list {
-  margin-top: 6px;
+  margin-top: 4px;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 2px;
 }
 .attribute-item {
   display: flex;
   align-items: center;
-  font-size: 13px;
+  font-size: 12px;
 }
 .attr-label {
   color: #606266;
   font-weight: 500;
-  min-width: 52px;
+  min-width: 46px;
 }
 .attr-value {
   font-weight: 600;
-  margin-left: 6px;
+  margin-left: 4px;
 }
 .attr-value.good { color: #67c23a; }
 .attr-value.warning { color: #e6a23c; }

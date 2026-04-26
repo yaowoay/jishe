@@ -4,8 +4,8 @@
     <div id="coze-chat-container" class="coze-chat-container">
       <!-- Coze 聊天框将在这里渲染 -->
       <div class="loading-placeholder" v-if="!cozeLoaded">
-        <div class="loading-icon">🤖</div>
-        <div class="loading-text">AI助手正在初始化...</div>
+        <div class="loading-icon">...(*￣０￣)ノ马上来</div>
+        <div class="loading-text">正在初始化...</div>
       </div>
     </div>
   </div>
@@ -49,7 +49,7 @@ export default {
             this.cozeWebSDK = new window.CozeWebSDK.WebChatClient({
               config: {
                 type: 'bot',
-                botId: '7526417335507746879',
+                botId: '7526411459388276778',
                 isIframe: false,//必须设置为true才能显示会话列表
                 uploadable: true, // 必须设置为true才能上传文件
                 isNeedAudio: true,// 必须设置为true才能语音输入
@@ -63,8 +63,8 @@ export default {
               },
               auth: {
                 type: 'token',
-                token: 'pat_OmUlK9PRVhrymzKJ6cIHcaR6mgdfeQ25SLYpzR4cCMLTTTJhYpeFaC9ewzajanxA',
-                onRefreshToken: async () => 'pat_OmUlK9PRVhrymzKJ6cIHcaR6mgdfeQ25SLYpzR4cCMLTTTJhYpeFaC9ewzajanxA'
+                token: 'pat_9V7OvnyotI02ogQ8DDgSbl65Etyf3iVwd6MRsBjIQuzSTd1dQdTNCQF2jAlPhSnV',
+                onRefreshToken: async () => 'pat_9V7OvnyotI02ogQ8DDgSbl65Etyf3iVwd6MRsBjIQuzSTd1dQdTNCQF2jAlPhSnV'
               },
               userInfo: {
                 id: 'coze_component_user_' + Date.now(),
@@ -83,7 +83,7 @@ export default {
                 },
                 header: {
                   isShow: false,
-                  isNeedClose: true//右上角的❌
+                  isNeedClose: false//右上角的❌
                 },
                 footer: {
                   isShow: true,
@@ -94,7 +94,7 @@ export default {
                       link: 'https://www.zhimianai.com'
                     },
                     desc: {
-                      text: '专业面试辅导平台',
+                      text: '职业洞察平台，助力求职规划',
                       link: 'https://www.zhimianai.com'
                     }
                   }
@@ -103,7 +103,7 @@ export default {
                   isNeed: true
                 },
                 chatBot: {
-                  title: 'AI助手',
+                  title: '职业规划小助手',
                   uploadable: true,
                   width: 1080,
                   el: container,
@@ -166,7 +166,7 @@ export default {
 
 .coze-chat-container {
   width: 100%;
-  height: 700px;
+  height: 900px;
   min-height: 100px;
   background: #f8f9fa;
 }

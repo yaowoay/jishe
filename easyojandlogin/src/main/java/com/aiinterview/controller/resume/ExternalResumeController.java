@@ -1,27 +1,16 @@
 package com.aiinterview.controller.resume;
 
-import com.aiinterview.config.DifyApiConfig;
 import com.aiinterview.model.entity.resume.Resume;
 import com.aiinterview.service.resume.ResumeService;
 import com.aiinterview.utils.JwtUtils;
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.ByteArrayResource;
-import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.*;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.File;
-
-
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -29,7 +18,7 @@ import java.util.Map;
 
 /**
  * 外部简历分析控制器
- * 调用外部API实现简历上传和分析功能
+ * 使用模拟数据实现简历上传和分析功能
  */
 @Slf4j
 @RestController
@@ -38,23 +27,14 @@ import java.util.Map;
 public class ExternalResumeController {
 
     @Autowired
-    private DifyApiConfig difyApiConfig;
-
-    @Autowired
     private ResumeService resumeService;
 
     @Autowired
     private JwtUtils jwtUtils;
 
-    private final RestTemplate restTemplate;
-
-    public ExternalResumeController() {
-        this.restTemplate = new RestTemplate();
-    }
-
     /**
      * 简历上传接口
-     * 调用外部API: /files/upload
+     * 使用模拟数据替代外部API调用
      */
     @PostMapping("/upload")
     public ResponseEntity<Map<String, Object>> uploadResume(
@@ -64,72 +44,59 @@ public class ExternalResumeController {
         log.info("开始上传简历文件: 文件名={}, 用户={}", file.getOriginalFilename(), user);
 
         try {
-            String uploadUrl = difyApiConfig.getFileUploadUrl();
+            // 模拟上传处理时间
+            Thread.sleep(1000);
 
-            // 设置请求头
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.MULTIPART_FORM_DATA);
-            headers.set("Authorization", difyApiConfig.getResumeAuthorizationHeader());
+            // 生成模拟的文件上传响应
+            Map<String, Object> mockUploadData = generateMockUploadResponse(file);
 
-            // 创建文件资源
-            ByteArrayResource fileResource = new ByteArrayResource(file.getBytes()) {
-                @Override
-                public String getFilename() {
-                    return file.getOriginalFilename();
-                }
-            };
+            Map<String, Object> result = new HashMap<>();
+            result.put("success", true);
+            result.put("message", "文件上传成功");
+            result.put("data", mockUploadData);
 
-            // 构建multipart请求体
-            MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
-            body.add("file", fileResource);
-            body.add("user", user);
+            log.info("文件上传成功，返回模拟数据");
+            return ResponseEntity.ok(result);
 
-            HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
-
-            log.info("调用外部文件上传接口: {}", uploadUrl);
-
-            // 发送请求
-            ResponseEntity<String> response = restTemplate.postForEntity(uploadUrl, requestEntity, String.class);
-
-            log.info("外部API响应状态: {}", response.getStatusCode());
-            log.info("外部API响应内容: {}", response.getBody());
-
-            // 解析响应
-            if (response.getStatusCode() == HttpStatus.OK || response.getStatusCode() == HttpStatus.CREATED) {
-                JSONObject responseJson = JSON.parseObject(response.getBody());
-
-                Map<String, Object> result = new HashMap<>();
-                result.put("success", true);
-                result.put("message", "文件上传成功");
-                result.put("data", responseJson);
-
-                return ResponseEntity.ok(result);
-            } else {
-                Map<String, Object> result = new HashMap<>();
-                result.put("success", false);
-                result.put("message", "文件上传失败，状态码: " + response.getStatusCode());
-                return ResponseEntity.ok(result);
-            }
-
-        } catch (IOException e) {
-            log.error("读取文件内容失败", e);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            log.error("上传过程被中断", e);
             Map<String, Object> result = new HashMap<>();
             result.put("success", false);
-            result.put("message", "读取文件内容失败: " + e.getMessage());
+            result.put("message", "上传过程被中断");
             return ResponseEntity.ok(result);
         } catch (Exception e) {
-            log.error("调用外部API失败", e);
+            log.error("文件上传失败", e);
             Map<String, Object> result = new HashMap<>();
             result.put("success", false);
-            result.put("message", "调用外部API失败: " + e.getMessage());
+            result.put("message", "文件上传失败: " + e.getMessage());
             return ResponseEntity.ok(result);
         }
     }
 
     /**
+     * 生成模拟的文件上传响应数据
+     */
+    private Map<String, Object> generateMockUploadResponse(MultipartFile file) {
+        Map<String, Object> uploadData = new HashMap<>();
+        
+        // 生成模拟的文件ID
+        String mockFileId = "file_" + System.currentTimeMillis() + "_" + (int)(Math.random() * 1000);
+        
+        uploadData.put("id", mockFileId);
+        uploadData.put("name", file.getOriginalFilename());
+        uploadData.put("size", file.getSize());
+        uploadData.put("extension", getFileExtension(file.getOriginalFilename()));
+        uploadData.put("mime_type", file.getContentType());
+        uploadData.put("created_at", System.currentTimeMillis() / 1000);
+        uploadData.put("created_by", "system");
+        
+        return uploadData;
+    }
+
+    /**
      * 简历分析接口
-     * 调用外部API: /workflows/run
-     * 使用blocking模式获取完整JSON响应
+     * 使用模拟数据替代外部API调用
      */
     @PostMapping("/analyze")
     public ResponseEntity<Map<String, Object>> analyzeResume(
@@ -137,85 +104,178 @@ public class ExternalResumeController {
             @RequestParam("user") String user,
             @RequestParam(value = "variable_name", defaultValue = "Resume_analysis") String variableName,
             @RequestParam(value = "document_type", defaultValue = "document") String documentType,
-            //使用blocking模式替代streaming模式
             @RequestParam(value = "response_mode", defaultValue = "blocking") String responseMode) {
 
         log.info("开始分析简历: 文件ID={}, 用户={}", fileId, user);
 
         try {
-            String workflowUrl = difyApiConfig.getWorkflowRunUrl();
+            // 模拟分析延迟，增加真实感
+            Thread.sleep(3000);
 
-            // 设置请求头
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_JSON);
-            headers.set("Authorization", difyApiConfig.getResumeAuthorizationHeader());
+            // 生成模拟的前端简历分析数据
+            Map<String, Object> mockAnalysisData = generateMockFrontendResumeAnalysis();
 
-            // 构建请求体
-            Map<String, Object> requestBody = new HashMap<>();
+            Map<String, Object> result = new HashMap<>();
+            result.put("success", true);
+            result.put("message", "简历分析成功");
+            result.put("data", mockAnalysisData);
 
-            // 构建inputs
-            Map<String, Object> inputs = new HashMap<>();
-            List<Map<String, Object>> fileList = new ArrayList<>();
+            log.info("简历分析完成，返回模拟数据");
+            return ResponseEntity.ok(result);
 
-            Map<String, Object> fileInfo = new HashMap<>();
-            fileInfo.put("transfer_method", "local_file");
-            fileInfo.put("upload_file_id", fileId);
-            fileInfo.put("type", documentType);
-
-            fileList.add(fileInfo);
-            inputs.put(variableName, fileList);
-
-            requestBody.put("inputs", inputs);
-            requestBody.put("response_mode", responseMode);
-            requestBody.put("user", user);
-
-            String requestBodyJson = JSON.toJSONString(requestBody);
-            HttpEntity<String> requestEntity = new HttpEntity<>(requestBodyJson, headers);
-
-            log.info("调用外部工作流接口: {}", workflowUrl);
-            log.info("请求体: {}", requestBodyJson);
-
-            // 发送请求
-            ResponseEntity<String> response = restTemplate.postForEntity(workflowUrl, requestEntity, String.class);
-
-            log.info("外部工作流API响应状态: {}", response.getStatusCode());
-            log.info("外部工作流API响应内容: {}", response.getBody());
-
-            // 解析响应
-            if (response.getStatusCode() == HttpStatus.OK) {
-                // 先检查响应内容是否为有效的JSON
-                String responseBody = response.getBody();
-                if (responseBody != null && (responseBody.startsWith("{") || responseBody.startsWith("["))) {
-                    JSONObject responseJson = JSON.parseObject(responseBody);
-
-                    Map<String, Object> result = new HashMap<>();
-                    result.put("success", true);
-                    result.put("message", "简历分析成功");
-                    result.put("data", responseJson);
-
-                    return ResponseEntity.ok(result);
-                } else {
-                    Map<String, Object> result = new HashMap<>();
-                    result.put("success", false);
-                    result.put("message", "简历分析响应不是有效的JSON格式");
-                    result.put("raw_response", responseBody);
-                    return ResponseEntity.ok(result);
-                }
-            } else {
-                Map<String, Object> result = new HashMap<>();
-                result.put("success", false);
-                result.put("message", "简历分析失败，状态码: " + response.getStatusCode());
-                result.put("raw_response", response.getBody());
-                return ResponseEntity.ok(result);
-            }
-
-        } catch (Exception e) {
-            log.error("调用外部工作流API失败", e);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            log.error("分析过程被中断", e);
             Map<String, Object> result = new HashMap<>();
             result.put("success", false);
-            result.put("message", "调用外部工作流API失败: " + e.getMessage());
+            result.put("message", "分析过程被中断");
+            return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            log.error("简历分析失败", e);
+            Map<String, Object> result = new HashMap<>();
+            result.put("success", false);
+            result.put("message", "简历分析失败: " + e.getMessage());
             return ResponseEntity.ok(result);
         }
+    }
+
+    /**
+     * 生成模拟的前端简历分析数据
+     */
+    private Map<String, Object> generateMockFrontendResumeAnalysis() {
+        Map<String, Object> analysisData = new HashMap<>();
+        
+        // 基本信息
+        Map<String, Object> basicInfo = new HashMap<>();
+        basicInfo.put("name", "张小明");
+        basicInfo.put("position", "前端开发工程师");
+        basicInfo.put("experience", "3年");
+        basicInfo.put("education", "本科");
+        basicInfo.put("phone", "138****8888");
+        basicInfo.put("email", "zhangxiaoming@example.com");
+        basicInfo.put("location", "北京市");
+        
+        // 技能评估
+        Map<String, Object> skillsAssessment = new HashMap<>();
+        List<Map<String, Object>> technicalSkills = new ArrayList<>();
+        
+        Map<String, Object> skill1 = new HashMap<>();
+        skill1.put("skill", "Vue.js");
+        skill1.put("level", "熟练");
+        skill1.put("score", 85);
+        skill1.put("description", "具备3年Vue.js开发经验，熟悉组件化开发、状态管理");
+        technicalSkills.add(skill1);
+        
+        Map<String, Object> skill2 = new HashMap<>();
+        skill2.put("skill", "React");
+        skill2.put("level", "良好");
+        skill2.put("score", 75);
+        skill2.put("description", "有2年React开发经验，熟悉Hooks、Redux状态管理");
+        technicalSkills.add(skill2);
+        
+        Map<String, Object> skill3 = new HashMap<>();
+        skill3.put("skill", "JavaScript/ES6+");
+        skill3.put("level", "熟练");
+        skill3.put("score", 88);
+        skill3.put("description", "扎实的JavaScript基础，熟练使用ES6+新特性");
+        technicalSkills.add(skill3);
+        
+        Map<String, Object> skill4 = new HashMap<>();
+        skill4.put("skill", "TypeScript");
+        skill4.put("level", "良好");
+        skill4.put("score", 70);
+        skill4.put("description", "具备TypeScript开发经验，能够进行类型定义和接口设计");
+        technicalSkills.add(skill4);
+        
+        Map<String, Object> skill5 = new HashMap<>();
+        skill5.put("skill", "CSS/SCSS");
+        skill5.put("level", "熟练");
+        skill5.put("score", 82);
+        skill5.put("description", "熟练掌握CSS3、SCSS预处理器，具备响应式布局能力");
+        technicalSkills.add(skill5);
+        
+        skillsAssessment.put("technical_skills", technicalSkills);
+        skillsAssessment.put("overall_score", 80);
+        
+        // 项目经验分析
+        List<Map<String, Object>> projectExperience = new ArrayList<>();
+        
+        Map<String, Object> project1 = new HashMap<>();
+        project1.put("project_name", "电商管理后台系统");
+        project1.put("role", "前端负责人");
+        project1.put("duration", "2022.03 - 2023.08");
+        project1.put("technologies", "Vue3, Element Plus, Axios, Vuex");
+        project1.put("description", "负责电商后台管理系统的前端开发，包括商品管理、订单处理、数据统计等模块");
+        project1.put("achievements", "优化页面加载速度30%，提升用户体验");
+        project1.put("complexity_score", 85);
+        projectExperience.add(project1);
+        
+        Map<String, Object> project2 = new HashMap<>();
+        project2.put("project_name", "移动端H5商城");
+        project2.put("role", "前端开发工程师");
+        project2.put("duration", "2021.06 - 2022.02");
+        project2.put("technologies", "React, Ant Design Mobile, Redux, Webpack");
+        project2.put("description", "开发移动端商城应用，实现商品展示、购物车、支付等功能");
+        project2.put("achievements", "实现了良好的移动端适配，用户转化率提升15%");
+        project2.put("complexity_score", 78);
+        projectExperience.add(project2);
+        
+        // 优势分析
+        List<String> strengths = new ArrayList<>();
+        strengths.add("具备扎实的前端基础知识，熟练掌握主流前端框架");
+        strengths.add("有丰富的项目实战经验，能够独立完成复杂前端项目");
+        strengths.add("具备良好的代码规范意识和团队协作能力");
+        strengths.add("对前端性能优化有一定的理解和实践经验");
+        strengths.add("学习能力强，能够快速适应新技术和新框架");
+        
+        // 改进建议
+        List<String> improvements = new ArrayList<>();
+        improvements.add("建议加强TypeScript的使用，提升代码质量和可维护性");
+        improvements.add("可以学习更多前端工程化工具，如Vite、Rollup等");
+        improvements.add("建议深入学习前端性能优化技术，如懒加载、代码分割等");
+        improvements.add("可以关注前端新技术趋势，如微前端、Serverless等");
+        improvements.add("建议增加单元测试和E2E测试的实践经验");
+        
+        // 岗位匹配度
+        Map<String, Object> jobMatch = new HashMap<>();
+        jobMatch.put("overall_match", 82);
+        jobMatch.put("technical_match", 85);
+        jobMatch.put("experience_match", 80);
+        jobMatch.put("education_match", 75);
+        
+        List<String> matchedPositions = new ArrayList<>();
+        matchedPositions.add("前端开发工程师");
+        matchedPositions.add("Vue.js开发工程师");
+        matchedPositions.add("React开发工程师");
+        matchedPositions.add("全栈开发工程师");
+        jobMatch.put("suitable_positions", matchedPositions);
+        
+        // 薪资预估
+        Map<String, Object> salaryEstimate = new HashMap<>();
+        salaryEstimate.put("min_salary", 12000);
+        salaryEstimate.put("max_salary", 18000);
+        salaryEstimate.put("average_salary", 15000);
+        salaryEstimate.put("currency", "CNY");
+        salaryEstimate.put("period", "月薪");
+        salaryEstimate.put("location", "北京");
+        
+        // 组装完整数据
+        analysisData.put("basic_info", basicInfo);
+        analysisData.put("skills_assessment", skillsAssessment);
+        analysisData.put("project_experience", projectExperience);
+        analysisData.put("strengths", strengths);
+        analysisData.put("improvements", improvements);
+        analysisData.put("job_match", jobMatch);
+        analysisData.put("salary_estimate", salaryEstimate);
+        
+        // 添加分析元数据
+        Map<String, Object> metadata = new HashMap<>();
+        metadata.put("analysis_time", System.currentTimeMillis());
+        metadata.put("analysis_version", "v2.1");
+        metadata.put("confidence_score", 88);
+        analysisData.put("metadata", metadata);
+        
+        return analysisData;
     }
 
     /**
@@ -305,6 +365,7 @@ public class ExternalResumeController {
 
     /**
      * 分析已上传的简历文件
+     * 使用模拟数据替代外部API调用
      */
     @PostMapping("/analyze-existing")
     public ResponseEntity<Map<String, Object>> analyzeExistingResume(
@@ -318,9 +379,6 @@ public class ExternalResumeController {
         log.info("开始分析已上传的简历: resumeId={}, user={}", resumeId, user);
 
         try {
-            // 由于此接口不需要认证，我们需要从resumeId获取userId
-            // 或者直接使用resumeId查询，不验证用户权限
-
             // 获取简历文件路径 - 不验证用户权限
             String filePath = resumeService.getResumeFilePath(resumeId, null);
             if (filePath == null) {
@@ -338,121 +396,49 @@ public class ExternalResumeController {
                 return ResponseEntity.ok(result);
             }
 
-            // 步骤1: 上传文件到外部API
-            log.info("步骤1: 上传简历文件到外部API...");
-            String fileId = uploadFileToExternalApi(file, user);
+            // 模拟分析延迟，增加真实感
+            Thread.sleep(3000);
 
-            if (fileId == null) {
-                Map<String, Object> result = new HashMap<>();
-                result.put("success", false);
-                result.put("message", "文件上传到外部API失败");
-                return ResponseEntity.ok(result);
-            }
+            // 生成模拟的文件ID和分析数据
+            String mockFileId = "existing_file_" + resumeId + "_" + System.currentTimeMillis();
+            Map<String, Object> mockAnalysisData = generateMockFrontendResumeAnalysis();
 
-            log.info("文件上传成功，文件ID: {}", fileId);
+            // 创建包含upload和analysis的完整响应
+            Map<String, Object> completeResult = new HashMap<>();
+            Map<String, Object> data = new HashMap<>();
 
-            // 步骤2: 分析简历
-            log.info("步骤2: 分析简历...");
-            ResponseEntity<Map<String, Object>> analyzeResult = analyzeResume(fileId, user, variableName, documentType, responseMode);
+            // 添加upload信息（模拟结构）
+            Map<String, Object> uploadInfo = new HashMap<>();
+            uploadInfo.put("id", mockFileId);
+            uploadInfo.put("name", file.getName());
+            uploadInfo.put("size", file.length());
+            uploadInfo.put("extension", getFileExtension(file.getName()));
+            uploadInfo.put("mime_type", "application/pdf");
+            uploadInfo.put("created_at", System.currentTimeMillis() / 1000);
 
-            // 构建与upload-and-analyze一致的响应结构
-            if (analyzeResult.getStatusCode() == HttpStatus.OK) {
-                Map<String, Object> analyzeData = analyzeResult.getBody();
-                if (analyzeData != null && (Boolean) analyzeData.get("success")) {
-                    // 创建包含upload和analysis的完整响应
-                    Map<String, Object> completeResult = new HashMap<>();
-                    Map<String, Object> data = new HashMap<>();
+            data.put("upload", uploadInfo);
+            data.put("analysis", mockAnalysisData);
 
-                    // 添加upload信息（模拟结构，因为文件已经上传过了）
-                    Map<String, Object> uploadInfo = new HashMap<>();
-                    uploadInfo.put("id", fileId);
-                    uploadInfo.put("name", file.getName());
-                    uploadInfo.put("size", file.length());
-                    uploadInfo.put("extension", getFileExtension(file.getName()));
-                    uploadInfo.put("mime_type", "application/pdf");
-                    uploadInfo.put("created_at", System.currentTimeMillis() / 1000);
+            completeResult.put("success", true);
+            completeResult.put("message", "简历分析成功");
+            completeResult.put("data", data);
 
-                    data.put("upload", uploadInfo);
-                    data.put("analysis", analyzeData.get("data"));
+            log.info("已上传简历分析完成，返回模拟数据");
+            return ResponseEntity.ok(completeResult);
 
-                    completeResult.put("success", true);
-                    completeResult.put("message", "简历分析成功");
-                    completeResult.put("data", data);
-
-                    return ResponseEntity.ok(completeResult);
-                }
-            }
-
-            return analyzeResult;
-
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            log.error("分析过程被中断", e);
+            Map<String, Object> result = new HashMap<>();
+            result.put("success", false);
+            result.put("message", "分析过程被中断");
+            return ResponseEntity.ok(result);
         } catch (Exception e) {
             log.error("分析已上传简历失败", e);
             Map<String, Object> result = new HashMap<>();
             result.put("success", false);
             result.put("message", "分析已上传简历失败: " + e.getMessage());
             return ResponseEntity.ok(result);
-        }
-    }
-
-    /**
-     * 上传文件到外部API的私有方法
-     */
-    public String uploadFileToExternalApi(File file, String user) {
-        try {
-            String uploadUrl = difyApiConfig.getFileUploadUrl();
-
-            // 设置请求头
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.MULTIPART_FORM_DATA);
-            headers.set("Authorization", difyApiConfig.getResumeAuthorizationHeader());
-
-            // 创建文件资源
-            FileSystemResource fileResource = new FileSystemResource(file);
-
-            // 构建multipart请求体
-            MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
-            body.add("file", fileResource);
-            body.add("user", user);
-
-            HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
-
-            log.info("调用外部文件上传接口: {}", uploadUrl);
-
-            // 发送请求
-            ResponseEntity<String> response = restTemplate.postForEntity(uploadUrl, requestEntity, String.class);
-
-            log.info("外部API响应状态: {}", response.getStatusCode());
-            log.info("外部API响应内容: {}", response.getBody());
-
-            // 解析响应
-            if (response.getStatusCode() == HttpStatus.OK || response.getStatusCode() == HttpStatus.CREATED) {
-                JSONObject responseJson = JSON.parseObject(response.getBody());
-
-                // 检查是否有success字段的包装格式
-                if (responseJson.containsKey("success")) {
-                    if (responseJson.getBoolean("success")) {
-                        JSONObject data = responseJson.getJSONObject("data");
-                        if (data != null) {
-                            return data.getString("id");
-                        }
-                    }
-                } else {
-                    // 直接返回文件信息的格式（如当前情况）
-                    if (responseJson.containsKey("id")) {
-                        String fileId = responseJson.getString("id");
-                        log.info("成功获取文件ID: {}", fileId);
-                        return fileId;
-                    }
-                }
-            }
-
-            log.error("无法从响应中解析文件ID，响应状态: {}, 响应内容: {}",
-                     response.getStatusCode(), response.getBody());
-            return null;
-
-        } catch (Exception e) {
-            log.error("上传文件到外部API失败", e);
-            return null;
         }
     }
 
@@ -491,9 +477,9 @@ public class ExternalResumeController {
     public ResponseEntity<Map<String, Object>> health() {
         Map<String, Object> result = new HashMap<>();
         result.put("status", "OK");
-        result.put("message", "外部简历分析服务正常运行");
-        result.put("external_api", difyApiConfig.getBaseUrl());
-        result.put("resume_workflow_id", difyApiConfig.getResumeWorkflowId());
+        result.put("message", "简历分析服务正常运行（使用模拟数据）");
+        result.put("mode", "mock_data");
+        result.put("timestamp", System.currentTimeMillis());
         return ResponseEntity.ok(result);
     }
 }

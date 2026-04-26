@@ -79,3 +79,27 @@ export function getStudentUnviewedWarningCount() {
     method: 'get'
   })
 }
+
+// 学生经历管理相关
+export function updateStudentExperience(data) {
+  return request({
+    url: '/student/profile/experience',
+    method: 'post',
+    data
+  })
+}
+
+export function getStudentExperience() {
+  return request({
+    url: '/student/profile/experience',
+    method: 'get'
+  })
+}
+
+export function updateResumeCompletionStatus(status) {
+  return request({
+    url: '/student/profile/resume-status',
+    method: 'post',
+    params: { status }
+  })
+}

@@ -56,8 +56,17 @@
           </el-icon>
           {{ optimizing ? 'AI优化中...' : 'AI优化' }}
         </el-button>
+        <el-button @click="saveDraftResume" :loading="saving" class="save-btn">
+          {{ saving ? '保存中...' : '保存为草稿' }}
+        </el-button>
         <el-button @click="saveResume" type="primary" :loading="saving" class="save-btn">
-          {{ saving ? '保存中...' : '保存' }}
+          {{ saving ? '保存中...' : '保存简历' }}
+        </el-button>
+        <el-button @click="handleDownloadResume" class="download-btn">
+          <el-icon>
+            <Download />
+          </el-icon>
+          下载简历
         </el-button>
       </div>
     </div>
@@ -363,8 +372,9 @@
     <!-- AI生成简历悬浮框 -->
     <el-dialog
         v-model="showAIGenerateFloat"
+        class="ai-generate-dialog"
         title="AI简历生成器"
-        width="900px"
+        width="1200px"
         :close-on-click-modal="false"
         destroy-on-close
     >
@@ -441,18 +451,18 @@ import {
 } from '@element-plus/icons-vue'
 
 // 导入模块组件
-import ResumeBasicInfoEnhanced from '@/components/resumes/ResumeBasicInfoEnhanced.vue'
+import ResumeBasicInfoEnhanced from '@/components/resume/ResumeBasicInfoEnhanced.vue'
 import ResumeGenerator from '@/views/applicant/resume/ResumeGenerator.vue'
-import ResumeWorkExperience from '@/components/resumes/ResumeWorkExperience.vue'
-import ResumeEducation from '@/components/resumes/ResumeEducation.vue'
-import ResumeProjects from '@/components/resumes/ResumeProjects.vue'
-import ResumeSkills from '@/components/resumes/ResumeSkills.vue'
-import ResumeOthers from '@/components/resumes/ResumeOthers.vue'
-import ResumePreview from '@/components/resumes/ResumePreview.vue'
-import TemplateSelectionDialog from '@/components/resumes/TemplateSelectionDialog.vue'
+import ResumeWorkExperience from '@/components/resume/ResumeWorkExperience.vue'
+import ResumeEducation from '@/components/resume/ResumeEducation.vue'
+import ResumeProjects from '@/components/resume/ResumeProjects.vue'
+import ResumeSkills from '@/components/resume/ResumeSkills.vue'
+import ResumeOthers from '@/components/resume/ResumeOthers.vue'
+import ResumePreview from '@/components/resume/ResumePreview.vue'
+import TemplateSelectionDialog from '@/components/resume/TemplateSelectionDialog.vue'
 
 // 只保留必要的接口导入
-import { getResume, createResume, updateResume, optimizeResumeWithAI, generateResumeWithAI, getResumeTemplates } from '@/api/resume'
+import { getResume, createResume, updateResume, optimizeResumeWithAI, generateResumeWithAI, downloadResume } from '@/api/resume'
 
 export default {
   name: 'ResumeEditorEnhanced',
@@ -597,33 +607,50 @@ export default {
     const handleAIGenerateSuccess = () => {
       // 可选：生成成功后的处理
     }
-    // 加载模板列表
+    // 加载模板列表（固定为本地4套模板）
     const loadTemplates = async () => {
-      try {
-        const res = await getResumeTemplates()
-        if (res.code === 0 && res.data) {
-          resumeTemplates.value = res.data.map(template => {
-            let previewUrl = '/images/default-template-preview.svg'
-            // 改成 template.templateId（注意大小写）
-            if (template.templateId === 1) previewUrl = '/template/resume-it-master/resume.png'
-            if (template.templateId === 2) previewUrl = '/template/resume-zh_CN/images/resume_example.jpg'
-            if (template.templateId === 3) previewUrl = '/template/resume_with_photo-main/photo.jpg'
-
-            return {
-              id: template.templateId,  // 改成 template.templateId
-              name: template.templateName,
-              description: template.description || '暂无描述',
-              preview: previewUrl,
-              type: template.templateType,
-              path: template.templatePath,
-              category: template.category,
-              tags: getTemplateTags(template)
-            }
-          })
+      resumeTemplates.value = [
+        {
+          id: 1,
+          name: 'template1',
+          description: 'Template 1（本地模板）',
+          preview: '/images/default-template-preview.svg',
+          category: 'general',
+          tags: ['本地', '模板1']
+        },
+        {
+          id: 2,
+          name: 'template2',
+          description: 'Template 2（本地模板）',
+          preview: '/images/default-template-preview.svg',
+          category: 'general',
+          tags: ['本地', '模板2']
+        },
+        {
+          id: 3,
+          name: 'template3',
+          description: 'Template 3（本地模板）',
+          preview: '/images/default-template-preview.svg',
+          category: 'general',
+          tags: ['本地', '模板3']
+        },
+        {
+          id: 4,
+          name: 'template4',
+          description: 'Template 4（本地模板）',
+          preview: '/images/default-template-preview.svg',
+          category: 'general',
+          tags: ['本地', '模板4']
         }
-      } catch (error) {
-        ElMessage.error('加载模板失败')
+      ]
+
+      if (!resumeForm.templateId) {
+        resumeForm.templateId = 1
       }
+      if (!resumeForm.template) {
+        resumeForm.template = `template${resumeForm.templateId}`
+      }
+      selectedTemplate.value = Number(resumeForm.templateId)
     }
     // 根据模板信息生成标签
     /*const getTemplateTags = (template) => {
@@ -647,20 +674,7 @@ export default {
       }
       window.addEventListener('resize', handleWindowResize)
     })
-    const getTemplateTags = (template) => {
-      const tags = []
-      const name = template.templateName || ''  // 改成 template.templateName
 
-      if (template.templateType === 'latex') tags.push('LaTeX')  // 改成 template.templateType
-      if (template.templateType === 'html') tags.push('HTML')
-      if (template.category === 'it') tags.push('IT')
-      if (template.category === 'general') tags.push('通用')
-      if (name.includes('照片')) tags.push('带照片')
-      if (name.includes('专业')) tags.push('专业')
-      if (name.includes('中文')) tags.push('中文')
-
-      return tags.length ? tags : ['通用']
-    }
     // 模板对话框
     const templateDialogVisible = ref(false)
 
@@ -860,54 +874,71 @@ export default {
         return newItem
       })
     }
-    // 保存简历
-    const saveResume = async () => {
-      if (saving.value) return
+    const buildSaveData = (status = 'DRAFT') => ({
+      name: resumeForm.basicInfo.name,
+      fullName: resumeForm.basicInfo.name,
+      phone: resumeForm.basicInfo.phone,
+      email: resumeForm.basicInfo.email,
+      position: resumeForm.basicInfo.position,
+      workYears: resumeForm.basicInfo.workYears,
+      location: resumeForm.basicInfo.address,
+      profile: resumeForm.basicInfo.summary,
+      template: resumeForm.template || 'template1',
+      templateId: resumeForm.templateId,
+      status,
+      workExperiences: fixDateList(resumeForm.workExperience),
+      educations: fixDateList(resumeForm.education),
+      projectExperiences: fixDateList(resumeForm.projects),
+      skills: resumeForm.skills.map(s => ({
+        skillName: s.name,
+        proficiency: s.proficiency,
+        description: s.description
+      })),
+      additionalInfos: [
+        ...(resumeForm.others.certificates?.map(c => ({ type: 'certificate', ...c })) || []),
+        ...(resumeForm.others.awards?.map(a => ({ type: 'award', ...a })) || []),
+        ...(resumeForm.others.hobbies?.map(h => ({ type: 'hobby', name: h })) || [])
+      ]
+    })
 
-      if (resumeId.value) {
-        // 对于已存在的简历，使用自动保存功能
-        autoSave(true)
-      } else {
-        // 对于新简历，使用原有的创建逻辑
-        saving.value = true
-        try {
-          const saveData = {
-            name: resumeForm.basicInfo.name,
-            fullName: resumeForm.basicInfo.name,
-            phone: resumeForm.basicInfo.phone,
-            email: resumeForm.basicInfo.email,
-            position: resumeForm.basicInfo.position,
-            workYears: resumeForm.basicInfo.workYears,
-            location: resumeForm.basicInfo.address,
-            profile: resumeForm.basicInfo.summary,
-            template: resumeForm.template || 'template1',
-            templateId: resumeForm.templateId, // 添加模板ID字段
-            workExperiences: fixDateList(resumeForm.workExperience),
-            educations: fixDateList(resumeForm.education),
-            projectExperiences: fixDateList(resumeForm.projects),
-            skills: resumeForm.skills.map(s => ({
-              skillName: s.name,
-              proficiency: s.proficiency,
-              description: s.description
-            })),
-            additionalInfos: [
-              ...(resumeForm.others.certificates?.map(c => ({ type: 'certificate', ...c })) || []),
-              ...(resumeForm.others.awards?.map(a => ({ type: 'award', ...a })) || []),
-              ...(resumeForm.others.hobbies?.map(h => ({ type: 'hobby', name: h })) || [])
-            ]
-          }
-
+    const persistResume = async (status = 'DRAFT', showMessage = false, redirectToList = false) => {
+      if (saving.value) return false
+      saving.value = true
+      try {
+        const saveData = buildSaveData(status)
+        if (resumeId.value) {
+          await updateResume(resumeId.value, saveData)
+        } else {
           const result = await createResume(saveData)
           resumeId.value = result.id
-          ElMessage.success('简历创建成功')
-          router.push('/applicant/resume/list')
-        } catch (error) {
-          ElMessage.error('保存失败')
-          console.error('Save resume error:', error)
-        } finally {
-          saving.value = false
         }
+
+        if (showMessage) {
+          ElMessage.success(status === 'PUBLISHED' ? '简历保存成功' : '草稿保存成功')
+        }
+        if (redirectToList) {
+          router.push('/applicant/resume/list')
+        }
+        return true
+      } catch (error) {
+        if (showMessage) {
+          ElMessage.error(status === 'PUBLISHED' ? '保存简历失败' : '保存草稿失败')
+        }
+        console.error('persistResume error:', error)
+        return false
+      } finally {
+        saving.value = false
       }
+    }
+
+    // 保存简历（发布到简历列表）
+    const saveResume = async () => {
+      await persistResume('PUBLISHED', true, true)
+    }
+
+    // 保存为草稿（进入草稿箱）
+    const saveDraftResume = async () => {
+      await persistResume('DRAFT', true, true)
     }
 
     // 自动保存
@@ -917,49 +948,7 @@ export default {
       }
       autoSaveTimer = setTimeout(async () => {
         if (resumeId.value && !saving.value) {
-          saving.value = true
-          try {
-            // 结构转换，适配后端 ResumeCreateRequest
-            const saveData = {
-              name: resumeForm.basicInfo.name,
-              fullName: resumeForm.basicInfo.name,
-              phone: resumeForm.basicInfo.phone,
-              email: resumeForm.basicInfo.email,
-              position: resumeForm.basicInfo.position,
-              workYears: resumeForm.basicInfo.workYears,
-              location: resumeForm.basicInfo.address,
-              profile: resumeForm.basicInfo.summary,
-              template: resumeForm.template || 'template1',
-              templateId: resumeForm.templateId, // 添加模板ID字段
-              workExperiences: fixDateList(resumeForm.workExperience),
-              educations: fixDateList(resumeForm.education),
-              projectExperiences: fixDateList(resumeForm.projects),
-              skills: resumeForm.skills.map(s => ({
-                skillName: s.name,
-                proficiency: s.proficiency,
-                description: s.description
-              })),
-              additionalInfos: [
-                ...(resumeForm.others.certificates?.map(c => ({ type: 'certificate', ...c })) || []),
-                ...(resumeForm.others.awards?.map(a => ({ type: 'award', ...a })) || []),
-                ...(resumeForm.others.hobbies?.map(h => ({ type: 'hobby', name: h })) || [])
-              ]
-            }
-            console.log('保存时 templateId:', resumeForm.templateId)
-            console.log('正在保存简历数据:', saveData)
-            await updateResume(resumeId.value, saveData)
-            console.log('简历保存成功')
-            if (showMessage) {
-              ElMessage.success('简历保存成功')
-            }
-          } catch (error) {
-            if (showMessage) {
-              ElMessage.error('保存失败')
-            }
-            console.error('Auto save error:', error)
-          } finally {
-            saving.value = false
-          }
+          await persistResume('DRAFT', showMessage, false)
         }
       }, 2000)
     }
@@ -1138,14 +1127,8 @@ export default {
       const id = Number(templateId)
       selectedTemplate.value = id
       resumeForm.templateId = id
-
-      const template = resumeTemplates.value.find(t => Number(t.id) === id)
-      if (template) {
-        resumeForm.template = template.name
-        ElMessage.success(`已应用模板：${template.name}`)
-      } else {
-        ElMessage.success('模板已应用')
-      }
+      resumeForm.template = `template${id}`
+      ElMessage.success(`已应用模板：template${id}`)
     }
 
     // 窗口大小变化处理
@@ -1372,22 +1355,71 @@ export default {
 
     // 显示AI生成对话框
     const showAIGenerateDialog = () => {
-      const basic = resumeForm.basicInfo
+      const data = filteredResumeData.value
+      const basic = data.basicInfo || {}
 
-      // 准备传递给弹窗的数据
+      const moduleVisibility = {}
+      modules.forEach(module => {
+        moduleVisibility[module.key] = !!(module.required || module.enabled)
+      })
+
+      const projectsText = Array.isArray(data.projects)
+        ? data.projects.map(project => {
+          const name = project.projectName || project.name || ''
+          const role = project.role ? `角色：${project.role}` : ''
+          const desc = project.description || ''
+          return [name, role, desc].filter(Boolean).join('\n')
+        }).filter(Boolean).join('\n\n')
+        : ''
+
+      const skillsText = Array.isArray(data.skills)
+        ? data.skills.map(skill => {
+          if (typeof skill === 'string') return skill
+          const name = skill.skillName || skill.name || ''
+          const level = skill.level || skill.proficiency || ''
+          return name ? `${name}${level ? `（${level}）` : ''}` : ''
+        }).filter(Boolean).join('、')
+        : ''
+
+      const others = data.others || {}
+      const formatOtherItems = (items) => {
+        if (!Array.isArray(items)) return ''
+        return items.map(item => {
+          if (typeof item === 'string') return item
+          if (!item || typeof item !== 'object') return ''
+          return item.name || item.title || item.type || item.description || ''
+        }).filter(Boolean).join('、')
+      }
+
+      const certificatesText = formatOtherItems(others.certificates)
+      const awardsText = formatOtherItems(others.awards)
+      const hobbiesText = formatOtherItems(others.hobbies)
+
+      const additionalInfoText = [
+        certificatesText ? `证书：${certificatesText}` : '',
+        awardsText ? `奖项：${awardsText}` : '',
+        hobbiesText ? `兴趣爱好：${hobbiesText}` : ''
+      ].filter(Boolean).join('\n')
+
+      // 准备传递给弹窗的数据（与编辑器模块开关保持一致）
       aiInitialData.value = {
+        moduleVisibility,
         personalInfo: {
           name: basic.name || '',
           phone: basic.phone || '',
           email: basic.email || '',
           address: basic.address || '',
           summary: basic.summary || '',
-          gender: '',
-          age: ''
+          avatarUrl: basic.avatar || '',
+          gender: basic.gender || '',
+          age: basic.age || ''
         },
         targetPosition: basic.position || '',
-        educations: resumeForm.education || [],
-        workExperiences: resumeForm.workExperience || []
+        educations: data.education || [],
+        workExperiences: data.workExperience || [],
+        projects: projectsText,
+        skills: skillsText,
+        additionalInfo: additionalInfoText
       }
 
       // 打开弹窗
@@ -1479,6 +1511,120 @@ export default {
       }
     }
 
+    // 仅打印渲染后的简历组件（自动切到预览视图）
+    const printResumeOnly = async () => {
+      const prevView = activeView.value
+      const prevShowPreviewPanel = showPreviewPanel.value
+      const prevShowTemplatePanel = showTemplatePanel.value
+
+      const restore = () => {
+        activeView.value = prevView
+        showPreviewPanel.value = prevShowPreviewPanel
+        showTemplatePanel.value = prevShowTemplatePanel
+      }
+
+      try {
+        activeView.value = 'preview'
+        showPreviewPanel.value = false
+        showTemplatePanel.value = false
+        await nextTick()
+
+        const resumeNode =
+          document.querySelector('.full-preview .resume-preview') ||
+          document.querySelector('.preview-panel .resume-preview')
+
+        if (!resumeNode) {
+          ElMessage.warning('未找到简历组件，将使用系统打印')
+          window.print()
+          restore()
+          return
+        }
+
+        const styleHtml = Array.from(document.querySelectorAll('style, link[rel="stylesheet"]'))
+          .map(node => node.outerHTML)
+          .join('\n')
+
+        const iframe = document.createElement('iframe')
+        iframe.style.position = 'fixed'
+        iframe.style.right = '0'
+        iframe.style.bottom = '0'
+        iframe.style.width = '0'
+        iframe.style.height = '0'
+        iframe.style.border = '0'
+        document.body.appendChild(iframe)
+
+        const iframeDoc = iframe.contentWindow?.document
+        if (!iframeDoc) {
+          throw new Error('无法创建打印窗口')
+        }
+
+        iframeDoc.open()
+        iframeDoc.write(`<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  ${styleHtml}
+  <style>
+    @page { size: A4; margin: 8mm; }
+    html, body { margin: 0; padding: 0; background: #fff; }
+    #print-root { width: 100%; }
+  </style>
+</head>
+<body>
+  <div id="print-root">${resumeNode.outerHTML}</div>
+</body>
+</html>`)
+        iframeDoc.close()
+
+        setTimeout(() => {
+          iframe.contentWindow?.focus()
+          iframe.contentWindow?.print()
+          setTimeout(() => {
+            if (iframe.parentNode) {
+              iframe.parentNode.removeChild(iframe)
+            }
+            restore()
+          }, 800)
+        }, 300)
+      } catch (error) {
+        console.error('printResumeOnly error:', error)
+        ElMessage.error('打印失败，已切换系统打印')
+        window.print()
+        restore()
+      }
+    }
+
+    // 下载当前简历（后端下载接口不存在时，自动降级为打印简历区并另存为PDF）
+    const handleDownloadResume = async () => {
+      try {
+        if (resumeId.value) {
+          const blob = await downloadResume(resumeId.value)
+          const downloadUrl = window.URL.createObjectURL(blob)
+          const link = document.createElement('a')
+          link.href = downloadUrl
+          link.download = `${resumeForm.title || '我的简历'}.pdf`
+          document.body.appendChild(link)
+          link.click()
+          document.body.removeChild(link)
+          window.URL.revokeObjectURL(downloadUrl)
+          ElMessage.success('简历下载成功')
+          return
+        }
+
+        ElMessage.info('当前为未保存简历，将打开打印窗口，请选择“另存为 PDF”')
+        await printResumeOnly()
+      } catch (error) {
+        console.error('handleDownloadResume error:', error)
+        const status = error?.response?.status
+        if (status === 404) {
+          ElMessage.warning('后端暂未提供下载接口，已为你切换为“打印另存为PDF”')
+          await printResumeOnly()
+          return
+        }
+        ElMessage.error('下载失败，请稍后重试')
+      }
+    }
+
     // 添加模块项目
     const addModuleItem = () => {
       const module = getCurrentModule()
@@ -1528,11 +1674,7 @@ export default {
       const id = Number(templateId)
       resumeForm.templateId = id
       selectedTemplate.value = id
-
-      const template = resumeTemplates.value.find(t => Number(t.id) === id)
-      if (template) {
-        resumeForm.template = template.name
-      }
+      resumeForm.template = `template${id}`
       ElMessage.success('模板已选择')
     }
     // 返回
@@ -1594,7 +1736,9 @@ export default {
       loadResume,
       loadTemplates,
       saveResume,
+      saveDraftResume,
       autoSave,
+      handleDownloadResume,
       setActiveView,
       setActiveModule,
       getProgressColor,
@@ -2392,11 +2536,22 @@ html.dragging * {
   padding: 20px 0;
 }
 
-.ai-generate-dialog .el-dialog__body {
-  padding: 0;
-  height: 70vh;
-  overflow-y: auto;
+.ai-generate-dialog :deep(.el-dialog) {
+  width: min(1400px, 96vw) !important;
+  height: 96vh;
+  max-height: 96vh;
+  margin-top: 2vh !important;
+  display: flex;
+  flex-direction: column;
 }
+
+.ai-generate-dialog :deep(.el-dialog__body) {
+  padding: 0;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
 .ai-form {
   margin-bottom: 30px;
 }

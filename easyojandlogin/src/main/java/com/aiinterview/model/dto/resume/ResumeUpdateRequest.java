@@ -38,6 +38,13 @@ public class ResumeUpdateRequest {
     private String template;
 
     private Integer templateId;  // 添加这个字段
+
+    /**
+     * 简历状态：DRAFT / PUBLISHED / ARCHIVED
+     */
+    @Size(max = 20, message = "简历状态长度不能超过20个字符")
+    private String status;
+
     // 详细信息列表
     private List<WorkExperienceDTO> workExperiences;
     private List<EducationDTO> educations;

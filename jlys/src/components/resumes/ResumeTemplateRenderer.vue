@@ -4,8 +4,8 @@
     <ResumeTemplate1 v-if="templateId === 1" :resume="resume" />
     <ResumeTemplate2 v-else-if="templateId === 2" :resume="resume" />
     <ResumeTemplate3 v-else-if="templateId === 3" :resume="resume" />
-    <!-- 默认使用template1 -->
-<!--    <ResumeTemplate1 v-else :resume="resume" />-->
+    <ResumeTemplate4 v-else-if="templateId === 4" :resume="resume" />
+    <ResumeTemplate1 v-else :resume="resume" />
   </div>
 </template>
 
@@ -47,7 +47,8 @@ export default {
           '带照片简历': 3,
           'template1': 1,
           'template2': 2,
-          'template3': 3
+          'template3': 3,
+          'template4': 4
         }
         id = nameMap[props.template] || 1
       }

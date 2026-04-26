@@ -137,7 +137,7 @@
     <el-dialog
         v-model="assistantDialogVisible"
         width="1100px"
-        top="8vh"
+        top="9vh"
         :close-on-click-modal="false"
         :destroy-on-close="true"
         class="coze-dialog"
@@ -145,7 +145,7 @@
       <template #title>
         <span>数智通途AI助手</span>
       </template>
-      <div style="height: 600px; max-height: 70vh; overflow: auto;">
+      <div style="height: 900px; max-height: 70vh; overflow: auto;">
         <CozeAssistant v-if="assistantDialogVisible" />
       </div>
     </el-dialog>

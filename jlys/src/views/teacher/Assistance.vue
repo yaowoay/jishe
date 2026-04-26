@@ -275,6 +275,65 @@
         </el-button>
       </template>
     </el-dialog>
+
+    <el-dialog v-model="showTrackingDialog" :title="`帮扶跟踪 - ${currentRecord?.studentName || ''}`" width="760px">
+      <el-form label-width="100px">
+        <el-form-item label="跟踪内容">
+          <el-input v-model="trackingForm.content" type="textarea" :rows="3" placeholder="请输入本次跟踪记录" />
+        </el-form-item>
+        <el-row :gutter="12">
+          <el-col :span="8">
+            <el-form-item label="进展状态">
+              <el-select v-model="trackingForm.progressStatus" style="width: 100%">
+                <el-option label="进行中" value="in_progress" />
+                <el-option label="已完成" value="completed" />
+                <el-option label="暂停" value="paused" />
+              </el-select>
+            </el-form-item>
+          </el-col>
+          <el-col :span="8">
+            <el-form-item label="干预前评分">
+              <el-input-number v-model="trackingForm.beforeScore" :min="0" :max="100" style="width: 100%" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="8">
+            <el-form-item label="干预后评分">
+              <el-input-number v-model="trackingForm.afterScore" :min="0" :max="100" style="width: 100%" />
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-form-item label="下一步计划">
+          <el-input v-model="trackingForm.nextAction" placeholder="请输入下一步帮扶计划" />
+        </el-form-item>
+      </el-form>
+
+      <el-divider>跟踪历史</el-divider>
+      <el-timeline v-if="trackingList.length">
+        <el-timeline-item v-for="item in trackingList" :key="item.trackingId" :timestamp="formatDateTime(item.createdAt || item.trackingDate)">
+          <div style="line-height: 1.8">
+            <div><b>内容：</b>{{ item.trackingContent }}</div>
+            <div><b>状态：</b>{{ progressStatusText(item.progressStatus) }}</div>
+            <div><b>评分：</b>{{ item.beforeScore ?? '-' }} → {{ item.afterScore ?? '-' }}</div>
+            <div>
+              <b>提升率：</b>
+              <span :style="{ color: improvementRateColor(item.improvementRate), fontWeight: 500 }">
+                {{ improvementRateText(item.improvementRate) }}
+              </span>
+            </div>
+            <div>
+              <b>效果：</b>
+              <el-tag size="small" :type="effectivenessTagType(item.effectiveness)">{{ effectivenessText(item.effectiveness) }}</el-tag>
+            </div>
+          </div>
+        </el-timeline-item>
+      </el-timeline>
+      <el-empty v-else description="暂无跟踪记录" />
+
+      <template #footer>
+        <el-button @click="showTrackingDialog = false">关闭</el-button>
+        <el-button type="primary" :loading="trackingLoading" @click="submitTracking">提交跟踪</el-button>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
@@ -283,9 +342,14 @@ import { ref, computed, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
 import {
   Plus, Search, Clock, User, Document, Notebook, CircleCheck,
-  Calendar, View, Edit
+  Calendar, View, Edit, Histogram
 } from '@element-plus/icons-vue'
-import { getAssistanceRecords, saveAssistanceRecord } from '@/api/teacher'
+import {
+  getAssistanceRecordList,
+  createAssistanceRecord,
+  addAssistanceTracking,
+  getAssistanceTrackingList
+} from '@/api/teacher'
 
 const loading = ref(false)
 const submitLoading = ref(false)
@@ -294,6 +358,17 @@ const assistanceList = ref([])
 const activeStudents = ref([])
 const showCreateDialog = ref(false)
 const formRef = ref(null)
+const showTrackingDialog = ref(false)
+const trackingLoading = ref(false)
+const currentRecord = ref(null)
+const trackingList = ref([])
+const trackingForm = ref({
+  content: '',
+  progressStatus: 'in_progress',
+  nextAction: '',
+  beforeScore: null,
+  afterScore: null
+})
 
 const searchForm = ref({
   keyword: '',
@@ -387,11 +462,10 @@ const formatDateTime = (date) => {
 const loadData = async () => {
   loading.value = true
   try {
-    const response = await getAssistanceRecords()
+    const response = await getAssistanceRecordList()
     if (response.success) {
       let data = response.data || []
 
-      // 前端筛选
       if (searchForm.value.keyword) {
         data = data.filter(r =>
           r.studentName?.includes(searchForm.value.keyword) ||
@@ -419,7 +493,7 @@ const handleCreate = async () => {
     if (valid) {
       submitLoading.value = true
       try {
-        const response = await saveAssistanceRecord(formData.value)
+        const response = await createAssistanceRecord(formData.value)
         if (response.success) {
           ElMessage.success('新增成功')
           showCreateDialog.value = false
@@ -435,12 +509,66 @@ const handleCreate = async () => {
   })
 }
 
-const viewDetail = (record) => {
-  ElMessage.info(`查看帮扶记录详情: ${record.studentName}`)
+const viewDetail = async (record) => {
+  currentRecord.value = record
+  try {
+    const res = await getAssistanceTrackingList(record.recordId)
+    if (res.success) {
+      trackingList.value = res.data || []
+      showTrackingDialog.value = true
+    }
+  } catch (e) {
+    ElMessage.error('获取跟踪记录失败')
+  }
 }
 
 const followUp = (record) => {
-  ElMessage.info(`跟进帮扶记录: ${record.studentName}`)
+  currentRecord.value = record
+  trackingForm.value = {
+    content: '',
+    progressStatus: 'in_progress',
+    nextAction: '',
+    beforeScore: null,
+    afterScore: null
+  }
+  trackingList.value = []
+  showTrackingDialog.value = true
+  viewDetail(record)
+}
+
+const submitTracking = async () => {
+  if (!currentRecord.value) return
+  if (!trackingForm.value.content?.trim()) {
+    return ElMessage.warning('请输入跟踪内容')
+  }
+  trackingLoading.value = true
+  try {
+    await addAssistanceTracking(currentRecord.value.recordId, trackingForm.value)
+    ElMessage.success('跟踪记录添加成功')
+    trackingForm.value.content = ''
+    trackingForm.value.nextAction = ''
+    await viewDetail(currentRecord.value)
+  } catch (e) {
+    ElMessage.error('跟踪失败')
+  } finally {
+    trackingLoading.value = false
+  }
+}
+
+const progressStatusText = (v) => ({ in_progress: '进行中', completed: '已完成', paused: '暂停' }[v] || v)
+
+const effectivenessText = (v) => ({ excellent: '显著', good: '良好', fair: '一般', poor: '较差' }[v] || '-')
+
+const effectivenessTagType = (v) => ({ excellent: 'success', good: 'primary', fair: 'warning', poor: 'danger' }[v] || 'info')
+
+const improvementRateText = (v) => {
+  if (v === null || v === undefined || v === '') return '-'
+  return `${v}%`
+}
+
+const improvementRateColor = (v) => {
+  if (v === null || v === undefined || v === '') return '#909399'
+  return Number(v) < 0 ? '#F56C6C' : '#67C23A'
 }
 
 onMounted(() => {
