@@ -66,7 +66,7 @@
     <div v-if="viewMode === 'card'" class="card-view" v-loading="loading">
       <el-row :gutter="20">
         <el-col
-            v-for="company in companiesList"
+          v-for="company in companiesList"
             :key="company.companyId"
             :xs="24"
             :sm="12"
@@ -164,6 +164,17 @@
       </el-row>
 
       <el-empty v-if="!loading && companiesList.length === 0" description="暂无企业数据" />
+
+      <el-pagination
+          v-model:current-page="pagination.current"
+          v-model:page-size="pagination.size"
+          :page-sizes="[10, 20, 50]"
+          :total="pagination.total"
+          layout="total, sizes, prev, pager, next, jumper"
+          @current-change="handlePageChange"
+          @size-change="handleSizeChange"
+          style="margin-top: 20px; text-align: right"
+      />
     </div>
 
     <!-- 表格视图 -->
@@ -221,8 +232,8 @@
           :page-sizes="[10, 20, 50]"
           :total="pagination.total"
           layout="total, sizes, prev, pager, next, jumper"
-          @current-change="handleSearch"
-          @size-change="handleSearch"
+          @current-change="handlePageChange"
+          @size-change="handleSizeChange"
           style="margin-top: 20px; text-align: right"
       />
     </el-card>
@@ -256,31 +267,41 @@ const pendingCount = computed(() => {
   return companiesList.value.filter(c => c.verifyStatus === 'pending').length
 })
 
-const handleSearch = async () => {
+const handleSearch = async (resetPage = true) => {
+  if (resetPage) {
+    pagination.value.current = 1
+  }
+
   loading.value = true
   try {
     const response = await getCompanies({
-      verifyStatus: searchForm.value.verifyStatus
+      verifyStatus: searchForm.value.verifyStatus,
+      keyword: searchForm.value.keyword,
+      industry: searchForm.value.industry,
+      current: pagination.value.current,
+      size: pagination.value.size
     })
     if (response.success) {
-      let data = response.data || []
-
-      // 前端筛选
-      if (searchForm.value.keyword) {
-        data = data.filter(c => c.companyName?.includes(searchForm.value.keyword))
-      }
-      if (searchForm.value.industry) {
-        data = data.filter(c => c.industry === searchForm.value.industry)
-      }
-
-      companiesList.value = data
-      pagination.value.total = data.length
+      const pageData = response.data || {}
+      companiesList.value = pageData.records || []
+      pagination.value.total = pageData.total || 0
     }
   } catch (error) {
     ElMessage.error('查询企业失败')
   } finally {
     loading.value = false
   }
+}
+
+const handlePageChange = (page) => {
+  pagination.value.current = page
+  handleSearch(false)
+}
+
+const handleSizeChange = (size) => {
+  pagination.value.size = size
+  pagination.value.current = 1
+  handleSearch(false)
 }
 
 const getVerifyTagType = (status) => {

@@ -20,6 +20,7 @@ import com.aiinterview.service.teacher.AssistanceService;
 import com.aiinterview.service.teacher.TeacherService;
 import com.aiinterview.utils.JwtUtils;
 import com.aiinterview.config.FileUploadConfig;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
@@ -94,7 +95,7 @@ public class TeacherController {
     }
 
     @PostMapping("/students/query")
-    public ApiResponse<List<StudentProfile>> getStudents(@RequestBody(required = false) StudentQueryDTO queryDTO,
+    public ApiResponse<Page<StudentProfile>> getStudents(@RequestBody(required = false) StudentQueryDTO queryDTO,
                                                          HttpServletRequest request) {
         try {
             Long userId = getTeacherUserId(request);
@@ -132,11 +133,15 @@ public class TeacherController {
     }
 
     @GetMapping("/companies")
-    public ApiResponse<List<Company>> getCompanies(@RequestParam(required = false) String verifyStatus,
+    public ApiResponse<Page<Company>> getCompanies(@RequestParam(required = false) String verifyStatus,
+                                                   @RequestParam(required = false) String keyword,
+                                                   @RequestParam(required = false) String industry,
+                                                   @RequestParam(defaultValue = "1") Integer current,
+                                                   @RequestParam(defaultValue = "12") Integer size,
                                                    HttpServletRequest request) {
         try {
             getTeacherUserId(request);
-            return ApiResponse.success("获取成功", teacherService.getCompanyList(verifyStatus));
+            return ApiResponse.success("获取成功", teacherService.getCompanyList(verifyStatus, keyword, industry, current, size));
         } catch (Exception e) {
             log.error("获取企业列表失败: {}", e.getMessage());
             return ApiResponse.error(e.getMessage());
@@ -158,11 +163,15 @@ public class TeacherController {
     }
 
     @GetMapping("/jobs")
-    public ApiResponse<List<Job>> getJobs(@RequestParam(required = false) String verifyStatus,
+    public ApiResponse<Page<Job>> getJobs(@RequestParam(required = false) String verifyStatus,
+                                          @RequestParam(required = false) String keyword,
+                                          @RequestParam(required = false) String jobType,
+                                          @RequestParam(defaultValue = "1") Integer current,
+                                          @RequestParam(defaultValue = "12") Integer size,
                                           HttpServletRequest request) {
         try {
             getTeacherUserId(request);
-            return ApiResponse.success("获取成功", teacherService.getJobList(verifyStatus));
+            return ApiResponse.success("获取成功", teacherService.getJobList(verifyStatus, keyword, jobType, current, size));
         } catch (Exception e) {
             log.error("获取职位列表失败: {}", e.getMessage());
             return ApiResponse.error(e.getMessage());

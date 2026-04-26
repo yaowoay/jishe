@@ -171,17 +171,18 @@
         </el-table-column>
       </el-table>
 
-      <el-pagination
-          v-model:current-page="pagination.current"
-          v-model:page-size="pagination.size"
-          :page-sizes="[10, 20, 50]"
-          :total="pagination.total"
-          layout="total, sizes, prev, pager, next, jumper"
-          @current-change="handleSearch"
-          @size-change="handleSearch"
-          style="margin-top: 20px; text-align: right"
-      />
     </el-card>
+
+    <el-pagination
+        v-model:current-page="pagination.current"
+        v-model:page-size="pagination.size"
+        :page-sizes="[10, 20, 50]"
+        :total="pagination.total"
+        layout="total, sizes, prev, pager, next, jumper"
+        @current-change="handlePageChange"
+        @size-change="handleSizeChange"
+        style="margin-top: 20px; text-align: right"
+    />
   </div>
 </template>
 
@@ -206,7 +207,11 @@ const pagination = ref({
   total: 0
 })
 
-const handleSearch = async () => {
+const handleSearch = async (resetPage = true) => {
+  if (resetPage) {
+    pagination.value.current = 1
+  }
+
   loading.value = true
   try {
     const response = await queryStudents({
@@ -215,14 +220,26 @@ const handleSearch = async () => {
       size: pagination.value.size
     })
     if (response.success) {
-      studentList.value = response.data || []
-      pagination.value.total = response.total || 0
+      const pageData = response.data || {}
+      studentList.value = pageData.records || []
+      pagination.value.total = pageData.total || 0
     }
   } catch (error) {
     ElMessage.error('查询学生失败')
   } finally {
     loading.value = false
   }
+}
+
+const handlePageChange = (page) => {
+  pagination.value.current = page
+  handleSearch(false)
+}
+
+const handleSizeChange = (size) => {
+  pagination.value.size = size
+  pagination.value.current = 1
+  handleSearch(false)
 }
 
 const getEmploymentStatusType = (status) => {

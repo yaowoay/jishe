@@ -22,6 +22,7 @@ import com.aiinterview.model.entity.student.StudentProfile;
 import com.aiinterview.model.entity.teacher.Teacher;
 import com.aiinterview.service.teacher.TeacherService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -102,7 +103,7 @@ public class TeacherServiceImpl implements TeacherService {
     }
 
     @Override
-    public List<StudentProfile> getStudents(StudentQueryDTO queryDTO, Long userId) {
+    public Page<StudentProfile> getStudents(StudentQueryDTO queryDTO, Long userId) {
         QueryWrapper<StudentProfile> queryWrapper = new QueryWrapper<>();
         if (queryDTO.getCollegeId() != null) {
             queryWrapper.eq("college_id", queryDTO.getCollegeId());
@@ -120,7 +121,11 @@ public class TeacherServiceImpl implements TeacherService {
             queryWrapper.and(wrapper -> wrapper.like("real_name", queryDTO.getKeyword()).or().like("student_no", queryDTO.getKeyword()));
         }
         queryWrapper.orderByDesc("graduation_year").orderByAsc("student_no");
-        return studentProfileMapper.selectList(queryWrapper);
+
+        int current = queryDTO.getCurrent() == null || queryDTO.getCurrent() < 1 ? 1 : queryDTO.getCurrent();
+        int size = queryDTO.getSize() == null || queryDTO.getSize() < 1 ? 12 : queryDTO.getSize();
+        Page<StudentProfile> page = new Page<>(current, size);
+        return studentProfileMapper.selectPage(page, queryWrapper);
     }
 
     @Override
@@ -149,23 +154,41 @@ public class TeacherServiceImpl implements TeacherService {
     }
 
     @Override
-    public List<Company> getCompanyList(String verifyStatus) {
+    public Page<Company> getCompanyList(String verifyStatus, String keyword, String industry, Integer current, Integer size) {
         QueryWrapper<Company> queryWrapper = new QueryWrapper<>();
         if (verifyStatus != null && !verifyStatus.trim().isEmpty()) {
             queryWrapper.eq("verify_status", verifyStatus);
         }
+        if (keyword != null && !keyword.trim().isEmpty()) {
+            queryWrapper.like("company_name", keyword.trim());
+        }
+        if (industry != null && !industry.trim().isEmpty()) {
+            queryWrapper.eq("industry", industry.trim());
+        }
         queryWrapper.orderByDesc("created_at");
-        return companyMapper.selectList(queryWrapper);
+        int pageCurrent = current == null || current < 1 ? 1 : current;
+        int pageSize = size == null || size < 1 ? 12 : size;
+        Page<Company> page = new Page<>(pageCurrent, pageSize);
+        return companyMapper.selectPage(page, queryWrapper);
     }
 
     @Override
-    public List<Job> getJobList(String verifyStatus) {
+    public Page<Job> getJobList(String verifyStatus, String keyword, String jobType, Integer current, Integer size) {
         QueryWrapper<Job> queryWrapper = new QueryWrapper<>();
         if (verifyStatus != null && !verifyStatus.trim().isEmpty()) {
             queryWrapper.eq("verify_status", verifyStatus);
         }
+        if (keyword != null && !keyword.trim().isEmpty()) {
+            queryWrapper.like("title", keyword.trim());
+        }
+        if (jobType != null && !jobType.trim().isEmpty()) {
+            queryWrapper.eq("job_type", jobType.trim());
+        }
         queryWrapper.orderByDesc("created_at");
-        return jobMapper.selectList(queryWrapper);
+        int pageCurrent = current == null || current < 1 ? 1 : current;
+        int pageSize = size == null || size < 1 ? 12 : size;
+        Page<Job> page = new Page<>(pageCurrent, pageSize);
+        return jobMapper.selectPage(page, queryWrapper);
     }
 
     @Override

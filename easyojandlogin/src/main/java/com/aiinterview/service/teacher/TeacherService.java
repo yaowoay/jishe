@@ -7,6 +7,7 @@ import com.aiinterview.model.entity.teacher.AssistanceRecord;
 import com.aiinterview.model.entity.teacher.EmploymentLedger;
 import com.aiinterview.model.entity.student.StudentProfile;
 import com.aiinterview.model.entity.teacher.Teacher;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 
 import java.util.List;
 
@@ -21,15 +22,15 @@ public interface TeacherService {
 
     TeacherDashboardDTO getDashboard(Long userId);
 
-    List<StudentProfile> getStudents(StudentQueryDTO queryDTO, Long userId);
+    Page<StudentProfile> getStudents(StudentQueryDTO queryDTO, Long userId);
 
     EmploymentLedger auditEmployment(Long userId, EmploymentAuditDTO auditDTO);
 
     List<EmploymentLedger> getEmploymentList(Long userId);
 
-    List<Company> getCompanyList(String verifyStatus);
+    Page<Company> getCompanyList(String verifyStatus, String keyword, String industry, Integer current, Integer size);
 
-    List<Job> getJobList(String verifyStatus);
+    Page<Job> getJobList(String verifyStatus, String keyword, String jobType, Integer current, Integer size);
 
     Company auditCompany(Long userId, Long companyId, String verifyStatus, String remark);
 

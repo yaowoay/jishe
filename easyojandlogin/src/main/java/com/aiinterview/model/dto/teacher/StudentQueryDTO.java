@@ -13,4 +13,7 @@ public class StudentQueryDTO {
     private String className;
     private Integer graduationYear;
     private String keyword;
+
+    private Integer current;
+    private Integer size;
 }

@@ -75,7 +75,7 @@
     <div v-if="viewMode === 'card'" class="card-view" v-loading="loading">
       <el-row :gutter="20">
         <el-col
-            v-for="job in jobsList"
+          v-for="job in jobsList"
             :key="job.jobId"
             :xs="24"
             :sm="12"
@@ -171,6 +171,17 @@
       </el-row>
 
       <el-empty v-if="!loading && jobsList.length === 0" description="暂无职位数据" />
+
+      <el-pagination
+          v-model:current-page="pagination.current"
+          v-model:page-size="pagination.size"
+          :page-sizes="[10, 20, 50]"
+          :total="pagination.total"
+          layout="total, sizes, prev, pager, next, jumper"
+          @current-change="handlePageChange"
+          @size-change="handleSizeChange"
+          style="margin-top: 20px; text-align: right"
+      />
     </div>
 
     <!-- 表格视图 -->
@@ -245,8 +256,8 @@
           :page-sizes="[10, 20, 50]"
           :total="pagination.total"
           layout="total, sizes, prev, pager, next, jumper"
-          @current-change="handleSearch"
-          @size-change="handleSearch"
+          @current-change="handlePageChange"
+          @size-change="handleSizeChange"
           style="margin-top: 20px; text-align: right"
       />
     </el-card>
@@ -254,7 +265,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import {
   Search, Grid, List, Money, Location, User, Calendar,
@@ -280,28 +291,24 @@ const pagination = ref({
   total: 0
 })
 
-const handleSearch = async () => {
+const handleSearch = async (resetPage = true) => {
+  if (resetPage) {
+    pagination.value.current = 1
+  }
+
   loading.value = true
   try {
     const response = await getJobs({
-      verifyStatus: searchForm.value.verifyStatus
+      verifyStatus: searchForm.value.verifyStatus,
+      keyword: searchForm.value.keyword,
+      jobType: searchForm.value.jobType,
+      current: pagination.value.current,
+      size: pagination.value.size
     })
     if (response.success) {
-      let data = response.data || []
-
-      // 前端筛选
-      if (searchForm.value.keyword) {
-        data = data.filter(j => j.title?.includes(searchForm.value.keyword))
-      }
-      if (searchForm.value.jobType) {
-        data = data.filter(j => j.jobType === searchForm.value.jobType)
-      }
-
-      // 添加选中状态
-      data = data.map(j => ({ ...j, selected: false }))
-
-      jobsList.value = data
-      pagination.value.total = data.length
+      const pageData = response.data || {}
+      jobsList.value = (pageData.records || []).map(j => ({ ...j, selected: false }))
+      pagination.value.total = pageData.total || 0
     }
   } catch (error) {
     ElMessage.error('查询职位失败')
@@ -368,6 +375,17 @@ const handleJobSelect = () => {
 
 const handleSelectionChange = (selection) => {
   selectedJobs.value = selection
+}
+
+const handlePageChange = (page) => {
+  pagination.value.current = page
+  handleSearch(false)
+}
+
+const handleSizeChange = (size) => {
+  pagination.value.size = size
+  pagination.value.current = 1
+  handleSearch(false)
 }
 
 const quickAudit = async (job, status) => {
