@@ -237,10 +237,82 @@ CREATE TABLE IF NOT EXISTS assistance_records (
     end_date DATE,
     result TEXT,
     follow_up_date DATE,
+    status VARCHAR(20) DEFAULT 'in_progress' COMMENT '帮扶状态：in_progress-进行中, completed-已完成, cancelled-已取消',
+    effectiveness VARCHAR(20) COMMENT '帮扶效果：excellent-优秀, good-良好, fair-一般, poor-较差',
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     INDEX idx_assistance_student_id (student_id),
-    INDEX idx_assistance_teacher_id (teacher_id)
+    INDEX idx_assistance_teacher_id (teacher_id),
+    INDEX idx_assistance_status (status)
+);
+
+-- 简历指导预约表
+CREATE TABLE IF NOT EXISTS resume_guidance_appointments (
+    appointment_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    student_id BIGINT NOT NULL COMMENT '学生ID',
+    teacher_id BIGINT NOT NULL COMMENT '教师ID',
+    appointment_time DATETIME NOT NULL COMMENT '预约时间',
+    duration INT DEFAULT 60 COMMENT '时长（分钟）',
+    location VARCHAR(255) COMMENT '地点',
+    guidance_type VARCHAR(50) COMMENT '指导类型：resume_review-简历审阅, resume_optimization-简历优化, career_planning-职业规划',
+    student_resume_url VARCHAR(500) COMMENT '学生简历链接',
+    student_notes TEXT COMMENT '学生备注说明',
+    teacher_feedback TEXT COMMENT '教师反馈',
+    status VARCHAR(20) DEFAULT 'pending' COMMENT '状态：pending-待确认, confirmed-已确认, completed-已完成, cancelled-已取消',
+    rating INT COMMENT '学生评分（1-5）',
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    INDEX idx_guidance_student_id (student_id),
+    INDEX idx_guidance_teacher_id (teacher_id),
+    INDEX idx_guidance_status (status),
+    INDEX idx_guidance_time (appointment_time)
+);
+
+-- 模拟面试安排表
+CREATE TABLE IF NOT EXISTS mock_interview_appointments (
+    appointment_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    student_id BIGINT NOT NULL COMMENT '学生ID',
+    teacher_id BIGINT NOT NULL COMMENT '教师ID',
+    appointment_time DATETIME NOT NULL COMMENT '面试时间',
+    duration INT DEFAULT 60 COMMENT '时长（分钟）',
+    location VARCHAR(255) COMMENT '地点',
+    interview_type VARCHAR(50) COMMENT '面试类型：technical-技术面试, hr-HR面试, comprehensive-综合面试',
+    target_position VARCHAR(100) COMMENT '目标职位',
+    interview_mode VARCHAR(20) COMMENT '面试方式：online-线上, offline-线下',
+    meeting_link VARCHAR(500) COMMENT '线上会议链接',
+    student_resume_url VARCHAR(500) COMMENT '学生简历链接',
+    student_notes TEXT COMMENT '学生备注',
+    interview_questions TEXT COMMENT '面试问题（JSON格式）',
+    interview_feedback TEXT COMMENT '面试反馈',
+    performance_score INT COMMENT '表现评分（0-100）',
+    strengths TEXT COMMENT '优势分析',
+    weaknesses TEXT COMMENT '不足分析',
+    improvement_suggestions TEXT COMMENT '改进建议',
+    status VARCHAR(20) DEFAULT 'pending' COMMENT '状态：pending-待确认, confirmed-已确认, completed-已完成, cancelled-已取消',
+    rating INT COMMENT '学生评分（1-5）',
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    INDEX idx_mock_student_id (student_id),
+    INDEX idx_mock_teacher_id (teacher_id),
+    INDEX idx_mock_status (status),
+    INDEX idx_mock_time (appointment_time)
+);
+
+-- 帮扶效果跟踪表
+CREATE TABLE IF NOT EXISTS assistance_tracking (
+    tracking_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    record_id BIGINT NOT NULL COMMENT '帮扶记录ID',
+    tracking_date DATE NOT NULL COMMENT '跟踪日期',
+    tracking_content TEXT COMMENT '跟踪内容',
+    student_feedback TEXT COMMENT '学生反馈',
+    progress_status VARCHAR(50) COMMENT '进展状态',
+    next_action TEXT COMMENT '下一步行动',
+    created_by BIGINT COMMENT '创建人ID',
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    INDEX idx_tracking_record_id (record_id),
+    INDEX idx_tracking_date (tracking_date),
+    FOREIGN KEY (record_id) REFERENCES assistance_records(record_id) ON DELETE CASCADE
 );
 
 -- 预警结果表
@@ -256,12 +328,20 @@ CREATE TABLE IF NOT EXISTS early_warning_results (
     handle_status VARCHAR(20) DEFAULT 'pending',
     handle_time DATETIME,
     handle_remark TEXT,
+    student_viewed TINYINT(1) DEFAULT 0,
+    student_view_time DATETIME,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     INDEX idx_warning_student_id (student_id),
     INDEX idx_warning_assigned_to (assigned_to),
     INDEX idx_warning_handle_status (handle_status)
 );
+
+-- 兼容历史库：补齐预警表缺失字段（MySQL 8.0+）
+ALTER TABLE early_warning_results
+    ADD COLUMN IF NOT EXISTS student_viewed TINYINT(1) DEFAULT 0 AFTER handle_remark,
+    ADD COLUMN IF NOT EXISTS student_view_time DATETIME AFTER student_viewed;
+
 
 -- 校企合作申请表
 CREATE TABLE IF NOT EXISTS cooperation_applications (
