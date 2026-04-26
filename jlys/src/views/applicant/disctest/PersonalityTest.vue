@@ -225,16 +225,16 @@ export default {
           features: ['16种性格类型', '职业匹配', '团队角色'],
           completedCount: 12580
         },
-        {
-          id: 2,
-          name: '大五人格测试',
-          description: '从五个维度全面评估您的人格特质',
-          fullDescription: '大五人格模型是心理学界公认的最科学的人格理论之一。通过测评开放性、尽责性、外向性、宜人性、神经质五个维度，全面了解您的人格特质。',
-          icon: 'Star',
-          duration: '10-15分钟',
-          features: ['五大维度', '科学权威', '职场适应'],
-          completedCount: 8960
-        },
+        // {
+        //   id: 2,
+        //   name: '大五人格测试',
+        //   description: '从五个维度全面评估您的人格特质',
+        //   fullDescription: '大五人格模型是心理学界公认的最科学的人格理论之一。通过测评开放性、尽责性、外向性、宜人性、神经质五个维度，全面了解您的人格特质。',
+        //   icon: 'Star',
+        //   duration: '10-15分钟',
+        //   features: ['五大维度', '科学权威', '职场适应'],
+        //   completedCount: 8960
+        // },
         {
           id: 3,
           name: '职业兴趣测评',

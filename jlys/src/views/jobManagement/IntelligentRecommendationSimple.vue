@@ -266,11 +266,16 @@
 
                 <!-- 操作按钮 -->
                 <div class="job-actions">
-                  <el-button type="primary" size="small" @click="applyJob(job)">
+                  <el-button v-if="!isJobApplied(job.jobId)" type="primary" size="small" @click="applyJob(job)">
                     立即申请
                   </el-button>
-                  <el-button size="small" @click="collectJob(job)">
-                    收藏
+                  <el-tag v-else type="success" size="small">已投递</el-tag>
+                  <el-button
+                    size="small"
+                    :type="isJobCollected(job.jobId) ? 'warning' : 'default'"
+                    @click="handleToggleCollection(job)"
+                  >
+                    {{ isJobCollected(job.jobId) ? '已收藏' : '收藏' }}
                   </el-button>
                   <el-button size="small" @click="viewJobDetail(job)">
                     查看详情
@@ -394,17 +399,73 @@
 
         <!-- 操作按钮 -->
         <div class="job-detail-actions" style="margin-top: 20px; text-align: center;">
-          <el-button type="primary" size="large" @click="applyJob(selectedJob)">
+          <el-button
+            v-if="selectedJob && !isJobApplied(selectedJob.jobId || selectedJob.positionId || selectedJob.id)"
+            type="primary"
+            size="large"
+            @click="applyJob(selectedJob)"
+          >
             立即申请
           </el-button>
-          <el-button size="large" @click="collectJob(selectedJob)">
-            收藏职位
+          <el-tag v-else type="success" size="large">已投递</el-tag>
+          <el-button
+            size="large"
+            :type="isJobCollected(selectedJob.jobId || selectedJob.positionId || selectedJob.id) ? 'warning' : 'default'"
+            @click="handleToggleCollection(selectedJob)"
+          >
+            {{ isJobCollected(selectedJob.jobId || selectedJob.positionId || selectedJob.id) ? '已收藏' : '收藏职位' }}
           </el-button>
           <el-button size="large" @click="handleJobDetailClose">
             关闭
           </el-button>
         </div>
       </div>
+    </el-dialog>
+
+    <!-- 投递简历对话框 -->
+    <el-dialog
+      v-model="applyDialogVisible"
+      title="投递简历"
+      width="500px"
+      :before-close="closeApplyDialog"
+    >
+      <div v-if="applyingJob">
+        <h3>{{ applyingJob.positionName || applyingJob.title }}</h3>
+        <p class="company-name">{{ applyingJob.companyName || '未知公司' }}</p>
+
+        <el-form :model="applyForm" :rules="applyRules" ref="applyFormRef" label-width="100px">
+          <el-form-item label="选择简历" prop="resumeId">
+            <el-select v-model="applyForm.resumeId" placeholder="请选择要投递的简历" style="width: 100%">
+              <el-option
+                v-for="resume in resumeList"
+                :key="resume.resumeId"
+                :label="resume.filename"
+                :value="resume.resumeId"
+              />
+            </el-select>
+          </el-form-item>
+
+          <el-form-item label="求职信" prop="coverLetter">
+            <el-input
+              v-model="applyForm.coverLetter"
+              type="textarea"
+              :rows="4"
+              placeholder="请简要介绍自己，说明为什么适合这个职位..."
+              maxlength="500"
+              show-word-limit
+            />
+          </el-form-item>
+        </el-form>
+      </div>
+
+      <template #footer>
+        <div class="dialog-footer">
+          <el-button @click="closeApplyDialog">取消</el-button>
+          <el-button type="primary" @click="submitApplication" :loading="submitting">
+            确认投递
+          </el-button>
+        </div>
+      </template>
     </el-dialog>
   </div>
 </template>
@@ -417,6 +478,9 @@ import {
   Star, TrendCharts
 } from '@element-plus/icons-vue'
 import * as api from '@/api/jobs'
+import { getResumeList, submitJobApplication, analyzeJobApplication, getSubmittedJobIds } from '@/api/resume'
+import { jobAPI } from '@/api/visualization'
+import { logJobCollect } from '@/api/userBehavior'
 
 // 响应式数据
 const loading = ref(false)
@@ -434,6 +498,24 @@ const sortBy = ref('matchScore')
 const matchingJobs = ref([])
 const selectedJob = ref(null)
 const showJobDetailDialog = ref(false)
+const applyDialogVisible = ref(false)
+const applyFormRef = ref(null)
+const resumeList = ref([])
+const submittedJobIds = ref([])
+const collectedJobIds = ref(new Set())
+const applyingJob = ref(null)
+const submitting = ref(false)
+
+const applyForm = reactive({
+  resumeId: '',
+  coverLetter: ''
+})
+
+const applyRules = {
+  resumeId: [
+    { required: true, message: '请选择要投递的简历', trigger: 'change' }
+  ]
+}
 
 // 用户画像数据
 const userProfile = reactive({
@@ -814,26 +896,175 @@ const handleJobDetailClose = () => {
   selectedJob.value = null
 }
 
-const applyJob = (job) => {
-  ElMessage.success(`已申请职位：${job.positionName}`)
+const loadSubmittedJobs = async () => {
+  try {
+    const response = await getSubmittedJobIds()
+    if (response.success) {
+      submittedJobIds.value = response.data || []
+    }
+  } catch (error) {
+    console.error('加载已投递职位失败:', error)
+  }
 }
 
-const collectJob = async (job) => {
+const isJobApplied = (jobId) => {
+  if (!jobId) return false
+  return submittedJobIds.value.includes(jobId) || submittedJobIds.value.includes(String(jobId))
+}
+
+const isJobCollected = (jobId) => {
+  if (!jobId) return false
+  return collectedJobIds.value.has(jobId) || collectedJobIds.value.has(String(jobId))
+}
+
+const loadResumeOptions = async () => {
+  try {
+    const response = await getResumeList()
+    if (response.code === 0 && response.data) {
+      resumeList.value = response.data
+      return
+    }
+    if (response.success && response.data) {
+      resumeList.value = response.data
+      return
+    }
+    resumeList.value = []
+  } catch (error) {
+    console.error('加载简历列表失败:', error)
+    resumeList.value = []
+  }
+}
+
+const applyJob = async (job) => {
+  if (resumeList.value.length === 0) {
+    await loadResumeOptions()
+  }
+  if (resumeList.value.length === 0) {
+    ElMessage.warning('请先上传简历')
+    return
+  }
+
+  applyingJob.value = job
+  applyForm.resumeId = ''
+  applyForm.coverLetter = ''
+  applyDialogVisible.value = true
+}
+
+const closeApplyDialog = () => {
+  applyDialogVisible.value = false
+  applyingJob.value = null
+  if (applyFormRef.value) {
+    applyFormRef.value.clearValidate()
+  }
+}
+
+const analyzeApplicationInBackground = async (applicationData) => {
+  try {
+    const analyzeResponse = await analyzeJobApplication(applicationData)
+    if (analyzeResponse.success) {
+      ElMessage.info('简历分析完成')
+    }
+  } catch (error) {
+    console.error('筛选打分异常:', error)
+  }
+}
+
+const submitApplication = async () => {
+  if (!applyFormRef.value || !applyingJob.value) return
+
+  try {
+    await applyFormRef.value.validate()
+
+    submitting.value = true
+
+    const targetJobId = applyingJob.value.jobId || applyingJob.value.positionId || applyingJob.value.id
+    if (!targetJobId) {
+      ElMessage.error('职位ID获取失败')
+      return
+    }
+
+    const applicationData = {
+      jobId: targetJobId,
+      resumeId: applyForm.resumeId,
+      coverLetter: applyForm.coverLetter
+    }
+
+    const submitResponse = await submitJobApplication(applicationData)
+
+    if (submitResponse.success) {
+      ElMessage.success('简历投递成功!')
+      if (!isJobApplied(targetJobId)) {
+        submittedJobIds.value.push(targetJobId)
+      }
+      closeApplyDialog()
+      analyzeApplicationInBackground(applicationData)
+    } else {
+      ElMessage.error(submitResponse.message || '投递失败')
+    }
+  } catch (error) {
+    if (error.name !== 'ValidationError') {
+      console.error('投递失败:', error)
+      ElMessage.error('投递失败，请稍后重试')
+    }
+  } finally {
+    submitting.value = false
+  }
+}
+
+const handleToggleCollection = async (job) => {
+  if (!job) return
   const jobId = job.jobId || job.id
   if (!currentUserId.value) {
-    ElMessage.error('请先登录')
+    ElMessage.error('用户信息获取失败，操作无法完成')
     return
   }
   if (!jobId) {
     ElMessage.error('职位ID获取失败')
     return
   }
+
   try {
-    await api.collectJob(currentUserId.value, jobId)
-    ElMessage.success(`已收藏职位：${job.positionName}`)
+    const wasCollected = isJobCollected(jobId)
+    const response = await jobAPI.collectJob(currentUserId.value, jobId)
+    const result = response.data || response
+
+    if (result.code === 0) {
+      if (wasCollected) {
+        collectedJobIds.value.delete(jobId)
+        collectedJobIds.value.delete(String(jobId))
+        ElMessage.success(result.data || '取消收藏成功')
+      } else {
+        collectedJobIds.value.add(jobId)
+        ElMessage.success(result.data || '收藏成功')
+
+        logJobCollect(currentUserId.value, jobId).catch(err => {
+          console.error('记录收藏行为失败:', err)
+        })
+      }
+    } else {
+      ElMessage.error(result.message || '操作失败')
+    }
   } catch (error) {
-    console.error('收藏失败:', error)
-    ElMessage.error('收藏失败')
+    console.error('收藏操作失败:', error)
+    ElMessage.error('操作失败，请稍后重试')
+  }
+}
+
+const fetchCollectedJobs = async () => {
+  if (!currentUserId.value) {
+    return
+  }
+
+  try {
+    const response = await jobAPI.getCollectedJobs(currentUserId.value)
+    const result = response.data || response
+
+    if (result.code === 0 && Array.isArray(result.data)) {
+      const ids = result.data.map(job => job.jobId || job.id).filter(Boolean)
+      collectedJobIds.value = new Set(ids)
+    }
+  } catch (error) {
+    console.error('获取收藏列表异常:', error)
   }
 }
 
@@ -841,6 +1072,9 @@ const collectJob = async (job) => {
 onMounted(() => {
   updateStats()
   calculateMatching()
+  loadResumeOptions()
+  loadSubmittedJobs()
+  fetchCollectedJobs()
 })
 </script>
 <style scoped>
@@ -968,6 +1202,19 @@ onMounted(() => {
   font-size: 16px;
   font-weight: 600;
   color: #1d2129;
+}
+
+.company-name {
+  color: #67c23a;
+  margin-bottom: 16px;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.dialog-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
 }
 
 .skills-input {

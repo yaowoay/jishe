@@ -104,10 +104,7 @@
             </div>
           </div>
         </div>
-        <Link to="/officialExam">首页</Link>
-        <Link to="/interview-report">首页</Link>
-        <Link to="/officialExam">首页</Link>
-        <Link to="/officialExam">首页</Link>
+
       </div>
     </div>
 

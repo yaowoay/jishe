@@ -108,17 +108,19 @@ const getSalaryRangeText = (job) => {
 .job-card {
   margin-bottom: 16px;
   border-radius: 12px;
-  border: none;
+  border: 1px solid #eef1f5;
+  background: #ffffff;
   overflow: hidden;
   transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.05);
   padding: 18px 20px;
   cursor: pointer;
 }
 
 .job-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+  border-color: #e5ebf2;
 }
 
 /* 头部样式 */
@@ -211,6 +213,10 @@ const getSalaryRangeText = (job) => {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin-top: 10px;
+  padding-top: 12px;
+  border-top: 1px solid #f1f3f7;
+  background: #ffffff;
   color: #86909c;
   font-size: 13px;
 }
@@ -231,17 +237,18 @@ const getSalaryRangeText = (job) => {
 
 /* 详情按钮样式 */
 .detail-btn {
-  background: none;
-  border: none;
+  background: #ffffff;
+  border: 1px solid #e9edf3;
   cursor: pointer;
-  padding: 4px;
+  padding: 4px 6px;
   transition: transform 0.2s;
-  border-radius: 4px;
+  border-radius: 6px;
 }
 
 .detail-btn:hover {
   transform: scale(1.15);
-  background-color: rgba(22, 119, 255, 0.1);
+  background-color: #f7fbff;
+  border-color: #d9e7ff;
 }
 
 .detail-icon {
@@ -252,15 +259,18 @@ const getSalaryRangeText = (job) => {
 
 /* 收藏按钮样式 */
 .favorite-btn {
-  background: none;
-  border: none;
+  background: #ffffff;
+  border: 1px solid #e9edf3;
   cursor: pointer;
-  padding: 4px;
+  padding: 4px 6px;
   transition: transform 0.2s;
+  border-radius: 6px;
 }
 
 .favorite-btn:hover {
   transform: scale(1.15);
+  background-color: #fffdf5;
+  border-color: #ffe7a3;
 }
 
 .star-icon {
