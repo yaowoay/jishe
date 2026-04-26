@@ -47,7 +47,7 @@
     <!-- 职位列表 -->
     <div class="table-section">
       <el-table
-        :data="filteredJobs"
+        :data="paginatedJobs"
         v-loading="loading"
         stripe
         style="width: 100%"
@@ -91,7 +91,7 @@
           </template>
         </el-table-column>
 
-        <el-table-column label="操作" width="200" fixed="right">
+        <el-table-column label="操作" width="300" fixed="right">
           <template #default="{ row }">
             <div class="action-buttons">
               <el-button
@@ -117,10 +117,30 @@
               >
                 {{ row.isActive ? '关闭' : '重新发布' }}
               </el-button>
+              <el-button
+                type="danger"
+                size="small"
+                @click="handleDeleteJob(row)"
+                :icon="Delete"
+              >
+                删除
+              </el-button>
             </div>
           </template>
         </el-table-column>
       </el-table>
+
+      <div class="pagination-container" v-if="filteredJobs.length > 0">
+        <el-pagination
+          v-model:current-page="pagination.currentPage"
+          v-model:page-size="pagination.pageSize"
+          :page-sizes="[10, 20, 50, 100]"
+          :total="filteredJobs.length"
+          layout="total, sizes, prev, pager, next, jumper"
+          @size-change="handleSizeChange"
+          @current-change="handleCurrentChange"
+        />
+      </div>
     </div>
 
     <!-- 发布/编辑职位对话框 -->
@@ -281,6 +301,7 @@ import {
   Search,
   View as ViewIcon,
   Edit,
+  Delete,
   Briefcase,
   Location
 } from '@element-plus/icons-vue'
@@ -288,6 +309,7 @@ import {
   getCompanyJobs,
   createJob,
   updateJob,
+  deleteJob,
   toggleJobStatus as toggleJobStatusAPI,
   optimizeJobDescription
 } from '@/api/job'
@@ -299,6 +321,7 @@ export default {
     Search,
     ViewIcon,
     Edit,
+    Delete,
     Briefcase,
     Location
   },
@@ -319,6 +342,12 @@ export default {
       keyword: '',
       jobType: '',
       status: ''
+    })
+
+    // 分页状态
+    const pagination = reactive({
+      currentPage: 1,
+      pageSize: 10
     })
 
     // 职位表单
@@ -354,11 +383,11 @@ export default {
       ],
       description: [
         { required: true, message: '请输入岗位职责', trigger: 'blur' },
-        { min: 10, message: '岗位职责至少10个字符', trigger: 'blur' }
+        { min: 5, message: '岗位职责至少5个字符', trigger: 'blur' }
       ],
       requirements: [
         { required: true, message: '请输入岗位要求', trigger: 'blur' },
-        { min: 10, message: '岗位要求至少10个字符', trigger: 'blur' }
+        { min: 5, message: '岗位要求至少5个字符', trigger: 'blur' }
       ],
       minSalary: [
         { required: true, message: '请输入最低薪资', trigger: 'blur' },
@@ -407,6 +436,12 @@ export default {
       console.log('filteredJobs 结果:', result)
       console.log('filteredJobs 结果长度:', result.length)
       return result
+    })
+
+    const paginatedJobs = computed(() => {
+      const start = (pagination.currentPage - 1) * pagination.pageSize
+      const end = start + pagination.pageSize
+      return filteredJobs.value.slice(start, end)
     })
 
     // 判断是否可以优化JD
@@ -619,6 +654,34 @@ export default {
       }
     }
 
+    const handleDeleteJob = async (job) => {
+      try {
+        await ElMessageBox.confirm(
+          `确定要删除职位"${job.title}"吗？删除后不可恢复。`,
+          '确认删除',
+          {
+            confirmButtonText: '确定删除',
+            cancelButtonText: '取消',
+            type: 'warning'
+          }
+        )
+
+        const response = await deleteJob(job.jobId)
+
+        if (response.success) {
+          ElMessage.success('删除成功')
+          await loadJobs()
+        } else {
+          ElMessage.error(response.message || '删除失败')
+        }
+      } catch (error) {
+        if (error !== 'cancel') {
+          console.error('删除职位失败:', error)
+          ElMessage.error('删除失败，请重试')
+        }
+      }
+    }
+
     const viewJobDetail = (job) => {
       // 这里可以跳转到职位详情页面或显示详情对话框
       ElMessage.info('查看职位详情功能待实现')
@@ -626,6 +689,16 @@ export default {
 
     const handleSearch = () => {
       // 搜索逻辑已在计算属性中实现
+      pagination.currentPage = 1
+    }
+
+    const handleSizeChange = (newSize) => {
+      pagination.pageSize = newSize
+      pagination.currentPage = 1
+    }
+
+    const handleCurrentChange = (newPage) => {
+      pagination.currentPage = newPage
     }
 
     // 工具方法
@@ -673,7 +746,9 @@ export default {
       // 计算属性
       dialogTitle,
       filteredJobs,
+      paginatedJobs,
       canOptimize,
+      pagination,
 
       // 方法
       loadJobs,
@@ -684,8 +759,11 @@ export default {
       optimizeJD,
       submitJob,
       toggleJobStatus,
+      handleDeleteJob,
       viewJobDetail,
       handleSearch,
+      handleSizeChange,
+      handleCurrentChange,
       formatSalary,
       formatDate,
       getJobTypeTagType,
@@ -696,6 +774,7 @@ export default {
       Search,
       ViewIcon,
       Edit,
+      Delete,
       Briefcase,
       Location
     }
@@ -765,6 +844,14 @@ export default {
   border: 1px solid #e6f1ff;
   box-shadow: 0 2px 8px rgba(26, 111, 196, 0.1);
   overflow: hidden;
+}
+
+.pagination-container {
+  display: flex;
+  justify-content: center;
+  padding: 16px 20px 20px;
+  border-top: 1px solid #e6f1ff;
+  background: #ffffff;
 }
 
 .job-title {
