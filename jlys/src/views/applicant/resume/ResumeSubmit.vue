@@ -647,7 +647,13 @@ export default {
           submittedJobIds.value = response.data || []
           console.log('已投递的职位ID列表:', submittedJobIds.value)
 
-          ElMessage.success(`加载了 ${submittedJobIds.value.length} 个已投递职位`)
+          //  ElMessage.success(`加载了 ${submittedJobIds.value.length} 个已投递职位`)
+
+          const toastKey = 'resume-submit-submitted-jobs-toast-shown'
+          if (!sessionStorage.getItem(toastKey)) {
+            ElMessage.success(`加载了 ${submittedJobIds.value.length} 个已投递职位`)
+            sessionStorage.setItem(toastKey, '1')
+          }
         } else {
           console.error('API返回失败:', response.message)
           ElMessage.error(response.message || '获取已投递职位失败')
@@ -744,7 +750,7 @@ export default {
       } catch (error) {
         if (error.name !== 'ValidationError') {
           console.error('Submit application error:', error)
-          ElMessage.error('投递失败，请重试')
+          // ElMessage.error('投递失败，请重试')
         }
       } finally {
         submitting.value = false
