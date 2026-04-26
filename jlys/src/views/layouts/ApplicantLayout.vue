@@ -78,10 +78,10 @@
                 <el-icon size="18"><MagicStick /></el-icon>
                 <span class="submenu-text">智能推荐</span>
               </el-menu-item>
-              <el-menu-item index="/applicant/job-list">
+              <!-- <el-menu-item index="/applicant/job-list">
                 <el-icon size="18"><Search /></el-icon>
                 <span class="submenu-text">职位搜索</span>
-              </el-menu-item>
+              </el-menu-item> -->
               <el-menu-item index="/applicant/my-collections">
                 <el-icon size="18"><Star /></el-icon>
                 <span class="submenu-text">我的收藏</span>
@@ -165,12 +165,11 @@
             </el-sub-menu>
 
             <!-- 个人设置 -->
-            <el-menu-item index="/applicant/profile">
+            <el-menu-item index="/applicant/profile" class="menu-item-bottom">
               <el-icon size="18"><Setting /></el-icon>
               <span class="menu-text">个人设置</span>
             </el-menu-item>
           </el-menu>
-          <div class="aside-spacer"></div>
         </el-aside>
       </div>
       <!-- 主内容区 -->
@@ -478,17 +477,18 @@ export default {
 /* 菜单区域 - 可滚动 */
 .aside-menu {
   flex: 1;  /* 👈 占据剩余空间 */
+  display: flex;
+  flex-direction: column;
   border: none;
   padding: 0 8px;
   /* 👇 确保菜单内部也可以滚动 */
   overflow-y: visible;
 }
 
-/* 底部空白区域 - 不占用滚动空间 */
-.aside-spacer {
-  flex-shrink: 0;
-  height: 20px;
+:deep(.aside-menu .menu-item-bottom) {
+  margin-top: auto;
 }
+
 :deep(.aside-menu .el-menu-item),
 :deep(.aside-menu .el-sub-menu__title) {
   height: 48px;
@@ -532,10 +532,6 @@ export default {
 :deep(.aside-menu .el-sub-menu .el-menu-item) {
   height: 40px;
   margin: 2px 0;
-}
-
-.aside-spacer {
-  flex: 1;
 }
 
 /* 顶部导航 */
