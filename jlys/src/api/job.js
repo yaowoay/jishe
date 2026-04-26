@@ -80,6 +80,15 @@ export function getActiveJobs() {
   })
 }
 
+// 分页获取所有活跃职位
+export function getActiveJobsWithPage(params) {
+  return request({
+    url: '/jobs/active/page',
+    method: 'get',
+    params
+  })
+}
+
 // 根据类型获取职位
 export function getJobsByType(jobType) {
   return request({

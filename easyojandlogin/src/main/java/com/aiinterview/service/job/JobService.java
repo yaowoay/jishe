@@ -88,6 +88,24 @@ public interface JobService {
     List<JobDetailDTO> getActiveJobsWithCompany();
 
     /**
+     * 分页获取所有活跃的职位（带公司信息）
+     */
+    Page<JobDetailDTO> getActiveJobsWithCompanyPage(
+        int current,
+        int size,
+        String keyword,
+        String jobType,
+        String location,
+        String industry,
+        String experience,
+        String education,
+        String companyScale,
+        String applicationStatus,
+        List<Long> submittedJobIds,
+        String sortBy
+    );
+
+    /**
      * 获取所有活跃的职位（仅职位信息）
      */
     List<Job> getActiveJobs();

@@ -237,6 +237,34 @@ public class JobServiceImpl implements JobService {
     }
 
     @Override
+    public Page<JobDetailDTO> getActiveJobsWithCompanyPage(
+            int current, int size,
+            String keyword, String jobType, String location,
+            String industry, String experience, String education,
+            String companyScale, String applicationStatus,
+            List<Long> submittedJobIds, String sortBy) {
+        try {
+            Page<JobDetailDTO> page = new Page<>(current, size);
+            return jobMapper.selectActiveJobsWithCompanyPage(
+                page,
+                keyword,
+                jobType,
+                location,
+                industry,
+                experience,
+                education,
+                companyScale,
+                applicationStatus,
+                submittedJobIds,
+                sortBy
+            );
+        } catch (Exception e) {
+            log.error("分页获取活跃职位失败: {}", e.getMessage(), e);
+            throw new RuntimeException("获取职位列表失败");
+        }
+    }
+
+    @Override
     public List<Job> getActiveJobs() {
         try {
             QueryWrapper<Job> queryWrapper = new QueryWrapper<>();

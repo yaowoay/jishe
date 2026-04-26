@@ -14,9 +14,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * 职位控制器
@@ -221,6 +223,62 @@ public class JobController {
             return ApiResponse.success("获取成功", jobs);
         } catch (Exception e) {
             log.error("获取活跃职位失败: {}", e.getMessage());
+            return ApiResponse.error(e.getMessage());
+        }
+    }
+
+    /**
+     * 分页获取所有活跃职位（供求职者查看）
+     */
+    @GetMapping("/active/page")
+    public ApiResponse<Map<String, Object>> getActiveJobsWithPage(
+            @RequestParam(defaultValue = "1") int current,
+            @RequestParam(defaultValue = "12") int size,
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) String jobType,
+            @RequestParam(required = false) String location,
+            @RequestParam(required = false) String industry,
+            @RequestParam(required = false) String experience,
+            @RequestParam(required = false) String education,
+            @RequestParam(required = false) String companyScale,
+            @RequestParam(required = false) String applicationStatus,
+            @RequestParam(required = false) String submittedJobIds,
+            @RequestParam(defaultValue = "postDate") String sortBy) {
+        try {
+            List<Long> submittedJobIdList = new ArrayList<>();
+            if (submittedJobIds != null && !submittedJobIds.trim().isEmpty()) {
+                submittedJobIdList = java.util.Arrays.stream(submittedJobIds.split(","))
+                        .map(String::trim)
+                        .filter(id -> !id.isEmpty())
+                        .map(Long::valueOf)
+                        .collect(Collectors.toList());
+            }
+
+            Page<JobDetailDTO> page = jobService.getActiveJobsWithCompanyPage(
+                current,
+                size,
+                keyword,
+                jobType,
+                location,
+                industry,
+                experience,
+                education,
+                companyScale,
+                applicationStatus,
+                submittedJobIdList,
+                sortBy
+            );
+
+            Map<String, Object> result = new HashMap<>();
+            result.put("jobs", page.getRecords());
+            result.put("total", page.getTotal());
+            result.put("current", page.getCurrent());
+            result.put("size", page.getSize());
+            result.put("pages", page.getPages());
+
+            return ApiResponse.success("获取成功", result);
+        } catch (Exception e) {
+            log.error("分页获取活跃职位失败: {}", e.getMessage());
             return ApiResponse.error(e.getMessage());
         }
     }

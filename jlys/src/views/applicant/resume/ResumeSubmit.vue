@@ -319,12 +319,12 @@
     </div>
 
     <!-- 分页组件 -->
-    <div class="pagination-container" v-if="filteredJobs.length > 0">
+    <div class="pagination-container" v-if="pagination.total > 0">
       <el-pagination
         v-model:current-page="pagination.currentPage"
         v-model:page-size="pagination.pageSize"
         :page-sizes="[12, 24, 36, 48]"
-        :total="filteredJobs.length"
+        :total="pagination.total"
         layout="total, sizes, prev, pager, next, jumper"
         @size-change="handleSizeChange"
         @current-change="handleCurrentChange"
@@ -491,7 +491,7 @@ import {
   Location,
   OfficeBuilding
 } from '@element-plus/icons-vue'
-import { getActiveJobs } from '@/api/job'
+import { getActiveJobsWithPage } from '@/api/job'
 import { getResumeList, submitJobApplication, analyzeJobApplication, getSubmittedJobs, getSubmittedJobIds } from '@/api/resume'
 import { jobAPI } from '@/api/visualization'
 import { logJobView, logJobCollect, logJobApply } from '@/api/userBehavior'
@@ -548,82 +548,45 @@ export default {
     })
 
     // 计算属性
-    const filteredJobs = computed(() => {
-      let result = jobs.value
-
-      // 关键词搜索
-      if (searchForm.keyword) {
-        const keyword = searchForm.keyword.toLowerCase()
-        result = result.filter(job =>
-          job.title.toLowerCase().includes(keyword) ||
-          job.companyName.toLowerCase().includes(keyword) ||
-          job.location.toLowerCase().includes(keyword) ||
-          (job.industry && job.industry.toLowerCase().includes(keyword))
-        )
-      }
-
-      // 职位类型筛选
-      if (searchForm.jobType) {
-        result = result.filter(job => job.jobType === searchForm.jobType)
-      }
-
-      // 行业筛选
-      if (searchForm.industry) {
-        result = result.filter(job => job.industry === searchForm.industry)
-      }
-
-      // 经验要求筛选
-      if (searchForm.experience) {
-        result = result.filter(job => job.experience === searchForm.experience)
-      }
-
-      // 学历要求筛选
-      if (searchForm.education) {
-        result = result.filter(job => job.education === searchForm.education)
-      }
-
-      // 投递状态筛选
-      if (searchForm.applicationStatus) {
-        if (searchForm.applicationStatus === 'applied') {
-          // 只显示已投递的职位
-          result = result.filter(job => submittedJobIds.value.includes(job.jobId))
-        } else if (searchForm.applicationStatus === 'not_applied') {
-          // 只显示未投递的职位
-          result = result.filter(job => !submittedJobIds.value.includes(job.jobId))
-        }
-      }
-
-      // 排序
-      if (searchForm.sortBy) {
-        result = [...result].sort((a, b) => {
-          if (searchForm.sortBy === 'salary') {
-            return b.maxSalary - a.maxSalary
-          } else {
-            const dateA = new Date(a[searchForm.sortBy])
-            const dateB = new Date(b[searchForm.sortBy])
-            return dateB - dateA
-          }
-        })
-      }
-
-      return result
-    })
+    const filteredJobs = computed(() => jobs.value)
 
     // 分页后的职位列表
-    const paginatedJobs = computed(() => {
-      const start = (pagination.currentPage - 1) * pagination.pageSize
-      const end = start + pagination.pageSize
-      return filteredJobs.value.slice(start, end)
-    })
+    const paginatedJobs = computed(() => filteredJobs.value)
+
+    const buildJobQuery = (current, size) => {
+      const params = {
+        current,
+        size,
+        keyword: searchForm.keyword || undefined,
+        jobType: searchForm.jobType || undefined,
+        location: undefined,
+        industry: searchForm.industry || undefined,
+        experience: searchForm.experience || undefined,
+        education: searchForm.education || undefined,
+        companyScale: undefined,
+        applicationStatus: searchForm.applicationStatus || undefined,
+        sortBy: searchForm.sortBy || 'postDate'
+      }
+
+      if (searchForm.applicationStatus && submittedJobIds.value.length > 0) {
+        params.submittedJobIds = submittedJobIds.value.join(',')
+      }
+
+      return params
+    }
 
     // 方法
-    const loadJobs = async () => {
+    const loadJobs = async (current = pagination.currentPage, size = pagination.pageSize) => {
       loading.value = true
       try {
-        const response = await getActiveJobs()
+        const response = await getActiveJobsWithPage(buildJobQuery(current, size))
         console.log('简历投递页-职位列表响应:', response)
         if (response.success) {
-          jobs.value = response.data || []
+          const result = response.data || {}
+          jobs.value = result.jobs || []
+          pagination.total = result.total || 0
+          pagination.currentPage = result.current || current
+          pagination.pageSize = result.size || size
           console.log('简历投递页-职位数据:', jobs.value)
           console.log('简历投递页-职位数量:', jobs.value.length)
           if (jobs.value.length > 0) {
@@ -895,18 +858,22 @@ export default {
     const handleSizeChange = (newSize) => {
       pagination.pageSize = newSize
       pagination.currentPage = 1 // 重置到第一页
+      loadJobs(1, newSize)
     }
 
     const handleCurrentChange = (newPage) => {
+      loadJobs(newPage, pagination.pageSize)
       pagination.currentPage = newPage
     }
 
     const handleSearch = () => {
-      // 搜索逻辑已在计算属性中实现
+      pagination.currentPage = 1
+      loadJobs(1, pagination.pageSize)
     }
 
     const handleSort = () => {
-      // 排序逻辑已在计算属性中实现
+      pagination.currentPage = 1
+      loadJobs(1, pagination.pageSize)
     }
 
     // 工具方法

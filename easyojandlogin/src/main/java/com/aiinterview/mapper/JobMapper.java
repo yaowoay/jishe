@@ -3,6 +3,7 @@ package com.aiinterview.mapper;
 import com.aiinterview.model.dto.job.JobDetailDTO;
 import com.aiinterview.model.entity.job.Job;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -18,6 +19,23 @@ public interface JobMapper extends BaseMapper<Job> {
      * 查询活跃职位（带公司信息）
      */
     List<JobDetailDTO> selectActiveJobsWithCompany();
+
+    /**
+     * 分页查询活跃职位（带公司信息）
+     */
+    Page<JobDetailDTO> selectActiveJobsWithCompanyPage(
+        Page<JobDetailDTO> page,
+        @Param("keyword") String keyword,
+        @Param("jobType") String jobType,
+        @Param("location") String location,
+        @Param("industry") String industry,
+        @Param("experience") String experience,
+        @Param("education") String education,
+        @Param("companyScale") String companyScale,
+        @Param("applicationStatus") String applicationStatus,
+        @Param("submittedJobIds") List<Long> submittedJobIds,
+        @Param("sortBy") String sortBy
+    );
 
     /**
      * 根据ID查询职位详情（带公司信息）

@@ -71,6 +71,97 @@
         ORDER BY j.post_date DESC
     </select>
 
+    <!-- 分页查询活跃职位（带公司信息） -->
+    <select id="selectActiveJobsWithCompanyPage" resultMap="JobDetailDTOMap">
+        SELECT
+            j.job_id,
+            j.title,
+            j.job_type,
+            j.job_duty,
+            j.job_requirements,
+            j.experience_requirement,
+            j.education_requirement,
+            j.job_skills,
+            j.min_salary,
+            j.max_salary,
+            j.location,
+            j.is_active,
+            j.verify_status,
+            j.verify_remark,
+            j.post_date,
+            j.expiration_date,
+            j.created_at,
+            j.updated_at,
+            c.company_id,
+            c.company_name,
+            c.industry,
+            c.scale,
+            c.address,
+            c.website,
+            c.description as company_description,
+            c.logo_url
+        FROM jobs j
+        INNER JOIN companies c ON j.company_id = c.company_id
+        WHERE j.is_active = 1
+        AND (j.expiration_date IS NULL OR j.expiration_date >= CURDATE())
+        <if test="keyword != null and keyword != ''">
+            AND (
+                j.title LIKE CONCAT('%', #{keyword}, '%')
+                OR j.job_duty LIKE CONCAT('%', #{keyword}, '%')
+                OR j.job_requirements LIKE CONCAT('%', #{keyword}, '%')
+                OR c.company_name LIKE CONCAT('%', #{keyword}, '%')
+                OR j.location LIKE CONCAT('%', #{keyword}, '%')
+                OR c.industry LIKE CONCAT('%', #{keyword}, '%')
+            )
+        </if>
+        <if test="jobType != null and jobType != ''">
+            AND j.job_type = #{jobType}
+        </if>
+        <if test="location != null and location != ''">
+            AND j.location LIKE CONCAT('%', #{location}, '%')
+        </if>
+        <if test="industry != null and industry != ''">
+            AND c.industry LIKE CONCAT('%', #{industry}, '%')
+        </if>
+        <if test="experience != null and experience != ''">
+            AND j.experience_requirement LIKE CONCAT('%', #{experience}, '%')
+        </if>
+        <if test="education != null and education != ''">
+            AND j.education_requirement LIKE CONCAT('%', #{education}, '%')
+        </if>
+        <if test="companyScale != null and companyScale != ''">
+            AND c.scale LIKE CONCAT('%', #{companyScale}, '%')
+        </if>
+        <if test="applicationStatus != null and applicationStatus == 'applied'">
+            <if test="submittedJobIds != null and submittedJobIds.size() > 0">
+                AND j.job_id IN
+                <foreach collection="submittedJobIds" item="jobId" open="(" separator="," close=")">
+                    #{jobId}
+                </foreach>
+            </if>
+            <if test="submittedJobIds == null or submittedJobIds.size() == 0">
+                AND 1 = 0
+            </if>
+        </if>
+        <if test="applicationStatus != null and applicationStatus == 'not_applied' and submittedJobIds != null and submittedJobIds.size() > 0">
+            AND j.job_id NOT IN
+            <foreach collection="submittedJobIds" item="jobId" open="(" separator="," close=")">
+                #{jobId}
+            </foreach>
+        </if>
+        <choose>
+            <when test="sortBy == 'salary'">
+                ORDER BY j.max_salary DESC, j.post_date DESC
+            </when>
+            <when test="sortBy == 'expirationDate'">
+                ORDER BY j.expiration_date DESC, j.post_date DESC
+            </when>
+            <otherwise>
+                ORDER BY j.post_date DESC
+            </otherwise>
+        </choose>
+    </select>
+
     <!-- 根据ID查询职位详情（带公司信息） -->
     <select id="selectJobDetailById" resultMap="JobDetailDTOMap">
         SELECT
