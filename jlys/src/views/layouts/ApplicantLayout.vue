@@ -126,10 +126,6 @@
                 <el-icon size="18"><TrendCharts /></el-icon>
                 <span class="submenu-text">薪资分析</span>
               </el-menu-item>
-              <el-menu-item index="/applicant/position-analysis">
-                <el-icon size="18"><Position /></el-icon>
-                <span class="submenu-text">岗位分析</span>
-              </el-menu-item>
               <el-menu-item index="/applicant/company-analysis">
                 <el-icon size="18"><OfficeBuilding /></el-icon>
                 <span class="submenu-text">企业分析</span>
@@ -250,6 +246,32 @@
         </el-main>
       </el-container>
     </el-container>
+
+    <!-- 学生端 Coze 悬浮按钮 -->
+    <div class="coze-float-btn-wrap">
+      <el-tooltip content="数智通途AI助手" placement="left">
+        <el-button class="coze-float-btn" circle type="primary" @click="showAIAssistant">
+          <el-icon><ChatDotRound /></el-icon>
+        </el-button>
+      </el-tooltip>
+    </div>
+
+    <!-- Coze 弹窗 -->
+    <el-dialog
+      v-model="assistantDialogVisible"
+      width="1100px"
+      top="9vh"
+      :close-on-click-modal="false"
+      :destroy-on-close="true"
+      class="coze-dialog"
+    >
+      <template #title>
+        <span>数智通途AI助手</span>
+      </template>
+      <div style="height: 900px; max-height: 70vh; overflow: auto;">
+        <CozeAssistant v-if="assistantDialogVisible" />
+      </div>
+    </el-dialog>
   </div>
 </template>
 <script>
@@ -276,7 +298,6 @@ import {
   Search,
   Star,
   TrendCharts,
-  Position,
   OfficeBuilding,
   Link,
   MagicStick,
@@ -284,6 +305,8 @@ import {
   Calendar
 } from '@element-plus/icons-vue'
 import { ElMessageBox } from 'element-plus'
+import CozeAssistant from '@/components/interview/CozeAssistant.vue'
+
 export default {
   name: 'ApplicantLayout',
   components: {
@@ -308,17 +331,18 @@ export default {
     Search,
     Star,
     TrendCharts,
-    Position,
     OfficeBuilding,
     Link,
     MagicStick,
     Warning,
-    Calendar
+    Calendar,
+    CozeAssistant
   },
   data() {
     return {
       userInfo: {},
-      isSidebarVisible: false
+      isSidebarVisible: false,
+      assistantDialogVisible: false
     }
   },
   computed: {
@@ -339,7 +363,6 @@ export default {
         '/applicant/ApplicationVisual': '可视化面板',
         '/applicant/notes': 'AI笔记',
         '/applicant/salary-analysis': '薪资维度分析',
-        '/applicant/position-analysis': '岗位维度分析',
         '/applicant/company-analysis': '招聘企业分析',
         '/applicant/skill-rules': '关联规则分析',
         '/applicant/intelligent-recommend': '智能推荐系统',
@@ -377,6 +400,9 @@ export default {
     },
     goToProfile() {
       this.$router.push('/applicant/profile')
+    },
+    showAIAssistant() {
+      this.assistantDialogVisible = true
     },
     handleCommand(command) {
       switch (command) {
@@ -644,6 +670,51 @@ export default {
   box-shadow: 0 4px 20px rgba(26, 111, 196, 0.15);
   border: 1px solid #e6f1ff;
 }
+
+/* Coze 悬浮按钮 */
+.coze-float-btn-wrap {
+  position: fixed;
+  right: 28px;
+  bottom: 28px;
+  z-index: 2000;
+}
+
+.coze-float-btn {
+  width: 54px;
+  height: 54px;
+  box-shadow: 0 10px 24px rgba(64, 158, 255, 0.35);
+  transition: all 0.25s ease;
+}
+
+.coze-float-btn:hover {
+  transform: translateY(-2px) scale(1.03);
+  box-shadow: 0 14px 30px rgba(64, 158, 255, 0.45);
+}
+
+.coze-float-btn :deep(.el-icon) {
+  font-size: 22px;
+}
+
+/* Coze 弹窗样式 */
+.coze-dialog :deep(.el-dialog) {
+  border-radius: 12px;
+}
+
+.coze-dialog :deep(.el-dialog__header) {
+  border-bottom: 1px solid #e5e7eb;
+  padding: 16px 24px;
+}
+
+.coze-dialog :deep(.el-dialog__title) {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1d2129;
+}
+
+.coze-dialog :deep(.el-dialog__body) {
+  padding: 24px;
+}
+
 
 .dropdown-item {
   display: flex;

@@ -166,7 +166,7 @@ export default {
 
 .coze-chat-container {
   width: 100%;
-  height: 900px;
+  height: 1900px;
   min-height: 100px;
   background: #f8f9fa;
 }

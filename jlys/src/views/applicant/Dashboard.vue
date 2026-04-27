@@ -69,38 +69,7 @@
         </el-col>
       </el-row>
     </div>
-    <!-- AI助手输入区域 -->
-    <div class="ai-input-section">
-      <div class="modern-input-area">
-        <!-- 功能按钮列表 -->
-        <div class="feature-btn-list">
-          <el-button v-for="(item, idx) in featureBtns" :key="idx" class="feature-btn" plain @click="handleFeatureClick(item)">
-            <el-icon :style="{color: item.color, marginRight: '6px'}"><component :is="item.icon" /></el-icon>
-            {{ item.text }}
-          </el-button>
-        </div>
-        <!-- 输入框 -->
-        <div class="new-input-card" @click="showAIAssistant">
-          <el-icon class="upload-icon"><Upload /></el-icon>
-          <el-input
-              v-model="inputMessage"
-              placeholder="我是数智通途AI助手，随意点击搜索框就能唤醒我哦~~"
-              type="text"
-              class="new-modern-input"
-              @keydown.enter.prevent="showAIAssistant"
-              clearable
-          />
-          <el-button
-              type="primary"
-              @click="showAIAssistant"
-              class="send-btn new-send-btn"
-              circle
-          >
-            <el-icon><Promotion /></el-icon>
-          </el-button>
-        </div>
-      </div>
-    </div>
+
     <!-- 功能卡片区域 -->
     <div class="function-cards">
       <el-row :gutter="24">
@@ -133,22 +102,7 @@
         </el-col>
       </el-row>
     </div>
-    <!-- AI助手对话框 -->
-    <el-dialog
-        v-model="assistantDialogVisible"
-        width="1100px"
-        top="9vh"
-        :close-on-click-modal="false"
-        :destroy-on-close="true"
-        class="coze-dialog"
-    >
-      <template #title>
-        <span>数智通途AI助手</span>
-      </template>
-      <div style="height: 900px; max-height: 70vh; overflow: auto;">
-        <CozeAssistant v-if="assistantDialogVisible" />
-      </div>
-    </el-dialog>
+
   </div>
 </template>
 <script>
@@ -159,15 +113,8 @@ import {
   TrophyBase,
   Briefcase,
   User,
-  VideoPlay,
-  Upload,
-  Promotion,
-  Compass,
-  Edit,
-  DataAnalysis,
-  Connection
+  VideoPlay
 } from '@element-plus/icons-vue'
-import CozeAssistant from '@/components/interview/CozeAssistant.vue'
 import ProfileGuideDialog from '@/components/ProfileGuideDialog.vue'
 
 export default {
@@ -179,13 +126,6 @@ export default {
     Briefcase,
     User,
     VideoPlay,
-    Upload,
-    Promotion,
-    Compass,
-    Edit,
-    DataAnalysis,
-    Connection,
-    CozeAssistant,
     ProfileGuideDialog
   },
   data() {
@@ -196,15 +136,8 @@ export default {
         interviewCount: 0,
         averageScore: 0,
         applicationCount: 0
-      },
-      assistantDialogVisible: false,
-      inputMessage: '',
-      featureBtns: [
-        { icon: 'Compass', color: '#1ec9a0', text: '岗位搜索', route: '/applicant/jobs' },
-        { icon: 'DataAnalysis', color: '#3b82f6', text: '简历生成', route: '/applicant/resume/generation' },
-        { icon: 'Edit', color: '#4f8cff', text: '简历分析', route: '/applicant/resume/analysis' },
-        { icon: 'Connection', color: '#1ec9c9', text: '面试训练', route: '/applicant/interview' }
-      ]
+      }
+
     }
   },
   mounted() {
@@ -245,15 +178,8 @@ export default {
         averageScore: 85,
         applicationCount: 12
       }
-    },
-    showAIAssistant() {
-      this.assistantDialogVisible = true
-    },
-    handleFeatureClick(item) {
-      if (item.route) {
-        this.$router.push(item.route)
-      }
     }
+
   }
 }
 </script>

@@ -399,9 +399,9 @@ export default {
   font-size: 14px;
 }
 
-.aside-spacer {
+/*.aside-spacer {
   flex: 1;
-}
+}*/
 
 /* 顶部导航 */
 .header {

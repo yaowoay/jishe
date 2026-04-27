@@ -4,6 +4,7 @@ import com.aiinterview.mapper.*;
 import com.aiinterview.model.dto.cooperation.*;
 import com.aiinterview.model.entity.company.Company;
 import com.aiinterview.model.entity.cooperation.*;
+import com.aiinterview.model.entity.teacher.College;
 import com.aiinterview.model.entity.teacher.CooperationApplication;
 import com.aiinterview.model.entity.teacher.Teacher;
 import com.aiinterview.service.cooperation.CooperationService;
@@ -34,6 +35,7 @@ public class CooperationServiceImpl implements CooperationService {
     private final CooperationCaseMapper caseMapper;
     private final CompanyMapper companyMapper;
     private final TeacherMapper teacherMapper;
+    private final CollegeMapper collegeMapper;
     private final CooperationApplicationMapper cooperationApplicationMapper;
 
     @Override
@@ -100,6 +102,7 @@ public class CooperationServiceImpl implements CooperationService {
 
         CooperationApplication application = new CooperationApplication();
         application.setEnterpriseId(companyId);
+        application.setCollegeId(resolveDefaultCollegeId());
         application.setCooperationType(project.getProjectType());
         application.setTitle(project.getProjectName());
         application.setDescription(project.getProjectDesc());
@@ -503,6 +506,16 @@ public class CooperationServiceImpl implements CooperationService {
     }
 
     // ==================== 私有转换方法 ====================
+    private Long resolveDefaultCollegeId() {
+        College college = collegeMapper.selectOne(
+            new QueryWrapper<College>().orderByAsc("college_id").last("LIMIT 1")
+        );
+        if (college == null || college.getCollegeId() == null) {
+            throw new RuntimeException("提交失败：系统未配置学院数据，无法生成合作申请");
+        }
+        return college.getCollegeId();
+    }
+
 
     private CooperationProjectDTO convertToProjectDTO(CooperationProject project) {
         CooperationProjectDTO dto = new CooperationProjectDTO();
