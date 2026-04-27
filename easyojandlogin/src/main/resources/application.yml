@@ -194,6 +194,7 @@ xunfei:
 
 # 视频分析配置
 video:
+
   analysis:
     # Python服务配置
     python:

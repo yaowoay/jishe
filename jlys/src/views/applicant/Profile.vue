@@ -7,10 +7,10 @@
         <div class="card-header">
           <h2>个人信息</h2>
           <el-button
-            type="primary"
-            @click="openEditDialog"
-            :icon="Edit"
-            size="default"
+              type="primary"
+              @click="openEditDialog"
+              :icon="Edit"
+              size="default"
           >
             编辑信息
           </el-button>
@@ -54,9 +54,9 @@
                 {{ profileData.graduationYear || '未填写' }}
               </el-descriptions-item>
               <el-descriptions-item label="档案完整度" span="2">
-                <el-progress 
-                  :percentage="profileData.profileCompletion || 0" 
-                  :color="progressColor"
+                <el-progress
+                    :percentage="profileData.profileCompletion || 0"
+                    :color="progressColor"
                 />
               </el-descriptions-item>
             </el-descriptions>
@@ -72,17 +72,18 @@
         </div>
       </div>
 
-      <!-- 求职信息卡片 -->
+      <!-- 求职信息卡片（移到左下角） -->
       <div class="info-card">
         <div class="card-header">
-          <h2>就业意向调查</h2>
+          <h2>求职信息</h2>
+          <p class="card-subtitle">完善求职信息可获得更精准的岗位推荐</p>
           <el-button
-            type="primary"
-            @click="openJobInfoDialog"
-            :icon="Edit"
-            size="default"
+              type="primary"
+              @click="openJobInfoDialog"
+              :icon="Edit"
+              size="default"
           >
-            {{ jobInfoData ? '编辑意向' : '填写意向' }}
+            {{ jobInfoData && hasJobInfo ? '编辑求职信息' : '填写求职信息' }}
           </el-button>
         </div>
 
@@ -110,11 +111,11 @@
               </el-descriptions-item>
               <el-descriptions-item label="掌握技能" span="2">
                 <el-tag
-                  v-for="skill in getSkillList(jobInfoData.skill)"
-                  :key="skill"
-                  type="info"
-                  size="small"
-                  style="margin-right: 8px; margin-bottom: 4px;"
+                    v-for="skill in getSkillList(jobInfoData.skill)"
+                    :key="skill"
+                    type="info"
+                    size="small"
+                    style="margin-right: 8px; margin-bottom: 4px;"
                 >
                   {{ skill }}
                 </el-tag>
@@ -128,16 +129,16 @@
 
           <div v-else class="empty-state">
             <el-alert
-              title="提示"
-              type="info"
-              description="完善就业意向可以帮助系统为您推荐更合适的岗位，提高求职成功率！"
-              :closable="false"
-              show-icon
-              style="margin-bottom: 20px;"
+                title="提示"
+                type="info"
+                description="完善求职信息可以帮助系统为您推荐更合适的岗位，提高求职成功率！"
+                :closable="false"
+                show-icon
+                style="margin-bottom: 20px;"
             />
-            <el-empty description="暂无就业意向信息">
+            <el-empty description="暂无求职信息">
               <el-button type="primary" @click="openJobInfoDialog">
-                立即填写就业意向
+                立即填写求职信息
               </el-button>
             </el-empty>
           </div>
@@ -145,7 +146,7 @@
       </div>
     </div>
 
-    <!-- 右侧功能区域 -->
+    <!-- 右侧功能区域（简历管理 + 经历管理） -->
     <div class="sidebar">
       <!-- 简历管理卡片 -->
       <div class="sidebar-card">
@@ -159,17 +160,17 @@
               <span class="value">{{ resumeList.length }}份</span>
             </div>
             <div class="status-item">
-              <el-tag 
-                v-if="resumeCompletionStatus === 1" 
-                type="success" 
-                size="small"
+              <el-tag
+                  v-if="resumeCompletionStatus === 1"
+                  type="success"
+                  size="small"
               >
                 已完善
               </el-tag>
-              <el-tag 
-                v-else 
-                type="warning" 
-                size="small"
+              <el-tag
+                  v-else
+                  type="warning"
+                  size="small"
               >
                 待完善
               </el-tag>
@@ -180,10 +181,10 @@
             <p>暂无简历</p>
           </div>
           <el-button
-            type="primary"
-            size="small"
-            @click="openResumeDialog"
-            style="width: 100%; margin-top: 12px;"
+              type="primary"
+              size="small"
+              @click="openResumeDialog"
+              style="width: 100%; margin-top: 12px;"
           >
             {{ resumeList.length > 0 ? '管理简历' : '创建简历' }}
           </el-button>
@@ -211,10 +212,10 @@
             </div>
           </div>
           <el-button
-            type="primary"
-            size="small"
-            @click="openExperienceDialog"
-            style="width: 100%; margin-top: 12px;"
+              type="primary"
+              size="small"
+              @click="openExperienceDialog"
+              style="width: 100%; margin-top: 12px;"
           >
             管理经历
           </el-button>
@@ -222,78 +223,6 @@
       </div>
     </div>
 
-    <!-- 求职信息卡片 -->
-    <div class="card job-info-card">
-      <div class="header">
-        <h2>求职信息</h2>
-        <p>完善求职信息可获得更精准的岗位推荐</p>
-        <div class="header-actions">
-          <el-button
-            type="primary"
-            @click="openJobInfoDialog"
-            :icon="Edit"
-          >
-            {{ jobInfoData ? '编辑求职信息' : '填写求职信息' }}
-          </el-button>
-        </div>
-      </div>
-
-      <div class="content">
-        <div v-if="loadingJobInfo" class="loading-container">
-          <el-skeleton :rows="6" animated />
-        </div>
-
-        <div v-else-if="jobInfoData && hasJobInfo" class="job-info-display">
-          <el-descriptions :column="2" border>
-            <el-descriptions-item label="期望职位">
-              {{ jobInfoData.position || '未填写' }}
-            </el-descriptions-item>
-            <el-descriptions-item label="工作年限">
-              {{ jobInfoData.workYears ? jobInfoData.workYears + '年' : '未填写' }}
-            </el-descriptions-item>
-            <el-descriptions-item label="期望城市">
-              {{ jobInfoData.expectedCity || '未填写' }}
-            </el-descriptions-item>
-            <el-descriptions-item label="期望薪资">
-              {{ formatSalary(jobInfoData.expectedSalaryMin, jobInfoData.expectedSalaryMax) }}
-            </el-descriptions-item>
-            <el-descriptions-item label="期望行业">
-              {{ jobInfoData.expectedIndustry || '未填写' }}
-            </el-descriptions-item>
-            <el-descriptions-item label="掌握技能" span="2">
-              <el-tag
-                v-for="skill in getSkillList(jobInfoData.skill)"
-                :key="skill"
-                type="success"
-                style="margin-right: 8px; margin-bottom: 4px;"
-              >
-                {{ skill }}
-              </el-tag>
-              <span v-if="!jobInfoData.skill || jobInfoData.skill.length === 0">未填写</span>
-            </el-descriptions-item>
-            <el-descriptions-item label="个人简介" span="2">
-              {{ jobInfoData.profile || '未填写' }}
-            </el-descriptions-item>
-          </el-descriptions>
-        </div>
-
-        <div v-else class="empty-state">
-          <el-alert
-            title="提示"
-            type="warning"
-            description="完善求职信息可以帮助系统为您推荐更合适的岗位，提高求职成功率！"
-            :closable="false"
-            show-icon
-            style="margin-bottom: 20px;"
-          />
-          <el-empty description="暂无求职信息">
-            <el-button type="primary" @click="openJobInfoDialog">
-              立即填写求职信息
-            </el-button>
-          </el-empty>
-        </div>
-      </div>
-    </div>
 
     <!-- 编辑信息弹窗 -->
     <el-dialog
@@ -1412,11 +1341,13 @@ export default {
   display: flex;
   flex-direction: column;
   gap: 24px;
+  min-width: 0;  /* 允许内容收缩 */
+  overflow: visible;  /* 确保内容可见 */
 }
 
 /* 右侧边栏 */
 .sidebar {
-  width: 280px;
+  width: 560px;
   display: flex;
   flex-direction: column;
   gap: 20px;
@@ -1428,7 +1359,7 @@ export default {
   border-radius: 12px;
   border: 1px solid var(--border-color);
   box-shadow: 0 2px 8px rgba(135, 206, 235, 0.1);
-  overflow: hidden;
+  overflow: visible;
   transition: all 0.3s ease;
 }
 
@@ -1444,12 +1375,32 @@ export default {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
 }
 
 .card-header h2 {
   margin: 0;
   font-size: 18px;
   font-weight: 600;
+}
+
+.card-subtitle {
+  margin: 0;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.85);
+  flex: 1;
+}
+
+.card-header .el-button {
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: white;
+}
+
+.card-header .el-button:hover {
+  background: rgba(255, 255, 255, 0.3);
+  border-color: rgba(255, 255, 255, 0.5);
 }
 
 .card-header .el-button {
@@ -1464,90 +1415,108 @@ export default {
 }
 
 .card-content {
-  padding: 24px;
+  padding: 32px;
 }
 
 /* 侧边栏卡片样式 */
 .sidebar-card {
   background: white;
-  border-radius: 8px;
+  border-radius: 12px;
   border: 1px solid var(--border-color);
   box-shadow: 0 2px 6px rgba(135, 206, 235, 0.08);
   overflow: hidden;
+  flex: 1;  /* 关键：均分剩余高度 */
+  display: flex;
+  flex-direction: column;
+}
+.sidebar-card:first-child {
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+  margin-bottom: -1px;  /* 让边框重叠 */
 }
 
+/* 第二个卡片（经历管理）- 顶部边框圆角去掉 */
+.sidebar-card:last-child {
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}
 .sidebar-header {
-  padding: 16px 20px;
+  padding: 20px 20px;
   background-color: var(--primary-light);
   border-bottom: 1px solid var(--border-color);
 }
 
 .sidebar-header h3 {
   margin: 0;
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 600;
   color: var(--text-primary);
 }
 
 .sidebar-content {
-  padding: 20px;
+  padding: 24px;  /* 从 20px 改为 24px */
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;  /* 内容垂直居中 */
 }
 
 /* 简历信息样式 */
 .resume-info {
-  margin-bottom: 12px;
+  margin-bottom: 16px;
 }
 
 .info-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 8px;
+  margin-bottom: 12px;
 }
 
 .info-item .label {
   color: var(--text-secondary);
-  font-size: 14px;
+  font-size: 15px;
 }
 
 .info-item .value {
   color: var(--primary-dark);
   font-weight: 600;
-  font-size: 14px;
+  font-size: 20px;
 }
 
 .status-item {
   text-align: center;
-  margin-top: 8px;
+  margin-top: 12px;
 }
 
 .empty-info {
   text-align: center;
   color: var(--text-secondary);
-  margin-bottom: 12px;
+  margin-bottom: 16px;
+  padding: 20px 0;
 }
 
 .empty-icon {
-  font-size: 24px;
+  font-size: 48px;
   color: var(--primary-color);
-  margin-bottom: 8px;
+  margin-bottom: 12px;
 }
 
 .empty-info p {
   margin: 0;
-  font-size: 14px;
+  font-size: 15px;
 }
 
 /* 经历统计样式 */
 .experience-stats {
-  margin-bottom: 12px;
+  margin-bottom: 16px;
 }
 
 .stat-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 8px 0;
+  padding: 12px 0;
   border-bottom: 1px solid #F5F5F5;
 }
 
@@ -1557,15 +1526,20 @@ export default {
 
 .stat-label {
   color: var(--text-secondary);
-  font-size: 14px;
+  font-size: 15px;
 }
 
 .stat-value {
   color: var(--primary-dark);
   font-weight: 600;
-  font-size: 14px;
+  font-size: 18px;
 }
 
+/* 按钮样式 - 放大 */
+.sidebar-content .el-button {
+  padding: 10px 0;  /* 增加按钮高度 */
+  font-size: 14px;
+}
 /* 加载和空状态 */
 .loading-container {
   padding: 20px;

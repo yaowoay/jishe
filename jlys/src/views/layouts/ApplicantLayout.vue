@@ -259,8 +259,8 @@
     <!-- Coze 弹窗 -->
     <el-dialog
       v-model="assistantDialogVisible"
-      width="1100px"
-      top="9vh"
+      width="1200px"
+      top="12vh"
       :close-on-click-modal="false"
       :destroy-on-close="true"
       class="coze-dialog"
@@ -268,7 +268,7 @@
       <template #title>
         <span>数智通途AI助手</span>
       </template>
-      <div style="height: 900px; max-height: 70vh; overflow: auto;">
+      <div style="height: 100%;">
         <CozeAssistant v-if="assistantDialogVisible" />
       </div>
     </el-dialog>
@@ -680,8 +680,8 @@ export default {
 }
 
 .coze-float-btn {
-  width: 54px;
-  height: 54px;
+  width: 64px;
+  height: 64px;
   box-shadow: 0 10px 24px rgba(64, 158, 255, 0.35);
   transition: all 0.25s ease;
 }
@@ -697,12 +697,20 @@ export default {
 
 /* Coze 弹窗样式 */
 .coze-dialog :deep(.el-dialog) {
-  border-radius: 12px;
+  border-radius: 16px;
+  width: 1400px;
+  height: 1000vh;
+  max-height: 1000px;
+  min-height: 800px;
+  display: flex;
+  flex-direction: column;
+  margin: 3vh auto !important;
 }
 
 .coze-dialog :deep(.el-dialog__header) {
   border-bottom: 1px solid #e5e7eb;
   padding: 16px 24px;
+  flex-shrink: 0;
 }
 
 .coze-dialog :deep(.el-dialog__title) {
@@ -712,9 +720,33 @@ export default {
 }
 
 .coze-dialog :deep(.el-dialog__body) {
-  padding: 24px;
+  padding: 0;
+  flex: 1;
+  min-height: 0;
+  height: 1000vh;
 }
 
+/* 新增：让 CozeAssistant 组件填满并内部滚动 */
+.coze-dialog :deep(.coze-assistant) {
+  height: 100%;
+  width: 100%;
+  overflow: hidden;  /* 关键：让组件内部滚动 */
+}
+
+/* 美化滚动条 */
+.coze-dialog :deep(.coze-assistant)::-webkit-scrollbar {
+  width: 6px;
+}
+
+.coze-dialog :deep(.coze-assistant)::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 3px;
+}
+
+.coze-dialog :deep(.coze-assistant)::-webkit-scrollbar-thumb {
+  background: #1a6fc4;
+  border-radius: 3px;
+}
 
 .dropdown-item {
   display: flex;

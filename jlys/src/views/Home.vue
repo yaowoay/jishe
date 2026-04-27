@@ -1175,4 +1175,43 @@ footer {
     height: 80px;
   }
 }
+@media (max-width: 1200px) {
+  .card-content {
+    padding: 24px;
+  }
+
+  .el-descriptions :deep(.el-descriptions__label) {
+    width: 100px;
+    min-width: 100px;
+  }
+}
+
+@media (max-width: 992px) {
+  .profile-container {
+    flex-direction: column;
+  }
+
+  .sidebar {
+    width: 100%;
+    flex-direction: row;
+    gap: 20px;
+  }
+
+  .sidebar-card {
+    flex: 1;
+  }
+  /* 描述列表改为单列 */
+  .el-descriptions :deep(.el-descriptions__table) {
+    display: block;
+  }
+
+  .el-descriptions :deep(.el-descriptions__row) {
+    display: block;
+  }
+
+  .el-descriptions :deep(.el-descriptions__cell) {
+    display: block;
+    width: 100% !important;
+  }
+}
 </style>

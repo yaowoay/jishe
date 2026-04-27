@@ -1,8 +1,7 @@
 <template>
-  <div class="coze-assistant">
+  <div class="coze-assistant" ref="cozeAssistantRef">
     <!-- Coze 聊天框容器 -->
     <div id="coze-chat-container" class="coze-chat-container">
-      <!-- Coze 聊天框将在这里渲染 -->
       <div class="loading-placeholder" v-if="!cozeLoaded">
         <div class="loading-icon">...(*￣０￣)ノ马上来</div>
         <div class="loading-text">正在初始化...</div>
@@ -24,9 +23,12 @@ export default {
 
   mounted() {
     this.initializeCozeChat()
+    // 监听窗口大小变化
+    window.addEventListener('resize', this.handleResize)
   },
 
   beforeUnmount() {
+    window.removeEventListener('resize', this.handleResize)
     if (this.cozeWebSDK) {
       try {
         this.cozeWebSDK.destroy && this.cozeWebSDK.destroy()
@@ -35,7 +37,30 @@ export default {
       }
     }
   },
+
   methods: {
+    handleResize() {
+      this.adjustContainerSize()
+    },
+
+    adjustContainerSize() {
+      const container = document.getElementById('coze-chat-container')
+      const parent = this.$refs.cozeAssistantRef
+      if (container && parent) {
+        const height = parent.clientHeight
+        const width = parent.clientWidth
+        container.style.height = height + 'px'
+        container.style.width = width + 'px'
+
+        // 尝试调整内部 iframe
+        const iframe = container.querySelector('iframe')
+        if (iframe) {
+          iframe.style.height = height + 'px'
+          iframe.style.width = width + 'px'
+        }
+      }
+    },
+
     initializeCozeChat() {
       this.$nextTick(() => {
         const container = document.getElementById('coze-chat-container')
@@ -46,13 +71,18 @@ export default {
 
         if (window.CozeWebSDK) {
           try {
+            // 先设置容器样式
+            container.style.height = '100%'
+            container.style.width = '100%'
+            container.style.overflow = 'hidden'
+
             this.cozeWebSDK = new window.CozeWebSDK.WebChatClient({
               config: {
                 type: 'bot',
                 botId: '7526411459388276778',
-                isIframe: false,//必须设置为true才能显示会话列表
-                uploadable: true, // 必须设置为true才能上传文件
-                isNeedAudio: true,// 必须设置为true才能语音输入
+                isIframe: false,
+                uploadable: true,
+                isNeedAudio: true,
                 botInfo: {
                   parameters: {
                     user_name: '用户',
@@ -79,11 +109,11 @@ export default {
                   zIndex: 1000
                 },
                 asstBtn: {
-                  isNeed:true
+                  isNeed: true
                 },
                 header: {
                   isShow: false,
-                  isNeedClose: false//右上角的❌
+                  isNeedClose: false
                 },
                 footer: {
                   isShow: true,
@@ -105,38 +135,31 @@ export default {
                 chatBot: {
                   title: '职业规划小助手',
                   uploadable: true,
-                  width: 1080,
+                  width: '100%',
+                  height: '100%',
                   el: container,
                   isNeedAudio: true,
                   isNeedFunctionCallMessage: true,
                   isNeedAddNewConversation: true,
-                  isNeedQuote:true,
-
+                  isNeedQuote: true,
                   feedback: {
                     isNeedFeedback: true,
                     feedbackPanel: {
                       title: '您对这个回答有什么看法？请告诉我们',
                       placeholder: '请详细描述您的问题或建议...',
                       tags: [
-                        {
-                          label: '信息不正确'
-                        },
-                        {
-                          label: '不够详细',
-                          isNeedDetail: true
-                        },
-                        {
-                          label: '很有帮助'
-                        },
-                        {
-                          label: '其他问题',
-                          isNeedDetail: true
-                        }
+                        { label: '信息不正确' },
+                        { label: '不够详细', isNeedDetail: true },
+                        { label: '很有帮助' },
+                        { label: '其他问题', isNeedDetail: true }
                       ]
                     }
                   },
                   onShow: () => {
                     this.cozeLoaded = true
+                    this.$nextTick(() => {
+                      this.adjustContainerSize()
+                    })
                   }
                 }
               }
@@ -145,12 +168,18 @@ export default {
             setTimeout(() => {
               if (this.cozeWebSDK) {
                 this.cozeWebSDK.showChatBot()
+                this.adjustContainerSize()
               }
-            }, 2000)
+            }, 500)
 
           } catch (error) {
             console.error('你的智能助手初始化失败:', error)
           }
+        } else {
+          // 如果 SDK 还没加载，等待一下
+          setTimeout(() => {
+            this.initializeCozeChat()
+          }, 500)
         }
       })
     }
@@ -162,13 +191,20 @@ export default {
 .coze-assistant {
   width: 100%;
   height: 100%;
+  overflow-y: auto;  /* 让这个容器滚动 */
 }
 
 .coze-chat-container {
   width: 100%;
-  height: 1900px;
-  min-height: 100px;
+  min-height: 100%;  /* 改为 min-height，让内容撑开 */
   background: #f8f9fa;
+}
+
+/* 确保内容正常显示 */
+.coze-chat-container :deep(iframe) {
+  width: 100% !important;
+  min-height: 600px;
+  border: none;
 }
 
 .loading-placeholder {
@@ -177,6 +213,7 @@ export default {
   align-items: center;
   justify-content: center;
   height: 100%;
+  min-height: 500px;
   text-align: center;
   padding: 40px;
   background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
@@ -205,5 +242,4 @@ export default {
     transform: translateY(-5px);
   }
 }
-
 </style>

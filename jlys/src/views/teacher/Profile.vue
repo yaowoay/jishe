@@ -426,10 +426,13 @@ export default {
   font-weight: 600;
   color: #333;
   width: 120px;
+  min-width: 120px;
 }
 
 .el-descriptions :deep(.el-descriptions__content) {
   color: #666;
+  word-break: break-word;  /* 长单词换行 */
+  white-space: normal;  /* 允许换行 */
 }
 
 /* 弹窗样式 */
