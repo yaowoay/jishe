@@ -240,8 +240,8 @@ const form = reactive({
 })
 const setglobalparamsform = reactive({
   stream: { protocol: 'webrtc', fps: 25, bitrate: 1000000, alpha: false },
-  avatar: { avatar_id: '110117005', width: 1080, height: 1920, mask_region: '[0,0,1080,1920]', scale: 1, move_h: 0, move_v: 0, audio_format: 1 },
-  tts: { vcn: 'x4_lingxiaoqi_oral', speed: 50, pitch: 50, volume: 100, emotion: 13 },
+  avatar: { avatar_id: '110117005', width: 3200, height: 1800, mask_region: '[0,100,1080,1100]', scale: 1, move_h: 0, move_v: 0, audio_format: 1 },
+  tts: { vcn: 'x4_lingxiaoqi_oral', speed: 80, pitch: 50, volume: 100, emotion: 13 },
   avatar_dispatch: { interactive_mode: 1 },
   subtitle: { subtitle: 0, font_color: '#FFFFFF', font_name: 'Sanji.Suxian.Simple', position_x: 100, position_y: 0, font_size: 10, width: 100, height: 100 },
   enable: false,
@@ -397,7 +397,7 @@ function SetGlobalParams() {
   if (avatarPlatform2 != null) {
     const params = {
       stream: { protocol: 'webrtc', fps: 25, bitrate: 1000000, alpha: 0 },
-      avatar: { avatar_id: '110117005', width: 1080, height: 1920, mask_region: '[0,0,1080,1920]', scale: 1, move_h: 0, move_v: 0, audio_format: 1 },
+      avatar: { avatar_id: '110117005', width: 3200, height: 1800, mask_region: '[0,100,1080,900]', scale: 1, move_h: 0, move_v: 0, audio_format: 1 },
       tts: { vcn: 'x4_lingxiaoying_assist', speed: 55, pitch: 50, volume: 100, emotion: 13 },
       avatar_dispatch: { interactive_mode: 0 },
       subtitle: { subtitle: 0, font_color: '#FFFFFF', font_name: 'Sanji.Suxian.Simple', position_x: 100, position_y: 0, font_size: 10, width: 100, height: 100 },
@@ -639,7 +639,7 @@ defineExpose({ writeText })
   height: 100%;
 }
 .htmleaf-content {
-  width: 70%;
+  width: 100%;
   height: 100%;
   min-width: 0;
   min-height: 0;
@@ -655,7 +655,7 @@ defineExpose({ writeText })
   padding: 0;
   background: transparent;
   overflow: hidden;
-  transform: translateY(20px);
+  transform: translateY(0px);
   box-sizing: border-box;
 }
 #wrapper > * {

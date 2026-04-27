@@ -21,21 +21,63 @@
         <el-card class="score-card">
           <template #header><div class="card-header"><el-icon><TrendCharts /></el-icon><span>综合评分</span></div></template>
           <div class="overall-score">
-            <div class="score-gauge" :style="scoreGaugeStyle">
-              <div class="gauge-inner">
-                <div class="score-number">{{ reportData.overallScore }}</div>
-                <div class="score-label">总分</div>
+            <div class="score-left">
+              <div class="score-gauge" :style="scoreGaugeStyle">
+                <div class="gauge-inner">
+                  <div class="score-number">{{ reportData.overallScore }}</div>
+                  <div class="score-label">总分</div>
+                </div>
+              </div>
+              <div class="score-breakdown">
+                <div class="score-item" v-for="item in reportData.scoreBreakdown" :key="item.name">
+                  <span class="score-name">{{ item.name }}</span>
+                  <div class="score-bar"><div class="score-fill" :style="{ width: item.score + '%' }"></div></div>
+                  <span class="score-value">{{ item.score }}</span>
+                </div>
               </div>
             </div>
-            <div class="score-breakdown">
-              <div class="score-item" v-for="item in reportData.scoreBreakdown" :key="item.name">
-                <span class="score-name">{{ item.name }}</span>
-                <div class="score-bar"><div class="score-fill" :style="{ width: item.score + '%' }"></div></div>
-                <span class="score-value">{{ item.score }}</span>
-              </div>
+            <div class="score-radar-card">
+              <svg class="radar-svg" viewBox="0 0 220 160">
+                <polygon class="radar-bg" :points="radarBgPoints" />
+                <polygon class="radar-value" :points="radarValuePoints" />
+                <g v-for="axis in radarAxes" :key="axis.name">
+                  <line class="radar-line" :x1="radarCenter.x" :y1="radarCenter.y" :x2="axis.x" :y2="axis.y" />
+                  <text class="radar-label" :x="axis.labelX" :y="axis.labelY">{{ axis.name }}</text>
+                </g>
+              </svg>
             </div>
           </div>
         </el-card>
+
+        <div class="qa-grid">
+          <el-card class="qa-card">
+            <template #header><div class="card-header"><el-icon><Star /></el-icon><span>笔试答题情况</span></div></template>
+            <div class="answer-content">
+              <div class="answer-score">得分：{{ writtenEvaluation.score }}</div>
+              <div class="answer-text">{{ writtenEvaluation.comment }}</div>
+              <div class="qa-list">
+                <div class="qa-item" v-for="(item, idx) in writtenQuestionList" :key="`written-${idx}`">
+                  <div class="qa-q">Q{{ idx + 1 }}：{{ item.question }}</div>
+                  <div class="qa-a">A：{{ item.answer }}</div>
+                </div>
+              </div>
+            </div>
+          </el-card>
+
+          <el-card class="qa-card">
+            <template #header><div class="card-header"><el-icon><Star /></el-icon><span>面试答题情况</span></div></template>
+            <div class="answer-content">
+              <div class="answer-score">得分：{{ interviewEvaluation.score }}</div>
+              <div class="answer-text">{{ interviewEvaluation.comment }}</div>
+              <div class="qa-list">
+                <div class="qa-item" v-for="(item, idx) in interviewQuestionList" :key="`interview-${idx}`">
+                  <div class="qa-q">Q{{ idx + 1 }}：{{ item.question }}</div>
+                  <div class="qa-a">A：{{ item.answer }}</div>
+                </div>
+              </div>
+            </div>
+          </el-card>
+        </div>
 
         <el-card class="evaluation-card" v-if="mainEvaluations.length > 0">
           <template #header><div class="card-header"><el-icon><Star /></el-icon><span>综合与改进建议</span></div></template>
@@ -68,24 +110,6 @@
           </div>
         </el-card>
       </div>
-
-      <div class="report-side">
-        <el-card class="side-answer-card">
-          <template #header><div class="card-header"><el-icon><Star /></el-icon><span>笔试答题情况</span></div></template>
-          <div class="answer-content">
-            <div class="answer-score">得分：{{ writtenEvaluation.score }}</div>
-            <div class="answer-text">{{ writtenEvaluation.comment }}</div>
-          </div>
-        </el-card>
-
-        <el-card class="side-answer-card">
-          <template #header><div class="card-header"><el-icon><Star /></el-icon><span>面试答题情况</span></div></template>
-          <div class="answer-content">
-            <div class="answer-score">得分：{{ interviewEvaluation.score }}</div>
-            <div class="answer-text">{{ interviewEvaluation.comment }}</div>
-          </div>
-        </el-card>
-      </div>
     </div>
   </div>
 </template>
@@ -94,6 +118,7 @@
 import { ref, reactive, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
+import store from '@/store'
 import {
   Clock,
   Calendar,
@@ -142,6 +167,36 @@ const interviewEvaluation = computed(() => {
   }
 })
 
+const writtenQuestionList = ref([
+  {
+    question: '请说明 Vue3 中 ref 与 reactive 的核心区别，以及在表单场景下的使用策略。',
+    answer: 'ref 适合基础类型和单值响应式，reactive 适合对象结构；表单里通常 reactive 管理整体 model，ref 管理独立 loading 和提交状态。'
+  },
+  {
+    question: '如何定位并优化首屏加载速度？请给出工程化方案。',
+    answer: '通过路由懒加载、组件按需引入、资源压缩、CDN 缓存和请求并行化优化；配合 Lighthouse 指标持续跟踪 FCP 与 LCP。'
+  },
+  {
+    question: 'Pinia 相比 Vuex 的使用体验提升体现在哪些方面？',
+    answer: 'API 更简洁、TS 推断更友好、模块定义更直观；在中大型项目中有更低样板代码成本和更高可维护性。'
+  }
+])
+
+const interviewQuestionList = ref([
+  {
+    question: '你在实际项目中如何做前端性能优化，能否给出一个完整案例？',
+    answer: '在企业管理后台项目中通过虚拟列表、图表按需渲染、接口聚合和缓存策略，将页面可交互时间从 3.2s 降到 1.6s。'
+  },
+  {
+    question: '如何设计一个可复用的业务组件，并保证跨页面一致性？',
+    answer: '先抽离 props 与事件契约，再统一主题变量和状态边界；通过 Storybook + 单元测试保证不同页面行为一致。'
+  },
+  {
+    question: '当线上出现偶发白屏时，你会如何排查？',
+    answer: '先看监控与 sourcemap 定位报错，再检查路由守卫、异步 chunk 加载和接口超时重试链路，最后用灰度回放复现并修复。'
+  }
+])
+
 const scoreGaugeStyle = computed(() => {
   const score = Number(reportData.overallScore) || 0
   const deg = Math.max(0, Math.min(100, score)) * 3.6
@@ -149,6 +204,41 @@ const scoreGaugeStyle = computed(() => {
     background: `conic-gradient(#2563eb 0deg ${deg}deg, #e5e7eb ${deg}deg 360deg)`
   }
 })
+
+const radarCenter = { x: 80, y: 80 }
+const radarRadius = 52
+
+const radarDimensions = computed(() => {
+  const source = reportData.scoreBreakdown?.length
+    ? reportData.scoreBreakdown.slice(0, 3).map(item => ({
+      name: item.name,
+      score: Math.max(0, Math.min(100, Number(item.score) || 0))
+    }))
+    : [
+      { name: '面试表现', score: 75 },
+      { name: '笔试成绩', score: 72 },
+      { name: '综合得分', score: 78 }
+    ]
+  return source
+})
+
+const radarAxes = computed(() => radarDimensions.value.map((item, idx, arr) => {
+  const angle = -Math.PI / 2 + (Math.PI * 2 * idx / arr.length)
+  const x = radarCenter.x + Math.cos(angle) * radarRadius
+  const y = radarCenter.y + Math.sin(angle) * radarRadius
+  const labelX = radarCenter.x + Math.cos(angle) * (radarRadius + 18)
+  const labelY = radarCenter.y + Math.sin(angle) * (radarRadius + 18)
+  return { ...item, x, y, labelX, labelY, angle }
+}))
+
+const radarBgPoints = computed(() => radarAxes.value.map(axis => `${axis.x},${axis.y}`).join(' '))
+
+const radarValuePoints = computed(() => radarAxes.value.map(axis => {
+  const ratio = axis.score / 100
+  const x = radarCenter.x + Math.cos(axis.angle) * radarRadius * ratio
+  const y = radarCenter.y + Math.sin(axis.angle) * radarRadius * ratio
+  return `${x},${y}`
+}).join(' '))
 
 
 async function getDate(){
@@ -182,7 +272,19 @@ const goBack = () => {
 
 // 返回主页
 const goHome = () => {
-  router.push('/')
+  // 根据用户角色返回对应的主页
+  const userRole = store.getters.userRole
+  
+  if (userRole === 'student' || userRole === 'applicant') {
+    router.push('/applicant/dashboard')
+  } else if (userRole === 'company') {
+    router.push('/company/dashboard')
+  } else if (userRole === 'teacher') {
+    router.push('/teacher/dashboard')
+  } else {
+    // 默认返回根路径
+    router.push('/')
+  }
 }
 
 // 导出报告
@@ -379,7 +481,7 @@ const loadInterviewData = () => {
 
           if (interviewEval.candidateResponse && interviewEval.question) {
             interviewAnswerComment = `题目：${interviewEval.question}\n\n作答：${interviewEval.candidateResponse}\n\n评分：${interviewEval.score || interviewScore}分`
-            interviewAnalysisComment = `围绕核心问题给出了清晰作答，整体逻辑较完整，技术表达具备说服力。`
+            interviewAnalysisComment = '围绕核心问题给出了清晰作答，整体逻辑较完整，技术表达具备说服力。'
           } else if (interviewScore > 0) {
             interviewAnalysisComment = `面试得分：${interviewScore}分。${interviewScore >= 80 ? '表现优秀，前端工程化与项目表达能力较强。' : interviewScore >= 70 ? '表现良好，建议进一步加强复杂场景应对能力。' : '基础能力具备，仍有较大提升空间。'}`
           }
@@ -488,36 +590,75 @@ const loadInterviewData = () => {
         }
 
       } else {
-        // 没有评估数据时使用模拟数据
-        console.log('没有评估数据，使用模拟数据')
-        useSimulatedData(interviewReportData)
+        fillFrontendReportData(interviewReportData)
       }
 
       return
     }
 
-    // 都没有则使用默认数据
-    useDefaultData()
+    fillFrontendReportData()
 
   } catch (error) {
     console.error('加载面试数据失败:', error)
-    useDefaultData()
+    fillFrontendReportData()
   }
 }
 
-// 使用模拟数据
-const useSimulatedData = (interviewData) => {
-  // reportData.overallScore = Math.floor(Math.random() * 20) + 70
+const fillFrontendReportData = (interviewData = {}) => {
+  reportData.interviewDate = interviewData.endTime
+    ? new Date(interviewData.endTime).toLocaleString('zh-CN')
+    : new Date().toLocaleString('zh-CN')
+  reportData.duration = interviewData.duration || '42分钟'
+  reportData.interviewType = interviewData.interviewType || '前端开发岗技术面'
+  reportData.overallScore = 84
+
   reportData.scoreBreakdown = [
-    { name: '专业技能', score: Math.floor(Math.random() * 20) + 70 },
-    { name: '沟通表达', score: Math.floor(Math.random() * 20) + 70 }
+    { name: '框架能力', score: 86 },
+    { name: '工程实践', score: 82 },
+    { name: '业务表达', score: 84 }
   ]
+
   reportData.detailedEvaluations = [
     {
-      category: '综合表现',
+      category: '笔试答题情况',
+      score: 82,
       rating: 4,
-      comment: '面试表现良好，具有一定的专业能力和发展潜力。',
-      suggestions: ['继续努力，保持学习热情']
+      comment: '答题覆盖了 Vue 组件通信、浏览器缓存机制和构建优化等核心内容，整体思路清晰。',
+      suggestions: ['加强手写题中的边界条件处理', '巩固 HTTP 缓存与协商缓存细节']
+    },
+    {
+      category: '面试答题情况',
+      score: 86,
+      rating: 4,
+      comment: '项目复盘完整，能够结合业务场景解释性能优化路径，问题拆解能力较好。',
+      suggestions: ['复杂场景回答可增加数据对比', '多补充跨团队协作案例']
+    },
+    {
+      category: '综合评估与建议',
+      rating: 4,
+      comment: '候选人在前端基础、工程化落地和沟通表达方面均有较好表现，具备独立承担模块开发能力。',
+      suggestions: ['持续加强架构设计能力', '关注可观测性与稳定性建设', '通过高并发场景项目沉淀方法论']
+    }
+  ]
+
+  reportData.learningResources = [
+    {
+      title: 'Vue3 + TypeScript 进阶实战',
+      type: 'course',
+      url: 'https://www.coursera.org',
+      description: '🎓 强化组合式 API、类型系统与大型项目目录设计'
+    },
+    {
+      title: '前端性能优化实战清单',
+      type: 'article',
+      url: 'https://web.dev/',
+      description: '📄 结合 Core Web Vitals 指标提升页面稳定性'
+    },
+    {
+      title: '高质量前端工程规范',
+      type: 'book',
+      url: '#',
+      description: '📚 围绕规范化、自动化、可维护性构建工程体系'
     }
   ]
 }
@@ -673,13 +814,10 @@ onMounted(() => {
 }
 
 .report-layout {
-  display: grid;
-  grid-template-columns: 2.2fr 1fr;
-  gap: 14px;
+  display: block;
 }
 
-.report-main,
-.report-side {
+.report-main {
   min-width: 0;
 }
 
@@ -694,14 +832,22 @@ onMounted(() => {
 .score-card,
 .evaluation-card,
 .resources-card,
-.side-answer-card {
+.qa-card {
   margin-bottom: 12px;
 }
 
 .overall-score {
+  display: grid;
+  grid-template-columns: 1fr 240px;
+  gap: 16px;
+  align-items: stretch;
+}
+
+.score-left {
   display: flex;
   align-items: center;
-  gap: 24px;
+  gap: 20px;
+  min-width: 0;
 }
 
 .score-gauge {
@@ -774,6 +920,51 @@ onMounted(() => {
   text-align: right;
   font-weight: 600;
   color: #303133;
+}
+
+.score-radar-card {
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: #f9fbff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 130px;
+}
+
+.radar-svg {
+  width: 220px;
+  height: 130px;
+}
+
+.radar-bg {
+  fill: rgba(59, 130, 246, 0.08);
+  stroke: #c7d2fe;
+  stroke-width: 1;
+}
+
+.radar-value {
+  fill: rgba(37, 99, 235, 0.28);
+  stroke: #2563eb;
+  stroke-width: 2;
+}
+
+.radar-line {
+  stroke: #cbd5e1;
+  stroke-width: 1;
+}
+
+.radar-label {
+  font-size: 11px;
+  fill: #334155;
+  text-anchor: middle;
+  dominant-baseline: middle;
+}
+
+.qa-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
 }
 
 .evaluation-item {
@@ -876,11 +1067,40 @@ onMounted(() => {
   white-space: pre-wrap;
 }
 
+.qa-list {
+  margin-top: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.qa-item {
+  background: #f8fafc;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 8px 10px;
+}
+
+.qa-q {
+  font-size: 13px;
+  color: #1f2937;
+  font-weight: 600;
+  margin-bottom: 4px;
+  line-height: 1.5;
+}
+
+.qa-a {
+  font-size: 12px;
+  color: #4b5563;
+  line-height: 1.6;
+}
+
 @media (max-width: 1024px) {
-  .report-layout {
+  .overall-score {
     grid-template-columns: 1fr;
   }
 
+  .qa-grid,
   .resources-list.grid {
     grid-template-columns: 1fr;
   }
@@ -902,8 +1122,8 @@ onMounted(() => {
   }
 
   .overall-score {
-    flex-direction: column;
-    gap: 16px;
+    grid-template-columns: 1fr;
+    gap: 12px;
   }
 
   .resources-list.grid {

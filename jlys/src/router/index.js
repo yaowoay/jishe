@@ -217,6 +217,16 @@ const routes = [
         component: () => import('@/views/student/WarningCenter.vue')
       },
       {
+        path: 'activities',
+        name: 'StudentActivities',
+        component: () => import('@/views/applicant/Activities.vue')
+      },
+      {
+        path: 'my-activities',
+        name: 'MyStudentActivities',
+        component: () => import('@/views/applicant/MyActivities.vue')
+      },
+      {
         path: 'company-analysis',
         name: 'CompanyAnalysis',
         component: () => import('@/views/dataAnalysis/CompanyAnalysis.vue'),

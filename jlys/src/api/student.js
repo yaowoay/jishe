@@ -103,3 +103,35 @@ export function updateResumeCompletionStatus(status) {
     params: { status }
   })
 }
+
+
+// 学生活动相关
+export function getStudentActivities(params) {
+  return request({
+    url: '/student/activities/list',
+    method: 'get',
+    params
+  })
+}
+
+export function getMyStudentActivities() {
+  return request({
+    url: '/student/activities/my',
+    method: 'get'
+  })
+}
+
+export function registerStudentActivity(activityId) {
+  return request({
+    url: `/student/activities/${activityId}/register`,
+    method: 'post'
+  })
+}
+
+export function signInStudentActivity(activityId, signInMethod = 'qrcode') {
+  return request({
+    url: `/student/activities/${activityId}/signin`,
+    method: 'post',
+    params: { signInMethod }
+  })
+}

@@ -1,6 +1,7 @@
 package com.aiinterview.service.impl.teacher;
 
 import com.aiinterview.mapper.ActivityMapper;
+import com.aiinterview.mapper.ActivityRegistrationMapper;
 import com.aiinterview.mapper.AssistanceRecordMapper;
 import com.aiinterview.mapper.CompanyMapper;
 import com.aiinterview.mapper.CooperationApplicationMapper;
@@ -9,6 +10,7 @@ import com.aiinterview.mapper.EmploymentLedgerMapper;
 import com.aiinterview.mapper.JobMapper;
 import com.aiinterview.mapper.StudentProfileMapper;
 import com.aiinterview.mapper.TeacherMapper;
+import com.aiinterview.model.dto.teacher.ActivityRegistrationDTO;
 import com.aiinterview.model.dto.teacher.AssistanceRecordDTO;
 import com.aiinterview.model.dto.teacher.EmploymentAuditDTO;
 import com.aiinterview.model.dto.teacher.StudentQueryDTO;
@@ -16,9 +18,10 @@ import com.aiinterview.model.dto.teacher.TeacherDashboardDTO;
 import com.aiinterview.model.dto.teacher.TeacherProfileDTO;
 import com.aiinterview.model.entity.company.Company;
 import com.aiinterview.model.entity.job.Job;
+import com.aiinterview.model.entity.student.StudentProfile;
+import com.aiinterview.model.entity.teacher.ActivityRegistration;
 import com.aiinterview.model.entity.teacher.AssistanceRecord;
 import com.aiinterview.model.entity.teacher.EmploymentLedger;
-import com.aiinterview.model.entity.student.StudentProfile;
 import com.aiinterview.model.entity.teacher.Teacher;
 import com.aiinterview.service.teacher.TeacherService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -51,6 +54,7 @@ public class TeacherServiceImpl implements TeacherService {
     private final AssistanceRecordMapper assistanceRecordMapper;
     private final EarlyWarningResultMapper earlyWarningResultMapper;
     private final ActivityMapper activityMapper;
+    private final ActivityRegistrationMapper activityRegistrationMapper;
     private final CooperationApplicationMapper cooperationApplicationMapper;
 
     @Override
@@ -356,9 +360,29 @@ public class TeacherServiceImpl implements TeacherService {
     }
 
     @Override
-    public List<com.aiinterview.model.dto.teacher.ActivityRegistrationDTO> getActivityRegistrations(Long activityId) {
-        // TODO: 实现活动报名列表查询
-        return new java.util.ArrayList<>();
+    public List<ActivityRegistrationDTO> getActivityRegistrations(Long activityId) {
+        com.aiinterview.model.entity.teacher.Activity activity = activityMapper.selectById(activityId);
+        if (activity == null) {
+            throw new RuntimeException("活动不存在");
+        }
+
+        List<ActivityRegistration> registrations = activityRegistrationMapper.selectList(
+                new QueryWrapper<ActivityRegistration>()
+                        .eq("activity_id", activityId)
+                        .orderByDesc("register_time"));
+
+        return registrations.stream().map(registration -> {
+            ActivityRegistrationDTO dto = new ActivityRegistrationDTO();
+            BeanUtils.copyProperties(registration, dto);
+
+            StudentProfile profile = studentProfileMapper.selectById(registration.getStudentId());
+            if (profile != null) {
+                dto.setStudentName(profile.getRealName());
+                dto.setStudentNo(profile.getStudentNo());
+                dto.setMajor(profile.getMajor());
+            }
+            return dto;
+        }).collect(Collectors.toList());
     }
 
     @Override

@@ -116,12 +116,9 @@
         </div>
       </div>
     </div>
-    <div v-if="faceDetectResult" style="position:fixed;bottom:10px;right:10px;background:#fff;padding:8px 16px;border-radius:8px;z-index:9999;box-shadow:0 2px 8px #0002;max-width:320px;">
-      <div v-if="faceDetectResult.error" style="color:red;">检测失败：{{ faceDetectResult.error }}</div>
-      <div v-else>
-        <div>检测到人脸数：{{ faceDetectResult.face_num }}</div>
-        <div v-if="faceDetectResult.face_1">第1个人脸属性：{{ faceDetectResult.face_1.property && JSON.stringify(faceDetectResult.face_1.property) }}</div>
-      </div>
+    <div v-if="faceDetectResult" style="position:fixed;bottom:10px;right:10px;background:#fff;padding:6px 12px;border-radius:6px;z-index:9999;box-shadow:0 1px 4px rgba(0,0,0,0.1);font-size:12px;color:#606266;">
+      <div v-if="faceDetectResult.error" style="color:#f56c6c;">检测失败</div>
+      <div v-else>检测到人脸数：{{ faceDetectResult.face_num }}</div>
     </div>
 
     <!-- 视频分析组件 -->
@@ -1095,13 +1092,16 @@ function getTimeFromIndex(idx) {
 function scrollToBottom() {
   nextTick(() => {
     if (historyListRef.value) {
-      historyListRef.value.scrollTop = historyListRef.value.scrollHeight
+      historyListRef.value.scrollTo({
+        top: historyListRef.value.scrollHeight,
+        behavior: 'smooth'
+      })
     }
   })
 }
 watch(dialogList, () => {
   scrollToBottom()
-})
+}, { deep: true })
 function fetchAIVideoUrl() {
   setTimeout(() => {
     aiVideoUrl.value = 'https://www.w3schools.com/html/mov_bbb.mp4'
@@ -1179,12 +1179,12 @@ function initVideoRecorder(stream) {
 
 // 开始视频录制
 function startVideoRecording() {
-  console.log('🎬 [SimulatExam] 尝试开始视频录制...')
-  console.log('📹 mediaRecorder状态:', mediaRecorder.value ? mediaRecorder.value.state : 'null')
-  console.log('📹 isVideoRecording当前值:', isVideoRecording.value)
+  console.log(' [SimulatExam] 尝试开始视频录制...')
+  console.log(' mediaRecorder状态:', mediaRecorder.value ? mediaRecorder.value.state : 'null')
+  console.log(' isVideoRecording当前值:', isVideoRecording.value)
 
   if (!mediaRecorder.value) {
-    console.error('❌ mediaRecorder未初始化')
+    console.error(' mediaRecorder未初始化')
     return
   }
 
@@ -1197,9 +1197,9 @@ function startVideoRecording() {
     recordedChunks.value = []
     mediaRecorder.value.start(1000) // 每秒收集一次数据
     isVideoRecording.value = true
-    console.log('✅ [SimulatExam] 开始录制面试视频成功！')
+    console.log(' [SimulatExam] 开始录制面试视频成功！')
   } catch (error) {
-    console.error('❌ 开始录制失败:', error)
+    console.error(' 开始录制失败:', error)
   }
 }
 
@@ -1804,6 +1804,48 @@ async function sendMsg() {
   display: flex;
   align-items: center;
   justify-content: center;
+}
+.main-video-box {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: 8px;
+  background: #000;
+  overflow: hidden;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.main-video-box > *:first-child {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  object-fit: cover;
+}
+.pip-video-box {
+  position: absolute;
+  right: 12px;
+  bottom: 12px;
+  width: 140px;
+  height: 105px;
+  border-radius: 6px;
+  background: #000;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+  overflow: hidden;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+  border: 2px solid #fff;
+}
+.pip-video-box > * {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 .ai-answer-box {
   width: 100%;

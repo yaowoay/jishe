@@ -150,6 +150,22 @@
               <span class="menu-text">预警中心</span>
             </el-menu-item>
 
+            <!-- 学生活动 -->
+            <el-sub-menu index="student-activities">
+              <template #title>
+                <el-icon size="18"><Calendar /></el-icon>
+                <span class="menu-text">活动中心</span>
+              </template>
+              <el-menu-item index="/applicant/activities">
+                <el-icon size="18"><Calendar /></el-icon>
+                <span class="submenu-text">活动列表</span>
+              </el-menu-item>
+              <el-menu-item index="/applicant/my-activities">
+                <el-icon size="18"><FolderOpened /></el-icon>
+                <span class="submenu-text">我的活动</span>
+              </el-menu-item>
+            </el-sub-menu>
+
             <!-- 工具箱 -->
             <el-sub-menu index="tools">
               <template #title>
@@ -264,7 +280,8 @@ import {
   OfficeBuilding,
   Link,
   MagicStick,
-  Warning
+  Warning,
+  Calendar
 } from '@element-plus/icons-vue'
 import { ElMessageBox } from 'element-plus'
 export default {
@@ -295,7 +312,8 @@ export default {
     OfficeBuilding,
     Link,
     MagicStick,
-    Warning
+    Warning,
+    Calendar
   },
   data() {
     return {
@@ -330,6 +348,8 @@ export default {
         '/applicant/my-collections': '我的收藏',
         '/applicant/behavior-analysis': '行为分析',
         '/applicant/warnings': '预警中心',
+        '/applicant/activities': '活动列表',
+        '/applicant/my-activities': '我的活动',
         '/applicant/visual-screen': '可视化大屏'
       }
 
