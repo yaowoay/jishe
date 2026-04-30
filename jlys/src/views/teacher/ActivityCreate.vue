@@ -3,7 +3,7 @@
     <el-card class="form-card">
       <template #header>
         <div class="card-header">
-          <span>创建活动</span>
+          <span>{{ isEdit ? '编辑活动' : '创建活动' }}</span>
           <el-button @click="goBack">返回</el-button>
         </div>
       </template>
@@ -21,20 +21,19 @@
 
         <el-form-item label="活动类型" prop="type">
           <el-select v-model="formData.type" placeholder="请选择活动类型">
-            <el-option label="宣讲会" value="宣讲会" />
-            <el-option label="招聘会" value="招聘会" />
-            <el-option label="双选会" value="双选会" />
-            <el-option label="培训讲座" value="培训讲座" />
-            <el-option label="企业参观" value="企业参观" />
-            <el-option label="其他" value="其他" />
+            <el-option label="招聘会" value="job_fair" />
+            <el-option label="宣讲会" value="lecture" />
+            <el-option label="培训" value="training" />
+            <el-option label="企业参观" value="visit" />
+            <el-option label="其他" value="other" />
           </el-select>
         </el-form-item>
 
         <el-form-item label="活动形式" prop="mode">
           <el-radio-group v-model="formData.mode">
-            <el-radio label="线上">线上</el-radio>
-            <el-radio label="线下">线下</el-radio>
-            <el-radio label="线上线下结合">线上线下结合</el-radio>
+            <el-radio label="online">线上</el-radio>
+            <el-radio label="offline">线下</el-radio>
+            <el-radio label="hybrid">线上线下结合</el-radio>
           </el-radio-group>
         </el-form-item>
 
@@ -92,7 +91,7 @@
 
         <el-form-item>
           <el-button type="primary" @click="handleSubmit" :loading="loading">
-            提交
+            {{ isEdit ? '保存修改' : '提交' }}
           </el-button>
           <el-button @click="handleReset">重置</el-button>
           <el-button @click="goBack">取消</el-button>
@@ -103,16 +102,20 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, computed, onMounted } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { Plus } from '@element-plus/icons-vue'
-import { createActivity } from '@/api/teacher'
+import { createActivity, updateActivity, getActivityDetail } from '@/api/teacher'
 import request from '@/api/index'
 
 const router = useRouter()
+const route = useRoute()
 const formRef = ref(null)
 const loading = ref(false)
+
+const activityId = computed(() => route.params.id)
+const isEdit = computed(() => !!activityId.value)
 
 const formData = ref({
   title: '',
@@ -174,18 +177,52 @@ const beforePosterUpload = (file) => {
   return isImage && isLt2M
 }
 
+const normalizeDetailData = (detail) => ({
+  title: detail?.title || '',
+  type: detail?.type || '',
+  mode: detail?.mode || '',
+  location: detail?.location || '',
+  startTime: detail?.startTime ? new Date(detail.startTime) : null,
+  endTime: detail?.endTime ? new Date(detail.endTime) : null,
+  maxParticipants: detail?.maxParticipants || 100,
+  posterUrl: detail?.posterUrl || '',
+  status: detail?.status || 'draft'
+})
+
+const loadActivityDetail = async () => {
+  if (!isEdit.value) return
+
+  loading.value = true
+  try {
+    const response = await getActivityDetail(activityId.value)
+    const detail = response?.data || response
+    if (response?.success || detail?.activityId || detail?.id) {
+      formData.value = normalizeDetailData(detail)
+    } else {
+      ElMessage.error('获取活动详情失败')
+    }
+  } catch (error) {
+    ElMessage.error('获取活动详情失败')
+  } finally {
+    loading.value = false
+  }
+}
+
 const handleSubmit = async () => {
   await formRef.value.validate(async (valid) => {
     if (valid) {
       loading.value = true
       try {
-        const response = await createActivity(formData.value)
-        if (response.success) {
-          ElMessage.success('创建活动成功')
+        const response = isEdit.value
+          ? await updateActivity(activityId.value, formData.value)
+          : await createActivity(formData.value)
+
+        if (response?.success) {
+          ElMessage.success(isEdit.value ? '修改活动成功' : '创建活动成功')
           router.push('/teacher/activities')
         }
       } catch (error) {
-        ElMessage.error('创建失败')
+        ElMessage.error(isEdit.value ? '修改失败' : '创建失败')
       } finally {
         loading.value = false
       }
@@ -200,6 +237,10 @@ const handleReset = () => {
 const goBack = () => {
   router.back()
 }
+
+onMounted(() => {
+  loadActivityDetail()
+})
 </script>
 
 <style scoped lang="scss">

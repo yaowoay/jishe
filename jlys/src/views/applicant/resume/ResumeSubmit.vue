@@ -108,7 +108,7 @@
     <!-- 结果统计和视图切换 -->
     <div class="result-summary" v-if="!loading">
       <span class="result-count">
-        共找到 <strong>{{ filteredJobs.length }}</strong> 个职位
+        共找到 <strong>{{ pagination.total }}</strong> 个职位
       </span>
       <div class="controls-section">
         <!-- 视图切换 -->

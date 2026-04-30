@@ -1,6 +1,6 @@
 <template>
   <div class="simulat-exam-root">
-    <div v-if="showWakeupBanner" class="wakeup-banner">请点击页面任意位置唤醒AI多模态面试官</div>
+    <div v-if="showWakeupBanner" class="wakeup-banner">请点击页面任意位置唤醒高校学生就业能力智配平台多模态面试官</div>
     <div class="main-flex-layout">
       <div class="left-column">
         <div class="center-panel">
@@ -154,7 +154,7 @@ import VideoAnalysis from './VideoAnalysis.vue'
 const router = useRouter()
 const dialogList = ref([
   { role: 'ai', text: '你好！欢迎参加本次模拟面试。' },
-  { role: 'ai', text: '我是你的AI多模态面试官，我将使用内置的智能对话系统与你进行面试交流。' }
+  { role: 'ai', text: '我是高校学生就业能力智配平台多模态面试官，我将使用内置的智能对话系统与你进行面试交流。' }
 ])
 
 // 视频分析相关
@@ -1548,7 +1548,7 @@ async function sendMsg() {
   recognizedText.value = ''
 
   // 显示思考状态
-  dialogList.value.push({ role: 'ai', text: 'AI多模态面试官正在思考中...' })
+  dialogList.value.push({ role: 'ai', text: '高校学生就业能力智配平台多模态面试官正在思考中...' })
 
   try {
     // 生成面试指导内容
@@ -1568,7 +1568,7 @@ async function sendMsg() {
       console.error('数字人组件未准备好')
       // 如果数字人不可用，移除思考状态并显示错误
       dialogList.value.pop()
-      const errorReply = 'AI多模态面试官暂时无法回复，请稍后再试。'
+      const errorReply = '高校学生就业能力智配平台多模态面试官暂时无法回复，请稍后再试。'
       dialogList.value.push({ role: 'ai', text: errorReply })
       aiCurrentAnswer.value = errorReply
     }

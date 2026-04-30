@@ -165,16 +165,15 @@ const exportAnalysis = () => {
 // 初始化所有图表
 const initCharts = () => {
   try {
-    initSalaryRangeChart()  
-    initCityComparisonChart()  
-    initIndustrySalaryChart()  
-    initMultiFactorChart()  
-    ElMessage.success('图表初始化成功')  
+    initSalaryRangeChart()
+    initCityComparisonChart()
+    initIndustrySalaryChart()
+    initMultiFactorChart()
   } catch (error) {
-    console.error('图表初始化失败:', error)  
-    ElMessage.error('部分图表初始化失败，请刷新页面重试')  
+    console.error('图表初始化失败:', error)
+    ElMessage.error('部分图表初始化失败，请刷新页面重试')
   }
-}  
+}
 
 // 检查DOM元素是否有效
 const isValidDom = (dom) => {

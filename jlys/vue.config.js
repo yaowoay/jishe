@@ -96,7 +96,7 @@ module.exports = defineConfig({
   chainWebpack: config => {
     // 设置页面标题
     config.plugin('html').tap(args => {
-      args[0].title = 'AI面试系统'
+      args[0].title = '高校学生就业能力智配平台'
       return args
     })
 

@@ -12,7 +12,7 @@
     <div class="dashboard-header">
       <div class="header-title">
         <span>欢迎使用</span>
-        <span class="highlight">数智通途</span>
+        <span class="highlight">高校学生就业能力智配平台</span>
       </div>
       <div class="header-subtitle">您的专属校园就业智配平台，助力求职成功</div>
       <!-- 产品特色描述 -->

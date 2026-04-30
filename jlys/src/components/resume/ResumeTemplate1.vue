@@ -4,7 +4,13 @@
     <div class="resume-header">
       <div class="avatar-container">
         <div class="avatar">
-          {{ resume.fullName ? resume.fullName.charAt(0) : '' }}
+          <img
+            v-if="getAvatarSrc(resume)"
+            :src="getAvatarSrc(resume)"
+            class="avatar-image"
+            alt="avatar"
+          />
+          <span v-else>{{ resume.fullName ? resume.fullName.charAt(0) : '' }}</span>
         </div>
       </div>
       <div class="header-content">
@@ -182,8 +188,13 @@ export default {
       return new Date(date).toLocaleDateString('zh-CN', { year: 'numeric', month: '2-digit' })
     }
 
+    const getAvatarSrc = (resume) => {
+      return resume?.avatarUrl || resume?.avatar || resume?.photoUrl || resume?.imgUrl || ''
+    }
+
     return {
-      formatDate
+      formatDate,
+      getAvatarSrc
     }
   }
 }
@@ -234,7 +245,6 @@ export default {
 .avatar {
   width: 100%;
   height: 100%;
-  object-fit: cover;
   background: #f0f4f8;
   display: flex;
   align-items: center;
@@ -242,6 +252,13 @@ export default {
   color: #1a3a6e;
   font-size: 50px;
   font-weight: bold;
+}
+
+.avatar-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
 }
 
 .header-content {

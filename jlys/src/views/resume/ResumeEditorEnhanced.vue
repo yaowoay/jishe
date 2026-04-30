@@ -436,6 +436,11 @@
       <TemplateSelectionDialog v-model="templateDialogVisible" :current-template="resumeForm.template"
         :templates="resumeTemplates" @template-selected="handleTemplateSelected" />
     </el-dialog>
+
+    <!-- 仅用于导出PDF的简历组件容器（隐藏到屏幕外） -->
+    <div ref="pdfResumeRef" class="pdf-resume-export">
+      <ResumePreview :resumeData="filteredResumeData" :template="resumeForm.template" :isMobile="false" />
+    </div>
   </div>
 </template>
 
@@ -462,7 +467,8 @@ import ResumePreview from '@/components/resume/ResumePreview.vue'
 import TemplateSelectionDialog from '@/components/resume/TemplateSelectionDialog.vue'
 
 // 只保留必要的接口导入
-import { getResume, createResume, updateResume, optimizeResumeWithAI, generateResumeWithAI, downloadResume } from '@/api/resume'
+import html2pdf from 'html2pdf.js'
+import { getResume, createResume, updateResume, optimizeResumeWithAI, generateResumeWithAI, downloadResume, uploadResume } from '@/api/resume'
 
 export default {
   name: 'ResumeEditorEnhanced',
@@ -500,6 +506,7 @@ export default {
     const activeView = ref('edit') // edit | preview
     const activeModule = ref('basicInfo')
     const previewScale = ref(0.8)
+    const pdfResumeRef = ref(null)
 
     // AI生成相关状态
     const showAIDialog = ref(false)
@@ -931,9 +938,62 @@ export default {
       }
     }
 
+    // 将简历组件导出为PDF Blob
+    const exportResumeComponentPdfBlob = async () => {
+      await nextTick()
+      const element = pdfResumeRef.value
+      if (!element) {
+        throw new Error('简历导出节点不存在')
+      }
+
+      const worker = html2pdf()
+        .set({
+          margin: 0,
+          filename: `${resumeForm.title || '我的简历'}.pdf`,
+          image: { type: 'jpeg', quality: 0.98 },
+          html2canvas: {
+            scale: 2,
+            useCORS: true,
+            backgroundColor: '#ffffff'
+          },
+          jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        })
+        .from(element)
+        .toPdf()
+
+      return await worker.outputPdf('blob')
+    }
+
+    // 上传PDF到“已上传的简历文件”列表
+    const uploadGeneratedPdf = async (pdfBlob) => {
+      const fileNameWithoutExt = `${resumeForm.title || '我的简历'}_${resumeId.value || Date.now()}`
+      const pdfFile = new File([pdfBlob], `${fileNameWithoutExt}.pdf`, { type: 'application/pdf' })
+      const formData = new FormData()
+      formData.append('file', pdfFile)
+      formData.append('filename', `${fileNameWithoutExt}.pdf`)
+
+      const res = await uploadResume(formData)
+      const ok = res?.code === 0 || res?.success === true
+      if (!ok) {
+        throw new Error(res?.message || 'PDF上传失败')
+      }
+    }
+
     // 保存简历（发布到简历列表）
     const saveResume = async () => {
-      await persistResume('PUBLISHED', true, true)
+      const saved = await persistResume('PUBLISHED', true, false)
+      if (!saved) return
+
+      try {
+        const pdfBlob = await exportResumeComponentPdfBlob()
+        await uploadGeneratedPdf(pdfBlob)
+        ElMessage.success('简历组件已自动导出为PDF并加入简历列表')
+      } catch (error) {
+        console.error('auto export/upload pdf error:', error)
+        ElMessage.warning('简历已保存，但PDF自动入库失败，可稍后手动下载上传')
+      }
+
+      router.push('/applicant/resume/list')
     }
 
     // 保存为草稿（进入草稿箱）
@@ -1732,6 +1792,7 @@ export default {
       resumeTemplates,
       filteredTemplates,
       filteredResumeData,
+      pdfResumeRef,
       // 方法
       loadResume,
       loadTemplates,
@@ -2249,6 +2310,15 @@ export default {
   display: flex;
   align-items: center;
   gap: 12px;
+}
+
+.pdf-resume-export {
+  position: fixed;
+  left: -99999px;
+  top: 0;
+  width: 794px;
+  background: #ffffff;
+  z-index: -1;
 }
 
 .preview-panel-content {

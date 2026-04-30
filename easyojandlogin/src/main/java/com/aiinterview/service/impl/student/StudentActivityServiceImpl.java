@@ -28,7 +28,9 @@ public class StudentActivityServiceImpl implements StudentActivityService {
 
     @Override
     public List<StudentActivityDTO> listActivities(Long userId, String status, String keyword) {
-        StudentProfile student = getStudentProfile(userId);
+        StudentProfile student = studentProfileMapper.selectByUserId(userId);
+        Long studentId = student == null ? null : student.getStudentId();
+
         QueryWrapper<Activity> wrapper = new QueryWrapper<>();
         if (status != null && !status.trim().isEmpty()) {
             wrapper.eq("status", status.trim());
@@ -41,7 +43,7 @@ public class StudentActivityServiceImpl implements StudentActivityService {
         wrapper.orderByDesc("start_time");
 
         List<Activity> activities = activityMapper.selectList(wrapper);
-        return activities.stream().map(activity -> buildDTO(activity, student.getStudentId())).collect(Collectors.toList());
+        return activities.stream().map(activity -> buildDTO(activity, studentId)).collect(Collectors.toList());
     }
 
     @Override
@@ -115,6 +117,12 @@ public class StudentActivityServiceImpl implements StudentActivityService {
     private StudentActivityDTO buildDTO(Activity activity, Long studentId) {
         StudentActivityDTO dto = new StudentActivityDTO();
         BeanUtils.copyProperties(activity, dto);
+
+        if (studentId == null) {
+            dto.setRegistered(false);
+            return dto;
+        }
+
         ActivityRegistration reg = activityRegistrationMapper.selectOne(new QueryWrapper<ActivityRegistration>()
                 .eq("activity_id", activity.getActivityId())
                 .eq("student_id", studentId));

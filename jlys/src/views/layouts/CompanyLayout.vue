@@ -79,18 +79,7 @@
       <el-container>
         <!-- 顶部导航 -->
         <el-header class="header">
-          <div class="header-left">
-            <div class="page-title">
-              <h2>{{ currentPageTitle }}</h2>
-              <el-breadcrumb separator="/" class="breadcrumb">
-                <el-breadcrumb-item :to="{ path: '/company/dashboard' }">
-                  <el-icon><House /></el-icon>
-                  首页
-                </el-breadcrumb-item>
-                <el-breadcrumb-item>{{ currentPageTitle }}</el-breadcrumb-item>
-              </el-breadcrumb>
-            </div>
-          </div>
+          <div class="header-left"></div>
 
           <div class="header-right">
             <div class="header-actions">
@@ -405,14 +394,18 @@ export default {
 
 /* 顶部导航 */
 .header {
-  height: 64px;
-  background: linear-gradient(135deg, #ffffff 0%, #f8fbff 100%);
-  border-bottom: 1px solid #e6f1ff;
+  height: 60px;
+  padding: 8px 20px;   /* ✅ 上下左右都留间距 */
+
+  background-image: url('../../assets/img.png');
+  background-repeat: no-repeat;
+  background-position: left center;
+  background-size: contain;   /* ✅ 不铺满，等比缩放 */
+
+  border-bottom: 1px solid #e4e7eb;
   display: flex;
-  align-items: center;
   justify-content: space-between;
-  padding: 0 24px;
-  box-shadow: 0 2px 10px rgba(26, 111, 196, 0.1);
+  align-items: center;
 }
 
 .header-left {

@@ -203,7 +203,7 @@ export default {
 /* 确保内容正常显示 */
 .coze-chat-container :deep(iframe) {
   width: 100% !important;
-  min-height: 600px;
+  min-height: 1000px;
   border: none;
 }
 

@@ -18,17 +18,31 @@
     </el-card>
 
     <el-row :gutter="16" v-loading="loading">
-      <el-col v-for="item in list" :key="item.activityId" :xs="24" :sm="12" :md="8">
+      <el-col v-for="item in list" :key="item.activityId" :xs="24" :sm="24" :md="24">
         <el-card class="mb16" shadow="hover">
-          <h4>{{ item.title }}</h4>
-          <p>类型：{{ item.type }} ｜ 形式：{{ item.mode }}</p>
-          <p>时间：{{ fmt(item.startTime) }} - {{ fmt(item.endTime) }}</p>
-          <p>地点：{{ item.location || '线上' }}</p>
-          <p>人数：{{ item.currentParticipants || 0 }}/{{ item.maxParticipants || '不限' }}</p>
-          <div style="margin-top: 10px; display: flex; gap: 8px">
-            <el-tag v-if="item.registered" type="success">已报名</el-tag>
-            <el-button v-if="!item.registered" size="small" type="primary" @click="register(item)">报名</el-button>
-            <el-button v-else size="small" @click="signIn(item)">签到</el-button>
+          <div class="activity-row">
+            <div class="activity-main">
+              <h4>{{ item.title }}</h4>
+              <p>类型：{{ item.type }} ｜ 形式：{{ item.mode }}</p>
+              <p>时间：{{ fmt(item.startTime) }} - {{ fmt(item.endTime) }}</p>
+              <p>地点：{{ item.location || '线上' }}</p>
+              <p>人数：{{ item.currentParticipants || 0 }}/{{ item.maxParticipants || '不限' }}</p>
+              <div class="action-row">
+                <el-tag v-if="item.registered" type="success">已报名</el-tag>
+                <el-button v-if="!item.registered" size="small" type="primary" @click="register(item)">报名</el-button>
+                <el-button v-else size="small" @click="signIn(item)">签到</el-button>
+              </div>
+            </div>
+
+            <div v-if="item.posterUrl" class="poster-side">
+              <el-image
+                :src="item.posterUrl"
+                fit="contain"
+                :preview-src-list="[item.posterUrl]"
+                preview-teleported
+                class="poster-img"
+              />
+            </div>
           </div>
         </el-card>
       </el-col>
@@ -83,4 +97,36 @@ onMounted(loadData)
 
 <style scoped>
 .mb16 { margin-bottom: 16px; }
+
+.activity-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.activity-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.action-row {
+  margin-top: 10px;
+  display: flex;
+  gap: 8px;
+}
+
+.poster-side {
+  width: 220px;
+  height: 140px;
+  flex-shrink: 0;
+  border: 1px solid #ebeef5;
+  border-radius: 6px;
+  background: #f8fafc;
+  overflow: hidden;
+}
+
+.poster-img {
+  width: 100%;
+  height: 100%;
+}
 </style>

@@ -6,7 +6,7 @@
           <i class="el-icon-data-analysis"></i>
         </div>
         <div class="platform-info">
-          <h1>数智通途·校园就业洞察大屏</h1>
+          <h1>高校学生就业能力智配平台·校园就业洞察大屏</h1>
           <p class="platform-desc">大数据洞察与AI多模态面试融合的校园就业智配平台</p>
         </div>
       </div>

@@ -77,7 +77,7 @@
           <div class="interview-list-section">
             <!-- 搜索和筛选 -->
             <div class="search-section">
-              <el-form :model="searchForm" inline>
+              <el-form :model="searchForm" inline class="search-form">
                 <el-form-item label="搜索">
                   <el-input
                     v-model="searchForm.keyword"
@@ -111,30 +111,30 @@
             </div>
 
             <!-- 面试列表表格 -->
-            <el-table :data="interviewList" v-loading="loading" stripe>
-              <el-table-column prop="candidateName" label="应聘者" width="120" />
-              <el-table-column prop="position" label="应聘职位" width="150" />
-              <el-table-column prop="interviewType" label="面试类型" width="100">
+            <el-table :data="interviewList" v-loading="loading" stripe class="interview-table" style="width: 100%" :fit="true">
+              <el-table-column prop="candidateName" label="应聘者" min-width="140" />
+              <el-table-column prop="position" label="应聘职位" min-width="220" />
+              <el-table-column prop="interviewType" label="面试类型" min-width="120">
                 <template #default="{ row }">
                   <el-tag :type="getTypeTagType(row.interviewType)">
                     {{ getTypeText(row.interviewType) }}
                   </el-tag>
                 </template>
               </el-table-column>
-              <el-table-column prop="interviewer" label="面试官" width="120" />
-              <el-table-column prop="scheduledTime" label="面试时间" width="180">
+              <el-table-column prop="interviewer" label="面试官" min-width="140" />
+              <el-table-column prop="scheduledTime" label="面试时间" min-width="220">
                 <template #default="{ row }">
                   {{ formatDateTime(row.scheduledTime) }}
                 </template>
               </el-table-column>
-              <el-table-column prop="status" label="状态" width="100">
+              <el-table-column prop="status" label="状态" min-width="120">
                 <template #default="{ row }">
                   <el-tag :type="getStatusTagType(row.status)">
                     {{ getStatusText(row.status) }}
                   </el-tag>
                 </template>
               </el-table-column>
-              <el-table-column prop="score" label="评分" width="80">
+              <el-table-column prop="score" label="评分" min-width="100">
                 <template #default="{ row }">
                   <span v-if="row.score" :class="getScoreClass(row.score)">
                     {{ row.score }}
@@ -142,7 +142,7 @@
                   <span v-else class="text-gray">-</span>
                 </template>
               </el-table-column>
-              <el-table-column label="操作" width="200" fixed="right">
+              <el-table-column label="操作" min-width="260" fixed="right">
                 <template #default="{ row }">
                   <el-button
                     v-if="row.status === 'pending'"
@@ -204,11 +204,11 @@
               </el-button>
             </div>
 
-            <el-table :data="interviewerList" stripe>
-              <el-table-column prop="name" label="姓名" width="120" />
-              <el-table-column prop="department" label="部门" width="150" />
-              <el-table-column prop="position" label="职位" width="150" />
-              <el-table-column prop="specialties" label="专业领域" width="200">
+            <el-table :data="interviewerList" stripe class="interviewer-table" style="width: 100%" :fit="true">
+              <el-table-column prop="name" label="姓名" min-width="140" />
+              <el-table-column prop="department" label="部门" min-width="180" />
+              <el-table-column prop="position" label="职位" min-width="180" />
+              <el-table-column prop="specialties" label="专业领域" min-width="260">
                 <template #default="{ row }">
                   <el-tag
                     v-for="specialty in row.specialties"
@@ -220,8 +220,8 @@
                   </el-tag>
                 </template>
               </el-table-column>
-              <el-table-column prop="interviewCount" label="面试次数" width="100" />
-              <el-table-column prop="averageRating" label="平均评分" width="100">
+              <el-table-column prop="interviewCount" label="面试次数" min-width="120" />
+              <el-table-column prop="averageRating" label="平均评分" min-width="180">
                 <template #default="{ row }">
                   <el-rate
                     v-model="row.averageRating"
@@ -232,14 +232,14 @@
                   />
                 </template>
               </el-table-column>
-              <el-table-column prop="status" label="状态" width="100">
+              <el-table-column prop="status" label="状态" min-width="120">
                 <template #default="{ row }">
                   <el-tag :type="row.status === 'active' ? 'success' : 'info'">
                     {{ row.status === 'active' ? '活跃' : '休假' }}
                   </el-tag>
                 </template>
               </el-table-column>
-              <el-table-column label="操作" width="150">
+              <el-table-column label="操作" min-width="180">
                 <template #default="{ row }">
                   <el-button type="primary" size="small" @click="editInterviewer(row)">
                     编辑
@@ -540,7 +540,7 @@
     <!-- 系统设置对话框 -->
     <el-dialog
       v-model="settingsDialogVisible"
-      title="面试系统设置"
+      title="高校学生就业能力智配平台面试系统设置"
       width="700px"
     >
       <el-form :model="settingsForm" label-width="150px">

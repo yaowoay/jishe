@@ -17,16 +17,16 @@
         <div class="controls-section">
           <!-- 视图切换 -->
           <div class="view-toggle">
-            <el-radio-group v-model="viewMode" size="small">
+            <el-radio-group3 v-model="viewMode" size="small">
               <el-radio-button label="card">
                 <el-icon><Grid /></el-icon>
                 卡片视图
-              </el-radio-button>
+              </el-radio-but  ton>
               <el-radio-button label="list">
                 <el-icon><List /></el-icon>
                 列表视图
               </el-radio-button>
-            </el-radio-group>
+            </el-radio-group3>
           </div>
           <!-- 排序选项 -->
           <div class="sort-options">

@@ -145,10 +145,7 @@
       <el-container class="main-container">
         <!-- 顶部导航 -->
         <el-header class="header">
-          <div class="header-left">
-            <el-icon class="menu-toggle" @click="toggleSidebar"><Menu /></el-icon>
-            <span class="system-title">教师院校端管理系统</span>
-          </div>
+          <div class="header-left"></div>
           <div class="header-right">
             <el-dropdown @command="handleCommand">
               <span class="el-dropdown-link">
@@ -181,7 +178,7 @@ import { useStore } from 'vuex'
 import { ElMessage } from 'element-plus'
 import {
   User, House, Document, FolderOpened, Edit, Upload, DataAnalysis,
-  Promotion, Setting, Menu, ArrowDown, Briefcase, DocumentCopy,
+  Promotion, Setting, ArrowDown, Briefcase, DocumentCopy,
   Building, Calendar, Plus, Help, Share, Warning
 } from '@element-plus/icons-vue'
 
@@ -200,9 +197,6 @@ const hideSidebar = () => {
   isSidebarVisible.value = false
 }
 
-const toggleSidebar = () => {
-  isSidebarVisible.value = !isSidebarVisible.value
-}
 
 const goToProfile = () => {
   router.push('/teacher/profile')
@@ -323,51 +317,58 @@ onMounted(() => {
     display: flex;
     flex-direction: column;
 
-    .header {
-      background-color: #fff;
-      border-bottom: 1px solid #e4e7eb;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 0 20px;
-      height: 60px;
 
-      .header-left {
+      .header {
+        height: 60px;
+        padding: 8px 20px;   /* ✅ 上下左右都留间距 */
+
+        background-image: url('../../assets/img.png');
+        background-repeat: no-repeat;
+        background-position: left center;
+        background-size: contain;   /* ✅ 不铺满，等比缩放 */
+
+        border-bottom: 1px solid #e4e7eb;
         display: flex;
+        justify-content: space-between;
         align-items: center;
-        gap: 16px;
-
-        .menu-toggle {
-          cursor: pointer;
-          font-size: 20px;
-          color: #333;
-
-          &:hover {
-            color: #409eff;
-          }
-        }
-
-        .system-title {
-          font-size: 16px;
-          font-weight: 600;
-          color: #333;
-        }
       }
 
-      .header-right {
-        .el-dropdown-link {
-          cursor: pointer;
-          color: #409eff;
-          display: flex;
-          align-items: center;
-          gap: 4px;
-
-          &:hover {
-            color: #66b1ff;
-          }
-        }
-      }
-    }
+    //  .header-left {
+    //    display: flex;
+    //    align-items: center;
+    //    gap: 16px;
+    //
+    //    .menu-toggle {
+    //      cursor: pointer;
+    //      font-size: 20px;
+    //      color: #333;
+    //
+    //      &:hover {
+    //        color: #409eff;
+    //      }
+    //    }
+    //
+    //    .system-title {
+    //      font-size: 16px;
+    //      font-weight: 600;
+    //      color: #333;
+    //    }
+    //  }
+    //
+    //  .header-right {
+    //    .el-dropdown-link {
+    //      cursor: pointer;
+    //      color: #409eff;
+    //      display: flex;
+    //      align-items: center;
+    //      gap: 4px;
+    //
+    //      &:hover {
+    //        color: #66b1ff;
+    //      }
+    //    }
+    //  }
+    //}
 
     .main-content {
       flex: 1;

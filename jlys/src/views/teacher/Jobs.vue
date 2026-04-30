@@ -190,6 +190,7 @@
           :data="jobsList"
           stripe
           style="width: 100%"
+          :fit="true"
           :loading="loading"
           v-loading="loading"
           @selection-change="handleSelectionChange"
@@ -197,35 +198,35 @@
         <el-table-column
           v-if="batchMode"
           type="selection"
-          width="55"
+          min-width="70"
           :selectable="row => row.verifyStatus === 'pending'"
         />
-        <el-table-column prop="title" label="职位名称" width="200" show-overflow-tooltip />
-        <el-table-column prop="companyName" label="公司名称" width="150" show-overflow-tooltip />
-        <el-table-column prop="jobType" label="职位类型" width="100">
+        <el-table-column prop="title" label="职位名称" min-width="260" show-overflow-tooltip />
+        <el-table-column prop="companyName" label="公司名称" min-width="220" show-overflow-tooltip />
+        <el-table-column prop="jobType" label="职位类型" min-width="140">
           <template #default="{ row }">
             {{ getJobTypeText(row.jobType) }}
           </template>
         </el-table-column>
-        <el-table-column label="薪资范围" width="120">
+        <el-table-column label="薪资范围" min-width="160">
           <template #default="{ row }">
             {{ row.minSalary }}-{{ row.maxSalary }}K
           </template>
         </el-table-column>
-        <el-table-column prop="location" label="工作地点" width="120" />
-        <el-table-column prop="createdAt" label="发布时间" width="180">
+        <el-table-column prop="location" label="工作地点" min-width="180" />
+        <el-table-column prop="createdAt" label="发布时间" min-width="220">
           <template #default="{ row }">
             {{ formatDateTime(row.createdAt) }}
           </template>
         </el-table-column>
-        <el-table-column prop="verifyStatus" label="审核状态" width="100">
+        <el-table-column prop="verifyStatus" label="审核状态" min-width="140">
           <template #default="{ row }">
             <el-tag :type="getVerifyTagType(row.verifyStatus)" size="small">
               {{ getVerifyText(row.verifyStatus) }}
             </el-tag>
           </template>
         </el-table-column>
-        <el-table-column label="操作" width="200" fixed="right">
+        <el-table-column label="操作" min-width="220" fixed="right">
           <template #default="{ row }">
             <el-button
                 v-if="row.verifyStatus === 'pending'"
@@ -465,14 +466,22 @@ onMounted(() => {
 
 <style scoped lang="scss">
 .teacher-jobs {
+  width: 100%;
+
   .search-card {
     margin-bottom: 20px;
     border: none;
     box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+
+    :deep(.el-card__body) {
+      padding: 18px 20px;
+    }
   }
 
   // 卡片视图
   .card-view {
+    width: 100%;
+
     .job-card {
       margin-bottom: 20px;
       border: none;
@@ -528,9 +537,7 @@ onMounted(() => {
             font-size: 14px;
             color: #606266;
 
-            .el-icon {
-              color: #909399;
-            }
+            .el-icon { color: #909399; }
 
             .salary {
               color: #F56C6C;
@@ -560,96 +567,21 @@ onMounted(() => {
 
   // 表格视图
   .table-card {
+    width: 100%;
     border: none;
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
-  }
-}
-</style>
-  keyword: ''
-})
-const pagination = ref({
-  current: 1,
-  size: 10,
-  total: 0
-})
+    box-shadow: 0 2px 12px rgba(46, 78, 108, 0.1);
 
-const getVerifyType = (status) => {
-  const typeMap = {
-    'approved': 'success',
-    'pending': 'warning',
-    'rejected': 'danger'
-  }
-  return typeMap[status] || 'info'
-}
+    :deep(.el-card__body) { padding: 0 0 16px; }
 
-const handleSearch = async () => {
-  loading.value = true
-  try {
-    const response = await getJobs(searchForm.value.verifyStatus)
-    if (response.success) {
-      let data = response.data || []
-      
-      if (searchForm.value.keyword) {
-        data = data.filter(item => 
-          item.title.includes(searchForm.value.keyword)
-        )
-      }
-      
-      jobsList.value = data
-      pagination.value.total = data.length
+    :deep(.el-table th.el-table__cell) {
+      background: linear-gradient(135deg, #f4f6ff 0%, #edf7ff 100%);
+      color: #3c4f80;
+      font-weight: 600;
     }
-  } catch (error) {
-    ElMessage.error('查询职位列表失败')
-  } finally {
-    loading.value = false
-  }
-}
 
-const auditJob = (row, status) => {
-  ElMessageBox.confirm(
-    `确定要${status === 'approved' ? '通过' : '拒绝'}该职位吗？`,
-    '提示',
-    {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
-      type: 'warning'
+    :deep(.el-table__row:hover > td.el-table__cell) {
+      background: #f5f8ff;
     }
-  ).then(async () => {
-    try {
-      const response = await auditJobApi(
-        row.jobId,
-        status,
-        status === 'approved' ? '审核通过' : '审核拒绝'
-      )
-      if (response.success) {
-        ElMessage.success('审核成功')
-        handleSearch()
-      }
-    } catch (error) {
-      ElMessage.error('审核失败')
-    }
-  }).catch(() => {})
-}
-
-const viewJob = (row) => {
-  ElMessage.info(`查看职位: ${row.title}`)
-}
-
-onMounted(() => {
-  handleSearch()
-})
-
-<style scoped lang="scss">
-.teacher-jobs {
-  .search-card {
-    margin-bottom: 20px;
-    border: none;
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
-  }
-
-  .table-card {
-    border: none;
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
   }
 }
 </style>

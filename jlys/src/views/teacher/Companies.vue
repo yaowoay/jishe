@@ -183,25 +183,26 @@
           :data="companiesList"
           stripe
           style="width: 100%"
+          :fit="true"
           :loading="loading"
           v-loading="loading"
       >
-        <el-table-column prop="companyName" label="公司名称" width="150" />
-        <el-table-column prop="industry" label="行业" width="100" />
-        <el-table-column prop="scale" label="规模" width="100" />
-        <el-table-column prop="creditScore" label="信用分" width="80">
+        <el-table-column prop="companyName" label="公司名称" min-width="260" />
+        <el-table-column prop="industry" label="行业" min-width="160" />
+        <el-table-column prop="scale" label="规模" min-width="140" />
+        <el-table-column prop="creditScore" label="信用分" min-width="180">
           <template #default="{ row }">
             <el-rate v-model="row.creditScore" disabled allow-half />
           </template>
         </el-table-column>
-        <el-table-column prop="verifyStatus" label="审核状态" width="100">
+        <el-table-column prop="verifyStatus" label="审核状态" min-width="140">
           <template #default="{ row }">
             <el-tag :type="getVerifyType(row.verifyStatus)">
               {{ row.verifyStatus }}
             </el-tag>
           </template>
         </el-table-column>
-        <el-table-column label="操作" width="150" fixed="right">
+        <el-table-column label="操作" min-width="180" fixed="right">
           <template #default="{ row }">
             <el-button
                 v-if="row.verifyStatus === 'pending'"
@@ -377,14 +378,22 @@ onMounted(() => {
 
 <style scoped lang="scss">
 .teacher-companies {
+  width: 100%;
+
   .search-card {
     margin-bottom: 20px;
     border: none;
     box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+
+    :deep(.el-card__body) {
+      padding: 18px 20px;
+    }
   }
 
   // 卡片视图
   .card-view {
+    width: 100%;
+
     .company-card {
       margin-bottom: 20px;
       border: none;
@@ -401,12 +410,10 @@ onMounted(() => {
         align-items: flex-start;
         margin-bottom: 16px;
 
-        .company-logo {
-          .el-avatar {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            font-size: 24px;
-            font-weight: 600;
-          }
+        .company-logo .el-avatar {
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          font-size: 24px;
+          font-weight: 600;
         }
       }
 
@@ -432,9 +439,7 @@ onMounted(() => {
             font-size: 13px;
             color: #606266;
 
-            .el-icon {
-              color: #909399;
-            }
+            .el-icon { color: #909399; }
           }
         }
 
@@ -489,8 +494,21 @@ onMounted(() => {
 
   // 表格视图
   .table-card {
+    width: 100%;
     border: none;
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 2px 12px rgba(38, 84, 124, 0.1);
+
+    :deep(.el-card__body) { padding: 0 0 16px; }
+
+    :deep(.el-table th.el-table__cell) {
+      background: linear-gradient(135deg, #edf5ff 0%, #eaf9f5 100%);
+      color: #355b78;
+      font-weight: 600;
+    }
+
+    :deep(.el-table__row:hover > td.el-table__cell) {
+      background: #f3fbff;
+    }
   }
 }
 </style>

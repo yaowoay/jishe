@@ -12,7 +12,7 @@
           <img :src="logoImage" alt="Logo" class="logo-img" />
         </div>
         <h2 class="welcome-text">邮箱登录</h2>
-        <p class="subtitle">大数据洞察与AI多模态面试融合的校园就业智配平台</p>
+        <p class="subtitle">大数据洞察与AI多模态面试融合的高校学生就业能力智配平台</p>
       </div>
       <div class="login-form">
         <el-form ref="loginForm" :model="loginForm" size="large">
@@ -214,7 +214,7 @@ export default {
           }))
 
           ElMessage.success(res.message || '登录成功')
-          this.$router.push('/layout/aiChat')
+          this.$router.push('/layout/dashboard')
         } else {
           ElMessage.error(res.message || '登录失败')
         }

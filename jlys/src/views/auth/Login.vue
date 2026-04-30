@@ -5,7 +5,7 @@
       <div class="header-left">
         <div class="logo">
           <i class="fas fa-robot"></i>
-          <span>数智通途</span>
+          <span>高校学生就业能力智配平台</span>
         </div>
       </div>
       <div class="header-right">
@@ -18,7 +18,7 @@
       <div class="login-card">
         <div class="login-header">
           <h2>登录系统</h2>
-          <p>欢迎使用数智通途校园就业智配平台</p>
+          <p>欢迎使用高校学生就业能力智配平台</p>
         </div>
 
         <!-- 角色选择 -->

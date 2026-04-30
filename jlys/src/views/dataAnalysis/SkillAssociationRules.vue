@@ -243,16 +243,18 @@
         stripe
         style="width: 100%"
         v-loading="loading"
+        :fit="true"
+        table-layout="auto"
         :default-sort="{ prop: 'confidence', order: 'descending' }"
-        >
-        <el-table-column prop="antecedent" label="前项（条件）" width="120" />
-        <el-table-column label="关联关系" width="100" align="center">
+      >
+        <el-table-column prop="antecedent" label="前项（条件）" min-width="160" />
+        <el-table-column label="关联关系" width="90" align="center">
           <template #default>
             <el-icon color="#409eff"><ArrowRight /></el-icon>
           </template>
         </el-table-column>
-        <el-table-column prop="consequent" label="后项（结果）" width="150" />
-        <el-table-column prop="confidence" label="置信度" width="200" sortable>
+        <el-table-column prop="consequent" label="后项（结果）" min-width="180" />
+        <el-table-column prop="confidence" label="置信度" min-width="240" sortable>
           <template #default="{ row }">
             <el-progress
               :percentage="Math.round(row.confidence * 100)"
@@ -262,24 +264,24 @@
             />
           </template>
         </el-table-column>
-        <el-table-column prop="lift" label="提升度" width="120" sortable  align="center">
+        <el-table-column prop="lift" label="提升度" min-width="110" sortable align="center">
           <template #default="{ row }">
             <el-tag :type="getLiftTagType(row.lift)" size="small">
               {{ row.lift.toFixed(2) }}
             </el-tag>
           </template>
         </el-table-column>
-        <el-table-column prop="support" label="支持度" width="120" sortable>
+        <el-table-column prop="support" label="支持度" min-width="110" sortable>
           <template #default="{ row }">
             {{ (row.support * 100).toFixed(2) }}%
           </template>
         </el-table-column>
-        <el-table-column prop="ruleType" label="规则类型" width="120">
+        <el-table-column prop="ruleType" label="规则类型" min-width="120">
           <template #default="{ row }">
             <el-tag size="small">{{ row.ruleType || '未分类' }}</el-tag>
           </template>
         </el-table-column>
-        <el-table-column prop="dt" label="生成日期" width="300" />
+        <el-table-column prop="dt" label="生成日期" min-width="200" />
       </el-table>
       <div class="pagination-wrapper">
         <el-pagination
@@ -431,21 +433,23 @@ const mockData = [
 ]
 
 // 加载数据
-const loadData = async () => {
+const loadData = async (silent = false) => {
   loading.value = true
   try {
     // 先使用模拟数据，后续可以切换到真实API
     // const response = await skillAssociationRulesAPI.getTopNByConfidence(filters.topN);
     // rules.value = response.data || [];
-    
+
     // 模拟API延迟
     await new Promise(resolve => setTimeout(resolve, 800))
-    
+
     // 使用模拟数据
     rules.value = mockData.slice(0, filters.topN)
-    
-    ElMessage.success('数据加载成功')
-    
+
+    if (!silent) {
+      ElMessage.success('数据加载成功')
+    }
+
     // 更新图表
     nextTick(() => {
       initNetworkChart()
@@ -454,8 +458,11 @@ const loadData = async () => {
     console.error('加载数据失败:', error)
     // 如果API失败，使用模拟数据
     rules.value = mockData.slice(0, filters.topN)
-    ElMessage.success('数据加载成功')
-    
+
+    if (!silent) {
+      ElMessage.success('数据加载成功')
+    }
+
     nextTick(() => {
       initNetworkChart()
     })
@@ -723,7 +730,7 @@ const handleCurrentChange = (val) => {
 
 // 组件挂载
 onMounted(() => {
-  loadData()
+  loadData(true)
 })
 
 // 监听窗口大小变化，重新渲染图表
@@ -849,9 +856,15 @@ window.addEventListener('resize', () => {
 :deep(.el-table) {
   font-size: 14px;
 }
-:deep(.el-table) {
-  margin-left: 10px; /* 左边距 */
-  width: calc(100% - 500px) !important; /* 减去左边距避免溢出 */
+/* 关联规则列表占满宽度 */
+:deep(.rules-card .el-table) {
+  margin-left: 0;
+  width: 100% !important;
+}
+
+:deep(.skills-table .el-table) {
+  margin-left: 0;
+  width: 100% !important;
 }
 
 :deep(.el-table th) {

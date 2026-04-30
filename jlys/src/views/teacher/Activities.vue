@@ -118,31 +118,41 @@
                     <el-icon><Edit /></el-icon>
                   </el-button>
                   <el-button @click="showQRCode(activity)">
-                    <el-icon><Qrcode /></el-icon>
+                    <el-icon><Tickets /></el-icon>
                   </el-button>
                 </el-button-group>
               </div>
             </div>
 
             <div class="card-body">
-              <div class="activity-title">{{ activity.title }}</div>
-              <div class="activity-info">
-                <div class="info-item">
-                  <el-icon><Clock /></el-icon>
-                  <span>{{ formatDateTime(activity.startTime) }} - {{ formatDateTime(activity.endTime) }}</span>
+              <div class="content-with-poster">
+                <div class="content-main">
+                  <div class="activity-title">{{ activity.title }}</div>
+                  <div class="activity-info">
+                    <div class="info-item">
+                      <el-icon><Clock /></el-icon>
+                      <span>{{ formatDateTime(activity.startTime) }} - {{ formatDateTime(activity.endTime) }}</span>
+                    </div>
+                    <div class="info-item">
+                      <el-icon><Location /></el-icon>
+                      <span>{{ activity.location || '线上活动' }}</span>
+                    </div>
+                    <div class="info-item">
+                      <el-icon><User /></el-icon>
+                      <span>{{ activity.currentParticipants || 0 }} / {{ activity.maxParticipants || '不限' }} 人</span>
+                    </div>
+                  </div>
                 </div>
-                <div class="info-item">
-                  <el-icon><Location /></el-icon>
-                  <span>{{ activity.location || '线上活动' }}</span>
-                </div>
-                <div class="info-item">
-                  <el-icon><User /></el-icon>
-                  <span>{{ activity.currentParticipants || 0 }} / {{ activity.maxParticipants || '不限' }} 人</span>
-                </div>
-              </div>
 
-              <div v-if="activity.posterUrl" class="activity-poster">
-                <el-image :src="activity.posterUrl" fit="cover" style="width: 100%; height: 150px; border-radius: 4px" />
+                <div v-if="activity.posterUrl" class="activity-poster">
+                  <el-image
+                    :src="activity.posterUrl"
+                    fit="contain"
+                    :preview-src-list="[activity.posterUrl]"
+                    preview-teleported
+                    class="activity-poster-image"
+                  />
+                </div>
               </div>
 
               <el-progress
@@ -197,7 +207,13 @@
         >
           <el-card class="activity-card" shadow="hover">
             <div v-if="activity.posterUrl" class="card-poster">
-              <el-image :src="activity.posterUrl" fit="cover" style="width: 100%; height: 160px" />
+              <el-image
+                :src="activity.posterUrl"
+                fit="contain"
+                :preview-src-list="[activity.posterUrl]"
+                preview-teleported
+                class="card-poster-image"
+              />
               <div class="poster-overlay">
                 <el-tag :type="getStatusTagType(activity.status)" effect="dark">
                   {{ getStatusText(activity.status) }}
@@ -233,7 +249,7 @@
                   查看详情
                 </el-button>
                 <el-button size="small" @click="showQRCode(activity)">
-                  <el-icon><Qrcode /></el-icon>
+                  <el-icon><Tickets /></el-icon>
                 </el-button>
               </div>
             </div>
@@ -250,39 +266,40 @@
           :data="activitiesList"
           stripe
           style="width: 100%"
+          :fit="true"
           :loading="loading"
           v-loading="loading"
       >
-        <el-table-column prop="title" label="活动名称" width="200" />
-        <el-table-column prop="type" label="活动类型" width="100">
+        <el-table-column prop="title" label="活动名称" min-width="280" />
+        <el-table-column prop="type" label="活动类型" min-width="140">
           <template #default="{ row }">
             {{ getTypeText(row.type) }}
           </template>
         </el-table-column>
-        <el-table-column prop="mode" label="活动形式" width="100">
+        <el-table-column prop="mode" label="活动形式" min-width="140">
           <template #default="{ row }">
             {{ getModeText(row.mode) }}
           </template>
         </el-table-column>
-        <el-table-column prop="location" label="地点" width="150" show-overflow-tooltip />
-        <el-table-column prop="startTime" label="开始时间" width="180">
+        <el-table-column prop="location" label="地点" min-width="220" show-overflow-tooltip />
+        <el-table-column prop="startTime" label="开始时间" min-width="220">
           <template #default="{ row }">
             {{ formatDateTime(row.startTime) }}
           </template>
         </el-table-column>
-        <el-table-column prop="currentParticipants" label="参与人数" width="120">
+        <el-table-column prop="currentParticipants" label="参与人数" min-width="160">
           <template #default="{ row }">
             {{ row.currentParticipants || 0 }}/{{ row.maxParticipants || '不限' }}
           </template>
         </el-table-column>
-        <el-table-column prop="status" label="状态" width="100">
+        <el-table-column prop="status" label="状态" min-width="140">
           <template #default="{ row }">
             <el-tag :type="getStatusTagType(row.status)" size="small">
               {{ getStatusText(row.status) }}
             </el-tag>
           </template>
         </el-table-column>
-        <el-table-column label="操作" width="200" fixed="right">
+        <el-table-column label="操作" min-width="220" fixed="right">
           <template #default="{ row }">
             <el-button type="primary" size="small" @click="viewActivity(row)">
               查看
@@ -291,6 +308,7 @@
               编辑
             </el-button>
             <el-button size="small" @click="showQRCode(row)">
+              <el-icon><Tickets /></el-icon>
               签到码
             </el-button>
           </template>
@@ -339,7 +357,7 @@ import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import {
   Search, Plus, Clock, Calendar, Grid, List, Location, User,
-  View, Edit, Qrcode
+  View, Edit, Tickets
 } from '@element-plus/icons-vue'
 import { getActivities } from '@/api/teacher'
 import QRCode from 'qrcode'
@@ -494,7 +512,12 @@ const viewActivity = (activity) => {
 }
 
 const editActivity = (activity) => {
-  router.push(`/teacher/activities/edit/${activity.activityId}`)
+  const id = activity?.activityId || activity?.id
+  if (!id) {
+    ElMessage.warning('未获取到活动ID，暂时无法编辑')
+    return
+  }
+  router.push(`/teacher/activities/edit/${id}`)
 }
 
 const showQRCode = async (activity) => {
@@ -543,10 +566,16 @@ onMounted(() => {
 
 <style scoped lang="scss">
 .teacher-activities {
+  width: 100%;
+
   .action-card {
     margin-bottom: 20px;
     border: none;
     box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+
+    :deep(.el-card__body) {
+      padding: 18px 20px;
+    }
   }
 
   // 时间轴视图
@@ -572,6 +601,17 @@ onMounted(() => {
       }
 
       .card-body {
+        .content-with-poster {
+          display: flex;
+          align-items: flex-start;
+          gap: 16px;
+
+          .content-main {
+            flex: 1;
+            min-width: 0;
+          }
+        }
+
         .activity-title {
           font-size: 18px;
           font-weight: 600;
@@ -599,7 +639,18 @@ onMounted(() => {
         }
 
         .activity-poster {
-          margin: 12px 0;
+          width: 240px;
+          flex-shrink: 0;
+          background: #f8fafc;
+          border: 1px solid #ebeef5;
+          border-radius: 6px;
+          height: 160px;
+          overflow: hidden;
+
+          .activity-poster-image {
+            width: 100%;
+            height: 100%;
+          }
         }
       }
     }
@@ -672,6 +723,15 @@ onMounted(() => {
       .card-poster {
         position: relative;
         margin: -20px -20px 16px -20px;
+        background: #f8fafc;
+        height: 200px;
+        border-bottom: 1px solid #f0f0f0;
+        overflow: hidden;
+
+        .card-poster-image {
+          width: 100%;
+          height: 100%;
+        }
 
         .poster-overlay {
           position: absolute;
@@ -725,8 +785,23 @@ onMounted(() => {
 
   // 表格视图
   .table-card {
+    width: 100%;
     border: none;
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 2px 12px rgba(34, 88, 122, 0.1);
+
+    :deep(.el-card__body) {
+      padding: 0 0 16px;
+    }
+
+    :deep(.el-table th.el-table__cell) {
+      background: linear-gradient(135deg, #f0f9ff 0%, #ecfff6 100%);
+      color: #2d5f7a;
+      font-weight: 600;
+    }
+
+    :deep(.el-table__row:hover > td.el-table__cell) {
+      background: #f4fcff;
+    }
   }
 
   // 二维码对话框

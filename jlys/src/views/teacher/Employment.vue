@@ -149,29 +149,30 @@
           :data="employmentList"
           stripe
           style="width: 100%"
+          :fit="true"
           :loading="loading"
           v-loading="loading"
       >
-        <el-table-column prop="studentId" label="学生ID" width="100" />
-        <el-table-column prop="employmentStatus" label="就业状态" width="100">
+        <el-table-column prop="studentId" label="学生ID" min-width="120" />
+        <el-table-column prop="employmentStatus" label="就业状态" min-width="140">
           <template #default="{ row }">
             <el-tag :type="getStatusType(row.employmentStatus)">
               {{ row.employmentStatus }}
             </el-tag>
           </template>
         </el-table-column>
-        <el-table-column prop="companyName" label="公司" width="150" />
-        <el-table-column prop="position" label="职位" width="120" />
-        <el-table-column prop="salaryRange" label="薪资" width="100" />
-        <el-table-column prop="employmentCity" label="城市" width="100" />
-        <el-table-column prop="verifyStatus" label="审核状态" width="100">
+        <el-table-column prop="companyName" label="公司" min-width="260" />
+        <el-table-column prop="position" label="职位" min-width="220" />
+        <el-table-column prop="salaryRange" label="薪资" min-width="160" />
+        <el-table-column prop="employmentCity" label="城市" min-width="160" />
+        <el-table-column prop="verifyStatus" label="审核状态" min-width="140">
           <template #default="{ row }">
             <el-tag :type="getVerifyType(row.verifyStatus)">
               {{ row.verifyStatus }}
             </el-tag>
           </template>
         </el-table-column>
-        <el-table-column label="操作" width="150" fixed="right">
+        <el-table-column label="操作" min-width="180" fixed="right">
           <template #default="{ row }">
             <el-button
                 v-if="row.verifyStatus === 'pending'"
@@ -444,6 +445,8 @@ onMounted(() => {
 
 <style scoped lang="scss">
 .teacher-employment {
+  width: 100%;
+
   .stats-row {
     margin-bottom: 20px;
 
@@ -500,14 +503,12 @@ onMounted(() => {
       border: none;
       box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
 
-      .card-header {
-        .header-title {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          font-weight: 600;
-          font-size: 16px;
-        }
+      .card-header .header-title {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-weight: 600;
+        font-size: 16px;
       }
     }
   }
@@ -515,120 +516,31 @@ onMounted(() => {
   .search-card {
     margin-bottom: 20px;
     border: none;
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 2px 12px rgba(38, 84, 124, 0.1);
+
+    :deep(.el-card__body) {
+      padding: 18px 20px;
+    }
   }
 
   .table-card {
+    width: 100%;
     border: none;
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
-  }
-}
-</style>
-import { ElMessage, ElMessageBox } from 'element-plus'
-import { Search } from '@element-plus/icons-vue'
-import { getEmploymentList, auditEmployment as auditEmploymentApi } from '@/api/teacher'
+    box-shadow: 0 2px 12px rgba(38, 84, 124, 0.1);
 
-const loading = ref(false)
-const employmentList = ref([])
-const searchForm = ref({
-  verifyStatus: '',
-  employmentStatus: ''
-})
-const pagination = ref({
-  current: 1,
-  size: 10,
-  total: 0
-})
-
-const getStatusType = (status) => {
-  const typeMap = {
-    '已就业': 'success',
-    '待就业': 'warning',
-    '求职中': 'info',
-    '升学': 'primary'
-  }
-  return typeMap[status] || 'info'
-}
-
-const getVerifyType = (status) => {
-  const typeMap = {
-    'approved': 'success',
-    'pending': 'warning',
-    'rejected': 'danger'
-  }
-  return typeMap[status] || 'info'
-}
-
-const handleSearch = async () => {
-  loading.value = true
-  try {
-    const response = await getEmploymentList()
-    if (response.success) {
-      let data = response.data || []
-      
-      // 前端过滤
-      if (searchForm.value.verifyStatus) {
-        data = data.filter(item => item.verifyStatus === searchForm.value.verifyStatus)
-      }
-      if (searchForm.value.employmentStatus) {
-        data = data.filter(item => item.employmentStatus === searchForm.value.employmentStatus)
-      }
-      
-      employmentList.value = data
-      pagination.value.total = data.length
+    :deep(.el-card__body) {
+      padding: 0 0 16px;
     }
-  } catch (error) {
-    ElMessage.error('查询就业台账失败')
-  } finally {
-    loading.value = false
-  }
-}
 
-const auditEmployment = (row, status) => {
-  ElMessageBox.confirm(
-    `确定要${status === 'approved' ? '通过' : '拒绝'}该就业记录吗？`,
-    '提示',
-    {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
-      type: 'warning'
+    :deep(.el-table th.el-table__cell) {
+      background: linear-gradient(135deg, #eef8ff 0%, #e6f6f3 100%);
+      color: #2f5f7f;
+      font-weight: 600;
     }
-  ).then(async () => {
-    try {
-      const response = await auditEmploymentApi({
-        ledgerId: row.id,
-        verifyStatus: status,
-        employmentStatus: row.employmentStatus,
-        companyName: row.companyName,
-        position: row.position,
-        salaryRange: row.salaryRange,
-        employmentCity: row.employmentCity
-      })
-      if (response.success) {
-        ElMessage.success('审核成功')
-        handleSearch()
-      }
-    } catch (error) {
-      ElMessage.error('审核失败')
+
+    :deep(.el-table__row:hover > td.el-table__cell) {
+      background: #f3fbff;
     }
-  }).catch(() => {})
-}
-
-onMounted(() => {
-  handleSearch()
-})
-
-<style scoped lang="scss">
-.teacher-employment {
-  .search-card {
-    margin-bottom: 20px;
-    border: none;
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
-  }
-
-  .table-card {
-    border: none;
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
   }
 }
 </style>

@@ -5,7 +5,7 @@
       <div class="header-left">
         <div class="logo">
           <i class="fas fa-robot"></i>
-          <span>数智通途</span>
+          <span>高校学生就业能力智配平台</span>
         </div>
       </div>
       <div class="header-right">
@@ -18,10 +18,10 @@
         <h1>开启你的<span class="highlight">智配就业</span>之旅</h1>
         <!-- AI数字人头像卡片 -->
         <div class="ai-avatar-card">
-          <img src="@/assets/images/logo.png" alt="AI面试官" class="ai-avatar" />
+          <img src="@/assets/images/logo.png" alt="高校学生就业能力智配平台面试官" class="ai-avatar" />
           <div class="avatar-glow"></div>
         </div>
-        <div class="ai-subtitle">数智通途，职达未来</div>
+        <div class="ai-subtitle">高校学生就业能力智配平台</div>
         <p>大数据洞察与AI多模态面试融合的校园就业智配平台，三端贯通·数据驱动·AI赋能·精准就业，助力校园人才与企业需求精准匹配！</p>
         <div class="hero-cta">
           <a class="btn btn-register btn-main" @click="goToRegister">立即体验</a>
@@ -34,14 +34,14 @@
       <div class="container">
         <div class="section-title">
           <h2>核心功能</h2>
-          <p>全方位提升面试能力的智能工具集合</p>
+
         </div>
         <div class="feature-cards">
           <div class="feature-card">
             <div class="feature-icon">
               <i class="fas fa-user-tie"></i>
             </div>
-            <h3>AI多模态面试官</h3>
+            <h3>高校学生就业能力智配平台多模态面试官</h3>
             <p>融合语音、视觉、文本的智能面试官，多维度评估候选人综合能力</p>
             <a href="#" class="btn btn-login" @click="$router.push('/layout/simulatExam')">了解更多</a>
           </div>
@@ -116,7 +116,7 @@
       <div class="container">
         <div class="section-title">
           <h2>三端贯通的智配体系</h2>
-          <p>学生端·企业端·高校端，构建完整的校园就业生态圈</p>
+
         </div>
         <div class="value-grid">
           <div class="value-section jobseeker-section">
@@ -131,7 +131,7 @@
             <div class="value-features">
               <div class="feature-item">
                 <i class="fas fa-robot"></i>
-                <span>AI多模态面试训练</span>
+                <span>高校学生就业能力智配平台多模态面试训练</span>
               </div>
               <div class="feature-item">
                 <i class="fas fa-file-alt"></i>
@@ -199,51 +199,11 @@
         </div>
       </div>
     </section>
-    <section class="interview-modes">
-      <div class="container">
-        <div class="section-title">
-          <h2>双模面试系统</h2>
-          <p>从学习到实战，满足不同阶段需求</p>
-        </div>
-        <div class="mode-container">
-          <div class="mode-card simulate">
-            <div class="mode-icon">
-              <i class="fas fa-hands-helping"></i>
-            </div>
-            <h3>模拟面试模式</h3>
-            <p>AI辅助学习模式，逐步提升面试能力</p>
-            <ul>
-              <li>实时AI提示与参考答案</li>
-              <li>分步骤答题引导</li>
-              <li>面试技巧即时指导</li>
-              <li>错误分析与改进建议</li>
-              <li>低压力练习环境</li>
-            </ul>
-            <a href="#" class="btn btn-register" @click="$router.push('/layout/simulatExam')">开启训练</a>
-          </div>
-          <div class="mode-card formal">
-            <div class="mode-icon">
-              <i class="fas fa-bullseye"></i>
-            </div>
-            <h3>正式面试模式</h3>
-            <p>真实面试环境，全面检验准备成果</p>
-            <ul>
-              <li>全真模拟企业面试流程</li>
-              <li>无AI辅助的实战环境</li>
-              <li>多轮次压力面试</li>
-              <li>完整录像与回放功能</li>
-              <li>企业级评估标准</li>
-            </ul>
-            <a href="#" class="btn btn-register" @click="$router.push('/layout/offecialExam')">挑战自我</a>
-          </div>
-        </div>
-      </div>
-    </section>
+
     <section class="process">
       <div class="container">
         <div class="section-title">
           <h2>智能就业全流程</h2>
-          <p>从人才发现到精准匹配，数据驱动的完整就业解决方案</p>
         </div>
         <div class="steps">
           <div class="step">
@@ -254,7 +214,7 @@
           <div class="step">
             <div class="step-number">2</div>
             <h4>多模态智能评估</h4>
-            <p>AI多模态面试官+多维度分析，全面评估候选人能力</p>
+            <p>高校学生就业能力智配平台多模态面试官+多维度分析，全面评估候选人能力</p>
           </div>
           <div class="step">
             <div class="step-number">3</div>
@@ -275,7 +235,7 @@
           <div class="footer-column">
             <div class="logo">
               <i class="fas fa-robot"></i>
-              <span>数智通途</span>
+              <span>高校学生就业能力智配平台</span>
             </div>
             <p>大数据洞察与AI多模态面试融合的校园就业智配平台，助力校园人才与企业需求精准匹配。</p>
             <div class="social-links">
@@ -316,7 +276,7 @@
           </div>
         </div>
         <div class="copyright">
-          <p>&copy; 2023 数智通途校园就业智配平台 版权所有 | 京ICP备XXXXXX号</p>
+          <p>&copy; 2023 高校学生就业能力智配平台 版权所有 | 京ICP备XXXXXX号</p>
         </div>
       </div>
     </footer>
@@ -351,7 +311,7 @@ export default {
         }
       })
     }, { threshold: 0.1 })
-    document.querySelectorAll('.feature-card, .mode-card, .value-section, .step').forEach(el => {
+    document.querySelectorAll('.feature-card, .value-section, .step').forEach(el => {
       el.style.opacity = 0
       el.style.transform = 'translateY(20px)'
       el.style.transition = 'opacity 0.5s ease, transform 0.5s ease'
@@ -704,89 +664,6 @@ body {
   text-align: center;
   line-height: 1.6;
   flex-grow: 1;
-}
-
-/* 面试模式区块 */
-.interview-modes {
-  padding: 100px 0;
-  background: var(--ultra-light);
-  position: relative;
-}
-.mode-container {
-  display: flex;
-  gap: 30px;
-  margin-top: 40px;
-  justify-content: center;
-  flex-wrap: wrap;
-}
-.mode-card {
-  flex: 1;
-  max-width: 420px;
-  background: var(--white);
-  border-radius: 16px;
-  padding: 36px;
-  text-align: center;
-  border: 1px solid #EEF2F7;
-  transition: all 0.3s ease;
-  min-width: 300px;
-  box-shadow: var(--shadow);
-  position: relative;
-}
-.mode-card:hover {
-  transform: translateY(-8px);
-  box-shadow: var(--shadow-hover);
-  background: var(--white);
-  color: var(--dark);
-}
-.mode-card.simulate {
-  border-top: 4px solid var(--primary);
-}
-.mode-card.formal {
-  border-top: 4px solid var(--secondary);
-}
-.mode-icon {
-  font-size: 3rem;
-  margin-bottom: 20px;
-  color: var(--primary);
-}
-.formal .mode-icon {
-  color: var(--secondary);
-}
-.mode-card h3 {
-  font-size: 1.4rem;
-  margin-bottom: 16px;
-  font-weight: 600;
-  color: var(--dark);
-}
-.mode-card p {
-  color: var(--gray);
-  font-size: 1rem;
-  line-height: 1.6;
-}
-.mode-card ul {
-  list-style: none;
-  text-align: left;
-  margin: 24px 0;
-  padding: 0;
-  color: var(--dark);
-}
-.mode-card ul li {
-  margin-bottom: 12px;
-  padding-left: 24px;
-  position: relative;
-  font-size: 1rem;
-  color: var(--gray);
-}
-.mode-card ul li:before {
-  content: '\f00c';
-  font-family: 'Font Awesome 5 Free';
-  font-weight: 900;
-  position: absolute;
-  left: 0;
-  color: var(--primary);
-}
-.formal ul li:before {
-  color: var(--secondary);
 }
 
 /* 用户类型区块 */
@@ -1162,9 +1039,6 @@ footer {
   .main-header {
     flex-direction: column;
     gap: 16px;
-  }
-  .mode-card {
-    min-width: 100%;
   }
   .ai-avatar-card {
     width: 120px;

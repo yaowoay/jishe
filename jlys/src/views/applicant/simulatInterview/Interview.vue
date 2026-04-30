@@ -3,7 +3,7 @@
     <!-- 页面头部 -->
     <div class="page-header">
       <div class="header-content">
-        <h1>AI智能面试</h1>
+        <h1>高校学生就业能力智配平台智能面试</h1>
         <p>体验前沿的AI面试技术，提升您的面试表现</p>
       </div>
       <div class="header-stats">

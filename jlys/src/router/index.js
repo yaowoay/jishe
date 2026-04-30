@@ -341,6 +341,11 @@ const routes = [
         component: () => import('@/views/teacher/ActivityCreate.vue')
       },
       {
+        path: 'activities/edit/:id?',
+        name: 'TeacherActivityEdit',
+        component: () => import('@/views/teacher/ActivityCreate.vue')
+      },
+      {
         path: 'assistance',
         name: 'TeacherAssistance',
         component: () => import('@/views/teacher/Assistance.vue')
