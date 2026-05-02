@@ -32,76 +32,8 @@
         WHERE user_id = #{userId}
     </select>
 
-    <!-- 插入学生档案 -->
-    <insert id="insert" useGeneratedKeys="true" keyProperty="studentId">
-        INSERT INTO student_profile (
-            user_id,
-            student_no,
-            real_name,
-            gender,
-            college,
-            major,
-            class_name,
-            grade,
-            education_level,
-            graduation_year,
-            profile_completion,
-            created_at,
-            updated_at
-        ) VALUES (
-                     #{userId},
-                     #{studentNo},
-                     #{realName},
-                     #{gender},
-                     #{college},
-                     #{major},
-                     #{className},
-                     #{grade},
-                     #{educationLevel},
-                     #{graduationYear},
-                     #{profileCompletion},
-                     NOW(),
-                     NOW()
-                 )
-    </insert>
 
-    <!-- 根据 studentId 更新学生档案 -->
-    <update id="updateById">
-        UPDATE student_profile
-        <set>
-            <if test="studentNo != null">
-                student_no = #{studentNo},
-            </if>
-            <if test="realName != null">
-                real_name = #{realName},
-            </if>
-            <if test="gender != null">
-                gender = #{gender},
-            </if>
-            <if test="college != null">
-                college = #{college},
-            </if>
-            <if test="major != null">
-                major = #{major},
-            </if>
-            <if test="className != null">
-                class_name = #{className},
-            </if>
-            <if test="grade != null">
-                grade = #{grade},
-            </if>
-            <if test="educationLevel != null">
-                education_level = #{educationLevel},
-            </if>
-            <if test="graduationYear != null">
-                graduation_year = #{graduationYear},
-            </if>
-            <if test="profileCompletion != null">
-                profile_completion = #{profileCompletion},
-            </if>
-            updated_at = NOW()
-        </set>
-        WHERE student_id = #{studentId}
-    </update>
+
+
 
 </mapper>
