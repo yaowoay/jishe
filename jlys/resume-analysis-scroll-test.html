@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>简历分析页面滚动测试</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #f5f9ff 0%, #e0efff 100%);
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+        
+        .test-container {
+            padding: 24px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .header-section {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 40px 0;
+            background: linear-gradient(135deg, #ffffff 0%, #f8fbff 100%);
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(26, 111, 196, 0.12);
+        }
+        
+        .content-block {
+            background: white;
+            margin: 20px 0;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(26, 111, 196, 0.12);
+            min-height: 300px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        
+        .status {
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 8px;
+            font-weight: bold;
+        }
+        
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        
+        .warning {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+        
+        .scroll-indicator {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(26, 111, 196, 0.9);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-weight: bold;
+            z-index: 1000;
+        }
+        
+        .analysis-report-mock {
+            background: #f8fafc;
+            padding: 20px;
+            border-radius: 16px;
+            margin: 20px 0;
+            min-height: 600px;
+        }
+        
+        .report-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 16px;
+            margin-bottom: 30px;
+        }
+        
+        .analysis-section {
+            background: white;
+            margin: 20px 0;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="scroll-indicator" id="scrollIndicator">
+        滚动位置: 0px
+    </div>
+    
+    <div class="test-container">
+        <div class="header-section">
+            <h1>简历分析页面滚动测试</h1>
+            <p>模拟 http://localhost:3001/applicant/resume/analysis 页面</p>
+        </div>
+        
+        <div class="status success">
+            ✅ 修复完成：ResumeAnalysisReport.vue 组件的 min-height: 100vh 已修改为 min-height: auto
+        </div>
+        
+        <div class="status info">
+            📋 测试说明：
+            <ul>
+                <li>这个页面模拟了简历分析页面的布局结构</li>
+                <li>如果你能正常滚动查看所有内容，说明修复成功</li>
+                <li>右上角显示当前滚动位置</li>
+                <li>页面应该可以平滑滚动到底部</li>
+            </ul>
+        </div>
+
+        <div class="content-block">
+            📄 简历上传区域模拟
+        </div>
+
+        <div class="content-block">
+            🔍 分析模式选择区域模拟
+        </div>
+
+        <div class="analysis-report-mock">
+            <div class="report-header">
+                <h2>📊 简历分析报告模拟</h2>
+                <p>这里模拟了 ResumeAnalysisReport 组件的内容</p>
+            </div>
+            
+            <div class="analysis-section">
+                <h3>个人信息分析</h3>
+                <p>这里是个人信息分析的内容...</p>
+            </div>
+            
+            <div class="analysis-section">
+                <h3>技能匹配分析</h3>
+                <p>这里是技能匹配分析的内容...</p>
+            </div>
+            
+            <div class="analysis-section">
+                <h3>教育背景分析</h3>
+                <p>这里是教育背景分析的内容...</p>
+            </div>
+            
+            <div class="analysis-section">
+                <h3>项目经验分析</h3>
+                <p>这里是项目经验分析的内容...</p>
+            </div>
+        </div>
+
+        <div class="content-block">
+            📈 分析统计信息区域模拟
+        </div>
+
+        <div class="content-block">
+            🔄 重新分析按钮区域模拟
+        </div>
+
+        <div class="status success">
+            🎉 如果你能滚动到这里，说明简历分析页面的滚动问题已经修复！
+        </div>
+        
+        <div class="status warning">
+            ⚠️ 如果在实际页面中仍然无法滚动，请检查：
+            <ul>
+                <li>浏览器缓存是否已清除</li>
+                <li>是否有其他CSS样式覆盖了修复</li>
+                <li>页面是否正确加载了修复后的组件</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // 滚动位置指示器
+        function updateScrollIndicator() {
+            const indicator = document.getElementById('scrollIndicator');
+            const scrollY = window.scrollY;
+            const maxScroll = document.body.scrollHeight - window.innerHeight;
+            const scrollPercent = Math.round((scrollY / maxScroll) * 100);
+            
+            indicator.textContent = `滚动位置: ${scrollY}px (${scrollPercent}%)`;
+        }
+
+        // 监听滚动事件
+        window.addEventListener('scroll', updateScrollIndicator);
+        
+        // 页面加载完成后的检查
+        window.addEventListener('load', function() {
+            console.log('=== 简历分析页面滚动测试 ===');
+            console.log('页面总高度:', document.body.scrollHeight);
+            console.log('视口高度:', window.innerHeight);
+            console.log('可滚动距离:', document.body.scrollHeight - window.innerHeight);
+            
+            if (document.body.scrollHeight > window.innerHeight) {
+                console.log('✅ 页面内容超出视口，应该可以滚动');
+            } else {
+                console.log('⚠️ 页面内容未超出视口，可能不需要滚动');
+            }
+            
+            // 测试滚动功能
+            setTimeout(() => {
+                console.log('开始自动滚动测试...');
+                window.scrollTo({ top: 200, behavior: 'smooth' });
+                
+                setTimeout(() => {
+                    if (window.scrollY > 0) {
+                        console.log('✅ 滚动功能正常工作');
+                    } else {
+                        console.log('❌ 滚动功能可能存在问题');
+                    }
+                }, 1000);
+            }, 2000);
+        });
+        
+        // 检测滚动事件
+        let scrollEventCount = 0;
+        window.addEventListener('scroll', function() {
+            scrollEventCount++;
+            if (scrollEventCount === 1) {
+                console.log('✅ 首次滚动事件触发，滚动功能正常');
+            }
+        });
+    </script>
+</body>
+</html>

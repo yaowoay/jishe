@@ -1,0 +1,129 @@
+/* 马卡龙天蓝色主题配置 */
+
+:root {
+  /* 主要颜色 */
+  --primary-color: #87CEEB;        /* 天蓝色 - 主色调 */
+  --primary-light: #B0E0E6;       /* 淡蓝色 - 浅色变体 */
+  --primary-dark: #4682B4;        /* 钢蓝色 - 深色变体 */
+  --primary-lighter: #E0F6FF;     /* 极淡蓝 - 最浅变体 */
+  
+  /* 背景颜色 */
+  --bg-color: #F8FBFF;            /* 页面背景 */
+  --card-bg: #FFFFFF;             /* 卡片背景 */
+  --sidebar-bg: #FAFCFF;          /* 侧边栏背景 */
+  
+  /* 边框颜色 */
+  --border-color: #E6F3FF;        /* 主要边框 */
+  --border-light: #F0F8FF;        /* 浅色边框 */
+  --border-dark: #D1E9FF;         /* 深色边框 */
+  
+  /* 文字颜色 */
+  --text-primary: #2C3E50;        /* 主要文字 */
+  --text-secondary: #7F8C8D;      /* 次要文字 */
+  --text-light: #95A5A6;          /* 浅色文字 */
+  --text-white: #FFFFFF;          /* 白色文字 */
+  
+  /* 状态颜色 */
+  --success-color: #52C41A;       /* 成功状态 */
+  --warning-color: #FAAD14;       /* 警告状态 */
+  --error-color: #FF4D4F;         /* 错误状态 */
+  --info-color: var(--primary-color); /* 信息状态 */
+  
+  /* 阴影 */
+  --shadow-light: 0 2px 6px rgba(135, 206, 235, 0.08);
+  --shadow-normal: 0 2px 8px rgba(135, 206, 235, 0.1);
+  --shadow-hover: 0 4px 16px rgba(135, 206, 235, 0.15);
+  --shadow-active: 0 6px 20px rgba(135, 206, 235, 0.2);
+  
+  /* 圆角 */
+  --radius-small: 4px;
+  --radius-normal: 8px;
+  --radius-large: 12px;
+  --radius-round: 50%;
+  
+  /* 间距 */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+  
+  /* 字体大小 */
+  --font-size-xs: 12px;
+  --font-size-sm: 14px;
+  --font-size-md: 16px;
+  --font-size-lg: 18px;
+  --font-size-xl: 20px;
+  --font-size-xxl: 24px;
+  
+  /* 字体粗细 */
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  
+  /* 过渡动画 */
+  --transition-fast: 0.2s ease;
+  --transition-normal: 0.3s ease;
+  --transition-slow: 0.5s ease;
+}
+
+/* Element Plus 主题覆盖 */
+.el-button--primary {
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+}
+
+.el-button--primary:hover {
+  background-color: var(--primary-dark);
+  border-color: var(--primary-dark);
+}
+
+.el-button--primary:active {
+  background-color: var(--primary-dark);
+  border-color: var(--primary-dark);
+}
+
+.el-tag--info {
+  background-color: var(--primary-light);
+  border-color: var(--primary-color);
+  color: var(--primary-dark);
+}
+
+.el-progress-bar__outer {
+  background-color: var(--border-light);
+}
+
+.el-progress-bar__inner {
+  background-color: var(--primary-color);
+}
+
+.el-alert--info {
+  background-color: var(--primary-lighter);
+  border-color: var(--border-color);
+}
+
+.el-alert--info .el-alert__icon {
+  color: var(--primary-color);
+}
+
+/* 自定义工具类 */
+.text-primary { color: var(--text-primary); }
+.text-secondary { color: var(--text-secondary); }
+.text-light { color: var(--text-light); }
+
+.bg-primary { background-color: var(--primary-color); }
+.bg-primary-light { background-color: var(--primary-light); }
+.bg-card { background-color: var(--card-bg); }
+
+.border-primary { border-color: var(--border-color); }
+.border-light { border-color: var(--border-light); }
+
+.shadow-light { box-shadow: var(--shadow-light); }
+.shadow-normal { box-shadow: var(--shadow-normal); }
+.shadow-hover { box-shadow: var(--shadow-hover); }
+
+.radius-normal { border-radius: var(--radius-normal); }
+.radius-large { border-radius: var(--radius-large); }
+
+.transition-normal { transition: var(--transition-normal); }

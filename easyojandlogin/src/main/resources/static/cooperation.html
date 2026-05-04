@@ -1,0 +1,1045 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>校企合作管理系统</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Microsoft YaHei", Arial, sans-serif;
+            background: #f5f5f5;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* 头部样式 */
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        /* 导航标签 */
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .tab {
+            padding: 10px 24px;
+            background: #f0f0f0;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+            color: #666;
+        }
+
+        .tab:hover {
+            background: #e0e0e0;
+        }
+
+        .tab.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.4);
+        }
+
+        /* 内容区域 */
+        .content {
+            background: white;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            min-height: 500px;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* 统计卡片 */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .stat-card h3 {
+            font-size: 14px;
+            opacity: 0.9;
+            margin-bottom: 10px;
+        }
+
+        .stat-card .number {
+            font-size: 32px;
+            font-weight: bold;
+        }
+
+        /* 按钮样式 */
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #666;
+        }
+
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+
+        .btn-success {
+            background: #10b981;
+            color: white;
+        }
+
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+        }
+
+        /* 表格样式 */
+        .table-container {
+            overflow-x: auto;
+            margin-top: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        th {
+            background: #f9fafb;
+            font-weight: 600;
+            color: #374151;
+            font-size: 14px;
+        }
+
+        td {
+            font-size: 14px;
+            color: #6b7280;
+        }
+
+        tr:hover {
+            background: #f9fafb;
+        }
+
+        /* 状态标签 */
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .status-draft { background: #e5e7eb; color: #6b7280; }
+        .status-submitted { background: #dbeafe; color: #1e40af; }
+        .status-approved { background: #d1fae5; color: #065f46; }
+        .status-rejected { background: #fee2e2; color: #991b1b; }
+        .status-ongoing { background: #fef3c7; color: #92400e; }
+
+        /* 表单样式 */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #374151;
+            font-size: 14px;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        textarea.form-control {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        /* 模态框 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-header h2 {
+            font-size: 20px;
+            color: #111827;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #9ca3af;
+        }
+
+        .close-btn:hover {
+            color: #374151;
+        }
+
+        /* 操作按钮组 */
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        /* 搜索栏 */
+        .search-bar {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .search-bar select,
+        .search-bar input {
+            padding: 8px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>校企合作管理系统</h1>
+            <p>企业端 - 合作项目申请与管理平台</p>
+        </div>
+
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('projects')">合作项目</button>
+            <button class="tab" onclick="switchTab('training-bases')">实训基地</button>
+            <button class="tab" onclick="switchTab('order-classes')">订单班管理</button>
+            <button class="tab" onclick="switchTab('cases')">案例参考库</button>
+        </div>
+
+        <div class="content">
+            <!-- 合作项目 -->
+            <div id="projects" class="tab-content active">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <h3>总项目数</h3>
+                        <div class="number" id="totalProjects">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>草稿项目</h3>
+                        <div class="number" id="draftProjects">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>审核中</h3>
+                        <div class="number" id="submittedProjects">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>进行中</h3>
+                        <div class="number" id="ongoingProjects">0</div>
+                    </div>
+                </div>
+
+                <div class="action-buttons">
+                    <button class="btn btn-primary" onclick="openProjectModal()">+ 新建项目</button>
+                </div>
+
+                <div class="search-bar">
+                    <select id="projectStatusFilter" onchange="loadProjects()">
+                        <option value="">全部状态</option>
+                        <option value="draft">草稿</option>
+                        <option value="submitted">已提交</option>
+                        <option value="approved">已通过</option>
+                        <option value="rejected">已拒绝</option>
+                        <option value="ongoing">进行中</option>
+                    </select>
+                    <select id="projectTypeFilter" onchange="loadProjects()">
+                        <option value="">全部类型</option>
+                        <option value="training_base">实训基地</option>
+                        <option value="order_class">订单班</option>
+                        <option value="internship">实习基地</option>
+                        <option value="research">产学研合作</option>
+                    </select>
+                </div>
+
+                <div class="table-container">
+                    <table id="projectsTable">
+                        <thead>
+                            <tr>
+                                <th>项目名称</th>
+                                <th>合作模式</th>
+                                <th>目标专业</th>
+                                <th>学生人数</th>
+                                <th>状态</th>
+                                <th>提交时间</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="projectsTableBody">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 实训基地 -->
+            <div id="training-bases" class="tab-content">
+                <div class="action-buttons">
+                    <button class="btn btn-primary" onclick="openBaseModal()">+ 新建实训基地</button>
+                </div>
+
+                <div class="table-container">
+                    <table id="basesTable">
+                        <thead>
+                            <tr>
+                                <th>基地名称</th>
+                                <th>所属项目</th>
+                                <th>基地地址</th>
+                                <th>容纳人数</th>
+                                <th>建设状态</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="basesTableBody">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 订单班管理 -->
+            <div id="order-classes" class="tab-content">
+                <div class="action-buttons">
+                    <button class="btn btn-primary" onclick="openClassModal()">+ 新建订单班</button>
+                </div>
+
+                <div class="table-container">
+                    <table id="classesTable">
+                        <thead>
+                            <tr>
+                                <th>班级名称</th>
+                                <th>所属项目</th>
+                                <th>专业</th>
+                                <th>年级</th>
+                                <th>计划人数</th>
+                                <th>已招人数</th>
+                                <th>状态</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="classesTableBody">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 案例参考库 -->
+            <div id="cases" class="tab-content">
+                <div class="search-bar">
+                    <select id="caseTypeFilter" onchange="loadCases()">
+                        <option value="">全部类型</option>
+                        <option value="training_base">实训基地</option>
+                        <option value="order_class">订单班</option>
+                        <option value="internship">实习基地</option>
+                        <option value="research">产学研合作</option>
+                    </select>
+                    <label style="display: flex; align-items: center; gap: 5px;">
+                        <input type="checkbox" id="featuredFilter" onchange="loadCases()">
+                        仅显示精选案例
+                    </label>
+                </div>
+
+                <div id="casesGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 20px; margin-top: 20px;">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 项目表单模态框 -->
+    <div id="projectModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="projectModalTitle">新建合作项目</h2>
+                <button class="close-btn" onclick="closeProjectModal()">&times;</button>
+            </div>
+            <form id="projectForm">
+                <input type="hidden" id="projectId">
+                <div class="form-group">
+                    <label>项目名称 *</label>
+                    <input type="text" class="form-control" id="projectName" required>
+                </div>
+                <div class="form-group">
+                    <label>项目类型 *</label>
+                    <select class="form-control" id="projectType" required>
+                        <option value="">请选择</option>
+                        <option value="training_base">实训基地</option>
+                        <option value="order_class">订单班</option>
+                        <option value="internship">实习基地</option>
+                        <option value="research">产学研合作</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>合作模式 *</label>
+                    <input type="text" class="form-control" id="cooperationMode" placeholder="如：共建实训基地" required>
+                </div>
+                <div class="form-group">
+                    <label>项目描述 *</label>
+                    <textarea class="form-control" id="projectDesc" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label>目标专业</label>
+                    <input type="text" class="form-control" id="targetMajor" placeholder="如：计算机科学与技术">
+                </div>
+                <div class="form-group">
+                    <label>学生人数</label>
+                    <input type="number" class="form-control" id="studentCount" min="0">
+                </div>
+                <div class="form-group">
+                    <label>投资金额（元）</label>
+                    <input type="number" class="form-control" id="investmentAmount" min="0" step="0.01">
+                </div>
+                <div class="form-group">
+                    <label>开始日期</label>
+                    <input type="date" class="form-control" id="startDate">
+                </div>
+                <div class="form-group">
+                    <label>结束日期</label>
+                    <input type="date" class="form-control" id="endDate">
+                </div>
+                <div class="form-group">
+                    <label>联系人 *</label>
+                    <input type="text" class="form-control" id="contactPerson" required>
+                </div>
+                <div class="form-group">
+                    <label>联系电话 *</label>
+                    <input type="tel" class="form-control" id="contactPhone" required>
+                </div>
+                <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                    <button type="button" class="btn btn-secondary" onclick="closeProjectModal()">取消</button>
+                    <button type="submit" class="btn btn-primary">保存</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 实训基地表单模态框 -->
+    <div id="baseModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>新建实训基地</h2>
+                <button class="close-btn" onclick="closeBaseModal()">&times;</button>
+            </div>
+            <form id="baseForm">
+                <div class="form-group">
+                    <label>所属项目 *</label>
+                    <select class="form-control" id="baseProjectId" required>
+                        <option value="">请选择项目</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>基地名称 *</label>
+                    <input type="text" class="form-control" id="baseName" required>
+                </div>
+                <div class="form-group">
+                    <label>基地地址 *</label>
+                    <input type="text" class="form-control" id="baseAddress" required>
+                </div>
+                <div class="form-group">
+                    <label>基地面积（平方米）</label>
+                    <input type="number" class="form-control" id="baseArea" min="0" step="0.01">
+                </div>
+                <div class="form-group">
+                    <label>设备价值（元）</label>
+                    <input type="number" class="form-control" id="equipmentValue" min="0" step="0.01">
+                </div>
+                <div class="form-group">
+                    <label>容纳人数</label>
+                    <input type="number" class="form-control" id="capacity" min="0">
+                </div>
+                <div class="form-group">
+                    <label>培训领域</label>
+                    <textarea class="form-control" id="trainingFields" placeholder="如：软件开发、网络工程"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>设施设备</label>
+                    <textarea class="form-control" id="facilities" placeholder="如：计算机100台、服务器10台"></textarea>
+                </div>
+                <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                    <button type="button" class="btn btn-secondary" onclick="closeBaseModal()">取消</button>
+                    <button type="submit" class="btn btn-primary">保存</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = '/api/cooperation';
+        let currentCompanyId = 1; // 模拟企业ID
+
+        // 标签切换
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+
+            event.target.classList.add('active');
+            document.getElementById(tabName).classList.add('active');
+
+            if (tabName === 'projects') {
+                loadProjects();
+                loadStats();
+            } else if (tabName === 'training-bases') {
+                loadTrainingBases();
+            } else if (tabName === 'order-classes') {
+                loadOrderClasses();
+            } else if (tabName === 'cases') {
+                loadCases();
+            }
+        }
+
+        // 加载统计数据
+        async function loadStats() {
+            try {
+                const response = await fetch(`${API_BASE}/stats?companyId=${currentCompanyId}`);
+                const result = await response.json();
+                if (result.code === 0) {
+                    const stats = result.data;
+                    document.getElementById('totalProjects').textContent = stats.totalProjects || 0;
+                    document.getElementById('draftProjects').textContent = stats.draftProjects || 0;
+                    document.getElementById('submittedProjects').textContent = stats.submittedProjects || 0;
+                    document.getElementById('ongoingProjects').textContent = stats.ongoingProjects || 0;
+                }
+            } catch (error) {
+                console.error('加载统计数据失败:', error);
+            }
+        }
+
+        // 加载项目列表
+        async function loadProjects() {
+            const status = document.getElementById('projectStatusFilter').value;
+            const projectType = document.getElementById('projectTypeFilter').value;
+
+            try {
+                let url = `${API_BASE}/projects?companyId=${currentCompanyId}&page=1&size=100`;
+                if (status) url += `&status=${status}`;
+                if (projectType) url += `&projectType=${projectType}`;
+
+                const response = await fetch(url);
+                const result = await response.json();
+
+                if (result.code === 0) {
+                    const tbody = document.getElementById('projectsTableBody');
+                    tbody.innerHTML = '';
+
+                    result.data.records.forEach(project => {
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `
+                            <td>${project.projectName}</td>
+                            <td>${project.cooperationMode}</td>
+                            <td>${project.targetMajor || '-'}</td>
+                            <td>${project.studentCount || '-'}</td>
+                            <td><span class="status-badge status-${project.status}">${getStatusText(project.status)}</span></td>
+                            <td>${project.submitTime ? new Date(project.submitTime).toLocaleDateString() : '-'}</td>
+                            <td>
+                                <button class="btn btn-secondary" onclick="viewProject(${project.id})">查看</button>
+                                ${project.status === 'draft' ? `
+                                    <button class="btn btn-primary" onclick="editProject(${project.id})">编辑</button>
+                                    <button class="btn btn-success" onclick="submitProject(${project.id})">提交</button>
+                                    <button class="btn btn-danger" onclick="deleteProject(${project.id})">删除</button>
+                                ` : ''}
+                            </td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+                }
+            } catch (error) {
+                console.error('加载项目列表失败:', error);
+            }
+        }
+
+        // 状态文本转换
+        function getStatusText(status) {
+            const statusMap = {
+                'draft': '草稿',
+                'submitted': '已提交',
+                'reviewing': '审核中',
+                'approved': '已通过',
+                'rejected': '已拒绝',
+                'ongoing': '进行中',
+                'completed': '已完成'
+            };
+            return statusMap[status] || status;
+        }
+
+        // 打开项目模态框
+        function openProjectModal(projectId = null) {
+            document.getElementById('projectModal').classList.add('active');
+            if (projectId) {
+                document.getElementById('projectModalTitle').textContent = '编辑项目';
+                loadProjectData(projectId);
+            } else {
+                document.getElementById('projectModalTitle').textContent = '新建项目';
+                document.getElementById('projectForm').reset();
+                document.getElementById('projectId').value = '';
+            }
+        }
+
+        function closeProjectModal() {
+            document.getElementById('projectModal').classList.remove('active');
+        }
+
+        // 加载项目数据
+        async function loadProjectData(projectId) {
+            try {
+                const response = await fetch(`${API_BASE}/projects/${projectId}`);
+                const result = await response.json();
+                if (result.code === 0) {
+                    const project = result.data;
+                    document.getElementById('projectId').value = project.id;
+                    document.getElementById('projectName').value = project.projectName;
+                    document.getElementById('projectType').value = project.projectType;
+                    document.getElementById('cooperationMode').value = project.cooperationMode;
+                    document.getElementById('projectDesc').value = project.projectDesc;
+                    document.getElementById('targetMajor').value = project.targetMajor || '';
+                    document.getElementById('studentCount').value = project.studentCount || '';
+                    document.getElementById('investmentAmount').value = project.investmentAmount || '';
+                    document.getElementById('startDate').value = project.startDate || '';
+                    document.getElementById('endDate').value = project.endDate || '';
+                    document.getElementById('contactPerson').value = project.contactPerson;
+                    document.getElementById('contactPhone').value = project.contactPhone;
+                }
+            } catch (error) {
+                console.error('加载项目数据失败:', error);
+            }
+        }
+
+        // 保存项目
+        document.getElementById('projectForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const projectId = document.getElementById('projectId').value;
+            const projectData = {
+                projectName: document.getElementById('projectName').value,
+                projectType: document.getElementById('projectType').value,
+                cooperationMode: document.getElementById('cooperationMode').value,
+                projectDesc: document.getElementById('projectDesc').value,
+                targetMajor: document.getElementById('targetMajor').value,
+                studentCount: document.getElementById('studentCount').value || null,
+                investmentAmount: document.getElementById('investmentAmount').value || null,
+                startDate: document.getElementById('startDate').value || null,
+                endDate: document.getElementById('endDate').value || null,
+                contactPerson: document.getElementById('contactPerson').value,
+                contactPhone: document.getElementById('contactPhone').value
+            };
+
+            try {
+                let response;
+                if (projectId) {
+                    response = await fetch(`${API_BASE}/projects/${projectId}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(projectData)
+                    });
+                } else {
+                    response = await fetch(`${API_BASE}/projects`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(projectData)
+                    });
+                }
+
+                const result = await response.json();
+                if (result.code === 0) {
+                    alert('保存成功');
+                    closeProjectModal();
+                    loadProjects();
+                    loadStats();
+                } else {
+                    alert('保存失败: ' + result.message);
+                }
+            } catch (error) {
+                console.error('保存项目失败:', error);
+                alert('保存失败');
+            }
+        });
+
+        // 编辑项目
+        function editProject(projectId) {
+            openProjectModal(projectId);
+        }
+
+        // 提交项目
+        async function submitProject(projectId) {
+            if (!confirm('确定要提交此项目吗？提交后将无法修改。')) return;
+
+            try {
+                const response = await fetch(`${API_BASE}/projects/${projectId}/submit`, {
+                    method: 'POST'
+                });
+                const result = await response.json();
+                if (result.code === 0) {
+                    alert('提交成功');
+                    loadProjects();
+                    loadStats();
+                } else {
+                    alert('提交失败: ' + result.message);
+                }
+            } catch (error) {
+                console.error('提交项目失败:', error);
+                alert('提交失败');
+            }
+        }
+
+        // 删除项目
+        async function deleteProject(projectId) {
+            if (!confirm('确定要删除此项目吗？')) return;
+
+            try {
+                const response = await fetch(`${API_BASE}/projects/${projectId}`, {
+                    method: 'DELETE'
+                });
+                const result = await response.json();
+                if (result.code === 0) {
+                    alert('删除成功');
+                    loadProjects();
+                    loadStats();
+                } else {
+                    alert('删除失败: ' + result.message);
+                }
+            } catch (error) {
+                console.error('删除项目失败:', error);
+                alert('删除失败');
+            }
+        }
+
+        // 查看项目详情
+        function viewProject(projectId) {
+            loadProjectData(projectId);
+            openProjectModal(projectId);
+            // 禁用表单编辑
+            document.querySelectorAll('#projectForm input, #projectForm select, #projectForm textarea').forEach(el => {
+                el.disabled = true;
+            });
+        }
+
+        // 加载实训基地列表
+        async function loadTrainingBases() {
+            try {
+                const response = await fetch(`${API_BASE}/training-bases`);
+                const result = await response.json();
+
+                if (result.code === 0) {
+                    const tbody = document.getElementById('basesTableBody');
+                    tbody.innerHTML = '';
+
+                    result.data.forEach(base => {
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `
+                            <td>${base.baseName}</td>
+                            <td>${base.projectName || '-'}</td>
+                            <td>${base.baseAddress}</td>
+                            <td>${base.capacity || '-'}</td>
+                            <td><span class="status-badge status-${base.constructionStatus}">${getConstructionStatusText(base.constructionStatus)}</span></td>
+                            <td>
+                                <button class="btn btn-secondary" onclick="viewBase(${base.id})">查看</button>
+                                <button class="btn btn-primary" onclick="editBase(${base.id})">编辑</button>
+                            </td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+                }
+            } catch (error) {
+                console.error('加载实训基地列表失败:', error);
+            }
+        }
+
+        function getConstructionStatusText(status) {
+            const statusMap = {
+                'planning': '规划中',
+                'constructing': '建设中',
+                'completed': '已完成',
+                'operating': '运营中'
+            };
+            return statusMap[status] || status;
+        }
+
+        // 打开实训基地模态框
+        function openBaseModal() {
+            document.getElementById('baseModal').classList.add('active');
+            loadProjectOptions();
+        }
+
+        function closeBaseModal() {
+            document.getElementById('baseModal').classList.remove('active');
+        }
+
+        // 加载项目选项
+        async function loadProjectOptions() {
+            try {
+                const response = await fetch(`${API_BASE}/projects?companyId=${currentCompanyId}&status=approved&page=1&size=100`);
+                const result = await response.json();
+
+                if (result.code === 0) {
+                    const select = document.getElementById('baseProjectId');
+                    select.innerHTML = '<option value="">请选择项目</option>';
+                    result.data.records.forEach(project => {
+                        const option = document.createElement('option');
+                        option.value = project.id;
+                        option.textContent = project.projectName;
+                        select.appendChild(option);
+                    });
+                }
+            } catch (error) {
+                console.error('加载项目选项失败:', error);
+            }
+        }
+
+        // 保存实训基地
+        document.getElementById('baseForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const baseData = {
+                baseName: document.getElementById('baseName').value,
+                baseAddress: document.getElementById('baseAddress').value,
+                baseArea: document.getElementById('baseArea').value || null,
+                equipmentValue: document.getElementById('equipmentValue').value || null,
+                capacity: document.getElementById('capacity').value || null,
+                trainingFields: document.getElementById('trainingFields').value,
+                facilities: document.getElementById('facilities').value
+            };
+
+            const projectId = document.getElementById('baseProjectId').value;
+
+            try {
+                const response = await fetch(`${API_BASE}/training-bases?projectId=${projectId}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(baseData)
+                });
+
+                const result = await response.json();
+                if (result.code === 0) {
+                    alert('保存成功');
+                    closeBaseModal();
+                    loadTrainingBases();
+                } else {
+                    alert('保存失败: ' + result.message);
+                }
+            } catch (error) {
+                console.error('保存实训基地失败:', error);
+                alert('保存失败');
+            }
+        });
+
+        // 加载订单班列表
+        async function loadOrderClasses() {
+            try {
+                const response = await fetch(`${API_BASE}/order-classes`);
+                const result = await response.json();
+
+                if (result.code === 0) {
+                    const tbody = document.getElementById('classesTableBody');
+                    tbody.innerHTML = '';
+
+                    result.data.forEach(cls => {
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `
+                            <td>${cls.className}</td>
+                            <td>${cls.projectName || '-'}</td>
+                            <td>${cls.major}</td>
+                            <td>${cls.grade}</td>
+                            <td>${cls.plannedCount}</td>
+                            <td>${cls.enrolledCount}</td>
+                            <td><span class="status-badge status-${cls.classStatus}">${getClassStatusText(cls.classStatus)}</span></td>
+                            <td>
+                                <button class="btn btn-secondary" onclick="viewClass(${cls.id})">查看</button>
+                            </td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+                }
+            } catch (error) {
+                console.error('加载订单班列表失败:', error);
+            }
+        }
+
+        function getClassStatusText(status) {
+            const statusMap = {
+                'recruiting': '招生中',
+                'training': '培训中',
+                'graduated': '已毕业'
+            };
+            return statusMap[status] || status;
+        }
+
+        // 加载案例列表
+        async function loadCases() {
+            const cooperationType = document.getElementById('caseTypeFilter').value;
+            const isFeatured = document.getElementById('featuredFilter').checked;
+
+            try {
+                let url = `${API_BASE}/cases?page=1&size=100`;
+                if (cooperationType) url += `&cooperationType=${cooperationType}`;
+                if (isFeatured) url += `&isFeatured=true`;
+
+                const response = await fetch(url);
+                const result = await response.json();
+
+                if (result.code === 0) {
+                    const grid = document.getElementById('casesGrid');
+                    grid.innerHTML = '';
+
+                    result.data.records.forEach(caseItem => {
+                        const card = document.createElement('div');
+                        card.style.cssText = 'background: white; border-radius: 8px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); cursor: pointer;';
+                        card.innerHTML = `
+                            <h3 style="font-size: 18px; margin-bottom: 10px; color: #111827;">${caseItem.caseTitle}</h3>
+                            <p style="color: #6b7280; font-size: 14px; margin-bottom: 8px;">企业：${caseItem.companyName}</p>
+                            <p style="color: #6b7280; font-size: 14px; margin-bottom: 8px;">合作时间：${caseItem.cooperationDuration}</p>
+                            <p style="color: #6b7280; font-size: 14px; margin-bottom: 8px;">学生人数：${caseItem.studentCount}人</p>
+                            <p style="color: #374151; font-size: 14px; line-height: 1.6;">${caseItem.caseSummary.substring(0, 100)}...</p>
+                            <div style="margin-top: 15px; display: flex; justify-content: space-between; align-items: center;">
+                                <span class="status-badge status-${caseItem.cooperationType}">${getCooperationTypeText(caseItem.cooperationType)}</span>
+                                <span style="color: #9ca3af; font-size: 12px;">浏览 ${caseItem.viewCount}</span>
+                            </div>
+                        `;
+                        card.onclick = () => viewCase(caseItem.id);
+                        grid.appendChild(card);
+                    });
+                }
+            } catch (error) {
+                console.error('加载案例列表失败:', error);
+            }
+        }
+
+        function getCooperationTypeText(type) {
+            const typeMap = {
+                'training_base': '实训基地',
+                'order_class': '订单班',
+                'internship': '实习基地',
+                'research': '产学研合作'
+            };
+            return typeMap[type] || type;
+        }
+
+        function viewCase(caseId) {
+            alert('查看案例详情: ' + caseId);
+        }
+
+        // 页面加载时初始化
+        window.onload = function() {
+            loadProjects();
+            loadStats();
+        };
+    </script>
+</body>
+</html>

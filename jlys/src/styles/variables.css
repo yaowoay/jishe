@@ -1,0 +1,33 @@
+:root {
+    /* 现代化蓝色主题 */
+    --primary-color: #2563eb;
+    --primary-hover: #1e40af;
+    --primary-light: #60a5fa;
+    --primary-gradient: linear-gradient(90deg, #2563eb 0%, #60a5fa 100%);
+
+    /* 文本颜色 */
+    --text-color: #1e293b;
+    --text-secondary: #64748b;
+    --text-light: #94a3b8;
+
+    /* 背景颜色 */
+    --bg-color: #f8fafc;
+    --card-bg: #ffffff;
+    --section-bg: #f1f5f9;
+
+    /* 边框和圆角 */
+    --border-radius: 12px;
+    --border-radius-lg: 18px;
+    --border-radius-sm: 8px;
+
+    /* 阴影效果 */
+    --box-shadow: 0 4px 24px rgba(30,64,175,0.08);
+    --box-shadow-lg: 0 8px 32px rgba(30,64,175,0.12);
+    --box-shadow-hover: 0 10px 32px rgba(91,188,255,0.18);
+
+    /* 状态颜色 */
+    --success-color: #4fd18b;
+    --warning-color: #ffd04b;
+    --danger-color: #ff6b6b;
+    --info-color: #5bbcff;
+  }

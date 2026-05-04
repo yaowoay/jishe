@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.aiinterview.mapper.ReportMapper">
+
+    <!-- 结果映射 -->
+    <resultMap id="BaseResultMap" type="com.aiinterview.model.entity.report.Report">
+        <id column="report_id" property="reportId" />
+        <result column="job_id" property="jobId" />
+        <result column="resume_id" property="resumeId" />
+        <result column="report" property="report" />
+        <result column="created_at" property="createdAt" />
+        <result column="updated_at" property="updatedAt" />
+    </resultMap>
+
+    <!-- 基础字段 -->
+    <sql id="Base_Column_List">
+        report_id, job_id, resume_id, report, created_at, updated_at
+    </sql>
+
+    <!-- 根据简历ID和职位ID查询报告 -->
+    <select id="selectByResumeIdAndJobId" resultMap="BaseResultMap">
+        SELECT 
+        <include refid="Base_Column_List" />
+        FROM reports 
+        WHERE resume_id = #{resumeId} AND job_id = #{jobId}
+        LIMIT 1
+    </select>
+
+</mapper>

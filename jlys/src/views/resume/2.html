@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>前端工程师简历分析报告</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4efe9 100%);
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        header {
+            background: linear-gradient(to right, #3498db, #2c3e50);
+            color: white;
+            padding: 30px 40px;
+            text-align: center;
+            position: relative;
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        header p {
+            font-size: 1.2rem;
+            max-width: 800px;
+            margin: 0 auto;
+            opacity: 0.9;
+        }
+
+        .divider {
+            height: 4px;
+            background: linear-gradient(to right, #3498db, #2ecc71);
+            margin: 10px 0 30px;
+        }
+
+        .section {
+            padding: 30px 40px;
+            border-bottom: 1px solid #eaeaea;
+        }
+
+        .section-title {
+            display: flex;
+            align-items: center;
+            margin-bottom: 25px;
+            color: #2c3e50;
+        }
+
+        .section-title i {
+            background: #3498db;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            color: white;
+            font-size: 1.2rem;
+        }
+
+        .section-title h2 {
+            font-size: 1.8rem;
+            font-weight: 600;
+        }
+
+        /* 匹配度部分 */
+        .matching-container {
+            display: flex;
+            gap: 40px;
+            flex-wrap: wrap;
+        }
+
+        .match-card {
+            flex: 1;
+            min-width: 300px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+
+        .progress-container {
+            margin: 20px 0;
+        }
+
+        .progress-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .progress-bar {
+            height: 25px;
+            background: #e9ecef;
+            border-radius: 12px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-fill {
+            height: 100%;
+            width: 25%;
+            background: linear-gradient(to right, #2ecc71, #3498db);
+            border-radius: 12px;
+            animation: fillAnimation 1.5s ease-out;
+        }
+
+        @keyframes fillAnimation {
+            from { width: 0; }
+            to { width: 25%; }
+        }
+
+        .strengths, .weaknesses {
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+
+        .strengths {
+            background: rgba(46, 204, 113, 0.1);
+            border-left: 4px solid #2ecc71;
+        }
+
+        .weaknesses {
+            background: rgba(231, 76, 60, 0.1);
+            border-left: 4px solid #e74c3c;
+        }
+
+        /* 表格样式 */
+        .table-container {
+            overflow-x: auto;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 600px;
+        }
+
+        th {
+            background: #2c3e50;
+            color: white;
+            text-align: left;
+            padding: 15px;
+        }
+
+        td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+
+        tr:hover {
+            background: #e9f7fe;
+        }
+
+        .status-pass {
+            color: #2ecc71;
+            font-weight: bold;
+        }
+
+        .status-fail {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+
+        .status-missing {
+            color: #f39c12;
+            font-weight: bold;
+        }
+
+        .status-partial {
+            color: #3498db;
+            font-weight: bold;
+        }
+
+        /* 建议列表 */
+        .recommendation-list {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .recommendation-list li {
+            padding: 15px;
+            margin-bottom: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            display: flex;
+            align-items: flex-start;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+            transition: transform 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .recommendation-list li:hover {
+            transform: translateY(-3px);
+        }
+
+        .recommendation-list li::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 5px;
+            background: #3498db;
+        }
+
+        .recommendation-list i {
+            margin-right: 12px;
+            color: #3498db;
+            font-size: 1.2rem;
+            min-width: 24px;
+            margin-top: 4px;
+        }
+
+        /* 图表容器 */
+        .chart-container {
+            height: 350px;
+            margin: 30px 0;
+            position: relative;
+        }
+
+        /* 洞察部分 */
+        .insight {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e3f2fd 100%);
+            border-radius: 10px;
+            padding: 25px;
+            margin-top: 20px;
+            border-left: 5px solid #3498db;
+        }
+
+        footer {
+            text-align: center;
+            padding: 25px 0;
+            color: #7f8c8d;
+            background: #f8f9fa;
+        }
+
+        .highlight {
+            background: linear-gradient(120deg, #a1c4fd 0%, #c2e9fb 100%);
+            padding: 3px 6px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+
+        @media (max-width: 768px) {
+            .matching-container {
+                flex-direction: column;
+            }
+
+            .section {
+                padding: 20px;
+            }
+
+            header {
+                padding: 20px;
+            }
+
+            header h1 {
+                font-size: 1.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <header>
+        <h1><i class="fas fa-file-alt"></i> 前端工程师简历分析报告</h1>
+        <p>基于ATS系统解析与岗位需求匹配度的综合评估</p>
+    </header>
+
+    <section class="section">
+        <div class="section-title">
+            <i class="fas fa-percentage"></i>
+            <h2>一、简历匹配度评分</h2>
+        </div>
+
+        <div class="matching-container">
+            <div class="match-card">
+                <h3>整体匹配度</h3>
+                <div class="progress-container">
+                    <div class="progress-label">
+                        <span>当前匹配度</span>
+                        <span>25%</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill"></div>
+                    </div>
+                </div>
+
+                <div class="strengths">
+                    <h4><i class="fas fa-check-circle"></i> 优势：</h4>
+                    <p>展现出强大的学习能力和技术深度（如手写Spring框架），具备转型潜力</p>
+                </div>
+
+                <div class="weaknesses">
+                    <h4><i class="fas fa-exclamation-circle"></i> 劣势：</h4>
+                    <p>无前端实际项目经验，技术栈完全不重叠，项目经历均为后端领域</p>
+                </div>
+            </div>
+
+            <div class="match-card">
+                <h3>可视化分析</h3>
+                <div class="chart-container">
+                    <canvas id="skillsChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <section class="section">
+        <div class="section-title">
+            <i class="fas fa-search"></i>
+            <h2>二、ATS可搜索性分析</h2>
+        </div>
+
+        <div class="table-container">
+            <table>
+                <thead>
+                <tr>
+                    <th>检查项目</th>
+                    <th>状态</th>
+                    <th>建议</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>关键词匹配度</td>
+                    <td class="status-fail">未通过</td>
+                    <td>补充React/Vue、TypeScript等前端关键词，移除冗余后端术语</td>
+                </tr>
+                <tr>
+                    <td>简历结构模块</td>
+                    <td class="status-fail">未通过</td>
+                    <td>按前端规范重组项目描述，突出前端贡献</td>
+                </tr>
+                <tr>
+                    <td>联系信息</td>
+                    <td class="status-pass">通过</td>
+                    <td>邮箱/电话有效且位置醒目</td>
+                </tr>
+                <tr>
+                    <td>教育匹配</td>
+                    <td class="status-fail">未通过</td>
+                    <td>强调计算机相关专业背景而非大数据方向</td>
+                </tr>
+                <tr>
+                    <td>职位匹配</td>
+                    <td class="status-fail">未通过</td>
+                    <td>将'后端工程师'调整为'全栈工程师'提升兼容性</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <section class="section">
+        <div class="section-title">
+            <i class="fas fa-laptop-code"></i>
+            <h2>三、硬技能缺口分析</h2>
+        </div>
+
+        <div class="table-container">
+            <table>
+                <thead>
+                <tr>
+                    <th>技能名称</th>
+                    <th>状态</th>
+                    <th>建议</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>React框架</td>
+                    <td class="status-missing">缺失</td>
+                    <td>完成官方教程并搭建个人作品集项目</td>
+                </tr>
+                <tr>
+                    <td>Vue实践</td>
+                    <td class="status-missing">缺失</td>
+                    <td>参与开源前端项目积累实战经验</td>
+                </tr>
+                <tr>
+                    <td>TypeScript</td>
+                    <td class="status-missing">缺失</td>
+                    <td>系统学习类型体系并在现有项目中尝试迁移</td>
+                </tr>
+                <tr>
+                    <td>Webpack配置</td>
+                    <td class="status-missing">缺失</td>
+                    <td>研究主流脚手架工具的配置原理</td>
+                </tr>
+                <tr>
+                    <td>响应式设计</td>
+                    <td class="status-missing">缺失</td>
+                    <td>掌握CSS媒体查询与移动端适配方案</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <section class="section">
+        <div class="section-title">
+            <i class="fas fa-comments"></i>
+            <h2>四、软技能评估</h2>
+        </div>
+
+        <div class="table-container">
+            <table>
+                <thead>
+                <tr>
+                    <th>技能名称</th>
+                    <th>状态</th>
+                    <th>建议</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>沟通能力</td>
+                    <td class="status-partial">部分体现</td>
+                    <td>增加跨团队协作案例说明</td>
+                </tr>
+                <tr>
+                    <td>学习能力</td>
+                    <td class="status-pass">有</td>
+                    <td>突出快速掌握新技术的记录</td>
+                </tr>
+                <tr>
+                    <td>抗压能力</td>
+                    <td class="status-missing">未体现</td>
+                    <td>添加高并发场景下的调试经验</td>
+                </tr>
+                <tr>
+                    <td>团队协作</td>
+                    <td class="status-pass">有</td>
+                    <td>强化与设计师配合的具体实例</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <section class="section">
+        <div class="section-title">
+            <i class="fas fa-lightbulb"></i>
+            <h2>五、关键改进建议</h2>
+        </div>
+
+        <ul class="recommendation-list">
+            <li>
+                <i class="fas fa-bolt"></i>
+                <div>
+                    <strong>立即行动：</strong> 用Vue重构现有项目的管理后台界面作为作品集
+                </div>
+            </li>
+            <li>
+                <i class="fas fa-road"></i>
+                <div>
+                    <strong>技术路径：</strong> 先掌握基础前端三件套(HTML+CSS+JS)，再深入学习框架生态
+                </div>
+            </li>
+            <li>
+                <i class="fas fa-terminal"></i>
+                <div>
+                    <strong>展示策略：</strong> 在GitHub创建前端技术博客，持续更新学习笔记
+                </div>
+            </li>
+            <li>
+                <i class="fas fa-user-tie"></i>
+                <div>
+                    <strong>面试准备：</strong> 针对'为何从后端转向前端'设计说服性话术
+                </div>
+            </li>
+            <li>
+                <i class="fas fa-graduation-cap"></i>
+                <div>
+                    <strong>长期规划：</strong> 考取相关认证(如阿里云前端工程师ACA)
+                </div>
+            </li>
+        </ul>
+    </section>
+
+    <div class="divider"></div>
+
+    <section class="section">
+        <div class="section-title">
+            <i class="fas fa-binoculars"></i>
+            <h2>六、额外洞察</h2>
+        </div>
+
+        <div class="insight">
+            <p>虽然当前匹配度较低，但简历展现的技术功底（如设计模式应用、源码级理解）在前端领域同样具有价值。建议采用<span class="highlight">"曲线救国"策略</span>：主打'工程化能力'标签，侧重重构工具链优化、CI/CD流程改进等前端工程化方向，与纯做视图开发的候选人形成差异化竞争。</p>
+            <p style="margin-top: 15px;">该简历更适合投递Java后端或全栈岗位。若要挑战前端岗位，需进行系统性转岗准备，预计转型周期6-12个月。推荐优先申请对后端集成有需求的混合型前端职位（如大前端方向）。</p>
+        </div>
+    </section>
+
+    <footer>
+        <p>© 2023 前端技术评估中心 | 本报告基于ATS系统分析生成</p>
+    </footer>
+</div>
+
+<script>
+    // 图表数据与配置
+    document.addEventListener('DOMContentLoaded', function() {
+        const ctx = document.getElementById('skillsChart').getContext('2d');
+
+        // 图表数据
+        const data = {
+            labels: ['技术深度', '学习能力', '项目经验', '技术栈匹配', '工程化能力'],
+            datasets: [{
+                label: '能力评分',
+                data: [85, 90, 25, 20, 40],
+                backgroundColor: [
+                    'rgba(54, 162, 235, 0.6)',
+                    'rgba(75, 192, 192, 0.6)',
+                    'rgba(255, 99, 132, 0.6)',
+                    'rgba(255, 159, 64, 0.6)',
+                    'rgba(153, 102, 255, 0.6)'
+                ],
+                borderColor: [
+                    'rgba(54, 162, 235, 1)',
+                    'rgba(75, 192, 192, 1)',
+                    'rgba(255, 99, 132, 1)',
+                    'rgba(255, 159, 64, 1)',
+                    'rgba(153, 102, 255, 1)'
+                ],
+                borderWidth: 2
+            }]
+        };
+
+        // 图表配置
+        const config = {
+            type: 'radar',
+            data: data,
+            options: {
+                scales: {
+                    r: {
+                        angleLines: {
+                            color: 'rgba(200, 200, 200, 0.3)'
+                        },
+                        grid: {
+                            color: 'rgba(200, 200, 200, 0.3)'
+                        },
+                        pointLabels: {
+                            font: {
+                                size: 14,
+                                family: "'Noto Sans SC', sans-serif"
+                            },
+                            color: '#555'
+                        },
+                        suggestedMin: 0,
+                        suggestedMax: 100,
+                        ticks: {
+                            backdropColor: 'transparent',
+                            color: '#777',
+                            font: {
+                                size: 10
+                            },
+                            stepSize: 20
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        labels: {
+                            font: {
+                                size: 14,
+                                family: "'Noto Sans SC', sans-serif"
+                            }
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(0, 0, 0, 0.7)',
+                        titleFont: {
+                            family: "'Noto Sans SC', sans-serif"
+                        },
+                        bodyFont: {
+                            family: "'Noto Sans SC', sans-serif"
+                        }
+                    }
+                },
+                elements: {
+                    line: {
+                        tension: 0.3
+                    }
+                },
+                maintainAspectRatio: false
+            }
+        };
+
+        // 创建图表
+        new Chart(ctx, config);
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI面试官 - 应聘详情</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/boxicons@2.0.7/css/boxicons.min.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#165DFF',
+                        secondary: '#36CFC9',
+                        success: '#00B42A',
+                        warning: '#FF7D00',
+                        danger: '#F53F3F',
+                        info: '#86909C',
+                        light: '#F2F3F5',
+                        dark: '#1D2129',
+                        'primary-light': '#E8F3FF',
+                    },
+                    fontFamily: { inter: ['Inter', 'sans-serif'] },
+                    boxShadow: {
+                        card: '0 4px 20px rgba(0,0,0,.08)',
+                        hover: '0 8px 30px rgba(0,0,0,.12)',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .score-bar {
+            position: relative;
+            height: 6px;
+            background-color: #E5E6EB;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        .score-bar::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            background-color: #165DFF;
+            width: var(--score-width);
+            transition: width .5s ease;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+
+<!-- 顶部导航栏 -->
+    <header class="fixed top-0 left-0 right-0 bg-white shadow-sm z-50">
+        <div class="container mx-auto px-4 flex items-center justify-between h-16">
+            <!-- 左侧导航 -->
+            <div class="flex items-center space-x-1">
+                <div class="text-primary font-bold text-xl flex items-center">
+                    <i class='bx bx-bot mr-2'></i>
+                    <span>AI面试官 - 企业版</span>
+                </div>
+
+                <nav class="hidden md:flex ml-8 space-x-6">
+                    <a href="/company/dashboard" class="text-gray-600 hover:text-primary px-1 py-5 font-medium transition-colors">
+                        <i class='bx bxs-dashboard mr-1'></i>控制台
+                    </a>
+                    <a href="/company/jobManage" class="text-gray-600 hover:text-primary px-1 py-5 font-medium transition-colors">
+                        <i class='bx bx-briefcase mr-1'></i>职位管理
+                    </a>
+                    <a href="/company/interview" class="text-primary border-b-2 border-primary px-1 py-5 font-medium">
+                        <i class='bx bx-user mr-1'></i>候选人
+                    </a>
+                    <a href="/company/companyCenter" class="text-gray-600 hover:text-primary px-1 py-5 font-medium transition-colors">
+                        <i class='bx bx-cog mr-1'></i>企业设置
+                    </a>
+                </nav>
+            </div>
+
+        <div class="flex items-center space-x-4">
+            <button class="md:hidden text-gray-600 focus:outline-none">
+                <i class='bx bx-menu text-xl'></i>
+            </button>
+            <div class="relative">
+                <button class="flex items-center space-x-2 focus:outline-none" id="userMenuBtn">
+                    <img src="{{ url_for('static', filename='applicant_logo/公司头像.png') }}"
+                         alt="企业Logo" class="w-8 h-8 rounded-full object-cover border-2 border-primary-light">
+                    <span class="hidden md:inline-block font-medium">{{ company.company_name }}</span>
+                    <i class='bx bx-chevron-down text-xs text-gray-500'></i>
+                </button>
+                <div id="userMenu"
+                     class="absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5
+                            opacity-0 invisible scale-95 transition-all duration-200 origin-top-right">
+                    <a href="/company/companyCenter" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                        <i class='bx bx-cog mr-2'></i>企业设置
+                    </a>
+                    <div class="border-t border-gray-100 my-1"></div>
+                    <a href="/logout" class="block px-4 py-2 text-sm text-red-600 hover:bg-gray-100">
+                        <i class='bx bx-log-out mr-2'></i>退出登录
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- 主体 -->
+<main class="container mx-auto px-4 pt-24 pb-12">
+    <div class="flex items-center justify-between mb-6">
+        <h1 class="text-2xl md:text-3xl font-bold text-gray-800">应聘详情</h1>
+        <a href="/company/dashboard" class="btn bg-gray-200 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-300 transition-colors flex items-center">
+            <i class='bx bx-arrow-back mr-1'></i>返回控制台
+        </a>
+    </div>
+
+    <!-- 职位信息卡片 -->
+    <section class="bg-white rounded-xl p-6 shadow-card mb-6">
+        <h2 class="text-lg font-semibold text-primary mb-4">职位信息</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+            <p><strong class="text-gray-600">职位名称:</strong> {{ application.job.title }}</p>
+            <p><strong class="text-gray-600">职位类型:</strong> {{ application.job.job_type }}</p>
+            <p><strong class="text-gray-600">薪资范围:</strong> {{ application.job.min_salary }}-{{ application.job.max_salary }}</p>
+            <p><strong class="text-gray-600">工作地点:</strong> {{ application.job.location }}</p>
+        </div>
+    </section>
+
+    <!-- 申请人信息 -->
+    <section class="bg-white rounded-xl p-6 shadow-card mb-6">
+        <h2 class="text-lg font-semibold text-primary mb-4">申请人信息</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+            <div>
+                <p><strong class="text-gray-600">姓名:</strong> {{ application.applicant.name }}</p>
+                <p><strong class="text-gray-600">性别:</strong> {{ application.applicant.gender }}</p>
+                <p><strong class="text-gray-600">联系电话:</strong> {{ application.applicant.phone }}</p>
+            </div>
+            <div>
+                <p><strong class="text-gray-600">教育程度:</strong> {{ application.applicant.education_level }}</p>
+                <p><strong class="text-gray-600">工作年限:</strong> {{ application.applicant.work_years }} 年</p>
+                <p><strong class="text-gray-600">期望职位:</strong> {{ application.applicant.expected_position }}</p>
+                <p><strong class="text-gray-600">期望薪资:</strong> {{ application.applicant.expected_salary }}</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 应聘状态 -->
+    <section class="bg-white rounded-xl p-6 shadow-card mb-6">
+        <h2 class="text-lg font-semibold text-primary mb-4">应聘状态</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+            <p><strong class="text-gray-600">申请时间:</strong> {{ application.apply_time }}</p>
+            <p>
+                <strong class="text-gray-600">状态:</strong>
+                <span class="ml-2 inline-block px-2 py-1 rounded-md text-xs font-medium
+                {% if application.status == '录用' %} bg-success/20 text-success
+                {% elif application.status == '拒绝' %} bg-danger/20 text-danger
+                {% elif application.status == '已完成' %} bg-success/20 text-success
+                {% else %} bg-warning/20 text-warning {% endif %}">
+                    {{ application.status }}
+                </span>
+            </p>
+            <p><strong class="text-gray-600">AI评分:</strong> {{ application.ai_evaluation_score or '暂无' }}</p>
+        </div>
+    </section>
+
+    <!-- AI评估结果 -->
+    {% if application.ai_evaluation_score %}
+    <section class="bg-white rounded-xl p-6 shadow-card mb-6">
+        <h2 class="text-lg font-semibold text-primary mb-4">AI评估结果</h2>
+        <div class="flex items-center space-x-3">
+            <span class="text-sm font-medium w-24">总体得分</span>
+            <div class="flex-1">
+                <div class="score-bar" style="--score-width:{{ application.ai_evaluation_score }}%"></div>
+            </div>
+            <span class="text-primary font-bold">{{ application.ai_evaluation_score }}</span>
+        </div>
+    </section>
+    {% endif %}
+
+    <!-- 操作区 -->
+    <section class="flex flex-wrap gap-3 mb-6">
+        {% if application.status in ['已投递', '已查看'] %}
+        <button id="inviteBtn"
+                data-id="{{ application.application_id }}"
+                class="bg-primary text-white px-4 py-2 rounded-md hover:bg-primary/90 transition-colors">
+            发送面试邀请
+        </button>
+        <button id="rejectBtn"
+                data-id="{{ application.application_id }}"
+                class="bg-danger text-white px-4 py-2 rounded-md hover:bg-danger/90 transition-colors">
+            拒绝申请
+        </button>
+        {% elif application.status == '已完成' %}
+        <button id="acceptBtn"
+                data-id="{{ application.application_id }}"
+                class="bg-success text-white px-4 py-2 rounded-md hover:bg-success/90 transition-colors">
+            录用
+        </button>
+        <button id="rejectBtn"
+                data-id="{{ application.application_id }}"
+                class="bg-danger text-white px-4 py-2 rounded-md hover:bg-danger/90 transition-colors">
+            拒绝
+        </button>
+        {% endif %}
+        <button onclick="window.history.back()" class="bg-gray-200 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-300 transition-colors">
+            返回
+        </button>
+    </section>
+
+    <!-- 反馈 -->
+    {% if application.status not in ['录用', '拒绝'] %}
+    <section class="bg-white rounded-xl p-6 shadow-card">
+        <h2 class="text-lg font-semibold text-primary mb-4">添加反馈</h2>
+        <textarea id="feedbackText" rows="3"
+                  class="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-primary focus:border-primary"
+                  placeholder="添加对此申请人的反馈...">{{ application.feedback or '' }}</textarea>
+        <button id="saveFeedbackBtn"
+                data-id="{{ application.application_id }}"
+                class="mt-3 bg-primary text-white px-4 py-2 rounded-md hover:bg-primary/90 transition-colors">
+            保存反馈
+        </button>
+    </section>
+    {% endif %}
+</main>
+
+<script>
+    // 用户菜单
+    document.getElementById('userMenuBtn').addEventListener('click', () => {
+        const menu = document.getElementById('userMenu');
+        menu.classList.toggle('opacity-0');
+        menu.classList.toggle('invisible');
+        menu.classList.toggle('scale-95');
+    });
+
+    // 事件委托
+    const sendRequest = (url, confirmMsg) => {
+        if (!confirm(confirmMsg)) return;
+        fetch(url, { method: 'POST' })
+            .then(r => r.json())
+            .then(d => {
+                if (d.success) {
+                    alert('操作成功'); location.reload();
+                } else {
+                    alert('操作失败: ' + d.message);
+                }
+            })
+            .catch(() => alert('网络错误'));
+    };
+
+    document.addEventListener('click', (e) => {
+        if (e.target.id === 'inviteBtn') sendRequest('/api/send_invitation/' + e.target.dataset.id, '确定发送面试邀请吗？');
+        if (e.target.id === 'rejectBtn') sendRequest('/company/api/reject/' + e.target.dataset.id, '确定拒绝该申请吗？');
+        if (e.target.id === 'acceptBtn') sendRequest('/company/api/accept/' + e.target.dataset.id, '确定录用该申请人吗？');
+        if (e.target.id === 'saveFeedbackBtn') {
+            const id = e.target.dataset.id;
+            const feedback = document.getElementById('feedbackText').value;
+            fetch('/company/api/save_feedback/' + id, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ feedback })
+            })
+            .then(r => r.json())
+            .then(d => alert(d.success ? '反馈已保存' : '保存失败'));
+        }
+    });
+</script>
+</body>
+</html>

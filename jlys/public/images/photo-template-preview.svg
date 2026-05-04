@@ -1,0 +1,63 @@
+<svg width="300" height="400" viewBox="0 0 300 400" fill="none" xmlns="http://www.w3.org/2000/svg">
+<!-- 背景 -->
+<rect width="300" height="400" fill="#FEFEFE"/>
+<!-- 简历容器 -->
+<rect x="20" y="20" width="260" height="360" fill="white" stroke="#D1D5DB"/>
+
+<!-- 头部区域 -->
+<rect x="40" y="40" width="220" height="50" fill="#F8F9FA"/>
+
+<!-- 照片区域 -->
+<circle cx="70" cy="65" r="20" fill="#E5E7EB" stroke="#9CA3AF" stroke-width="2"/>
+<circle cx="70" cy="60" r="6" fill="#6B7280"/>
+<path d="M 60 75 Q 70 70 80 75" stroke="#6B7280" stroke-width="2" fill="none"/>
+
+<!-- 姓名和职位 -->
+<rect x="100" y="45" width="120" height="12" fill="#1F2937"/>
+<text x="105" y="54" fill="white" font-family="serif" font-size="12" font-weight="bold">王小明</text>
+<rect x="100" y="65" width="80" height="8" fill="#6B7280"/>
+<text x="105" y="72" fill="white" font-family="serif" font-size="9">软件工程师</text>
+
+<!-- 联系信息 -->
+<rect x="100" y="80" width="60" height="6" fill="#9CA3AF"/>
+<rect x="170" y="80" width="70" height="6" fill="#9CA3AF"/>
+
+<!-- 分隔线 -->
+<line x1="40" y1="105" x2="260" y2="105" stroke="#374151" stroke-width="1"/>
+
+<!-- 个人简介 -->
+<rect x="40" y="120" width="220" height="12" fill="#1F2937"/>
+<text x="45" y="129" fill="white" font-family="serif" font-size="10" font-weight="bold">个人简介</text>
+
+<rect x="40" y="140" width="200" height="6" fill="#6B7280"/>
+<rect x="40" y="150" width="180" height="6" fill="#6B7280"/>
+<rect x="40" y="160" width="160" height="6" fill="#6B7280"/>
+
+<!-- 工作经历 -->
+<rect x="40" y="185" width="220" height="12" fill="#1F2937"/>
+<text x="45" y="194" fill="white" font-family="serif" font-size="10" font-weight="bold">工作经历</text>
+
+<rect x="40" y="205" width="140" height="8" fill="#6B7280"/>
+<rect x="190" y="205" width="70" height="8" fill="#9CA3AF"/>
+<rect x="40" y="220" width="190" height="6" fill="#9CA3AF"/>
+<rect x="40" y="230" width="170" height="6" fill="#9CA3AF"/>
+
+<!-- 教育背景 -->
+<rect x="40" y="255" width="220" height="12" fill="#1F2937"/>
+<text x="45" y="264" fill="white" font-family="serif" font-size="10" font-weight="bold">教育背景</text>
+
+<rect x="40" y="275" width="130" height="8" fill="#6B7280"/>
+<rect x="180" y="275" width="80" height="8" fill="#9CA3AF"/>
+<rect x="40" y="290" width="160" height="6" fill="#9CA3AF"/>
+
+<!-- 技能专长 -->
+<rect x="40" y="315" width="220" height="12" fill="#1F2937"/>
+<text x="45" y="324" fill="white" font-family="serif" font-size="10" font-weight="bold">技能专长</text>
+
+<rect x="40" y="335" width="100" height="6" fill="#6B7280"/>
+<rect x="40" y="345" width="120" height="6" fill="#6B7280"/>
+<rect x="40" y="355" width="90" height="6" fill="#6B7280"/>
+
+<!-- 装饰线条 -->
+<rect x="35" y="40" width="2" height="320" fill="#E5E7EB"/>
+</svg>

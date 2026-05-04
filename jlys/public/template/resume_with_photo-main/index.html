@@ -1,0 +1,81 @@
+<div class="minipage">
+<p><span><strong>张三</strong></span></p>
+<table>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>电话</strong></td>
+<td style="text-align: left;">138-1234-5678</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>邮箱</strong></td>
+<td style="text-align: left;">zhangsan@email.com</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>QQ</strong></td>
+<td style="text-align: left;">123456789</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>性别</strong></td>
+<td style="text-align: left;">男</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>年龄</strong></td>
+<td style="text-align: left;">28</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="minipage">
+<p><img src="photo.jpg" style="width:80.0%" alt="image" /></p>
+</div>
+<h1 id="教育背景"> 教育背景</h1>
+<p><em>在读硕士研究生</em> 信息与通信工程, 预计 2016 年 3 月毕业
+<em>学士</em> 通信工程</p>
+<h1 id="实习项目经历"> 实习/项目经历</h1>
+<p>xxx后端开发</p>
+<ul>
+<li><p>实现了 xxx 特性</p></li>
+<li><p>后台资源占用率减少8%</p></li>
+<li><p>xxx</p></li>
+</ul>
+<div class="onehalfspacing">
+<p>分布式负载均衡科学上网姿势, https://github.com/cyfdecyf/cow</p>
+<ul>
+<li><p>修复了连接未正常关闭导致文件描述符耗尽的 bug</p></li>
+<li><p>使用Chord 哈希 URL, 实现稳定可靠地分流</p></li>
+<li><p>xxx (尽量使用量化的客观结果)</p></li>
+</ul>
+</div>
+<h1 id="it-技能"> IT 技能</h1>
+<ul>
+<li><p>编程语言: C == Python &gt; C++ &gt; Java</p></li>
+<li><p>平台: Linux</p></li>
+<li><p>开发: xxx</p></li>
+</ul>
+<h1 id="其他经历与荣誉"> 其他经历与荣誉</h1>
+<h1 id="其他自我介绍"> 其他/自我介绍</h1>
+<ul>
+<li><p>技术博客: http://blog.yours.me</p></li>
+<li><p>GitHub: https://github.com/username</p></li>
+<li><p>语言: 英语 - 熟练(TOEFL xxx)</p></li>
+</ul>
+<script>
+    window.addEventListener('message', function(event) {
+        if (event.data.type === 'RESUME_DATA') {
+            const data = event.data.data;
+            console.log('收到简历数据:', data);
+
+            // 根据你的 HTML 结构，用 JavaScript 填充数据
+            // 示例：如果有 id 为 "name" 的元素
+            if (document.getElementById('name')) {
+                document.getElementById('name').textContent = data.fullName || '';
+            }
+            // 或者替换占位符
+            document.body.innerHTML = document.body.innerHTML
+                .replace(/{{name}}/g, data.fullName || '')
+                .replace(/{{position}}/g, data.position || '')
+                .replace(/{{phone}}/g, data.phone || '')
+                .replace(/{{email}}/g, data.email || '');
+        }
+    });
+</script>

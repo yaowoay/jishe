@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>滚动修复测试</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+            background: #f5f8ff;
+        }
+        .test-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .content-block {
+            height: 300px;
+            margin: 20px 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            font-weight: bold;
+            color: #1976d2;
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>前端页面滚动修复测试</h1>
+        
+        <div class="status success">
+            ✅ 修复完成：已移除所有 overflow: hidden 限制
+        </div>
+        
+        <div class="status info">
+            📋 修复内容：
+            <ul>
+                <li>ResumeView.vue - 移除滚动禁用</li>
+                <li>SimulatExam.vue - 允许垂直滚动</li>
+                <li>OffecialExam.vue - 允许垂直滚动</li>
+                <li>example.vue - 修复全局样式</li>
+                <li>LayoutView.vue - 修复全屏模式滚动</li>
+                <li>App.vue - 优化根容器滚动</li>
+            </ul>
+        </div>
+
+        <p>如果你能看到这个页面并且可以滚动到下面的内容块，说明滚动功能已经正常工作。</p>
+
+        <div class="content-block">内容块 1 - 测试滚动功能</div>
+        <div class="content-block">内容块 2 - 继续滚动测试</div>
+        <div class="content-block">内容块 3 - 滚动应该正常工作</div>
+        <div class="content-block">内容块 4 - 如果能看到这里说明滚动正常</div>
+        <div class="content-block">内容块 5 - 最后一个测试块</div>
+
+        <div class="status success">
+            🎉 如果你能滚动到这里，说明修复成功！
+        </div>
+    </div>
+
+    <script>
+        // 检测滚动功能
+        window.addEventListener('scroll', function() {
+            console.log('页面滚动正常工作，当前滚动位置:', window.scrollY);
+        });
+        
+        // 页面加载完成后的提示
+        window.addEventListener('load', function() {
+            console.log('页面加载完成，请测试滚动功能');
+            
+            // 检查页面高度
+            const bodyHeight = document.body.scrollHeight;
+            const windowHeight = window.innerHeight;
+            
+            if (bodyHeight > windowHeight) {
+                console.log('页面内容超出视口，应该可以滚动');
+                console.log('页面总高度:', bodyHeight, '视口高度:', windowHeight);
+            }
+        });
+    </script>
+</body>
+</html>

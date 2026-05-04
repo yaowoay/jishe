@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>IT专业简历</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: #e8ecf1; padding: 30px; font-family: 'Microsoft YaHei', Arial, sans-serif; }
+        .resume-card { max-width: 1000px; margin: 0 auto; background: white; display: flex; border-radius: 8px; overflow: hidden; box-shadow: 0 5px 20px rgba(0,0,0,0.1); }
+        .sidebar { width: 34%; background: #2c3e50; color: white; padding: 30px 20px; }
+        .sidebar h1 { font-size: 24px; border-bottom: 2px solid #3498db; display: inline-block; padding-bottom: 5px; }
+        .sidebar h2 { font-size: 14px; color: #3498db; margin: 15px 0 20px; }
+        .side-info { list-style: none; }
+        .side-info li { margin-bottom: 20px; }
+        .side-info dt { font-weight: bold; margin-bottom: 10px; font-size: 14px; border-left: 3px solid #3498db; padding-left: 10px; }
+        .side-info dd { font-size: 13px; line-height: 1.8; margin-left: 13px; color: #ddd; }
+        .main { width: 66%; padding: 30px; }
+        .main dt { font-weight: bold; font-size: 16px; color: #2c3e50; margin: 20px 0 15px; border-bottom: 2px solid #3498db; padding-bottom: 5px; }
+        .main dt:first-child { margin-top: 0; }
+        .exp { list-style: none; }
+        .exp li { margin-bottom: 15px; font-size: 13px; color: #555; line-height: 1.6; }
+        .exp h4 { font-size: 14px; color: #2c3e50; margin-bottom: 5px; }
+        .exp h4 span { font-weight: normal; color: #999; font-size: 12px; margin-left: 10px; }
+        .skill-bar-wrap { background: rgba(255,255,255,0.2); border-radius: 10px; margin-top: 5px; }
+        .skill-bar { height: 6px; background: #3498db; border-radius: 10px; }
+        .skill-name { font-size: 13px; margin-bottom: 3px; }
+        .fa { margin-right: 5px; }
+        @media print { body { padding: 0; background: white; } .resume-card { box-shadow: none; } }
+    </style>
+</head>
+<body>
+<div class="resume-card">
+    <div class="sidebar">
+        <h1 id="name">加载中...</h1>
+        <h2 id="position"></h2>
+        <ul class="side-info">
+            <li><dt><i class="fa fa-bookmark"></i> 联系方式</dt>
+                <dd><i class="fa fa-phone"></i> <span id="phone"></span></dd>
+                <dd><i class="fa fa-envelope"></i> <span id="email"></span></dd>
+            </li>
+            <li><dt><i class="fa fa-bookmark"></i> 教育背景</dt>
+                <dd id="school"></dd>
+                <dd id="major"></dd>
+            </li>
+            <li><dt><i class="fa fa-bookmark"></i> 技能专长</dt>
+                <div id="skills"></div>
+            </li>
+        </ul>
+    </div>
+    <div class="main">
+        <dt><i class="fa fa-bookmark"></i> 工作经历</dt>
+        <div id="workList"></div>
+        <dt><i class="fa fa-bookmark"></i> 项目经验</dt>
+        <div id="projectList"></div>
+    </div>
+</div>
+<script>
+    window.addEventListener('message', function(e) {
+        if (e.data.type === 'RESUME_DATA') {
+            const d = e.data.data;
+            document.getElementById('name').innerText = d.fullName || '姓名';
+            document.getElementById('position').innerText = d.position || '';
+            document.getElementById('phone').innerText = d.phone || '';
+            document.getElementById('email').innerText = d.email || '';
+
+            const edu = (d.educations || [])[0] || {};
+            document.getElementById('school').innerText = edu.school || '';
+            document.getElementById('major').innerText = edu.major || '';
+
+            let skillsHtml = '';
+            (d.skills || []).forEach(s => {
+                skillsHtml += `<div class="skill-name">${s.skillName}</div>
+                                   <div class="skill-bar-wrap"><div class="skill-bar" style="width: ${(s.level/5)*100}%"></div></div>`;
+            });
+            document.getElementById('skills').innerHTML = skillsHtml;
+
+            let workHtml = '';
+            (d.workExperiences || []).forEach(w => {
+                workHtml += `<li><h4>${w.company} <span>${w.startDate||''} - ${w.endDate||'至今'}</span></h4>
+                                 <p>${w.position}</p><p>${w.responsibility||''}</p></li>`;
+            });
+            document.getElementById('workList').innerHTML = `<ul class="exp">${workHtml}</ul>`;
+
+            let projHtml = '';
+            (d.projectExperiences || []).forEach(p => {
+                projHtml += `<li><h4>${p.projectName} <span>${p.startDate||''} - ${p.endDate||''}</span></h4>
+                                 <p>${p.role}</p><p>${p.description||''}</p></li>`;
+            });
+            document.getElementById('projectList').innerHTML = `<ul class="exp">${projHtml}</ul>`;
+        }
+    });
+</script>
+</body>
+</html>

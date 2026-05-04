@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>前端工程师简历分析报告</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary: #2c6fbb;
+            --primary-light: #e6f0fa;
+            --secondary: #3498db;
+            --accent: #1abc9c;
+            --warning: #e74c3c;
+            --success: #27ae60;
+            --gray-light: #f8f9fa;
+            --gray: #e9ecef;
+            --gray-dark: #6c757d;
+            --text: #343a40;
+            --shadow: rgba(0, 0, 0, 0.1);
+            --border: #dee2e6;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            background-color: #f5f7fa;
+            color: var(--text);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: white;
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.05);
+            border-radius: 10px;
+        }
+
+        /* 头部区域样式 */
+        header {
+            text-align: center;
+            padding: 30px 0;
+            margin-bottom: 30px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            border-radius: 10px;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        header::before {
+            content: "";
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 70%);
+        }
+
+        .header-content {
+            position: relative;
+            z-index: 2;
+            padding: 20px;
+        }
+
+        .header-icon {
+            font-size: 48px;
+            margin-bottom: 20px;
+            color: white;
+            background: rgba(255, 255, 255, 0.2);
+            width: 100px;
+            height: 100px;
+            line-height: 100px;
+            border-radius: 50%;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            font-weight: 300;
+            max-width: 700px;
+            margin: 0 auto;
+            opacity: 0.9;
+        }
+
+        /* 分隔线样式 */
+        .divider {
+            height: 1px;
+            background: linear-gradient(to right, transparent, var(--gray-dark), transparent);
+            margin: 40px 0;
+        }
+
+        /* 模块标题样式 */
+        .section-title {
+            display: flex;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--primary);
+        }
+
+        .section-icon {
+            background-color: var(--primary);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            font-size: 18px;
+        }
+
+        .section-title h2 {
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        /* 匹配度评分区 */
+        .score-section {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+        }
+
+        .score-card {
+            flex: 1;
+            min-width: 300px;
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 5px 15px var(--shadow);
+            border-top: 4px solid var(--primary);
+        }
+
+        .score-chart {
+            flex: 1;
+            min-width: 300px;
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 5px 15px var(--shadow);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .overall-score {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .score-value {
+            font-size: 4rem;
+            font-weight: 700;
+            color: var(--primary);
+            line-height: 1;
+            margin-bottom: 10px;
+        }
+
+        .score-label {
+            font-size: 1.2rem;
+            color: var(--gray-dark);
+            margin-bottom: 20px;
+        }
+
+        .progress-container {
+            height: 20px;
+            background-color: var(--gray);
+            border-radius: 10px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            border-radius: 10px;
+            width: 0;
+            transition: width 1.5s ease-in-out;
+        }
+
+        .strengths, .weaknesses {
+            margin-top: 25px;
+        }
+
+        .strengths h3, .weaknesses h3 {
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            font-size: 1.2rem;
+        }
+
+        .strengths h3 {
+            color: var(--success);
+        }
+
+        .weaknesses h3 {
+            color: var(--warning);
+        }
+
+        .strengths ul, .weaknesses ul {
+            padding-left: 25px;
+        }
+
+        .strengths li {
+            color: var(--success);
+            margin-bottom: 5px;
+        }
+
+        .weaknesses li {
+            color: var(--warning);
+            margin-bottom: 5px;
+        }
+
+        .chart-container {
+            width: 100%;
+            max-width: 400px;
+            height: 300px;
+        }
+
+        /* 表格区域 */
+        .analysis-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .analysis-table th {
+            background-color: var(--primary);
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 500;
+        }
+
+        .analysis-table td {
+            padding: 15px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .analysis-table tr:nth-child(even) {
+            background-color: var(--gray-light);
+        }
+
+        .status-pass {
+            color: var(--success);
+            font-weight: 600;
+        }
+
+        .status-fail {
+            color: var(--warning);
+            font-weight: 600;
+        }
+
+        .status-missing {
+            color: var(--gray-dark);
+            font-weight: 600;
+        }
+
+        .status-partial {
+            color: var(--secondary);
+            font-weight: 600;
+        }
+
+        /* 建议列表区 */
+        .suggestion-list {
+            list-style-type: none;
+            margin: 20px 0;
+        }
+
+        .suggestion-item {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 3px 10px var(--shadow);
+            display: flex;
+            align-items: center;
+            transition: transform 0.3s, box-shadow 0.3s;
+            border-left: 4px solid var(--accent);
+        }
+
+        .suggestion-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .suggestion-icon {
+            width: 50px;
+            height: 50px;
+            min-width: 50px;
+            background-color: var(--primary-light);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 20px;
+            font-size: 20px;
+            color: var(--primary);
+        }
+
+        .suggestion-content {
+            flex-grow: 1;
+        }
+
+        .suggestion-title {
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 5px;
+            font-size: 1.2rem;
+        }
+
+        /* 洞察区 */
+        .insights {
+            background-color: var(--primary-light);
+            border-left: 4px solid var(--primary);
+            padding: 25px;
+            border-radius: 0 8px 8px 0;
+            margin: 30px 0;
+        }
+
+        .insight-title {
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+        }
+
+        .insight-title i {
+            margin-right: 10px;
+        }
+
+        .insight-content p {
+            margin-bottom: 15px;
+        }
+
+        .highlight {
+            background-color: rgba(44, 111, 187, 0.1);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 600;
+            color: var(--primary);
+            border-bottom: 2px solid var(--primary);
+        }
+
+        /* 页脚区域 */
+        footer {
+            text-align: center;
+            padding: 25px 0;
+            color: var(--gray-dark);
+            font-size: 0.9rem;
+            border-top: 1px solid var(--border);
+            margin-top: 20px;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+
+            header {
+                padding: 20px 0;
+            }
+
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            .subtitle {
+                font-size: 1rem;
+            }
+
+            .section-title h2 {
+                font-size: 1.4rem;
+            }
+
+            .score-section {
+                flex-direction: column;
+            }
+
+            .score-value {
+                font-size: 3rem;
+            }
+
+            .analysis-table {
+                display: block;
+                overflow-x: auto;
+            }
+        }
+
+        /* 动画效果 */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .section {
+            animation: fadeIn 0.5s ease-out forwards;
+        }
+
+        .section:nth-child(1) { animation-delay: 0.1s; }
+        .section:nth-child(2) { animation-delay: 0.2s; }
+        .section:nth-child(3) { animation-delay: 0.3s; }
+        .section:nth-child(4) { animation-delay: 0.4s; }
+        .section:nth-child(5) { animation-delay: 0.5s; }
+        .section:nth-child(6) { animation-delay: 0.6s; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <!-- 头部区域 -->
+    <header>
+        <div class="header-content">
+            <div class="header-icon">
+                <i class="fas fa-file-alt"></i>
+            </div>
+            <h1>前端工程师简历分析报告</h1>
+            <p class="subtitle">基于ATS系统解析与岗位需求匹配度的综合评估</p>
+        </div>
+    </header>
+
+    <!-- 匹配度评分区 -->
+    <section class="section">
+        <div class="section-title">
+            <div class="section-icon">
+                <i class="fas fa-percentage"></i>
+            </div>
+            <h2>简历匹配度评分</h2>
+        </div>
+
+        <div class="score-section">
+            <div class="score-card">
+                <div class="overall-score">
+                    <div class="score-value">0%</div>
+                    <div class="score-label">整体岗位匹配度</div>
+                </div>
+
+                <div class="progress-container">
+                    <div class="progress-bar" id="match-progress"></div>
+                </div>
+
+                <div class="strengths">
+                    <h3><i class="fas fa-check-circle"></i> 优势分析</h3>
+                    <ul>
+                        <li>简历格式规范，结构清晰</li>
+                        <li>教育背景与岗位要求相符</li>
+                    </ul>
+                </div>
+
+                <div class="weaknesses">
+                    <h3><i class="fas fa-exclamation-circle"></i> 待提升领域</h3>
+                    <ul>
+                        <li>简历内容未提供，无法进行全面分析</li>
+                        <li>技术细节和项目经验无法评估</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="score-chart">
+                <h3>能力维度雷达图</h3>
+                <div class="chart-container">
+                    <canvas id="radar-chart"></canvas>
+                </div>
+                <p>上传简历后生成完整能力分析</p>
+            </div>
+        </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- ATS可搜索性分析区 -->
+    <section class="section">
+        <div class="section-title">
+            <div class="section-icon">
+                <i class="fas fa-search"></i>
+            </div>
+            <h2>ATS可搜索性分析</h2>
+        </div>
+
+        <table class="analysis-table">
+            <thead>
+            <tr>
+                <th>检查项目</th>
+                <th>状态</th>
+                <th>建议</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>关键词覆盖率</td>
+                <td class="status-missing">未提供</td>
+                <td>待简历上传后分析关键词覆盖情况</td>
+            </tr>
+            <tr>
+                <td>格式规范性</td>
+                <td class="status-missing">未提供</td>
+                <td>需检查简历格式是否符合ATS解析要求</td>
+            </tr>
+            <tr>
+                <td>联系信息完整性</td>
+                <td class="status-missing">未提供</td>
+                <td>确保包含完整的联系方式</td>
+            </tr>
+            <tr>
+                <td>教育背景呈现</td>
+                <td class="status-missing">未提供</td>
+                <td>明确列出学位、专业和毕业时间</td>
+            </tr>
+            <tr>
+                <td>技能部分组织</td>
+                <td class="status-missing">未提供</td>
+                <td>建议分技术栈归类展示技能</td>
+            </tr>
+            </tbody>
+        </table>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- 硬技能缺口分析区 -->
+    <section class="section">
+        <div class="section-title">
+            <div class="section-icon">
+                <i class="fas fa-laptop-code"></i>
+            </div>
+            <h2>硬技能匹配分析</h2>
+        </div>
+
+        <table class="analysis-table">
+            <thead>
+            <tr>
+                <th>技能名称</th>
+                <th>状态</th>
+                <th>建议</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>React/Vue框架</td>
+                <td class="status-missing">未提供</td>
+                <td>需在简历中明确项目经验与熟练度</td>
+            </tr>
+            <tr>
+                <td>TypeScript</td>
+                <td class="status-missing">未提供</td>
+                <td>建议展示TypeScript的实际应用案例</td>
+            </tr>
+            <tr>
+                <td>Webpack构建工具</td>
+                <td class="status-missing">未提供</td>
+                <td>可补充优化配置的具体经验</td>
+            </tr>
+            <tr>
+                <td>响应式设计</td>
+                <td class="status-missing">未提供</td>
+                <td>需证明跨设备适配能力</td>
+            </tr>
+            <tr>
+                <td>性能优化</td>
+                <td class="status-missing">未提供</td>
+                <td>建议包含具体优化策略与成果数据</td>
+            </tr>
+            </tbody>
+        </table>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- 软技能评估区 -->
+    <section class="section">
+        <div class="section-title">
+            <div class="section-icon">
+                <i class="fas fa-users"></i>
+            </div>
+            <h2>软技能评估</h2>
+        </div>
+
+        <table class="analysis-table">
+            <thead>
+            <tr>
+                <th>能力维度</th>
+                <th>状态</th>
+                <th>建议</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>团队协作能力</td>
+                <td class="status-missing">未提供</td>
+                <td>建议描述跨职能团队合作经历</td>
+            </tr>
+            <tr>
+                <td>沟通表达能力</td>
+                <td class="status-missing">未提供</td>
+                <td>可补充技术文档编写或分享经验</td>
+            </tr>
+            <tr>
+                <td>问题解决能力</td>
+                <td class="status-missing">未提供</td>
+                <td>建议展示复杂问题的处理过程</td>
+            </tr>
+            <tr>
+                <td>项目管理能力</td>
+                <td class="status-missing">未提供</td>
+                <td>可说明主导或参与的项目管理经验</td>
+            </tr>
+            <tr>
+                <td>学习适应能力</td>
+                <td class="status-missing">未提供</td>
+                <td>建议列举快速掌握新技术的实例</td>
+            </tr>
+            </tbody>
+        </table>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- 关键改进建议区 -->
+    <section class="section">
+        <div class="section-title">
+            <div class="section-icon">
+                <i class="fas fa-lightbulb"></i>
+            </div>
+            <h2>关键改进建议</h2>
+        </div>
+
+        <ul class="suggestion-list">
+            <li class="suggestion-item">
+                <div class="suggestion-icon">
+                    <i class="fas fa-file-medical"></i>
+                </div>
+                <div class="suggestion-content">
+                    <div class="suggestion-title">补充完整简历内容</div>
+                    <p>建议优先补充完整简历内容，包括项目案例、技术实现细节和量化成果，以便进行专业评估。</p>
+                </div>
+            </li>
+
+            <li class="suggestion-item">
+                <div class="suggestion-icon">
+                    <i class="fab fa-github"></i>
+                </div>
+                <div class="suggestion-content">
+                    <div class="suggestion-title">突出开源贡献</div>
+                    <p>若具备开源贡献或性能优化经验，应在简历中突出展示相关细节和具体成果。</p>
+                </div>
+            </li>
+
+            <li class="suggestion-item">
+                <div class="suggestion-icon">
+                    <i class="fas fa-mobile-alt"></i>
+                </div>
+                <div class="suggestion-content">
+                    <div class="suggestion-title">增加移动端开发经验</div>
+                    <p>建议针对性添加移动端开发（如React Native）相关经验，以提升岗位竞争力。</p>
+                </div>
+            </li>
+        </ul>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- 额外洞察区 -->
+    <section class="section">
+        <div class="insights">
+            <div class="insight-title">
+                <i class="fas fa-binoculars"></i> 分析洞察
+            </div>
+            <div class="insight-content">
+                <p>当前仅提供了岗位需求，缺少求职者的实际简历数据。完整的评估需要基于具体的简历内容展开，包括工作经历的时间线、技术深度、项目规模等关键信息。</p>
+                <p>根据岗位需求，我们建议简历中应突出<span class="highlight">现代前端框架的实战经验</span>，特别是React或Vue在企业级项目中的应用，同时展示<span class="highlight">TypeScript的类型系统应用能力</span>和<span class="highlight">Webpack优化技巧</span>。</p>
+                <p>上传简历后，我们将提供详细的技术栈匹配分析、项目经验评估和软技能综合评价，帮助您针对性地优化简历内容，提高通过率。</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 页脚区域 -->
+    <footer>
+        <p>前端工程师简历分析报告 &copy; 2023 | 基于先进ATS解析技术与岗位匹配算法</p>
+        <p>注意：本报告需要完整的简历内容才能生成全面分析结果</p>
+    </footer>
+</div>
+
+<script>
+    // 页面加载完成后执行
+    document.addEventListener

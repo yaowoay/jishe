@@ -1,0 +1,49 @@
+<p>xxx 后端开发</p>
+<ul>
+<li><p>实现了 xxx 特性</p></li>
+<li><p>后台资源占用率减少 8%</p></li>
+</ul>
+<p>Fork 自 <a
+href="https://github.com/billryan/resume">billryan/resume</a>，优雅的
+LaTeX 简历模板</p>
+<ul>
+<li><p>新增支持 FontAwesome 6.6.0</p></li>
+<li><p>修改带图片的样式</p></li>
+<li><p>新增多种标题行样式</p></li>
+<li><p>其他修改</p></li>
+</ul>
+<div class="onehalfspacing">
+
+</div>
+<div class="onehalfspacing">
+
+</div>
+<div class="onehalfspacing">
+
+</div>
+<div class="onehalfspacing">
+
+</div>
+<div class="onehalfspacing">
+
+</div>
+<script>
+    window.addEventListener('message', function(event) {
+        if (event.data.type === 'RESUME_DATA') {
+            const data = event.data.data;
+            console.log('收到简历数据:', data);
+
+            // 根据你的 HTML 结构，用 JavaScript 填充数据
+            // 示例：如果有 id 为 "name" 的元素
+            if (document.getElementById('name')) {
+                document.getElementById('name').textContent = data.fullName || '';
+            }
+            // 或者替换占位符
+            document.body.innerHTML = document.body.innerHTML
+                .replace(/{{name}}/g, data.fullName || '')
+                .replace(/{{position}}/g, data.position || '')
+                .replace(/{{phone}}/g, data.phone || '')
+                .replace(/{{email}}/g, data.email || '');
+        }
+    });
+</script>

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.aiinterview.mapper.ResumeScoresMapper">
+
+    <!-- 结果映射 -->
+    <resultMap id="BaseResultMap" type="com.aiinterview.model.entity.resume.ResumeScores">
+        <id column="score_id" property="scoreId" />
+        <result column="report_id" property="reportId" />
+        <result column="total_score" property="totalScore" />
+        <result column="tech_match" property="techMatch" />
+        <result column="experience_match" property="experienceMatch" />
+        <result column="education_match" property="educationMatch" />
+        <result column="potential_match" property="potentialMatch" />
+        <result column="created_at" property="createdAt" />
+        <result column="updated_at" property="updatedAt" />
+    </resultMap>
+
+    <!-- 基础字段 -->
+    <sql id="Base_Column_List">
+        score_id, report_id, total_score, tech_match, experience_match, 
+        education_match, potential_match, created_at, updated_at
+    </sql>
+
+    <!-- 根据报告ID查询评分 -->
+    <select id="selectByReportId" resultMap="BaseResultMap">
+        SELECT 
+        <include refid="Base_Column_List" />
+        FROM resume_scores 
+        WHERE report_id = #{reportId}
+        LIMIT 1
+    </select>
+
+</mapper>
