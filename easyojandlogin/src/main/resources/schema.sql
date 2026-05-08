@@ -342,6 +342,13 @@ ALTER TABLE early_warning_results
     ADD COLUMN IF NOT EXISTS student_viewed TINYINT(1) DEFAULT 0 AFTER handle_remark,
     ADD COLUMN IF NOT EXISTS student_view_time DATETIME AFTER student_viewed;
 
+-- 就业驾驶舱：分级预警与可解释性字段
+ALTER TABLE early_warning_results
+    ADD COLUMN IF NOT EXISTS alert_tier VARCHAR(20) NULL COMMENT 'red/yellow/blue' AFTER student_view_time,
+    ADD COLUMN IF NOT EXISTS alert_source VARCHAR(50) NULL COMMENT 'rule/model/composite/opportunity' AFTER alert_tier,
+    ADD COLUMN IF NOT EXISTS suggested_script TEXT NULL COMMENT '建议话术' AFTER alert_source,
+    ADD COLUMN IF NOT EXISTS analysis_json LONGTEXT NULL COMMENT '雷达维度与证据链JSON' AFTER suggested_script;
+
 
 -- 校企合作申请表
 CREATE TABLE IF NOT EXISTS cooperation_applications (

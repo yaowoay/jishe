@@ -44,6 +44,8 @@ public class SecurityConfig {
                 .antMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
                 // 认证相关路径
                 .antMatchers("/auth/**", "/**/auth/**").permitAll()
+                // ===== 添加就业预警接口白名单 =====
+                .antMatchers("/employment-warning/**").permitAll()
                 // 简历相关路径 - 允许上传
                 .antMatchers("/resume/**", "/resumes/**").permitAll()
                 // DISC测试相关路径

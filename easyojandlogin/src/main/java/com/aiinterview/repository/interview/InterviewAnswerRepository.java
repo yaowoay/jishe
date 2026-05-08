@@ -45,6 +45,11 @@ public interface InterviewAnswerRepository extends BaseMapper<InterviewAnswer> {
      */
     @Select("SELECT COUNT(*) FROM interview_answers WHERE status = 'completed'")
     int countCompletedInterviews();
+
+    @Select("SELECT AVG(CAST(ia.score AS DECIMAL(12,4))) FROM interview_answers ia " +
+            "INNER JOIN applications ap ON ia.application_id = ap.application_id " +
+            "WHERE ap.user_id = #{userId} AND ia.status = 'completed' AND ia.score IS NOT NULL")
+    Double avgScoreByUserId(@Param("userId") Long userId);
     
     /**
      * 删除某个申请的所有面试答案

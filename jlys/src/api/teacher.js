@@ -214,6 +214,13 @@ export function handleEarlyWarning(warningId, data) {
   })
 }
 
+export function quickRemindWarning(warningId) {
+  return request({
+    url: `/teacher/early-warnings/${warningId}/quick-remind`,
+    method: 'post'
+  })
+}
+
 // ==================== 精准帮扶功能 ====================
 
 // 简历指导预约
@@ -382,5 +389,16 @@ export function getAssistanceStatistics() {
   return request({
     url: '/teacher/assistance/statistics',
     method: 'get'
+  })
+    
+    
+}
+
+export function reEvaluateStudent(data) {
+  return request({
+    url: '/employment-warning/re-evaluate',
+    method: 'post',
+    data,
+    timeout: 60000  // 60秒
   })
 }

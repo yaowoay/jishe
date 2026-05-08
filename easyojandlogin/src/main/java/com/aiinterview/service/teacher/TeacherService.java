@@ -7,6 +7,7 @@ import com.aiinterview.model.entity.teacher.AssistanceRecord;
 import com.aiinterview.model.entity.teacher.EmploymentLedger;
 import com.aiinterview.model.entity.student.StudentProfile;
 import com.aiinterview.model.entity.teacher.Teacher;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 
 import java.util.List;
@@ -59,7 +60,7 @@ public interface TeacherService {
     EmploymentStatsDTO getEmploymentStats(Long userId, Long collegeId, Long majorId);
 
     // 预警管理
-    List<EarlyWarningDTO> getEarlyWarnings(Long userId, String warningLevel, String handleStatus);
+    IPage<EarlyWarningDTO> getEarlyWarnings(Long userId, String warningLevel, String handleStatus, String warningType, String alertTier, String major, String keyword, Integer page, Integer size);
 
     EarlyWarningDTO handleEarlyWarning(Long userId, Long warningId, String handleStatus, String handleRemark);
 

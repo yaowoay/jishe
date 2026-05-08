@@ -25,6 +25,7 @@ import com.aiinterview.model.entity.teacher.EmploymentLedger;
 import com.aiinterview.model.entity.teacher.Teacher;
 import com.aiinterview.service.teacher.TeacherService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -35,7 +36,10 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -417,12 +421,76 @@ public class TeacherServiceImpl implements TeacherService {
     }
 
     @Override
-    public List<com.aiinterview.model.dto.teacher.EarlyWarningDTO> getEarlyWarnings(Long userId, String warningLevel, String handleStatus) {
+    public IPage<com.aiinterview.model.dto.teacher.EarlyWarningDTO> getEarlyWarnings(Long userId, String warningLevel, String handleStatus, String warningType, String alertTier, String major, String keyword, Integer page, Integer size) {
+        int pageNum = page == null || page < 1 ? 1 : page;
+        int pageSize = size == null || size < 1 ? 20 : Math.min(size, 100);
+
+        QueryWrapper<com.aiinterview.model.entity.teacher.EarlyWarningResult> queryWrapper = buildEarlyWarningQueryWrapper(warningLevel, handleStatus, warningType, alertTier, major, keyword);
+        if (queryWrapper == null) {
+            Page<com.aiinterview.model.dto.teacher.EarlyWarningDTO> empty = new Page<>(pageNum, pageSize, 0);
+            empty.setRecords(Collections.emptyList());
+            return empty;
+        }
+
+        Page<com.aiinterview.model.entity.teacher.EarlyWarningResult> mpPage = new Page<>(pageNum, pageSize);
+        IPage<com.aiinterview.model.entity.teacher.EarlyWarningResult> entityPage = earlyWarningResultMapper.selectPage(mpPage, queryWrapper);
+        List<com.aiinterview.model.dto.teacher.EarlyWarningDTO> dtos = convertToEarlyWarningDTOList(entityPage.getRecords());
+        Page<com.aiinterview.model.dto.teacher.EarlyWarningDTO> out = new Page<>(entityPage.getCurrent(), entityPage.getSize(), entityPage.getTotal());
+        out.setRecords(dtos);
+        return out;
+    }
+
+    /**
+     * 构建预警查询条件；若已可判定无匹配记录则返回 null。
+     */
+    private QueryWrapper<com.aiinterview.model.entity.teacher.EarlyWarningResult> buildEarlyWarningQueryWrapper(
+            String warningLevel, String handleStatus, String warningType, String alertTier, String major, String keyword) {
+
+        List<Long> studentIdScope = null;
+
+        if (major != null && !major.trim().isEmpty()) {
+            List<StudentProfile> majors = studentProfileMapper.selectList(
+                    new QueryWrapper<StudentProfile>().like("major", major.trim()));
+            List<Long> sids = majors.stream().map(StudentProfile::getStudentId).collect(Collectors.toList());
+            if (sids.isEmpty()) {
+                return null;
+            }
+            studentIdScope = sids;
+        }
+
+        if (keyword != null && !keyword.trim().isEmpty()) {
+            String k = keyword.trim();
+            List<StudentProfile> profiles = studentProfileMapper.selectList(
+                    new QueryWrapper<StudentProfile>().and(w -> w.like("real_name", k).or().like("student_no", k)));
+            List<Long> kwIds = profiles.stream().map(StudentProfile::getStudentId).collect(Collectors.toList());
+            if (kwIds.isEmpty()) {
+                return null;
+            }
+            if (studentIdScope == null) {
+                studentIdScope = kwIds;
+            } else {
+                Set<Long> kwSet = new HashSet<>(kwIds);
+                studentIdScope = studentIdScope.stream().filter(kwSet::contains).collect(Collectors.toList());
+                if (studentIdScope.isEmpty()) {
+                    return null;
+                }
+            }
+        }
+
         QueryWrapper<com.aiinterview.model.entity.teacher.EarlyWarningResult> queryWrapper = new QueryWrapper<>();
 
-        // 添加筛选条件
+        if (studentIdScope != null) {
+            queryWrapper.in("student_id", studentIdScope);
+        }
+
         if (warningLevel != null && !warningLevel.isEmpty()) {
             queryWrapper.eq("warning_level", warningLevel);
+        }
+        if (warningType != null && !warningType.isEmpty()) {
+            queryWrapper.eq("warning_type", warningType);
+        }
+        if (alertTier != null && !alertTier.isEmpty()) {
+            queryWrapper.eq("alert_tier", alertTier);
         }
         if (handleStatus != null && !handleStatus.isEmpty()) {
             if (handleStatus.contains(",")) {
@@ -438,13 +506,9 @@ public class TeacherServiceImpl implements TeacherService {
             }
         }
 
-        // 按检测时间倒序排列
-        queryWrapper.orderByDesc("detection_time");
+        queryWrapper.orderByDesc("warning_score").orderByDesc("detection_time");
 
-        List<com.aiinterview.model.entity.teacher.EarlyWarningResult> results = earlyWarningResultMapper.selectList(queryWrapper);
-
-        // 转换为 DTO
-        return convertToEarlyWarningDTOList(results);
+        return queryWrapper;
     }
 
     @Override
@@ -571,6 +635,19 @@ public class TeacherServiceImpl implements TeacherService {
         );
         stats.put("resolvedWarnings", resolvedWarnings);
 
+        long ignoredWarnings = earlyWarningResultMapper.selectCount(
+            new QueryWrapper<com.aiinterview.model.entity.teacher.EarlyWarningResult>()
+                .eq("handle_status", "ignored")
+        );
+        stats.put("ignoredWarnings", ignoredWarnings);
+
+        java.util.Map<String, Long> handleStatusStats = new java.util.HashMap<>();
+        handleStatusStats.put("pending", pendingWarnings);
+        handleStatusStats.put("processing", processingWarnings);
+        handleStatusStats.put("resolved", resolvedWarnings);
+        handleStatusStats.put("ignored", ignoredWarnings);
+        stats.put("handleStatusStats", handleStatusStats);
+
         // 按预警等级统计
         java.util.Map<String, Long> levelStats = new java.util.HashMap<>();
         levelStats.put("low", earlyWarningResultMapper.selectCount(
@@ -609,7 +686,38 @@ public class TeacherServiceImpl implements TeacherService {
             new QueryWrapper<com.aiinterview.model.entity.teacher.EarlyWarningResult>()
                 .eq("warning_type", "resume")
         ));
+        typeStats.put("cockpit", earlyWarningResultMapper.selectCount(
+            new QueryWrapper<com.aiinterview.model.entity.teacher.EarlyWarningResult>()
+                .eq("warning_type", "cockpit")
+        ));
         stats.put("typeStats", typeStats);
+
+        java.util.Map<String, Long> cockpitTierStats = new java.util.HashMap<>();
+        cockpitTierStats.put("red", earlyWarningResultMapper.selectCount(
+            new QueryWrapper<com.aiinterview.model.entity.teacher.EarlyWarningResult>()
+                .eq("warning_type", "cockpit")
+                .eq("alert_tier", "red")));
+        cockpitTierStats.put("yellow", earlyWarningResultMapper.selectCount(
+            new QueryWrapper<com.aiinterview.model.entity.teacher.EarlyWarningResult>()
+                .eq("warning_type", "cockpit")
+                .eq("alert_tier", "yellow")));
+        cockpitTierStats.put("blue", earlyWarningResultMapper.selectCount(
+            new QueryWrapper<com.aiinterview.model.entity.teacher.EarlyWarningResult>()
+                .eq("warning_type", "cockpit")
+                .eq("alert_tier", "blue")));
+        stats.put("cockpitTierStats", cockpitTierStats);
+
+        long cockpitAttention = earlyWarningResultMapper.selectCount(
+            new QueryWrapper<com.aiinterview.model.entity.teacher.EarlyWarningResult>()
+                .eq("warning_type", "cockpit")
+                .in("handle_status", "pending", "processing"));
+        stats.put("cockpitAttentionTotal", cockpitAttention);
+
+        long cr = cockpitTierStats.getOrDefault("red", 0L);
+        long cy = cockpitTierStats.getOrDefault("yellow", 0L);
+        long sumTier = cr + cy + cockpitTierStats.getOrDefault("blue", 0L);
+        int healthIdx = sumTier == 0 ? 100 : (int) Math.max(0, Math.min(100, 100 - cr * 8 - cy * 3));
+        stats.put("employmentHealthIndex", healthIdx);
 
         return stats;
     }

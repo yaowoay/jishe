@@ -9,6 +9,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -55,4 +56,13 @@ public interface ApplicationMapper extends BaseMapper<Application> {
             "INNER JOIN jobs j ON a.job_id = j.job_id " +
             "WHERE a.application_id = #{applicationId} AND j.company_id = #{companyId}")
     Integer countApplicationByCompany(@Param("applicationId") Long applicationId, @Param("companyId") Long companyId);
+
+    @Select("SELECT COUNT(*) FROM applications WHERE user_id = #{userId} AND apply_time >= #{since}")
+    Long countApplicationsSince(@Param("userId") Long userId, @Param("since") LocalDateTime since);
+
+    @Select("SELECT COUNT(*) FROM applications WHERE user_id = #{userId} AND status = 'rejected' AND interview_time IS NOT NULL")
+    Long countRejectedAfterInterview(@Param("userId") Long userId);
+
+    @Select("SELECT COUNT(*) FROM applications WHERE user_id = #{userId} AND status = 'accepted' AND apply_time >= #{since}")
+    Long countAcceptedSince(@Param("userId") Long userId, @Param("since") LocalDateTime since);
 }

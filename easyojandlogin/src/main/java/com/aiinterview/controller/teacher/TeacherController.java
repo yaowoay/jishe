@@ -1,5 +1,7 @@
 package com.aiinterview.controller.teacher;
 
+import com.aiinterview.common.BaseResponse;
+import com.aiinterview.common.ResultUtils;
 import com.aiinterview.model.dto.api.ApiResponse;
 import com.aiinterview.model.dto.teacher.AssistanceRecordDTO;
 import com.aiinterview.model.dto.teacher.EmploymentAuditDTO;
@@ -16,6 +18,7 @@ import com.aiinterview.model.entity.teacher.EmploymentLedger;
 import com.aiinterview.model.entity.teacher.MockInterviewAppointment;
 import com.aiinterview.model.entity.teacher.ResumeGuidanceAppointment;
 import com.aiinterview.model.entity.student.StudentProfile;
+import com.aiinterview.service.EmploymentCockpitScanService;
 import com.aiinterview.service.teacher.AssistanceService;
 import com.aiinterview.service.teacher.TeacherService;
 import com.aiinterview.utils.JwtUtils;
@@ -23,6 +26,7 @@ import com.aiinterview.config.FileUploadConfig;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -56,6 +60,8 @@ public class TeacherController {
     private final JwtUtils jwtUtils;
     private final FileUploadConfig fileUploadConfig;
 
+    @Autowired
+    private EmploymentCockpitScanService cockpitScanService;
 
     @GetMapping("/test")
     public ApiResponse<String> test() {
@@ -176,6 +182,11 @@ public class TeacherController {
             log.error("获取职位列表失败: {}", e.getMessage());
             return ApiResponse.error(e.getMessage());
         }
+    }
+    @PostMapping("/scan-all")
+    public BaseResponse scanAll() {
+        cockpitScanService.scanRecentActiveStudents(); // 只用增量扫描
+        return ResultUtils.success("增量扫描完成");
     }
 
     @PostMapping("/jobs/{jobId}/audit")
@@ -367,13 +378,19 @@ public class TeacherController {
     }
 
     @GetMapping("/early-warnings")
-    public ApiResponse<List<com.aiinterview.model.dto.teacher.EarlyWarningDTO>> getEarlyWarnings(
+    public ApiResponse<com.baomidou.mybatisplus.core.metadata.IPage<com.aiinterview.model.dto.teacher.EarlyWarningDTO>> getEarlyWarnings(
             @RequestParam(required = false) String warningLevel,
             @RequestParam(required = false) String handleStatus,
+            @RequestParam(required = false) String warningType,
+            @RequestParam(required = false) String alertTier,
+            @RequestParam(required = false) String major,
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false, defaultValue = "1") Integer page,
+            @RequestParam(required = false, defaultValue = "20") Integer size,
             HttpServletRequest request) {
         try {
             Long userId = getTeacherUserId(request);
-            return ApiResponse.success("获取成功", teacherService.getEarlyWarnings(userId, warningLevel, handleStatus));
+            return ApiResponse.success("获取成功", teacherService.getEarlyWarnings(userId, warningLevel, handleStatus, warningType, alertTier, major, keyword, page, size));
         } catch (Exception e) {
             log.error("获取预警列表失败: {}", e.getMessage());
             return ApiResponse.error(e.getMessage());
@@ -402,6 +419,21 @@ public class TeacherController {
             return ApiResponse.success("处理成功", teacherService.handleEarlyWarning(userId, warningId, handleStatus, handleRemark));
         } catch (Exception e) {
             log.error("处理预警失败: {}", e.getMessage());
+            return ApiResponse.error(e.getMessage());
+        }
+    }
+
+    /**
+     * 一键提醒（占位）：后续可对接站内信/短信；当前仅校验权限并返回成功。
+     */
+    @PostMapping("/early-warnings/{warningId}/quick-remind")
+    public ApiResponse<Void> quickRemindStudent(@PathVariable Long warningId, HttpServletRequest request) {
+        try {
+            getTeacherUserId(request);
+            teacherService.getEarlyWarningDetail(warningId);
+            return ApiResponse.success("已记录提醒请求（待对接消息通道）", null);
+        } catch (Exception e) {
+            log.error("一键提醒失败: {}", e.getMessage());
             return ApiResponse.error(e.getMessage());
         }
     }

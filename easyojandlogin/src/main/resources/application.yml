@@ -143,6 +143,17 @@ jwt:
   expiration: 86400000 # 24小时
   refresh-expiration: 604800000 # 7天
 
+
+# 就业预警模型配置
+employment:
+  warning:
+    python:
+      service:
+        url: http://localhost:5001  # 就业预警专用端口，避免与视频分析冲突
+        timeout: 30000  # 30秒超时
+        retry-count: 2
+        retry-delay: 3000  # 重试间隔3秒
+
 # 文件上传配置
 file:
   upload:

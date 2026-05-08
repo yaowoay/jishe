@@ -52,6 +52,16 @@ api.interceptors.response.use(
       return Promise.reject(new Error(res.message || '请求失败'))
     }
 
+    // BaseResponse 等：无 success 字段，仅用 code 表示成败（如 /employment-warning/re-evaluate 曾如此）
+    if (typeof res.success !== 'boolean' && res.code !== undefined && res.code !== 0 && res.code !== 200) {
+      ElMessage.error(res.message || '请求失败')
+      if (res.code === 401) {
+        store.dispatch('logout')
+        router.push('/login')
+      }
+      return Promise.reject(new Error(res.message || '请求失败'))
+    }
+
     return res
   },
   error => {

@@ -48,6 +48,15 @@ public class EarlyWarningDTO {
 
     private LocalDateTime studentViewTime;
 
+    /** 驾驶舱分级：red / yellow / blue */
+    private String alertTier;
+
+    private String alertSource;
+
+    private String suggestedScript;
+
+    private String analysisJson;
+
     private String studentResponse;
 
     private LocalDateTime createdAt;

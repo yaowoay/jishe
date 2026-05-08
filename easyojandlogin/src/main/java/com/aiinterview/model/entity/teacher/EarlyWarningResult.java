@@ -63,6 +63,18 @@ public class EarlyWarningResult {
     @TableField("student_view_time")
     private LocalDateTime studentViewTime;
 
+    @TableField("alert_tier")
+    private String alertTier;
+
+    @TableField("alert_source")
+    private String alertSource;
+
+    @TableField("suggested_script")
+    private String suggestedScript;
+
+    @TableField("analysis_json")
+    private String analysisJson;
+
 //    @TableField("student_response")
 //    private String studentResponse;
 
