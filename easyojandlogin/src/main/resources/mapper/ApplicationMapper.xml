@@ -61,7 +61,7 @@
         <result column="job_type" property="jobType"/>
         <result column="job_location" property="jobLocation"/>
         <result column="job_description" property="jobDescription"/>
-        <result column="job_requirements" property="jobRequirements"/>
+<!--        <result column="job_requirements" property="jobRequirements"/>-->
         <result column="experience_requirement" property="experienceRequirement"/>
         <result column="education_requirement" property="educationRequirement"/>
         <result column="job_skills" property="jobSkills"/>
@@ -153,8 +153,7 @@
             j.title as job_title,
             j.job_type,
             j.location as job_location,
-            j.job_duty as job_description,
-            j.job_requirements as job_requirements,
+            j.job_description  as job_description,
             j.experience_requirement,
             j.education_requirement,
             j.job_skills,
@@ -207,8 +206,7 @@
             j.title as job_title,
             j.job_type,
             j.location as job_location,
-            j.job_duty as job_description,
-            j.job_requirements as job_requirements,
+            j.job_description as job_description,
             j.experience_requirement,
             j.education_requirement,
             j.job_skills,

@@ -23,7 +23,7 @@ public class JobSearchDTO implements Serializable {
     private String positionName;           // 职位名称 (对应 jobs.title)
     private String jobType;                // 职位类型 (全职/兼职/实习)
     private String jobDescription;         // 职位描述 (对应 jobs.job_duty)
-    private String jobRequirements;        // 职位要求 (对应 jobs.job_requirements)
+//    private String jobRequirements;        // 职位要求 (对应 jobs.job_requirements)
     private Integer minSalary;             // 最低薪资
     private Integer maxSalary;             // 最高薪资
     private Integer avgSalary;             // 平均薪资

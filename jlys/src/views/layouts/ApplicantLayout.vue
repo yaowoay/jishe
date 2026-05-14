@@ -194,7 +194,12 @@
       <el-container>
         <!-- 顶部导航 -->
         <el-header class="header">
-          <div class="header-left"></div>
+          <div class="header-left">
+            <div class="logo-section">
+              <div class="logo-title">数智通途</div>
+              <div class="logo-subtitle">大数据洞察与 AI 多模态面试融合的校园就业智配平台</div>
+            </div>
+          </div>
           <div class="header-right">
             <div class="header-actions">
               <el-tooltip content="通知" placement="bottom">
@@ -247,12 +252,12 @@
 
     <!-- Coze 弹窗 -->
     <el-dialog
-      v-model="assistantDialogVisible"
-      width="1200px"
-      top="12vh"
-      :close-on-click-modal="false"
-      :destroy-on-close="true"
-      class="coze-dialog"
+        v-model="assistantDialogVisible"
+        width="1200px"
+        top="12vh"
+        :close-on-click-modal="false"
+        :destroy-on-close="true"
+        class="coze-dialog"
     >
       <template #title>
         <span>高校学生就业能力智配平台AI助手</span>
@@ -582,12 +587,8 @@ export default {
 .header {
   height: 60px;
   padding: 8px 20px;   /* ✅ 上下左右都留间距 */
-
-  background-image: url('../../assets/img.png');
-  background-repeat: no-repeat;
-  background-position: left center;
-  background-size: contain;   /* ✅ 不铺满，等比缩放 */
-
+  /* 删除背景图片相关样式 */
+  background: #ffffff;
   border-bottom: 1px solid #e4e7eb;
   display: flex;
   justify-content: space-between;
@@ -597,6 +598,30 @@ export default {
 .header-left {
   display: flex;
   align-items: center;
+}
+
+.logo-section {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.logo-title {
+  font-size: 20px;
+  font-weight: 700;
+  background: linear-gradient(135deg, #1a6fc4 0%, #0d4a89 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  letter-spacing: 1px;
+}
+
+.logo-subtitle {
+  font-size: 18px;
+  color: #5a84b3;
+  font-weight: 500;
+  margin-top: 2px;
+  white-space: nowrap;
 }
 
 .page-title h2 {
@@ -784,6 +809,14 @@ export default {
 
   .header {
     padding: 0 16px;
+  }
+
+  .logo-subtitle {
+    display: none; /* 在小屏幕上隐藏副标题，保持简洁 */
+  }
+
+  .logo-title {
+    font-size: 16px;
   }
 
   .page-title h2 {

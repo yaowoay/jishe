@@ -558,8 +558,8 @@ export default {
           const outputs = result.data.data.outputs
 
           // 更新表单数据
-          if (outputs.job_duty && Array.isArray(outputs.job_duty)) {
-            jobForm.description = outputs.job_duty.join('\n')
+          if (outputs.job_description && Array.isArray(outputs.job_description)) {
+            jobForm.description = outputs.job_description.join('\n')
           }
 
           if (outputs.job_requirement && Array.isArray(outputs.job_requirement)) {

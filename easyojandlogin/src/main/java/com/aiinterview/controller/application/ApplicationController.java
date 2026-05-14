@@ -344,9 +344,7 @@ public class ApplicationController {
             jdBuilder.append("岗位职责: ").append(job.getDescription()).append("\n");
         }
 
-        if (job.getRequirements() != null && !job.getRequirements().trim().isEmpty()) {
-            jdBuilder.append("岗位要求: ").append(job.getRequirements()).append("\n");
-        }
+
 
         if (job.getSkills() != null && !job.getSkills().trim().isEmpty()) {
             jdBuilder.append("职位技能: ").append(job.getSkills()).append("\n");

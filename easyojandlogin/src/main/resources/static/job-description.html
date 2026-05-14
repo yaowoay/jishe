@@ -424,8 +424,8 @@
             }
 
             // 填充职位职责
-            if (data.outputs && data.outputs.job_duty) {
-                data.outputs.job_duty.forEach(duty => {
+            if (data.outputs && data.outputs.job_description) {
+                data.outputs.job_description.forEach(duty => {
                     const li = document.createElement('li');
                     li.textContent = duty;
                     jobDutyList.appendChild(li);

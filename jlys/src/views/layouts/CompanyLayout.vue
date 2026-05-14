@@ -79,8 +79,12 @@
       <el-container>
         <!-- 顶部导航 -->
         <el-header class="header">
-          <div class="header-left"></div>
-
+          <div class="header-left">
+            <div class="logo-section">
+              <div class="logo-title">数智通途</div>
+              <div class="logo-subtitle">大数据洞察与 AI 多模态面试融合的校园就业智配平台</div>
+            </div>
+          </div>
           <div class="header-right">
             <div class="header-actions">
               <el-tooltip content="通知" placement="bottom">
@@ -397,11 +401,11 @@ export default {
   height: 60px;
   padding: 8px 20px;   /* ✅ 上下左右都留间距 */
 
-  background-image: url('../../assets/img.png');
+  /*background-image: url('../../assets/img.png');
   background-repeat: no-repeat;
   background-position: left center;
-  background-size: contain;   /* ✅ 不铺满，等比缩放 */
-
+  background-size: contain;   !* ✅ 不铺满，等比缩放 *!
+*/
   border-bottom: 1px solid #e4e7eb;
   display: flex;
   justify-content: space-between;
@@ -411,6 +415,30 @@ export default {
 .header-left {
   display: flex;
   align-items: center;
+}
+
+.logo-section {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.logo-title {
+  font-size: 20px;
+  font-weight: 700;
+  background: linear-gradient(135deg, #1a6fc4 0%, #0d4a89 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  letter-spacing: 1px;
+}
+
+.logo-subtitle {
+  font-size: 18px;  /* 副标题字号，可调整 */
+  color: #5a84b3;
+  font-weight: 500;
+  margin-top: 2px;
+  white-space: nowrap;
 }
 
 .page-title h2 {
@@ -523,7 +551,13 @@ export default {
   }
 
   .header {
-    padding: 0 16px;
+    height: 60px;
+    padding: 8px 20px;
+    background: #ffffff;  /* 纯白背景，不再使用图片 */
+    border-bottom: 1px solid #e4e7eb;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
   }
 
   .page-title h2 {

@@ -24,7 +24,7 @@ public class JobDetailDTO implements Serializable {
     private String title;                  // 职位名称
     private String jobType;                // 职位类型 (全职/兼职/实习)
     private String description;            // 岗位职责 (对应 job_duty)
-    private String requirements;           // 岗位要求 (对应 job_requirements)
+//    private String requirements;           // 岗位要求 (对应 job_requirements)
     private String experience;             // 经验要求
     private String education;              // 学历要求
     private String skills;                 // 职位技能

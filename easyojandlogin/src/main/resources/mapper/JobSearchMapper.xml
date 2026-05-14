@@ -8,8 +8,7 @@
         <id column="job_id" property="jobId"/>
         <result column="title" property="positionName"/>
         <result column="job_type" property="jobType"/>
-        <result column="job_duty" property="jobDescription"/>
-        <result column="job_requirements" property="jobRequirements"/>
+        <result column="job_description" property="jobDescription"/>
         <result column="min_salary" property="minSalary"/>
         <result column="max_salary" property="maxSalary"/>
         <result column="avg_salary" property="avgSalary"/>
@@ -60,8 +59,7 @@
             j.job_id,
             j.title,
             j.job_type,
-            j.job_duty,
-            j.job_requirements,
+            j.job_description,
             j.min_salary,
             j.max_salary,
             j.avg_salary,
@@ -98,8 +96,7 @@
             j.job_id AS jobId,
             j.title,
             j.job_type AS jobType,
-            j.job_duty AS description,
-            j.job_requirements AS requirements,
+            j.job_description AS description,
             j.experience_requirement AS experience,
             j.education_requirement AS education,
             j.job_skills AS skills,
@@ -137,8 +134,7 @@
             j.job_id,
             j.title,
             j.job_type,
-            j.job_duty,
-            j.job_requirements,
+            j.job_description,
             j.min_salary,
             j.max_salary,
             j.avg_salary,
@@ -166,8 +162,8 @@
         <if test="keyword != null and keyword != ''">
             AND (j.title LIKE CONCAT('%', #{keyword}, '%')
                  OR c.company_name LIKE CONCAT('%', #{keyword}, '%')
-                 OR j.job_duty LIKE CONCAT('%', #{keyword}, '%')
-                 OR j.job_requirements LIKE CONCAT('%', #{keyword}, '%'))
+                 OR j.job_description LIKE CONCAT('%', #{keyword}, '%')
+               )
         </if>
         <if test="city != null and city != ''">
             AND j.city = #{city}
@@ -213,8 +209,8 @@
         <if test="keyword != null and keyword != ''">
             AND (j.title LIKE CONCAT('%', #{keyword}, '%')
                  OR c.company_name LIKE CONCAT('%', #{keyword}, '%')
-                 OR j.job_duty LIKE CONCAT('%', #{keyword}, '%')
-                 OR j.job_requirements LIKE CONCAT('%', #{keyword}, '%'))
+                 OR j.job_description LIKE CONCAT('%', #{keyword}, '%')
+                 )
         </if>
         <if test="city != null and city != ''">
             AND j.city = #{city}

@@ -145,7 +145,12 @@
       <el-container class="main-container">
         <!-- 顶部导航 -->
         <el-header class="header">
-          <div class="header-left"></div>
+          <div class="header-left">
+            <div class="logo-section">
+              <div class="logo-title">数智通途</div>
+              <div class="logo-subtitle">大数据洞察与 AI 多模态面试融合的校园就业智配平台</div>
+            </div>
+          </div>
           <div class="header-right">
             <el-dropdown @command="handleCommand">
               <span class="el-dropdown-link">
@@ -179,7 +184,7 @@ import { ElMessage } from 'element-plus'
 import {
   User, House, Document, FolderOpened, Edit, Upload, DataAnalysis,
   Promotion, Setting, ArrowDown, Briefcase, DocumentCopy,
-  Building, Calendar, Plus, Help, Share, Warning
+  Building, Calendar, Plus, Help, Share, Warning, OfficeBuilding
 } from '@element-plus/icons-vue'
 
 const router = useRouter()
@@ -196,7 +201,6 @@ const showSidebar = () => {
 const hideSidebar = () => {
   isSidebarVisible.value = false
 }
-
 
 const goToProfile = () => {
   router.push('/teacher/profile')
@@ -317,64 +321,76 @@ onMounted(() => {
     display: flex;
     flex-direction: column;
 
+    .header {
+      height: 60px;
+      padding: 8px 20px;
+      background: #ffffff;
+      border-bottom: 1px solid #e4e7eb;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
 
-      .header {
-        height: 60px;
-        padding: 8px 20px;   /* ✅ 上下左右都留间距 */
+    .header-left {
+      display: flex;
+      align-items: center;
+    }
 
-        background-image: url('../../assets/img.png');
-        background-repeat: no-repeat;
-        background-position: left center;
-        background-size: contain;   /* ✅ 不铺满，等比缩放 */
+    .logo-section {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
 
-        border-bottom: 1px solid #e4e7eb;
+    .logo-title {
+      font-size: 20px;
+      font-weight: 700;
+      background: linear-gradient(135deg, #1a6fc4 0%, #0d4a89 100%);
+      background-clip: text;
+      -webkit-background-clip: text;
+      color: transparent;
+      letter-spacing: 1px;
+    }
+
+    .logo-subtitle {
+      font-size: 18px;
+      color: #5a84b3;
+      font-weight: 500;
+      margin-top: 2px;
+      white-space: nowrap;
+    }
+
+    .header-right {
+      .el-dropdown-link {
+        cursor: pointer;
+        color: #409eff;
         display: flex;
-        justify-content: space-between;
         align-items: center;
-      }
+        gap: 4px;
 
-    //  .header-left {
-    //    display: flex;
-    //    align-items: center;
-    //    gap: 16px;
-    //
-    //    .menu-toggle {
-    //      cursor: pointer;
-    //      font-size: 20px;
-    //      color: #333;
-    //
-    //      &:hover {
-    //        color: #409eff;
-    //      }
-    //    }
-    //
-    //    .system-title {
-    //      font-size: 16px;
-    //      font-weight: 600;
-    //      color: #333;
-    //    }
-    //  }
-    //
-    //  .header-right {
-    //    .el-dropdown-link {
-    //      cursor: pointer;
-    //      color: #409eff;
-    //      display: flex;
-    //      align-items: center;
-    //      gap: 4px;
-    //
-    //      &:hover {
-    //        color: #66b1ff;
-    //      }
-    //    }
-    //  }
-    //}
+        &:hover {
+          color: #66b1ff;
+        }
+      }
+    }
 
     .main-content {
       flex: 1;
       overflow-y: auto;
       background-color: #f5f7fa;
       padding: 20px;
+    }
+  }
+}
+
+/* 响应式 */
+@media (max-width: 768px) {
+  .main-container {
+    .logo-subtitle {
+      display: none;
+    }
+    .logo-title {
+      font-size: 16px;
     }
   }
 }

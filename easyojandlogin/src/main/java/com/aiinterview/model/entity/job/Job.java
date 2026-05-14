@@ -27,11 +27,9 @@ public class Job {
     @TableField("job_type")
     private String jobType; // '全职', '兼职', '实习'
     
-    @TableField("job_duty")
+    @TableField("job_description")
     private String description; // 岗位职责
 
-    @TableField("job_requirements")
-    private String requirements; // 岗位要求
 
     @TableField("experience_requirement")
     private String experience; // 经验要求
